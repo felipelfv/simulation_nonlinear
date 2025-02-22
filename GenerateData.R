@@ -270,7 +270,7 @@ GenerateData <- function(model,
     THETA[, inds] <- if(distr.epsilon == "normal") {
       matrix(rnorm(N * length(inds), 0, sqrt(t_var_ind)), N, length(inds))
     } else {
-      matrix(rexp(N * length(inds), rate = 1/sqrt(t_var_ind)) - 1, N, length(inds))
+      matrix(rexp(N * length(inds), rate = 1/sqrt(t_var_ind)) - sqrt(t_var_ind), N, length(inds))
     }
   }
   
