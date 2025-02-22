@@ -3,7 +3,7 @@ library(foreach)
 library(doParallel)
 
 # Other scripts needed
-source("GenerateData_yr.R")
+source("GenerateData.R")
 source("Method.analytic.R")
 source("Method.uca.R")
 source("Method.sam.R")
