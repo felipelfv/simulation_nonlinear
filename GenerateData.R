@@ -3,6 +3,7 @@ GenerateData <- function(model,
                          skewness = NULL,
                          excesskurtosis = NULL,
                          exo.mean = NULL,
+                         distr.exo = NULL,
                          distr.zeta = "normal",
                          distr.epsilon = "normal",
                          center.exogenous.latent = TRUE,
@@ -118,7 +119,7 @@ GenerateData <- function(model,
     }
   }
   
-  if(dist_exo == "unif") {
+  if(distr.exo == "unif") {
     # For uniform distribution as in GAPI article
     Z <- MASS::mvrnorm(N, mu = rep(0, ncol(exo.vcov)), Sigma = exo.vcov)
     EXO <- matrix(NA, nrow = N, ncol = ncol(exo.vcov)) 
