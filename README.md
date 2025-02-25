@@ -6,3 +6,17 @@ Repository for the first article of my PhD: A simulation study comparing
 structural-after-measurement versus traditional approaches 
 to estimate nonlinear effects in structural equation modeling
 
+# Functions
+
+## GenerateData.R
+
+This script contains the function that will parse the model information (in lavaan syntax) 
+and generate data based on some user-specified arguments.
+
+## Method.R
+
+These files contain functions dedicated for the estimation based on the different approaches. 
+
+## Models.R
+
+This file contains all the models specified in lavaan syntax that are passed to GenerateData.
