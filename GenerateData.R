@@ -1,6 +1,5 @@
 GenerateData <- function(model, 
                          N = 1000L,
-                         #exo.vcov = NULL,
                          skewness = NULL,
                          excesskurtosis = NULL,
                          exo.mean = NULL,
