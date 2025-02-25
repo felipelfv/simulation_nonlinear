@@ -118,8 +118,24 @@ GenerateData <- function(model,
     }
   }
   
+  if(dist_exo == "unif") {
+    # For uniform distribution as in GAPI article
+    Z <- MASS::mvrnorm(N, mu = rep(0, ncol(exo.vcov)), Sigma = exo.vcov)
+    EXO <- matrix(NA, nrow = N, ncol = ncol(exo.vcov)) 
+    # Transform into an uniform distribution:
+    for(j in 1:ncol(exo.vcov)) {
+      EXO[, j] <- pnorm(Z[, j])  # Now uniform on (0,1)
+      # Scale to have the correct variance
+      sd_desired <- sqrt(exo.vcov[j,j])
+      range_needed <- sqrt(12) * sd_desired
+      # Recenter to have mean 0
+      EXO[, j] <- (EXO[, j] - 0.5) * range_needed
+    }
+  } else {
   EXO <- covsim::rIG(N, sigma = exo.vcov, skewness = skewness, 
                      excesskurtosis = excesskurtosis)[[1]] # Correlations are as given now!
+  }
+  
   colnames(EXO) <- exo_vars
   
   # Would we ever center one and not the other? I believe rarely but I have both options 
