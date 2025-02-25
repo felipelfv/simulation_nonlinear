@@ -14,17 +14,25 @@ conditions_interaction <- expand.grid(
   pop_model      = c("population.linear.model", "population.interaction.model"),
   analysis_model = "fit.interaction.model",
   distribution   = c("normal", "nonnormal"),
+  exo_method     = c("rIG", "unif"),  # New factor for exogenous generation method
   stringsAsFactors = FALSE
 )
+
 conditions_full <- expand.grid(
   pop_model      = c("population.linear.model", "population.full.model"),
   analysis_model = "fit.full.model", 
   distribution   = c("normal", "nonnormal"),
+  exo_method     = c("rIG", "unif"),  # New factor for exogenous generation method
   stringsAsFactors = FALSE
 )
-conditions <- rbind(conditions_interaction, conditions_full)
-conditions$epsilon <- ifelse(conditions$distribution == "normal", "normal", "exp.rate1")
 
+conditions <- rbind(conditions_interaction, conditions_full)
+
+# Remove invalid combinations:
+# If distribution is "normal", exo_method should only be "rIG"
+conditions <- conditions[!(conditions$distribution == "normal" & conditions$exo_method == "unif"), ]
+# Add epsilon distribution based on the distribution factor
+conditions$epsilon <- ifelse(conditions$distribution == "normal", "normal", "exp.rate1")
 
 # Setup parallel backend
 n_cores <- detectCores() - 2 # 8 in total, we use 6; change this when using the semlab pc
@@ -40,7 +48,7 @@ exo.mean <- rep(0,2)
 rel = 0.80 # Later this should vary: 0.2, 0.6, 0.8 
 target.var <- list("eta3" = 1.0)
 R2 <- list("eta3" = 0.20)
-rep <- 25
+rep <- 3
 
 start_time <- Sys.time()
 all_results <- list()
@@ -89,6 +97,7 @@ for(cond in 1:nrow(conditions)) { #
                          skewness = skewness,
                          excesskurtosis = excesskurtosis,
                          exo.mean = exo.mean,
+                         distr.exo = conditions$exo_method[cond],
                          distr.zeta = "normal",
                          distr.epsilon = conditions$epsilon[cond],
                          rel = rel,
