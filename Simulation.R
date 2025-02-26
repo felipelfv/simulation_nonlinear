@@ -4,9 +4,7 @@ library(doParallel)
 
 # Other scripts needed
 source("GenerateData.R")
-source("Method.analytic.R")
-source("Method.uca.R")
-source("Method.sam.R")
+source("Methods.R")
 source("Models.R")
 
 # Conditions as in Brand et al. (2014) - not fully factorial
