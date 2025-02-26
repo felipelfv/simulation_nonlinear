@@ -44,6 +44,7 @@ method_uca <- function(Data = NULL, model.fit = NULL)
 method_sam <- function(Data = NULL, estimator = "ML",
                        joint = FALSE, add.attr = FALSE, 
                        model.fit = NULL)
+                       
 method_analytic <- function(Data = NULL, model.fit = NULL, 
                             standardized = FALSE, method = "lms")
 ```
