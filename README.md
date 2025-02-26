@@ -13,10 +13,18 @@ to estimate nonlinear effects in structural equation modeling
 This script contains the function that will parse the model information (in lavaan syntax) 
 and generate data based on some user-specified arguments.
 
-## Method.R
+## Methods.R
 
-These files contain functions dedicated for the estimation based on the different approaches. 
+This file contains the functions dedicated for the estimation based on the different approaches. 
 
 ## Models.R
 
-This file contains all the models specified in lavaan syntax that are passed to GenerateData.
+This file contains all the models specified in lavaan syntax that are passed to GenerateData() in GenerateData.R
+
+## Design.R
+
+This file contains the parameters that we vary in the simulation study.
+
+## Simulation.R
+
+This file contains the actual script for running the simulation. Importantly, this script is dependent on the abovementioned. 
