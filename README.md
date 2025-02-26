@@ -13,9 +13,40 @@ to estimate nonlinear effects in structural equation modeling
 This script contains the function that will parse the model information (in lavaan syntax) 
 and generate data based on some user-specified arguments.
 
+```{r}
+GenerateData <- function(model,
+                         N = 1000L,
+                         skewness = NULL,
+                         excesskurtosis = NULL,
+                         exo.mean = NULL,
+                         distr.exo = "rIG",
+                         distr.zeta = "normal",
+                         distr.epsilon = "normal",
+                         center.exogenous.latent = TRUE,
+                         center.exogenous.manifest = TRUE,
+                         center.lv.dependent = FALSE,
+                         center.lv.prod = FALSE,
+                         center.indicators = FALSE,
+                         target.var = NULL,
+                         R2 = NULL,
+                         rel = 0.64,
+                         seed = NULL,
+                         add.eta = FALSE)
+```
+
 ## Methods.R
 
 This file contains the functions dedicated for the estimation based on the different approaches. 
+
+```{r}
+method_uca <- function(Data = NULL, model.fit = NULL)
+
+method_sam <- function(Data = NULL, estimator = "ML",
+                       joint = FALSE, add.attr = FALSE, 
+                       model.fit = NULL)
+method_analytic <- function(Data = NULL, model.fit = NULL, 
+                            standardized = FALSE, method = "lms")
+```
 
 ## Models.R
 
