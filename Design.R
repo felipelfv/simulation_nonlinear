@@ -3,32 +3,63 @@
 # In this function, I have all the parameters (and variations) that are called
 # in the Simulation.R script. This file needs to be sourced.
 
+# Importantly, this script creates more conditions than necessary (or needed).
+# The objective here was simply to have a general version (at the expense of 
+# having something parsimonious)
+
+# Possible source of confusion:
+# The "latent_exo_distribution" refers to generating the exogenous latent variable
+# as a normally distributed random variable or nonnormal. However, we have 
+# two ways of generating nonnormal latent variables: (i) with skewness and kurtosis 
+# passed to the rIG() function, and (ii) uniformly distributed (as in GAPI). 
+# This is the reason for having "exo_methods", to differentiate both nonnormal 
+# scenarios.Importantly, is that rIG() is also used to generate normal variable 
+# as well, given the values for skewness and kurtosis. 
+
 #### 2. Design ####
 
-N <- c(400L, 600L, 800L) # For the different sample sizes (i.e., dataset size)
-RELIABILITY <- c(0.2, 0.6, 0.8) # For the indicators (i.e., measurement model)
+# Parameters that we vary in the simulation study
+sample_sizes <- c(200L, 500L, 800L)
+reliability_values <- c(0.2, 0.6, 0.8)
+population_models <- c("population.linear.model", "population.interaction.model", "population.full.model")
+latent_exo_distribution <- c("normal", "nonnormal")
+exo_methods <- c("rIG", "unif")
+epsilon_distributions <- c("normal", "exp.rate1") # Define epsilon separately
 
-# Conditions as in Brand et al. (2014) - not fully factorial
-Conditions <- expand.grid(
-  POPULATION      = c("population.linear.model", "population.interaction.model", "population.full.model"),
-  DISTRIBUTION   = c("normal", "nonnormal"),
-  EXO_METHOD     = c("rIG", "unif"),  # Factor for exogenous generation method
-  N              = N,
-  REL            = RELIABILITY,
-  stringsAsFactors = FALSE
+create_conditions <- function(sample_sizes, reliability_values,
+                              population_models, latent_exo_distribution, 
+                              exo_methods, epsilon_distributions) {
+  # Full factorial design 
+  # Note: as of now (03/03/25) this might be more information than actually used
+  Conditions <- expand.grid(
+    Population = population_models,
+    Distribution = latent_exo_distribution,
+    Exo_method = exo_methods,
+    Epsilon = epsilon_distributions,
+    N = sample_sizes,
+    Rel = reliability_values,
+    stringsAsFactors = FALSE
+  )
+  
+  # Based in brandt et al. combinations
+  Conditions$Analysis_model <- ifelse(
+    Conditions$Population == "population.full.model",
+    "fit.full.model",
+    "fit.interaction.model"
+  )
+  
+  # Invalid combinations:
+  valid_rows <- !(Conditions$Distribution == "normal" & Conditions$Exo_method == "unif")
+  Conditions <- Conditions[valid_rows, ]
+  row.names(Conditions) <- NULL # Just for the sake of resetting row indices
+  Conditions
+}
+
+Conditions <- create_conditions(
+  sample_sizes, 
+  reliability_values, 
+  population_models, 
+  latent_exo_distribution, 
+  exo_methods,
+  epsilon_distributions
 )
-
-Conditions$analysis_model <- ifelse(
-  Conditions$POPULATION == "population.full.model",
-  "fit.full.model",
-  "fit.interaction.model"
-)
-
-# Remove invalid combinations:
-# If distribution is "normal", exo_method should only be "rIG"
-Conditions <- Conditions[!(Conditions$DISTRIBUTION == "normal" & 
-                             Conditions$EXO == "unif"), ]
-
-# Add epsilon distribution based on the distribution factor
-Conditions$epsilon <- ifelse(Conditions$DISTRIBUTION == "normal", 
-                             "normal", "exp.rate1")
