@@ -24,14 +24,14 @@ reliability_values <- c(0.2, 0.6, 0.8)
 population_models <- c("population.linear.model", "population.interaction.model", "population.full.model")
 latent_exo_distribution <- c("normal", "nonnormal")
 exo_methods <- c("rIG", "unif")
-epsilon_distributions <- c("normal", "exp.rate1") # Define epsilon separately
+epsilon_distributions <- c("normal", "exp.rate1")
 
 create_conditions <- function(sample_sizes, reliability_values,
                               population_models, latent_exo_distribution, 
                               exo_methods, epsilon_distributions) {
   # Full factorial design 
   # Note: as of now (03/03/25) this might be more information than actually used
-  Conditions <- expand.grid(
+  conditions <- expand.grid(
     Population = population_models,
     Distribution = latent_exo_distribution,
     Exo_method = exo_methods,
@@ -42,20 +42,20 @@ create_conditions <- function(sample_sizes, reliability_values,
   )
   
   # Based in brandt et al. combinations
-  Conditions$Analysis_model <- ifelse(
-    Conditions$Population == "population.full.model",
+  conditions$Analysis_model <- ifelse(
+    conditions$Population == "population.full.model",
     "fit.full.model",
     "fit.interaction.model"
   )
   
   # Invalid combinations:
-  valid_rows <- !(Conditions$Distribution == "normal" & Conditions$Exo_method == "unif")
-  Conditions <- Conditions[valid_rows, ]
-  row.names(Conditions) <- NULL # Just for the sake of resetting row indices
-  Conditions
+  valid_rows <- !(conditions$Distribution == "normal" & conditions$Exo_method == "unif")
+  conditions <- conditions[valid_rows, ]
+  row.names(conditions) <- NULL # Just for the sake of resetting row indices
+  conditions
 }
 
-Conditions <- create_conditions(
+conditions <- create_conditions(
   sample_sizes, 
   reliability_values, 
   population_models, 
