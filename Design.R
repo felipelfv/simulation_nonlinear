@@ -37,12 +37,12 @@ latent_exo_distribution <- c("normal", "nonnormal")
 exo_methods <- c("rIG", "unif")
 epsilon_distributions <- c("normal", "exp.rate1")
 
+
 create_conditions <- function(sample_sizes, reliability_values,
                               population_models, latent_exo_distribution, 
                               exo_methods, epsilon_distributions) {
-  # Full factorial design 
-  # Note: as of now (03/03/25) this might be more information than actually used
-  conditions <- expand.grid(
+  # Create base conditions
+  base_conditions <- expand.grid(
     Population = population_models,
     Distribution = latent_exo_distribution,
     Exo_method = exo_methods,
@@ -52,18 +52,35 @@ create_conditions <- function(sample_sizes, reliability_values,
     stringsAsFactors = FALSE
   )
   
-  # Based in brandt et al. combinations
-  conditions$Analysis_model <- ifelse(
-    conditions$Population == "population.full.model",
-    "fit.full.model",
-    "fit.interaction.model"
-  )
+  # Remove invalid combinations
+  base_conditions <- base_conditions[!(base_conditions$Distribution == "normal" & 
+                                         base_conditions$Exo_method == "unif"), ]
   
-  # Invalid combinations:
-  valid_rows <- !(conditions$Distribution == "normal" & conditions$Exo_method == "unif")
-  conditions <- conditions[valid_rows, ]
-  row.names(conditions) <- NULL # Just for the sake of resetting row indices
-  conditions
+  # Prepare result dataframe
+  result <- data.frame()
+  
+  # For each row in base_conditions
+  for (i in 1:nrow(base_conditions)) {
+    row <- base_conditions[i, ]
+    
+    # Determine which analysis models to use
+    if (row$Population == "population.linear.model") {
+      analysis_models <- c("fit.interaction.model", "fit.full.model")
+    } else if (row$Population == "population.full.model") {
+      analysis_models <- c("fit.full.model")
+    } else {
+      analysis_models <- c("fit.interaction.model")
+    }
+    
+    # Create a row for each analysis model
+    for (model in analysis_models) {
+      new_row <- row
+      new_row$Analysis_model <- model
+      result <- rbind(result, new_row)
+    }
+  }
+  row.names(result) <- NULL # Reset row indices
+  result
 }
 
 conditions <- create_conditions(
