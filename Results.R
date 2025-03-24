@@ -19,6 +19,7 @@
 
 #### 2. Calculations ####
 
+##### 2.1 Average Betas #####
 all_beta_averages <- function(all_results) {
 
   all_avgs <- list()
