@@ -172,13 +172,25 @@ for(cond in 1:nrow(conditions)) {
     conditions$Epsilon[cond]
   )
   
-  save(res, file = condition_filename)
+  tryCatch({
+    save(res, file = condition_filename)
+  }, error = function(e) {
+    warning(paste("Failed to save condition results:", e$message))
+  })
   
-  # Save all results periodically
+  # all results periodically
   if(cond %% 10 == 0 || cond == nrow(conditions)) {
-    save(all_results, conditions, 
-         file = sprintf("%s/all_results_upto_condition_%d.RData", results_dir, cond))
+    tryCatch({
+      save(all_results, conditions, 
+           file = sprintf("%s/all_results_upto_condition_%d.RData", results_dir, cond))
+    }, error = function(e) {
+      warning(paste("Failed to save checkpoint:", e$message))
+    })
   }
+  
+  # For cleaning large objects from memory
+  rm(results)  
+  gc()    
   
   # Update progress information
   condition_time <- difftime(Sys.time(), condition_start, units = "mins")
