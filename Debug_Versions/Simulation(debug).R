@@ -1,7 +1,3 @@
-#library(parallel)
-library(doParallel)
-library(foreach)
-
 # Source required functions
 source("GenerateData.R")
 source("Methods.R")
