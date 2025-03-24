@@ -18,7 +18,18 @@
 
 #### 2. Design ####
 
-##### 2.1 Parameters that we vary in the simulation study #####
+##### 2.1 Libraries used for  #####
+
+library(covsim) # in GenerateData.R for rIG()
+library(lavaan) # in GenerateData.R and Methods.R for SAM approach
+library(modsem) # in Methods.R for LMS, QML, and UCA approach
+# In Simulation.R for parallel computing:
+#library(parallel)
+library(foreach)
+library(doParallel)
+
+
+##### 2.2 Parameters that we vary in the simulation study #####
 
 sample_sizes <- c(200L, 500L, 800L)
 reliability_values <- c(0.2, 0.6, 0.8)
@@ -65,7 +76,7 @@ conditions <- create_conditions(
   epsilon_distributions
 )
 
-##### 2.2 Fixed parameters #####
+##### 2.3 Fixed parameters #####
 
 # Parameters that remain constant (as of 04/03/25)
 exo.mean <- rep(0, 2)
