@@ -305,6 +305,14 @@ GenerateData <- function(model,
             # Check this if correctly applied; maybe should be the transpose * X? I dont think so; hence, just element-wise.
             Values[, inter] <- Values[, components[1]] * Values[, components[2]]
             
+            print_debug(sprintf("- First few values of %s: %.6f, %.6f, %.6f", 
+                                inter, Values[1, inter], Values[2, inter], Values[3, inter]))
+            print_debug(sprintf("- First few values of %s: %.6f, %.6f, %.6f", 
+                                components[1], Values[1, components[1]], Values[2, components[1]], Values[3, components[1]]))
+            print_debug(sprintf("- First few values of %s: %.6f, %.6f, %.6f", 
+                                components[2], Values[1, components[2]], Values[2, components[2]], Values[3, components[2]]))
+            print_debug(sprintf("- Verification: %.6f * %.6f = %.6f", 
+                                Values[1, components[1]], Values[1, components[2]], Values[1, inter]))
             # Check this:
             if(center.lv.prod) {
               print_debug(sprintf("Centering interaction term: %s", inter))
@@ -350,9 +358,25 @@ GenerateData <- function(model,
       # Matrix algebra for the deterministic part as opposed to before (element-wise):
       print_debug("Calculating deterministic part")
       deterministic_part <- Values[, terms, drop = FALSE] %*% equation_coefs
+      
+      print_debug("First few deterministic values (before intercept):")
+      print_debug(sprintf("- Row 1: %.6f (= %s)", deterministic_part[1], 
+                          paste(sprintf("%.6f*%.6f", Values[1, terms], equation_coefs), collapse=" + ")))
+      print_debug(sprintf("- Row 2: %.6f", deterministic_part[2]))
+      print_debug(sprintf("- Row 3: %.6f", deterministic_part[3]))
+      
       if (!is.null(intercepts) && !is.na(intercepts[var,1])) {
         print_debug(sprintf("Adding intercept: %.6f", intercepts[var,1]))
-        deterministic_part <- intercepts[var,1] + deterministic_part 
+        deterministic_part_before <- deterministic_part[1:3]
+        deterministic_part <- intercepts[var,1] + deterministic_part
+        
+        print_debug("First few deterministic values (after adding intercept):")
+        print_debug(sprintf("- Row 1: %.6f = %.6f + %.6f", 
+                            deterministic_part[1], intercepts[var,1], deterministic_part_before[1]))
+        print_debug(sprintf("- Row 2: %.6f = %.6f + %.6f", 
+                            deterministic_part[2], intercepts[var,1], deterministic_part_before[2]))
+        print_debug(sprintf("- Row 3: %.6f = %.6f + %.6f", 
+                            deterministic_part[3], intercepts[var,1], deterministic_part_before[3]))
       }
       
       # Calculate variance without the residual/error
@@ -410,6 +434,14 @@ GenerateData <- function(model,
       
       # Entries for the variables with the residual
       Values[, var] <- deterministic_part + zeta # Add on top of the deterministic part
+      
+      print_debug("Combined deterministic + error examples:")
+      print_debug(sprintf("- Row 1: %.6f = %.6f + %.6f", 
+                          deterministic_part[1] + zeta[1], deterministic_part[1], zeta[1]))
+      print_debug(sprintf("- Row 2: %.6f = %.6f + %.6f", 
+                          deterministic_part[2] + zeta[2], deterministic_part[2], zeta[2]))
+      print_debug(sprintf("- Row 3: %.6f = %.6f + %.6f", 
+                          deterministic_part[3] + zeta[3], deterministic_part[3], zeta[3]))
       
       if(center.lv.dependent) {
         print_debug(sprintf("Centering dependent variable: %s", var))
@@ -587,7 +619,7 @@ excesskurtosis <- rep(0, 2)
 
 # For a single run:
 conditions <- conditions[80,] # Randomly chosen condition
-N <- 500
+N <- 1000000L
 Rel <- 0.6
 exo.mean <- rep(0, 2)
 target.var <- list("eta3" = 1.0) # target variance for eta 
@@ -599,6 +631,11 @@ Data <- GenerateData(
   skewness = skewness,
   excesskurtosis = excesskurtosis,
   exo.mean = exo.mean,
+  center.exogenous.latent = TRUE,
+  center.exogenous.manifest = TRUE,
+  center.lv.dependent = TRUE,
+  center.lv.prod = TRUE,
+  center.indicators = TRUE,
   distr.exo = "unif",
   distr.zeta = "normal",
   distr.epsilon = "normal",
