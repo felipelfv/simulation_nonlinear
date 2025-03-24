@@ -24,15 +24,14 @@ library(covsim) # in GenerateData.R for rIG()
 library(lavaan) # in GenerateData.R and Methods.R for SAM approach
 library(modsem) # in Methods.R for LMS, QML, and UCA approach
 # In Simulation.R for parallel computing:
-#library(parallel)
 library(foreach)
 library(doParallel)
 
 
 ##### 2.2 Parameters that we vary in the simulation study #####
 
-sample_sizes <- c(200L, 500L, 800L)
-reliability_values <- c(0.2, 0.6, 0.8)
+sample_sizes <- c(500L, 800L) # Possible add 200L
+reliability_values <- c(0.6, 0.8)
 population_models <- c("population.linear.model", "population.interaction.model", "population.full.model")
 latent_exo_distribution <- c("normal", "nonnormal")
 exo_methods <- c("rIG", "unif")
@@ -82,5 +81,5 @@ conditions <- create_conditions(
 exo.mean <- rep(0, 2)
 target.var <- list("eta3" = 1.0) # target variance for eta 
 R2 <- list("eta3" = 0.20)
-rep <- 5  # Repetitions (to be increased for the actual study): 1000(?)
+rep <- 10  # Repetitions (to be increased for the actual study): 1000(?)
 
