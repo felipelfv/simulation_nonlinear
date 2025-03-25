@@ -47,5 +47,5 @@ all_beta_averages <- function(all_results) {
   all_avgs
 }
 
-beta_avgs <- all_beta_averages(all_results)
+beta_avgs <- all_beta_averages(all_results); beta_avgs
 
