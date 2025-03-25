@@ -19,33 +19,64 @@
 
 #### 2. Calculations ####
 
-##### 2.1 Average Betas #####
-all_beta_averages <- function(all_results) {
-
+##### 2.1 Average Betas (Bias) #####
+all_beta_averages_with_bias <- function(all_results) {
   all_avgs <- list()
+  all_bias <- list()
+  
+  # Define true beta values based on model type
+  true_betas <- list(
+    "population.linear.model" = c(0.316, 0.316, 0, 0, 0),
+    "population.interaction.model" = c(0.316, 0.316, 0.139, 0, 0),
+    "population.full.model" = c(0.316, 0.316, 0.139, 0.101, 0.101)
+  )
   
   # each element in all_results
   for(i in seq_along(all_results)) {
     data <- all_results[[i]]
     result <- list()
+    bias_result <- list()
+    
+    # Get true betas for this model type
+    model_type <- data$condition$Population
+    true_beta <- true_betas[[model_type]]
     
     # Process standard methods (lms, qml, uca)
     for(method in c("lms", "qml", "uca")) {
       if(!is.null(data$results[[method]])) {
-        result[[method]] <- colMeans(data$results[[method]][,,"beta"])
+        # Calculate average betas
+        avg_beta <- colMeans(data$results[[method]][,,"beta"])
+        result[[method]] <- avg_beta
+        
+        # Calculate bias (estimated - true)
+        # Make sure vectors are the same length
+        len <- min(length(avg_beta), length(true_beta))
+        bias <- avg_beta[1:len] - true_beta[1:len]
+        bias_result[[method]] <- bias
       }
     }
     
-    # Eventually all together when SE work
+    # Handle SAM method
     if(!is.null(data$results$sam)) {
-      result$sam <- colMeans(data$results$sam)
+      avg_beta <- colMeans(data$results$sam)
+      result$sam <- avg_beta
+      
+      # Calculate bias for SAM
+      len <- min(length(avg_beta), length(true_beta))
+      bias <- avg_beta[1:len] - true_beta[1:len]
+      bias_result$sam <- bias
     }
     
+    # Add condition information to bias results
+    bias_result$condition <- data$condition
+    
     all_avgs[[i]] <- result
+    all_bias[[i]] <- bias_result
   }
   
-  all_avgs
+  list(averages = all_avgs, bias = all_bias)
 }
 
-beta_avgs <- all_beta_averages(all_results); beta_avgs
+results <- all_beta_averages_with_bias(all_results)
+
 
