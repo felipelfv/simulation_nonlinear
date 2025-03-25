@@ -19,12 +19,15 @@
 
 #### 2. Calculations ####
 
+options(scipen=999) # To avoid scientific notation
+
 ##### 2.1 Average Betas (Bias) #####
 all_beta_averages_with_bias <- function(all_results) {
-  all_avgs <- list()
-  all_bias <- list()
+    avgs <- list()
+    diff_bias <- list()
+    squared_bias <- list()
   
-  # Define true beta values based on model type
+  # True beta values based on model type
   true_betas <- list(
     "population.linear.model" = c(0.316, 0.316, 0, 0, 0),
     "population.interaction.model" = c(0.316, 0.316, 0.139, 0, 0),
@@ -36,8 +39,9 @@ all_beta_averages_with_bias <- function(all_results) {
     data <- all_results[[i]]
     result <- list()
     bias_result <- list()
+    squared_bias_results <- list()
     
-    # Get true betas for this model type
+    # True betas for this model type
     model_type <- data$condition$Population
     true_beta <- true_betas[[model_type]]
     
@@ -53,6 +57,7 @@ all_beta_averages_with_bias <- function(all_results) {
         len <- min(length(avg_beta), length(true_beta))
         bias <- avg_beta[1:len] - true_beta[1:len]
         bias_result[[method]] <- bias
+        squared_bias_results[[method]] <- bias^2
       }
     }
     
@@ -65,18 +70,24 @@ all_beta_averages_with_bias <- function(all_results) {
       len <- min(length(avg_beta), length(true_beta))
       bias <- avg_beta[1:len] - true_beta[1:len]
       bias_result$sam <- bias
+      squared_bias_results$sam <- bias^2
     }
     
-    # Add condition information to bias results
+    # Add condition information to bias
     bias_result$condition <- data$condition
+    squared_bias_results$condition <- data$condition
     
-    all_avgs[[i]] <- result
-    all_bias[[i]] <- bias_result
+    avgs[[i]] <- result
+    diff_bias[[i]] <- bias_result
+    squared_bias[[i]] <- squared_bias_results
+    
   }
   
-  list(averages = all_avgs, bias = all_bias)
+  list(averages = avgs, bias = diff_bias, squared_bias = squared_bias)
 }
 
 results <- all_beta_averages_with_bias(all_results)
+
+
 
 
