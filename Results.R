@@ -21,73 +21,67 @@
 
 options(scipen=999) # To avoid scientific notation
 
-##### 2.1 Average Betas (Bias) #####
-all_beta_averages_with_bias <- function(all_results) {
-    avgs <- list()
-    diff_bias <- list()
-    squared_bias <- list()
-  
-  # True beta values based on model type
+process_beta_data <- function(all_results) {
+  # True beta values for each population model
   true_betas <- list(
     "population.linear.model" = c(0.316, 0.316, 0, 0, 0),
     "population.interaction.model" = c(0.316, 0.316, 0.139, 0, 0),
     "population.full.model" = c(0.316, 0.316, 0.139, 0.101, 0.101)
   )
   
-  # each element in all_results
-  for(i in seq_along(all_results)) {
+  beta_data <- data.frame()
+  
+  for (i in seq_along(all_results)) {
     data <- all_results[[i]]
-    result <- list()
-    bias_result <- list()
-    squared_bias_results <- list()
     
-    # True betas for this model type
-    model_type <- data$condition$Population
-    true_beta <- true_betas[[model_type]]
+    condition <- data$condition
+    pop_model <- condition$Population
+    true_beta <- true_betas[[pop_model]]
+    methods <- c("lms", "qml", "uca", "sam")
     
-    # Process standard methods (lms, qml, uca)
-    for(method in c("lms", "qml", "uca")) {
-      if(!is.null(data$results[[method]])) {
-        # Calculate average betas
-        avg_beta <- colMeans(data$results[[method]][,,"beta"])
-        result[[method]] <- avg_beta
+    for (method in methods) {
+      if (!is.null(data$results[[method]])) {
+        if (method == "sam") {
+          beta_matrix <- data$results[[method]]
+        } else {
+          beta_matrix <- data$results[[method]][,,"beta"]
+        }
         
-        # Calculate bias (estimated - true)
-        # Make sure vectors are the same length
-        len <- min(length(avg_beta), length(true_beta))
-        bias <- avg_beta[1:len] - true_beta[1:len]
-        bias_result[[method]] <- bias
-        squared_bias_results[[method]] <- bias^2
+        mean_betas <- colMeans(beta_matrix)
+        
+        # Here we have the data for each beta coefficient
+        for (j in seq_along(mean_betas)) {
+          true_val <- if(j <= length(true_beta)) true_beta[j] else 0
+          
+          variance <- var(beta_matrix[,j]) # variance of beta estimates across simulations
+          
+          beta_data <- rbind(beta_data, data.frame(
+            condition_id = i,
+            population = pop_model,
+            distribution = condition$Distribution,
+            exo_method = condition$Exo_method,
+            epsilon = condition$Epsilon,
+            n = condition$N,
+            reliability = condition$Rel,
+            analysis_model = condition$Analysis_model,
+            method = method,
+            beta_index = j,
+            beta_name = paste0("β", j),
+            estimate = mean_betas[j],
+            true_value = true_val,
+            bias = mean_betas[j] - true_val,
+            squared_bias = (mean_betas[j] - true_val)^2,
+            variance = variance, 
+            mse = (mean_betas[j] - true_val)^2 + variance
+          ))
+        }
       }
     }
-    
-    # Handle SAM method
-    if(!is.null(data$results$sam)) {
-      avg_beta <- colMeans(data$results$sam)
-      result$sam <- avg_beta
-      
-      # Calculate bias for SAM
-      len <- min(length(avg_beta), length(true_beta))
-      bias <- avg_beta[1:len] - true_beta[1:len]
-      bias_result$sam <- bias
-      squared_bias_results$sam <- bias^2
-    }
-    
-    # Add condition information to bias
-    bias_result$condition <- data$condition
-    squared_bias_results$condition <- data$condition
-    
-    avgs[[i]] <- result
-    diff_bias[[i]] <- bias_result
-    squared_bias[[i]] <- squared_bias_results
-    
   }
   
-  list(averages = avgs, bias = diff_bias, squared_bias = squared_bias)
+  beta_data
 }
 
-results <- all_beta_averages_with_bias(all_results)
-
-
+results <- process_beta_data(all_results)
 
 
