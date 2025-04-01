@@ -19,8 +19,9 @@
 
 #### 2. Calculations ####
 
-options(scipen=999) # To avoid scientific notation
+options(scipen=999) # To avoid scientific notation, 999 high threshold
 
+# with na and outlier
 process_beta_data <- function(all_results) {
   # True beta values for each population model
   true_betas <- list(
@@ -46,14 +47,21 @@ process_beta_data <- function(all_results) {
         } else {
           beta_matrix <- data$results[[method]][,,"beta"]
         }
-        
-        mean_betas <- colMeans(beta_matrix)
+
+        na_counts <- colSums(is.na(beta_matrix)) # NAs for each beta coefficient
+        # Oiutliers (values with absolute value > 1), so above or below
+        outlier_matrix <- !is.na(beta_matrix) & abs(beta_matrix) > 1
+        outlier_counts <- colSums(outlier_matrix)
+        working_matrix <- beta_matrix # working copy of the matrix
+        # Outliers to NA in the working matrix
+        working_matrix[outlier_matrix] <- NA
+        mean_betas <- colMeans(working_matrix, na.rm = TRUE)
         
         # Here we have the data for each beta coefficient
         for (j in seq_along(mean_betas)) {
           true_val <- if(j <= length(true_beta)) true_beta[j] else 0
           
-          variance <- var(beta_matrix[,j]) # variance of beta estimates across simulations
+          variance <- var(working_matrix[,j], na.rm = TRUE)
           
           beta_data <- rbind(beta_data, data.frame(
             condition_id = i,
@@ -66,13 +74,15 @@ process_beta_data <- function(all_results) {
             analysis_model = condition$Analysis_model,
             method = method,
             beta_index = j,
-            beta_name = paste0("β", j),
+            beta_name = paste0("B", j),
             estimate = mean_betas[j],
             true_value = true_val,
             bias = mean_betas[j] - true_val,
             squared_bias = (mean_betas[j] - true_val)^2,
             variance = variance, 
-            mse = (mean_betas[j] - true_val)^2 + variance
+            mse = (mean_betas[j] - true_val)^2 + variance,
+            na_count = na_counts[j],
+            outlier_count = outlier_counts[j]
           ))
         }
       }
@@ -83,5 +93,10 @@ process_beta_data <- function(all_results) {
 }
 
 results <- process_beta_data(all_results)
+results <- process_beta_data(combined_results)
+
+
+
+
 
 
