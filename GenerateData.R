@@ -3,7 +3,7 @@ GenerateData <- function(model,
                          skewness = NULL,
                          excesskurtosis = NULL,
                          exo.mean = NULL,
-                         distr.exo = "rIG",
+                         distr.exo = "rIG", # If unif, then generates naive unif, else uses rIG with excesskurtosis and skewness values
                          distr.zeta = "normal",
                          distr.epsilon = "normal",
                          center.exogenous.latent = TRUE,
