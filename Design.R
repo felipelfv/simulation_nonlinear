@@ -30,8 +30,8 @@ library(doParallel)
 
 ##### 2.2 Parameters that we vary in the simulation study #####
 
-sample_sizes <- c(500L, 800L) # Possible add 200L
-reliability_values <- c(0.6, 0.8)
+sample_sizes <- c(200L, 500L, 800L) 
+reliability_values <- c(0.4, 0.6, 0.8)
 population_models <- c("population.linear.model", "population.interaction.model", "population.full.model")
 latent_exo_distribution <- c("normal", "nonnormal")
 exo_methods <- c("rIG", "unif")
@@ -41,7 +41,7 @@ epsilon_distributions <- c("normal", "exp.rate1")
 create_conditions <- function(sample_sizes, reliability_values,
                               population_models, latent_exo_distribution, 
                               exo_methods, epsilon_distributions) {
-  # Create base conditions
+  # Base conditions
   base_conditions <- expand.grid(
     Population = population_models,
     Distribution = latent_exo_distribution,
@@ -56,14 +56,13 @@ create_conditions <- function(sample_sizes, reliability_values,
   base_conditions <- base_conditions[!(base_conditions$Distribution == "normal" & 
                                          base_conditions$Exo_method == "unif"), ]
   
-  # Prepare result dataframe
   result <- data.frame()
   
   # For each row in base_conditions
   for (i in 1:nrow(base_conditions)) {
     row <- base_conditions[i, ]
     
-    # Determine which analysis models to use
+    # Which analysis models to use
     if (row$Population == "population.linear.model") {
       analysis_models <- c("fit.interaction.model", "fit.full.model")
     } else if (row$Population == "population.full.model") {
@@ -92,11 +91,16 @@ conditions <- create_conditions(
   epsilon_distributions
 )
 
+# For multiple clusters in HPC
+conditions$Seed <- 1:nrow(conditions)
+# or this may be better: 
+conditions$Seed <- sample(1:1e9, size = nrow(conditions), replace = FALSE)
+
 ##### 2.3 Fixed parameters #####
 
 # Parameters that remain constant (as of 04/03/25)
 exo.mean <- rep(0, 2)
 target.var <- list("eta3" = 1.0) # target variance for eta 
 R2 <- list("eta3" = 0.20)
-rep <- 10  # Repetitions (to be increased for the actual study): 1000(?)
+rep <- 50  # Repetitions (to be increased for the actual study): 1000(?)
 
