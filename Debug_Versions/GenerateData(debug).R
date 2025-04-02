@@ -3,12 +3,18 @@
 # This file contains the function for generating the datasets based on the 
 # lavaan-syntax based models. It is literally the same as the original function
 # used in the simulations. The only difference is that here I have some debug 
-# and checks throughout the lines to ensure that I did things correctly as the 
-# function got incrementally more complex (personal statement) and added much 
+# and checks throughout the lines to ensure that I did things correctly, as the 
+# function got incrementally more complex (personal statement), and I added much 
 # more information that actually needed for understanding the function. This 
 # amout of visual information could hinder understanding from others. Hence,
 # this is the reason for creating and adding this to a separate script. 
 
+# In 2, we have the debug versio for our function. In 3, we have a chunk for
+# generating a single time data to check the debug messages. The parameters 
+# can be varied. It is just for testing purposes. In 4, I generate data for all
+# conditions and store the information concerning target.var. This was initially 
+# done because I wanted to check how many conditions would imply a dataset in 
+# which the variance for eta3 was above the specified value (i.e., 1).
 
 #### 2. Debug version for GenerateData() ####
 
@@ -604,7 +610,7 @@ GenerateData <- function(model,
   as.data.frame(Results)
 }
 
-#### 3. Generate Data ####
+#### 3. Generate Data for a single run ####
 
 # Source required functions
 source("Models.R")
@@ -617,26 +623,26 @@ excesskurtosis <- rep(0, 2)
 #skewness <- rep(2, 2)
 #excesskurtosis <- rep(7, 2)
 
-# For a single run:
-conditions <- conditions[80,] # Randomly chosen condition
-N <- 1000000L
+# To check for a single run if the sample size is large, then values should be
+# close to the population values:
+N <- 10000000L
 Rel <- 0.6
 exo.mean <- rep(0, 2)
-target.var <- list("eta3" = 1.0) # target variance for eta 
+target.var <- list("eta3" = 1.0) # target variance for eta3
 R2 <- list("eta3" = 0.20)
   
 Data <- GenerateData(
-  model = population.interaction.model,
+  model = population.full.model,
   N = N,
   skewness = skewness,
   excesskurtosis = excesskurtosis,
   exo.mean = exo.mean,
   center.exogenous.latent = TRUE,
-  center.exogenous.manifest = TRUE,
-  center.lv.dependent = TRUE,
-  center.lv.prod = TRUE,
-  center.indicators = TRUE,
-  distr.exo = "unif",
+  center.exogenous.manifest = FALSE,
+  center.lv.dependent = FALSE,
+  center.lv.prod = FALSE,
+  center.indicators = FALSE,
+  distr.exo = "nonnormal",
   distr.zeta = "normal",
   distr.epsilon = "normal",
   rel = Rel,
@@ -644,4 +650,50 @@ Data <- GenerateData(
   R2 = R2,
   add.eta = FALSE, 
   verbose = TRUE)
+
+#### 4. Generate Data for all conditions and store target.var information ####
+
+# Here I am not concerned with the amount of times it happens. I just wanted to 
+# get an overview when it happens. As the results show, it does not happen a lot.
+# Anyway, the conclusion is that we should use the R2 and just avoid having 
+# certain conditions use the difference for error variance, while others use R2
+
+r2_warning_occurred <- logical(nrow(conditions))
+repetitions <- 100
+
+for(current_cond in 1:nrow(conditions)) {
+  for(rep in 1:repetitions) {
+    skewness <- rep(ifelse(conditions$Distribution[current_cond] == "normal", 0, 2), 2)
+    excesskurtosis <- rep(ifelse(conditions$Distribution[current_cond] == "normal", 0, 7), 2)
+    
+    tryCatch({
+      Data <- GenerateData(
+        model = get(conditions$Population[current_cond]),
+        N = conditions$N[current_cond],
+        skewness = skewness,
+        excesskurtosis = excesskurtosis,
+        exo.mean = exo.mean,
+        distr.exo = conditions$Exo_method[current_cond],
+        distr.zeta = "normal",
+        distr.epsilon = conditions$Epsilon[current_cond],
+        rel = conditions$Rel[current_cond],
+        target.var = target.var,
+        R2 = R2,
+        add.eta = FALSE)
+    }, warning = function(w) {
+      if(grepl("var.nozeta .* is larger than target.var", conditionMessage(w))) {
+        r2_warning_occurred[current_cond] <<- TRUE
+      }
+      
+      warning(w)
+    }, error = function(e) { # continue on error
+    })
+  }
+}
+
+results <- data.frame(
+  Condition = 1:nrow(conditions),
+  R2_Warning = r2_warning_occurred
+)
+cbind(results, conditions)
 
