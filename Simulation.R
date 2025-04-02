@@ -23,8 +23,9 @@ all_results <- list()
 
 # Single replication. This is used below within foreach
 process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
-  #set.seed(1234 + i + (cond * 1000)) # Important seed like this (not sure how to use streams yet)
-  set.seed(conditions$Seed[cond] * 100 + i) # This for the multiple clusters in the HPC
+  set.seed(1234 + i + (cond * 1000)) # Important seed like this (not sure how to use streams yet)
+  #set.seed(conditions$Seed[cond] * 100 + i) # This for the multiple clusters in the HPC
+  # the previous gives me issues with results; check what is going on
   # Local result structure
   # Later we aggregate all into one (combining the different processing levels)
   local_res <- list(

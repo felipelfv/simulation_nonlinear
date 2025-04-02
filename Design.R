@@ -92,7 +92,7 @@ conditions <- create_conditions(
 )
 
 # For multiple clusters in HPC
-conditions$Seed <- 1:nrow(conditions)
+#conditions$Seed <- 1:nrow(conditions)
 # or this may be better: 
 conditions$Seed <- sample(1:1e9, size = nrow(conditions), replace = FALSE)
 
@@ -102,5 +102,5 @@ conditions$Seed <- sample(1:1e9, size = nrow(conditions), replace = FALSE)
 exo.mean <- rep(0, 2)
 target.var <- list("eta3" = 1.0) # target variance for eta 
 R2 <- list("eta3" = 0.20)
-rep <- 50  # Repetitions (to be increased for the actual study): 1000(?)
+rep <- 2  # Repetitions (to be increased for the actual study): 1000(?)
 
