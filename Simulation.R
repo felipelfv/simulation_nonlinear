@@ -1,3 +1,10 @@
+#### 1. General Information ####
+
+# This code is not processing multiple conditions in parallel. 
+# It processes the conditions one after another. 
+# The parallelization happens only within each condition, 
+# where multiple replications are run simultaneously across your 6 cores.
+
 # Other scripts needed
 source("GenerateData.R")
 source("Methods.R")
@@ -12,8 +19,7 @@ registerDoParallel(cl)
 clusterExport(cl, c("GenerateData", "method_analytic", "method_uca", "method_sam", "population.interaction.model",
                     "population.linear.model", "population.full.model", "fit.interaction.model", "fit.full.model"))
 
-# Directories for results
-dir.create("sim_results", showWarnings = FALSE)
+dir.create("sim_results", showWarnings = FALSE) # Directories for results
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
 results_dir <- paste0("sim_results/run_", timestamp)
 dir.create(results_dir, showWarnings = FALSE)
@@ -23,10 +29,10 @@ all_results <- list()
 
 # Single replication. This is used below within foreach
 process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
-  set.seed(1234 + i + (cond * 1000)) # Important seed like this (not sure how to use streams yet)
-  #set.seed(conditions$Seed[cond] * 100 + i) # This for the multiple clusters in the HPC
-  # the previous gives me issues with results; check what is going on
-  # Local result structure
+  #set.seed(1234 + i + (cond * 1000)) # Important seed like this (not sure how to use streams yet)
+  current_seed <- (conditions$Seed[cond] %% 10000) * 100 + i # This for the multiple clusters in the HPC
+  set.seed(current_seed) # the previous gives me issues with results; check what is going on. Like now it works.
+  # Results structure
   # Later we aggregate all into one (combining the different processing levels)
   local_res <- list(
     lms = array(NA, dim = c(1, n_params, 3)),
@@ -51,7 +57,7 @@ process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
     distr.zeta = "normal",
     distr.epsilon = conditions$Epsilon[cond],
     rel = conditions$Rel[cond],
-    target.var = target.var,
+    #target.var = target.var,
     R2 = R2,
     add.eta = FALSE), silent = TRUE)
   
@@ -65,6 +71,9 @@ process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
       local_res$timing[[m]] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
       
       if(!inherits(result, "try-error")) {
+        # Remember results in a list
+        # if local_res$m would look for an element named "m" rather than 
+        # looking for the element whose name is stored in the variable m.
         local_res[[m]][1, , 1] <- result$Estimates
         local_res[[m]][1, , 2] <- result$`Standard Errors`
         local_res[[m]][1, , 3] <- result$`P-values`
@@ -77,6 +86,7 @@ process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
     local_res$timing$uca <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
     
     if(!inherits(result, "try-error")) {
+      # local_res[["uca"]] also works
       local_res$uca[1, , 1] <- result$Estimates
       local_res$uca[1, , 2] <- result$`Standard Errors`
       local_res$uca[1, , 3] <- result$`P-values`
