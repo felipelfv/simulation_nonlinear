@@ -119,19 +119,28 @@ GenerateData <- function(model,
     }
   }
   
-  if(distr.exo == "unif") {
-    # "NAIVE" approach; ignoring copulas
-    # For uniform distribution as in GAPI article
-    Z <- MASS::mvrnorm(N, mu = rep(0, ncol(exo.vcov)), Sigma = exo.vcov)
-    EXO <- pnorm(Z) # Transform into an uniform distribution
-    sd_desired <- sqrt(diag(exo.vcov)) # sd (from diag of cov matrix)
-    scaling <- sqrt(12) * sd_desired
-    EXO <- EXO - 0.5 # Center all variables by subtracting 0.5
-    # Scale by multiplying each column by its scaling factor:
-    EXO <- sweep(EXO, MARGIN = 2, STATS = scaling, FUN = "*")
-  } else {
-  EXO <- covsim::rIG(N, sigma = exo.vcov, skewness = skewness, 
-                     excesskurtosis = excesskurtosis)[[1]] # Correlations are as given now!
+  generate_exo <- function() {
+    if(distr.exo == "unif") {
+      # "NAIVE" approach; ignoring copulas
+      # For uniform distribution as in GAPI article
+      Z <- MASS::mvrnorm(N, mu = rep(0, ncol(exo.vcov)), Sigma = exo.vcov)
+      EXO <- pnorm(Z) # Transform into an uniform distribution
+      sd_desired <- sqrt(diag(exo.vcov)) # sd (from diag of cov matrix)
+      scaling <- sqrt(12) * sd_desired
+      EXO <- EXO - 0.5 # Center all variables by subtracting 0.5
+      # Scale by multiplying each column by its scaling factor:
+      EXO <- sweep(EXO, MARGIN = 2, STATS = scaling, FUN = "*")
+    } else {
+      EXO <- covsim::rIG(N, sigma = exo.vcov, skewness = skewness, 
+                         excesskurtosis = excesskurtosis)[[1]] # Correlations are as given now!
+    }
+    EXO
+  }
+  
+  EXO <- generate_exo()
+  # Check variances: if they are too large (>2times the intended value), generate again
+  if(any(apply(EXO, 2, var) > 2 * diag(exo.vcov))) {
+    EXO <- generate_exo()
   }
   
   colnames(EXO) <- exo_vars
