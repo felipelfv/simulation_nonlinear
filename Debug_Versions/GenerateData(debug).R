@@ -192,21 +192,49 @@ GenerateData <- function(model,
   
   print_debug(sprintf("\nGenerating exogenous variables using '%s' distribution", distr.exo))
   
-  if(distr.exo == "unif") {
-    # "NAIVE" approach; ignoring copulas
-    # For uniform distribution as in GAPI article
-    print_debug("Generating with uniform distribution")
-    Z <- MASS::mvrnorm(N, mu = rep(0, ncol(exo.vcov)), Sigma = exo.vcov)
-    EXO <- pnorm(Z) # Transform into an uniform distribution
-    sd_desired <- sqrt(diag(exo.vcov)) # sd (from diag of cov matrix)
-    scaling <- sqrt(12) * sd_desired
-    EXO <- EXO - 0.5 # Center all variables by subtracting 0.5
-    # Scale by multiplying each column by its scaling factor:
-    EXO <- sweep(EXO, MARGIN = 2, STATS = scaling, FUN = "*")
-  } else {
-    print_debug("Generating with rIG")
-    EXO <- covsim::rIG(N, sigma = exo.vcov, skewness = skewness, 
-                       excesskurtosis = excesskurtosis)[[1]] # Correlations are as given now!
+  # Function to generate exogenous variables
+  generate_exo <- function() {
+    if(distr.exo == "unif") {
+      # "NAIVE" approach; ignoring copulas
+      # For uniform distribution as in GAPI article
+      print_debug("Generating with uniform distribution")
+      Z <- MASS::mvrnorm(N, mu = rep(0, ncol(exo.vcov)), Sigma = exo.vcov)
+      EXO <- pnorm(Z) # Transform into an uniform distribution
+      sd_desired <- sqrt(diag(exo.vcov)) # sd (from diag of cov matrix)
+      scaling <- sqrt(12) * sd_desired
+      EXO <- EXO - 0.5 # Center all variables by subtracting 0.5
+      # Scale by multiplying each column by its scaling factor:
+      EXO <- sweep(EXO, MARGIN = 2, STATS = scaling, FUN = "*")
+    } else {
+      print_debug("Generating with rIG")
+      EXO <- covsim::rIG(N, sigma = exo.vcov, skewness = skewness, 
+                         excesskurtosis = excesskurtosis)[[1]] # Correlations are as given now!
+    }
+    EXO
+  }
+  
+  # Generate initial EXO
+  EXO <- generate_exo()
+  
+  # Check variances: if they are too large (>2times the intended value)
+  if(any(apply(EXO, 2, var) > 2 * diag(exo.vcov))) {
+    # Identify which variables have large variances
+    var_ratios <- apply(EXO, 2, var) / diag(exo.vcov)
+    problem_vars <- exo_vars[var_ratios > 2]
+    
+    for(var in problem_vars) {
+      idx <- which(exo_vars == var)
+      print_debug(sprintf("Variable %s has variance %.4f which is %.2f times the intended variance %.4f", 
+                          var, var(EXO[,idx]), var_ratios[idx], diag(exo.vcov)[idx]))
+    }
+    
+    print_debug("Regenerating exogenous variables")
+    EXO <- generate_exo()
+    
+    # Obtained covariance matrix after regeneration
+    obtained_cov <- cov(EXO)
+    print_debug("Obtained covariance matrix after regeneration:")
+    print_debug(round(obtained_cov, 4))
   }
   
   colnames(EXO) <- exo_vars
@@ -617,15 +645,15 @@ source("Models.R")
 source("Design.R") # Check here for most of the parameters 
 
 # Remaining that were used in the simulation loop
-skewness <- rep(0, 2)
-excesskurtosis <- rep(0, 2)
+#kewness <- rep(0, 2)
+#excesskurtosis <- rep(0, 2)
 # If nonnormal:
-#skewness <- rep(2, 2)
-#excesskurtosis <- rep(7, 2)
+skewness <- rep(2, 2)
+excesskurtosis <- rep(7, 2)
 
 # To check for a single run if the sample size is large, then values should be
 # close to the population values:
-N <- 10000000L
+N <- 20L
 Rel <- 0.6
 exo.mean <- rep(0, 2)
 target.var <- list("eta3" = 1.0) # target variance for eta3
@@ -642,7 +670,7 @@ Data <- GenerateData(
   center.lv.dependent = FALSE,
   center.lv.prod = FALSE,
   center.indicators = FALSE,
-  distr.exo = "nonnormal",
+  distr.exo = "rIG", # Remember to pick skewness and kurtosis accordingly
   distr.zeta = "normal",
   distr.epsilon = "normal",
   rel = Rel,
@@ -659,7 +687,7 @@ Data <- GenerateData(
 # certain conditions use the difference for error variance, while others use R2
 
 r2_warning_occurred <- logical(nrow(conditions))
-repetitions <- 100
+repetitions <- 1000
 
 for(current_cond in 1:nrow(conditions)) {
   for(rep in 1:repetitions) {
