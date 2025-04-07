@@ -3,7 +3,7 @@
 # This code is not processing multiple conditions in parallel. 
 # It processes the conditions one after another. 
 # The parallelization happens only within each condition, 
-# where multiple replications are run simultaneously across your 6 cores.
+# where multiple replications are run simultaneously across X cores.
 
 # Other scripts needed
 source("GenerateData.R")
@@ -11,7 +11,7 @@ source("Methods.R")
 source("Models.R")
 source("Design.R")
 
-# Setup parallel backend
+# Prallel backend
 n_cores <- detectCores() - 2 # 8 in total, we use 6; change this when using the semlab pc
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
@@ -29,9 +29,7 @@ all_results <- list()
 
 # Single replication. This is used below within foreach
 process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
-  #set.seed(1234 + i + (cond * 1000)) # Important seed like this (not sure how to use streams yet)
-  current_seed <- (conditions$Seed[cond] %% 10000) * 100 + i # This for the multiple clusters in the HPC
-  set.seed(current_seed) # the previous gives me issues with results; check what is going on. Like now it works.
+  
   # Results structure
   # Later we aggregate all into one (combining the different processing levels)
   local_res <- list(
@@ -144,10 +142,13 @@ for(cond in 1:nrow(conditions)) {
   # Parallel processing of replications
   results <- foreach(i = seq_len(rep), 
                      .packages = c("modsem", "lavaan", "covsim"), 
-                     .errorhandling = "pass") %dopar% {
+                     .errorhandling = "pass",
+                     .options.RNG = conditions$Seed[cond],) %dorng% {
                        process_replication(i, cond, n_params, skewness, excesskurtosis)
                      }
   
+  rng_states <- attr(results, "rng")
+    
   # Get valid results indices
   valid_indices <- which(!sapply(results, inherits, "try-error"))
   
@@ -167,10 +168,11 @@ for(cond in 1:nrow(conditions)) {
   
   all_results[[cond]] <- list(
     condition = conditions[cond, ],
-    results = res
+    results = res,
+    rng_states = rng_states
   )
   
-  # Save results for this condition
+  # Results for this condition
   condition_filename <- sprintf(
     "%s/condition_%d_N%d_Rel%s_%s_%s_%s_%s.RData",
     results_dir, 

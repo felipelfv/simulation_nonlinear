@@ -26,6 +26,7 @@ library(modsem) # in Methods.R for LMS, QML, and UCA approach
 # In Simulation.R for parallel computing:
 library(foreach)
 library(doParallel)
+library(doRNG)
 
 
 ##### 2.2 Parameters that we vary in the simulation study #####
@@ -94,7 +95,15 @@ conditions <- create_conditions(
 # For multiple clusters in HPC
 #conditions$Seed <- 1:nrow(conditions)
 # or this may be better: 
-conditions$Seed <- sample(1:1e9, size = nrow(conditions), replace = FALSE)
+conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE)) %% 1000
+
+#RNGkind("L'Ecuyer-CMRG")
+#Seeds <- list(.Random.seed)
+#for(i in 2:216) {
+#  Seeds[[i]] <-  nextRNGStream(Seeds[[i-1]])
+#}
+
+
 
 ##### 2.3 Fixed parameters #####
 
