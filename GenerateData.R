@@ -106,7 +106,7 @@ GenerateData <- function(model,
   colnames(Values) <- all_vars
   # Could also just skip the matrix initialization here actually..
   
-  # GENERATE ALL EXOGENOUS VARIABLES AT ONCE WITH rIG
+  # GENERATE ALL EXOGENOUS VARIABLES AT ONCE WITH rIG or unif
   # Important: Add check related to variance as Yves has (comment in 06/12/24)
   exo_vars <- model_info$structural$exogenous
   psi_matrix <- lavaan::lavInspect(fit, "est")$psi # For (co)variances among exogenous
