@@ -95,7 +95,8 @@ conditions <- create_conditions(
 # For multiple clusters in HPC
 #conditions$Seed <- 1:nrow(conditions)
 # or this may be better: 
-conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE)) %% 1000
+set.seed(123)
+conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE))
 
 #RNGkind("L'Ecuyer-CMRG")
 #Seeds <- list(.Random.seed)
