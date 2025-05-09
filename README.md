@@ -6,7 +6,24 @@ Repository for the first article of my PhD: A simulation study comparing
 structural-after-measurement versus traditional approaches 
 to estimate nonlinear effects in structural equation modeling
 
-# Functions
+## Reproducing the results 
+
+* To reproduce the simulation study and the obtained estimates (across all conditions and iterations), we refer to the files in the folder `/Simulation/`:
+1. `GenerateData.R` contains the R code for the self-costumed function [`GenerateData()`] that was used to simulate data according to the specified parameters.
+2. `Methods.R` contains the R code necessary for estimating the methods (i.e., LMS, QML, UCA, and SAM) compared in the simulation(s).
+3. `Models.R` contains the lavaan-based syntax models that were used to generate data, according to a population model, and the models used for the estimation. 
+4. `Design.R` contains the R code that creates the multiple conditions. 
+5. `Simulation.R` is the script used for running the Monte Carlo simulations. Note that this "sources" all the files above (1-4). 
+
+For more information concerning the actual functions in each aforementioned script, see below. 
+
+* To reproduce the results (i.e., bias, variability, type I error, etc.), we refer to the files in the folder `/Results/`:
+1. 
+
+* To reproduce the plots, we refer to the files in the folder `/Plots/`:
+1. 
+
+## Details on the functions 
 
 ## GenerateData.R
 
