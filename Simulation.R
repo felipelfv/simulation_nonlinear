@@ -11,15 +11,15 @@ source("Methods.R")
 source("Models.R")
 source("Design.R")
 
-# Prallel backend
-n_cores <- detectCores() - 2 # 8 in total, we use 6; change this when using the semlab pc
+# parallel backend
+n_cores <- detectCores() - 2
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
 clusterExport(cl, c("GenerateData", "method_analytic", "method_uca", "method_sam", "population.interaction.model",
                     "population.linear.model", "population.full.model", "fit.interaction.model", "fit.full.model"))
 
-dir.create("sim_results", showWarnings = FALSE) # Directories for results
+dir.create("sim_results", showWarnings = FALSE)
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
 results_dir <- paste0("sim_results/run_", timestamp)
 dir.create(results_dir, showWarnings = FALSE)
@@ -27,22 +27,14 @@ dir.create(results_dir, showWarnings = FALSE)
 start_time <- Sys.time()
 all_results <- list()
 
-# Single replication. This is used below within foreach
-process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
-  
-  # Results structure
-  # Later we aggregate all into one (combining the different processing levels)
-  local_res <- list(
-    lms = array(NA, dim = c(1, n_params, 3)),
-    qml = array(NA, dim = c(1, n_params, 3)),
-    uca = array(NA, dim = c(1, n_params, 3)),
-    sam = rep(NA, n_params),
-    timing = data.frame(
-      lms = NA,
-      qml = NA,
-      uca = NA,
-      sam = NA
-    )
+# For now (10/04), process_replication only for LMS in parallel
+process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis) {
+  # Container just for LMS results 
+  lms_res <- list(
+    estimates = rep(NA, n_params),
+    se = rep(NA, n_params),
+    pvals = rep(NA, n_params),
+    timing = NA
   )
   
   Data <- try(GenerateData(
@@ -62,46 +54,23 @@ process_replication <- function(i, cond, n_params, skewness, excesskurtosis) {
   if(!inherits(Data, "try-error")) {
     analysis_model <- get(conditions$Analysis_model[cond])
     
-    # LMS and QML methods
-    for(m in c("lms", "qml")) {
-      start_time_method <- Sys.time()
-      result <- try(method_analytic(Data = Data, model.fit = analysis_model, method = m))
-      local_res$timing[[m]] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
-      
-      if(!inherits(result, "try-error")) {
-        # Remember results in a list
-        # if local_res$m would look for an element named "m" rather than 
-        # looking for the element whose name is stored in the variable m.
-        local_res[[m]][1, , 1] <- result$Estimates
-        local_res[[m]][1, , 2] <- result$`Standard Errors`
-        local_res[[m]][1, , 3] <- result$`P-values`
-      }
-    }
-    
-    # UCA method
     start_time_method <- Sys.time()
-    result <- try(method_uca(Data = Data, model.fit = analysis_model))
-    local_res$timing$uca <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
+    result <- try(method_analytic(Data = Data, model.fit = analysis_model, method = "lms"))
+    lms_res$timing <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
     
     if(!inherits(result, "try-error")) {
-      # local_res[["uca"]] also works
-      local_res$uca[1, , 1] <- result$Estimates
-      local_res$uca[1, , 2] <- result$`Standard Errors`
-      local_res$uca[1, , 3] <- result$`P-values`
-    }
-    
-    # SAM method
-    start_time_method <- Sys.time()
-    result <- try(method_sam(Data = Data, model.fit = analysis_model))
-    local_res$timing$sam <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
-    
-    if(!inherits(result, "try-error")) {
-      # As of now, still no standard errors; hence, no SE and p-value
-      local_res$sam <- result$Estimates
+      lms_res$estimates <- result$Estimates
+      lms_res$se <- result$`Standard Errors`
+      lms_res$pvals <- result$`P-values`
     }
   }
-  local_res
+  
+  # So, here we return only LMS results as well as the data for each iteration
+  # Then I use for the remaining methods accordingly
+  list(data = if(!inherits(Data, "try-error")) Data else NULL,
+       lms_res = lms_res)
 }
+
 
 # Simulation for all conditions
 for(cond in 1:nrow(conditions)) {
@@ -115,14 +84,12 @@ for(cond in 1:nrow(conditions)) {
       ", exo_method =", conditions$Exo_method[cond],
       ", epsilon =", conditions$Epsilon[cond], "\n")
   
-  # Distribution parameter assignment
   skewness <- rep(ifelse(conditions$Distribution[cond] == "normal", 0, 2), 2)
   excesskurtosis <- rep(ifelse(conditions$Distribution[cond] == "normal", 0, 7), 2)
   
-  # Number of parameters as a function of the analysis model
+  # N of parameters as a function of the analysis model
   n_params <- ifelse(conditions$Analysis_model[cond] == "fit.full.model", 5, 3)
   
-  # Results structure
   res <- list(
     lms = array(NA, dim = c(rep, n_params, 3),
                 dimnames = list(NULL, NULL, c("beta", "se", "pval"))),
@@ -139,40 +106,76 @@ for(cond in 1:nrow(conditions)) {
     )
   )
   
-  # Parallel processing of replications
-  results <- foreach(i = seq_len(rep), 
-                     .packages = c("modsem", "lavaan", "covsim"), 
-                     .errorhandling = "pass",
-                     .options.RNG = conditions$Seed[cond],) %dorng% {
-                       process_replication(i, cond, n_params, skewness, excesskurtosis)
-                     }
+  # Parallel processing ONLY for LMS 
+  cat("\nRunning LMS in parallel\n")
+  lms_parallel_results <- foreach(i = seq_len(rep), 
+                                  .packages = c("modsem", "lavaan", "covsim"), 
+                                  .errorhandling = "pass",
+                                  .options.RNG = conditions$Seed[cond]) %dorng% {
+                                    process_lms_only(i, cond, n_params, skewness, excesskurtosis)
+                                  }
   
-  rng_states <- attr(results, "rng")
-    
-  # Get valid results indices
-  valid_indices <- which(!sapply(results, inherits, "try-error"))
+  # RNG states for this condition
+  rng_states <- attr(lms_parallel_results, "rng")
   
-  # Process results for valid indices
-  for(i in valid_indices) {
-    # Array methods (lms, qml, uca)
-    for(method in c("lms", "qml", "uca")) {
-      res[[method]][i, , ] <- results[[i]][[method]][1, , ]
+  # Process other methods sequentially
+  cat("\nRunning QML, UCA, and SAM sequentially\n")
+  for(i in 1:rep) {
+    # skip if data generation failed
+    if(is.null(lms_parallel_results[[i]]$data)) {
+      next
     }
     
-    # SAM results
-    res$sam[i, ] <- results[[i]]$sam
+    # LMS results
+    res$lms[i, , 1] <- lms_parallel_results[[i]]$lms_res$estimates
+    res$lms[i, , 2] <- lms_parallel_results[[i]]$lms_res$se
+    res$lms[i, , 3] <- lms_parallel_results[[i]]$lms_res$pvals
+    res$timing$lms[i] <- lms_parallel_results[[i]]$lms_res$timing
     
-    # Timing data
-    res$timing[i, ] <- results[[i]]$timing
+    # Dataset from parallel results
+    Data <- lms_parallel_results[[i]]$data
+    analysis_model <- get(conditions$Analysis_model[cond])
+    
+    # QML method
+    start_time_method <- Sys.time()
+    result <- try(method_analytic(Data = Data, model.fit = analysis_model, method = "qml"))
+    res$timing$qml[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
+    
+    if(!inherits(result, "try-error")) {
+      res$qml[i, , 1] <- result$Estimates
+      res$qml[i, , 2] <- result$`Standard Errors`
+      res$qml[i, , 3] <- result$`P-values`
+    }
+    
+    # UCA method
+    start_time_method <- Sys.time()
+    result <- try(method_uca(Data = Data, model.fit = analysis_model))
+    res$timing$uca[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
+    
+    if(!inherits(result, "try-error")) {
+      res$uca[i, , 1] <- result$Estimates
+      res$uca[i, , 2] <- result$`Standard Errors`
+      res$uca[i, , 3] <- result$`P-values`
+    }
+    
+    # SAM method
+    start_time_method <- Sys.time()
+    result <- try(method_sam(Data = Data, model.fit = analysis_model))
+    res$timing$sam[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
+    
+    if(!inherits(result, "try-error")) {
+      # As of now, still no standard errors; no SE and p-value
+      res$sam[i, ] <- result$Estimates
+    }
   }
   
   all_results[[cond]] <- list(
     condition = conditions[cond, ],
     results = res,
-    rng_states = rng_states
+    rng_states = rng_states  # rng states
   )
   
-  # Results for this condition
+  # RResults for this condition
   condition_filename <- sprintf(
     "%s/condition_%d_N%d_Rel%s_%s_%s_%s_%s.RData",
     results_dir, 
@@ -191,7 +194,7 @@ for(cond in 1:nrow(conditions)) {
     warning(paste("Failed to save condition results:", e$message))
   })
   
-  # all results periodically
+  # All results periodically (probably stop after the 50th)
   if(cond %% 10 == 0 || cond == nrow(conditions)) {
     tryCatch({
       save(all_results, conditions, 
@@ -201,11 +204,11 @@ for(cond in 1:nrow(conditions)) {
     })
   }
   
-  # For cleaning large objects from memory
-  rm(results)  
+  # removing large objects from memory
+  rm(lms_parallel_results)  
   gc()    
   
-  # Update progress information
+  # Progress information
   condition_time <- difftime(Sys.time(), condition_start, units = "mins")
   cat(sprintf("\nCondition %d completed in %.2f minutes\n", cond, condition_time))
   cat(sprintf("Progress: %.1f%% complete (%d of %d conditions)\n", 
