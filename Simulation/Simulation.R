@@ -138,7 +138,7 @@ for(cond in 1:nrow(conditions)) {
     
     # QML method
     start_time_method <- Sys.time()
-    result <- try(method_analytic(Data = Data, model.fit = analysis_model, method = "qml"))
+    result <- suppressWarnings(try(method_analytic(Data = Data, model.fit = analysis_model, method = "qml")))
     res$timing$qml[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
     
     if(!inherits(result, "try-error")) {
@@ -149,7 +149,7 @@ for(cond in 1:nrow(conditions)) {
     
     # UCA method
     start_time_method <- Sys.time()
-    result <- try(method_uca(Data = Data, model.fit = analysis_model))
+    result <- suppressWarnings(try(method_uca(Data = Data, model.fit = analysis_model)))
     res$timing$uca[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
     
     if(!inherits(result, "try-error")) {
@@ -160,7 +160,7 @@ for(cond in 1:nrow(conditions)) {
     
     # SAM method
     start_time_method <- Sys.time()
-    result <- try(method_sam(Data = Data, model.fit = analysis_model))
+    result <- suppressWarnings(try(method_sam(Data = Data, model.fit = analysis_model)))
     res$timing$sam[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
     
     if(!inherits(result, "try-error")) {
