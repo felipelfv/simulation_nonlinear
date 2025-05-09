@@ -15,17 +15,17 @@ to estimate nonlinear effects in structural equation modeling
 4. `Design.R` contains the R code that creates the multiple conditions. 
 5. `Simulation.R` is the script used for running the Monte Carlo simulations. Note that this "sources" all the files above (1-4). 
 
-For more information concerning the actual functions in each aforementioned script, see below. 
+For more information concerning the actual functions in each aforementioned script, see section Details below. 
 
 * To reproduce the results (i.e., bias, variability, type I error, etc.), we refer to the files in the folder `/Results/`:
 1. 
 
 * To reproduce the plots, we refer to the files in the folder `/Plots/`:
-1. 
+1. `Plots.R` contains all the R code needed to reproduce the plots displayed in the manuscript and more. 
 
-## Details on the functions 
+## Details
 
-## GenerateData.R
+### GenerateData.R
 
 This script contains the function that will parse the model information (in lavaan syntax) 
 and generate data based on some user-specified arguments.
@@ -51,7 +51,7 @@ GenerateData <- function(model,
                          add.eta = FALSE)
 ```
 
-## Methods.R
+### Methods.R
 
 This file contains the functions dedicated for the estimation based on the different approaches. 
 
@@ -66,14 +66,14 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
                             standardized = FALSE, method = "lms")
 ```
 
-## Models.R
+### Models.R
 
 This file contains all the models specified in lavaan syntax that are passed to GenerateData() in GenerateData.R
 
-## Design.R
+### Design.R
 
 This file contains the parameters that we vary in the simulation study.
 
-## Simulation.R
+### Simulation.R
 
 This file contains the actual script for running the simulation. Importantly, this script is dependent on the abovementioned. 
