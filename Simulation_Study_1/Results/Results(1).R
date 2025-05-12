@@ -93,10 +93,3 @@ process_beta_data <- function(all_results) {
 }
 
 results <- process_beta_data(all_results)
-results <- process_beta_data(combined_results)
-
-
-
-
-
-

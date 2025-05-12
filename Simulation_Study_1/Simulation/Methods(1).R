@@ -63,17 +63,31 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
   out <- modsem::modsem(model.syntax = model.fit, data = Data, method = method)
   rows <- out$parTable[out$parTable$lhs == "eta3" & out$parTable$op == "~", ]
   
-  params <- if(nrow(rows) == 3) {
-    c("eta1", "eta2", "eta1:eta2")
+  # 5 parameters; we need to reorder because eta1:eta1 before eta1:eta2
+  if(nrow(rows) == 5) {
+    # indices of the parameters we want to swap
+    eta1eta1_idx <- which(rows$rhs == "eta1:eta1")
+    eta1eta2_idx <- which(rows$rhs == "eta1:eta2")
+    
+    # reordered index vector
+    idx <- 1:nrow(rows)
+    idx[eta1eta1_idx] <- eta1eta2_idx
+    idx[eta1eta2_idx] <- eta1eta1_idx
+    
+    # Swapped parameter order
+    RESULTS <- list(
+      "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
+      "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
+      "P-values" = setNames(rows$p.value[idx], rows$rhs[idx])
+    )
   } else {
-    c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
+    # 3 parameters, keep as it was before:
+    RESULTS <- list(
+      "Estimates" = setNames(rows$est, rows$rhs),
+      "Standard Errors" = setNames(rows$std.error, rows$rhs),
+      "P-values" = setNames(rows$p.value, rows$rhs)
+    )
   }
-  
-  RESULTS <- list(
-    "Estimates" = setNames(rows$est, params),
-    "Standard Errors" = setNames(rows$std.error, params),
-    "P-values" = setNames(rows$p.value, params)
-  )
   
   RESULTS
 }

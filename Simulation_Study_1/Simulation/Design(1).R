@@ -112,5 +112,5 @@ conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE))
 exo.mean <- rep(0, 2)
 #target.var <- list("eta3" = 1.0) # target variance for eta 
 R2 <- list("eta3" = 0.30)
-rep <- 1000  # Repetitions (to be increased for the actual study): 1000(?)
+rep <- 2  # Repetitions (to be increased for the actual study): 1000(?)
 

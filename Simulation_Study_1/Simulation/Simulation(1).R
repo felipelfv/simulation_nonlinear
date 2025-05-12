@@ -6,10 +6,10 @@
 # where multiple replications are run simultaneously across X cores.
 
 # Other scripts needed
-source("GenerateData.R")
-source("Methods.R")
-source("Models.R")
-source("Design.R")
+source("Simulation_Study_1/Simulation/GenerateData(1).R")
+source("Simulation_Study_1/Simulation/Methods(1).R")
+source("Simulation_Study_1/Simulation/Models(1).R")
+source("Simulation_Study_1/Simulation/Design(1).R")
 
 # parallel backend
 n_cores <- detectCores() - 2
@@ -194,8 +194,8 @@ for(cond in 1:nrow(conditions)) {
     warning(paste("Failed to save condition results:", e$message))
   })
   
-  # All results periodically (probably stop after the 50th)
-  if(cond %% 10 == 0 || cond == nrow(conditions)) {
+  # All results until 10th condition
+  if(cond %% 10 == 0 || cond == min(10, nrow(conditions))) {
     tryCatch({
       save(all_results, conditions, 
            file = sprintf("%s/all_results_upto_condition_%d.RData", results_dir, cond))
