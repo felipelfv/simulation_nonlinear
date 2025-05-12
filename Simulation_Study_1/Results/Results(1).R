@@ -25,7 +25,8 @@ options(scipen=999) # To avoid scientific notation, 999 high threshold
 process_beta_data <- function(all_results) {
   # True beta values for each population model
   true_betas <- list(
-    "population.linear.model" = c(0.316, 0.316, 0, 0, 0),
+    # B1(eta1), B2(eta2), B3(eta1:eta2), B4(eta1:eta1), and B5(eta2:eta2)
+    "population.linear.model" = c(0.316, 0.316, 0, 0, 0), 
     "population.interaction.model" = c(0.316, 0.316, 0.139, 0, 0),
     "population.full.model" = c(0.316, 0.316, 0.139, 0.101, 0.101)
   )

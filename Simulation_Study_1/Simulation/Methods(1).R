@@ -75,6 +75,7 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
     idx[eta1eta2_idx] <- eta1eta1_idx
     
     # Swapped parameter order
+    # "eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2"
     RESULTS <- list(
       "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
       "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
@@ -82,6 +83,7 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
     )
   } else {
     # 3 parameters, keep as it was before:
+    # "eta1", "eta2", "eta1:eta2"
     RESULTS <- list(
       "Estimates" = setNames(rows$est, rows$rhs),
       "Standard Errors" = setNames(rows$std.error, rows$rhs),
