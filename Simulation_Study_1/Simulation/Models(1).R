@@ -67,57 +67,9 @@ eta1 ~~ 1*eta1
 eta2 ~~ 1*eta2
 "
 
-#### 3. Population Models - Under the Null ####
+#### 3. Fitted Models ####
 
-# Here we add the population models generated under the null hypothesis 
-# THese are not used. Irrelevant for now. 
-
-##### 3.1. Null Model for Main Effects #####
-population.linear.model.null <- "
-# Measurement model
-eta1 =~ 1*x1 + 1*x2 + 1*x3
-eta2 =~ 1*x4 + 1*x5 + 1*x6
-eta3 =~ 1*x7 + 1*x8 + 1*x9
-# Structural model
-eta3 ~ 0*eta1 + 0*eta2
-# (Co)variances
-eta1 ~~ 0.375*eta2
-eta1 ~~ 1*eta1
-eta2 ~~ 1*eta2
-"
-
-##### 3.2 Null Model for Interaction Effect #####
-population.interaction.model.null <- "
-# Measurement model
-eta1 =~ 1*x1 + 1*x2 + 1*x3
-eta2 =~ 1*x4 + 1*x5 + 1*x6
-eta3 =~ 1*x7 + 1*x8 + 1*x9
-# Structural model
-eta3 ~ -0.255*1 + 0.316*eta1 + 0.316*eta2 + 0*eta1:eta2
-# (Co)variances
-eta1 ~~ 0.375*eta2
-eta1 ~~ 1*eta1
-eta2 ~~ 1*eta2
-"
-
-##### 3.3. Null Model for all nonlinear effects #####
-population.full.model.null <- "
-# Measurement model
-eta1 =~ 1*x1 + 1*x2 + 1*x3
-eta2 =~ 1*x4 + 1*x5 + 1*x6
-eta3 =~ 1*x7 + 1*x8 + 1*x9
-# Structural model
-eta3 ~ -0.255*1 + 0.316*eta1 + 0.316*eta2 + 0*eta1:eta2 + 0*eta1:eta1 + 0*eta2:eta2
-# (Co)variances
-eta1 ~~ 0.375*eta2
-eta1 ~~ 1*eta1
-eta2 ~~ 1*eta2
-"
-
-
-#### 4. Fitted Models ####
-
-##### 4.1 First Fitted Model (A_{int}) #####
+##### 3.1 First Fitted Model (A_{int}) #####
 fit.interaction.model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
@@ -133,7 +85,7 @@ eta1 ~~ eta1
 eta2 ~~ eta2
 "
 
-##### 4.2 Second Fitted Model (A_{full}) #####
+##### 3.2 Second Fitted Model (A_{full}) #####
 fit.full.model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
