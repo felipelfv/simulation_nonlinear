@@ -221,6 +221,9 @@ for(cond in 1:nrow(conditions)) {
     # Debug: LMS results were stored correctly
     cat(sprintf("Debug: LMS est[1] = %.3f, se[1] = %.3f, pval[1] = %.3f\n", 
                 res$lms[i, 1, 1], res$lms[i, 1, 2], res$lms[i, 1, 3]))
+
+    cat(sprintf("Debug: LMS est[2] = %.3f, se[2] = %.3f, pval[2] = %.3f\n", 
+                res$lms[i, 2, 1], res$lms[i, 2, 2], res$lms[i, 2, 3]))
     
     # Dataset from parallel results
     Data <- lms_parallel_results[[i]]$data
