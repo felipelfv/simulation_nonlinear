@@ -1,5 +1,5 @@
 # scripts needed
-source("Simulation_Scripts/GenerateData(2).R")
+source("Simulation_Scripts/GenerateData.R")
 source("Simulation_Scripts/Simulation_Study_2/Method(2).R")
 source("Simulation_Scripts/Simulation_Study_2/Models(2).R")
 source("Simulation_Scripts/Simulation_Study_2/Design(2).R")

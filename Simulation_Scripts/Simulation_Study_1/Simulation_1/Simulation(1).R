@@ -6,7 +6,7 @@
 # where multiple replications are run simultaneously across X cores.
 
 # Other scripts needed
-source("Simulation_Scripts/GenerateData(1).R")
+source("Simulation_Scripts/GenerateData.R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Methods(1).R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Models(1).R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Design(1).R")
