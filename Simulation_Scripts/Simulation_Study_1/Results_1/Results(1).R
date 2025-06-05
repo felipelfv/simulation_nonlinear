@@ -50,11 +50,9 @@ process_beta_data <- function(all_results) {
     
     for (method in methods) {
       if (!is.null(data$results[[method]])) {
-        if (method == "sam") {
-          beta_matrix <- data$results[[method]]
-        } else {
-          beta_matrix <- data$results[[method]][,,"beta"]
-        }
+        beta_matrix <- data$results[[method]][,,"beta"]
+        se_matrix <- data$results[[method]][,,"se"]
+        
         na_counts <- colSums(is.na(beta_matrix)) # NAs for each beta coefficient
         # Outliers (values with absolute value > 1)
         outlier_matrix <- !is.na(beta_matrix) & abs(beta_matrix) > 1
@@ -66,6 +64,18 @@ process_beta_data <- function(all_results) {
         # Mean-based statistics
         mean_betas <- colMeans(working_matrix, na.rm = TRUE)
         variance <- apply(working_matrix, 2, var, na.rm = TRUE)
+        
+        # Calculate Monte-Carlo SD (standard deviation of parameter estimates)
+        mc_sd <- sqrt(variance)
+        
+        # Calculate average SE for each coefficient
+        # Remove outliers from SE matrix too (using same outlier criteria from beta matrix)
+        se_working_matrix <- se_matrix
+        se_working_matrix[outlier_matrix] <- NA
+        avg_se <- colMeans(se_working_matrix, na.rm = TRUE)
+        
+        # Calculate SE/SD ratio
+        se_sd_ratio <- avg_se / mc_sd
         
         # Median-based statistics (as described in Brandt et al., 2020) 
         median_betas <- apply(working_matrix, 2, median, na.rm = TRUE)
@@ -87,7 +97,7 @@ process_beta_data <- function(all_results) {
                                      ((median_betas[j] - true_val) / true_val) * 100,
                                      NA)  # avoid division by zero
           
-          # Absolute percent bias
+          # Absolute percent bias 
           abs_percent_bias <- abs(percent_bias_mdn)
           
           # RMSE as per formula 14 in Brandt et al., 2020 (p. 332)
@@ -112,6 +122,11 @@ process_beta_data <- function(all_results) {
             squared_bias = (mean_betas[j] - true_val)^2,
             variance = variance[j], 
             mse = (mean_betas[j] - true_val)^2 + variance[j],
+            
+            # SE/SD ratio calculation
+            avg_se = avg_se[j],
+            mc_sd = mc_sd[j],
+            se_sd_ratio = se_sd_ratio[j],
             
             # Median-based statistics (from Brandt et al., 2020)
             median_estimate = median_betas[j],
