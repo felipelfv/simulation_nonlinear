@@ -198,7 +198,7 @@ for(cond in 1:nrow(conditions)) {
   })
   
   # All results until 10th condition
-  if(cond %% 10 == 0 || cond == min(10, nrow(conditions))) {
+  if(cond %% 10 == 0 || cond == nrow(conditions)) {
     tryCatch({
       save(all_results, conditions, 
            file = sprintf("%s/all_results_upto_condition_%d.RData", results_dir, cond))
