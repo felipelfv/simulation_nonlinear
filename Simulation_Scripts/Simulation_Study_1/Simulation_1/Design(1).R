@@ -31,13 +31,12 @@ library(doRNG)
 
 ##### 2.2 Parameters that we vary in the simulation study #####
 
-sample_sizes <- c(200L, 500L, 800L) 
+sample_sizes <- c(200L, 1000L) 
 reliability_values <- c(0.4, 0.6, 0.8)
-population_models <- c("population.linear.model", "population.interaction.model", "population.full.model")
+population_models <- c("population.linear.model", "population.full.model")
 latent_exo_distribution <- c("normal", "nonnormal")
 exo_methods <- c("rIG", "unif")
-epsilon_distributions <- c("normal", "exp.rate1")
-
+epsilon_distributions <- c("normal")
 
 create_conditions <- function(sample_sizes, reliability_values,
                               population_models, latent_exo_distribution, 
@@ -57,30 +56,11 @@ create_conditions <- function(sample_sizes, reliability_values,
   base_conditions <- base_conditions[!(base_conditions$Distribution == "normal" & 
                                          base_conditions$Exo_method == "unif"), ]
   
-  result <- data.frame()
+  # Add analysis model column (now always fit.full.model)
+  base_conditions$Analysis_model <- "fit.full.model"
   
-  # For each row in base_conditions
-  for (i in 1:nrow(base_conditions)) {
-    row <- base_conditions[i, ]
-    
-    # Which analysis models to use
-    if (row$Population == "population.linear.model") {
-      analysis_models <- c("fit.interaction.model", "fit.full.model")
-    } else if (row$Population == "population.full.model") {
-      analysis_models <- c("fit.full.model")
-    } else {
-      analysis_models <- c("fit.interaction.model")
-    }
-    
-    # Create a row for each analysis model
-    for (model in analysis_models) {
-      new_row <- row
-      new_row$Analysis_model <- model
-      result <- rbind(result, new_row)
-    }
-  }
-  row.names(result) <- NULL # Reset row indices
-  result
+  row.names(base_conditions) <- NULL # Reset row indices
+  base_conditions
 }
 
 conditions <- create_conditions(
