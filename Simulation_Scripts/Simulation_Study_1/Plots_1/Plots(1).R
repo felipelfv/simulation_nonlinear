@@ -3,116 +3,117 @@ library(ggplot2)
 
 # DATA
 # load("run_20250407_1017/final_results.RData")
-load("Simulation_Study_1/Data/modified_all_results.RData")
+load("Simulation_Scripts/Simulation_Study_1/Data_1/modified_all_results.RData")
+
 combined_results <- all_results
 
 # (a) Subset for latent distributions varying, epsilon normal, 200, 0.4
 results_12_lms <- lapply(combined_results[1:12], function(x) x$results$lms[, , "beta"])
 results_12_qml <- lapply(combined_results[1:12], function(x) x$results$qml[, , "beta"])
 results_12_uca <- lapply(combined_results[1:12], function(x) x$results$uca[, , "beta"])
-results_12_sam <- lapply(combined_results[1:12], function(x) x$results$sam)
+results_12_sam <- lapply(combined_results[1:12], function(x) x$results$sam[, , "beta"])
   
 # (b) Subset for latent distributions varying, epsilon exp.rate1, 200, 0.4
 results_24_lms <- lapply(combined_results[13:24], function(x) x$results$lms[, , "beta"])
 results_24_qml <- lapply(combined_results[13:24], function(x) x$results$qml[, , "beta"])
 results_24_uca <- lapply(combined_results[13:24], function(x) x$results$uca[, , "beta"])
-results_24_sam <- lapply(combined_results[13:24], function(x) x$results$sam)
+results_24_sam <- lapply(combined_results[13:24], function(x) x$results$sam[, , "beta"])
   
 # (c) Subset for latent distributions varying, epsilon normal, 500, 0.4
 results_36_lms <- lapply(combined_results[25:36], function(x) x$results$lms[, , "beta"])
 results_36_qml <- lapply(combined_results[25:36], function(x) x$results$qml[, , "beta"])
 results_36_uca <- lapply(combined_results[25:36], function(x) x$results$uca[, , "beta"])
-results_36_sam <- lapply(combined_results[25:36], function(x) x$results$sam)
+results_36_sam <- lapply(combined_results[25:36], function(x) x$results$sam[, , "beta"])
   
 # (d) Subset for latent distributions varying, epsilon exp.rate1, 500, 0.4
 results_48_lms <- lapply(combined_results[37:48], function(x) x$results$lms[, , "beta"])
 results_48_qml <- lapply(combined_results[37:48], function(x) x$results$qml[, , "beta"])
 results_48_uca <- lapply(combined_results[37:48], function(x) x$results$uca[, , "beta"])
-results_48_sam <- lapply(combined_results[37:48], function(x) x$results$sam)
+results_48_sam <- lapply(combined_results[37:48], function(x) x$results$sam[, , "beta"])
   
 # (e) Subset for latent distributions varying, epsilon normal, 800, 0.4
 results_60_lms <- lapply(combined_results[49:60], function(x) x$results$lms[, , "beta"])
 results_60_qml <- lapply(combined_results[49:60], function(x) x$results$qml[, , "beta"])
 results_60_uca <- lapply(combined_results[49:60], function(x) x$results$uca[, , "beta"])
-results_60_sam <- lapply(combined_results[49:60], function(x) x$results$sam)
+results_60_sam <- lapply(combined_results[49:60], function(x) x$results$sam[, , "beta"])
   
 # (f) Subset for latent distributions varying, epsilon exp.rate1, 800, 0.4
 results_72_lms <- lapply(combined_results[61:72], function(x) x$results$lms[, , "beta"])
 results_72_qml <- lapply(combined_results[61:72], function(x) x$results$qml[, , "beta"])
 results_72_uca <- lapply(combined_results[61:72], function(x) x$results$uca[, , "beta"])
-results_72_sam <- lapply(combined_results[61:72], function(x) x$results$sam)
+results_72_sam <- lapply(combined_results[61:72], function(x) x$results$sam[, , "beta"])
   
 # (g) Subset for latent distributions varying, epsilon normal, 200, 0.6
 results_84_lms <- lapply(combined_results[73:84], function(x) x$results$lms[, , "beta"])
 results_84_qml <- lapply(combined_results[73:84], function(x) x$results$qml[, , "beta"])
 results_84_uca <- lapply(combined_results[73:84], function(x) x$results$uca[, , "beta"])
-results_84_sam <- lapply(combined_results[73:84], function(x) x$results$sam)
+results_84_sam <- lapply(combined_results[73:84], function(x) x$results$sam[, , "beta"])
   
 # (h) Subset for latent distributions varying, epsilon exp.rate1, 200, 0.6
 results_96_lms <- lapply(combined_results[85:96], function(x) x$results$lms[, , "beta"])
 results_96_qml <- lapply(combined_results[85:96], function(x) x$results$qml[, , "beta"])
 results_96_uca <- lapply(combined_results[85:96], function(x) x$results$uca[, , "beta"])
-results_96_sam <- lapply(combined_results[85:96], function(x) x$results$sam)
+results_96_sam <- lapply(combined_results[85:96], function(x) x$results$sam[, , "beta"])
   
 # (i) Subset for latent distributions varying, epsilon normal, 500, 0.6
 results_108_lms <- lapply(combined_results[97:108], function(x) x$results$lms[, , "beta"])
 results_108_qml <- lapply(combined_results[97:108], function(x) x$results$qml[, , "beta"])
 results_108_uca <- lapply(combined_results[97:108], function(x) x$results$uca[, , "beta"])
-results_108_sam <- lapply(combined_results[97:108], function(x) x$results$sam)
+results_108_sam <- lapply(combined_results[97:108], function(x) x$results$sam[, , "beta"])
   
 # (j) Subset for latent distributions varying, epsilon exp.rate1, 500, 0.6
 results_120_lms <- lapply(combined_results[109:120], function(x) x$results$lms[, , "beta"])
 results_120_qml <- lapply(combined_results[109:120], function(x) x$results$qml[, , "beta"])
 results_120_uca <- lapply(combined_results[109:120], function(x) x$results$uca[, , "beta"])
-results_120_sam <- lapply(combined_results[109:120], function(x) x$results$sam)
+results_120_sam <- lapply(combined_results[109:120], function(x) x$results$sam[, , "beta"])
   
 # (k) Subset for latent distributions varying, epsilon normal, 800, 0.6
 results_132_lms <- lapply(combined_results[121:132], function(x) x$results$lms[, , "beta"])
 results_132_qml <- lapply(combined_results[121:132], function(x) x$results$qml[, , "beta"])
 results_132_uca <- lapply(combined_results[121:132], function(x) x$results$uca[, , "beta"])
-results_132_sam <- lapply(combined_results[121:132], function(x) x$results$sam)
+results_132_sam <- lapply(combined_results[121:132], function(x) x$results$sam[, , "beta"])
 
 # (l) Subset for latent distributions varying, epsilon exp.rate1, 800, 0.6
 results_144_lms <- lapply(combined_results[133:144], function(x) x$results$lms[, , "beta"])
 results_144_qml <- lapply(combined_results[133:144], function(x) x$results$qml[, , "beta"])
 results_144_uca <- lapply(combined_results[133:144], function(x) x$results$uca[, , "beta"])
-results_144_sam <- lapply(combined_results[133:144], function(x) x$results$sam)
+results_144_sam <- lapply(combined_results[133:144], function(x) x$results$sam[, , "beta"])
   
 # (m) Subset for latent distributions varying, epsilon normal, 200, 0.8
 results_156_lms <- lapply(combined_results[145:156], function(x) x$results$lms[, , "beta"])
 results_156_qml <- lapply(combined_results[145:156], function(x) x$results$qml[, , "beta"])
 results_156_uca <- lapply(combined_results[145:156], function(x) x$results$uca[, , "beta"])
-results_156_sam <- lapply(combined_results[145:156], function(x) x$results$sam)
+results_156_sam <- lapply(combined_results[145:156], function(x) x$results$sam[, , "beta"])
   
 # (n) Subset for latent distributions varying, epsilon exp.rate1, 200, 0.8
 results_168_lms <- lapply(combined_results[157:168], function(x) x$results$lms[, , "beta"])
 results_168_qml <- lapply(combined_results[157:168], function(x) x$results$qml[, , "beta"])
 results_168_uca <- lapply(combined_results[157:168], function(x) x$results$uca[, , "beta"])
-results_168_sam <- lapply(combined_results[157:168], function(x) x$results$sam)
+results_168_sam <- lapply(combined_results[157:168], function(x) x$results$sam[, , "beta"])
   
 # (o) Subset for latent distributions varying, epsilon normal, 500, 0.8
 results_180_lms <- lapply(combined_results[169:180], function(x) x$results$lms[, , "beta"])
 results_180_qml <- lapply(combined_results[169:180], function(x) x$results$qml[, , "beta"])
 results_180_uca <- lapply(combined_results[169:180], function(x) x$results$uca[, , "beta"])
-results_180_sam <- lapply(combined_results[169:180], function(x) x$results$sam)
+results_180_sam <- lapply(combined_results[169:180], function(x) x$results$sam[, , "beta"])
   
 # (p) Subset for latent distributions varying, epsilon exp.rate1, 500, 0.8
 results_192_lms <- lapply(combined_results[181:192], function(x) x$results$lms[, , "beta"])
 results_192_qml <- lapply(combined_results[181:192], function(x) x$results$qml[, , "beta"])
 results_192_uca <- lapply(combined_results[181:192], function(x) x$results$uca[, , "beta"])
-results_192_sam <- lapply(combined_results[181:192], function(x) x$results$sam)
+results_192_sam <- lapply(combined_results[181:192], function(x) x$results$sam[, , "beta"])
   
 # (q) Subset for latent distributions varying, epsilon normal, 800, 0.8
 results_204_lms <- lapply(combined_results[193:204], function(x) x$results$lms[, , "beta"])
 results_204_qml <- lapply(combined_results[193:204], function(x) x$results$qml[, , "beta"])
 results_204_uca <- lapply(combined_results[193:204], function(x) x$results$uca[, , "beta"])
-results_204_sam <- lapply(combined_results[193:204], function(x) x$results$sam)
+results_204_sam <- lapply(combined_results[193:204], function(x) x$results$sam[, , "beta"])
   
 # (r) Subset for latent distributions varying, epsilon exp.rate1, 800, 0.8
 results_216_lms <- lapply(combined_results[205:216], function(x) x$results$lms[, , "beta"])
 results_216_qml <- lapply(combined_results[205:216], function(x) x$results$qml[, , "beta"])
 results_216_uca <- lapply(combined_results[205:216], function(x) x$results$uca[, , "beta"])
-results_216_sam <- lapply(combined_results[205:216], function(x) x$results$sam)
+results_216_sam <- lapply(combined_results[205:216], function(x) x$results$sam[, , "beta"])
   
 
 # analyze and visualize results based on input parameters
