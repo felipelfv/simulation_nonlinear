@@ -24,7 +24,9 @@ method_uca <- function(Data = NULL, model.fit = NULL) {
   RESULTS <- list(
     "Estimates" = setNames(rows$est, params),
     "Standard Errors" = setNames(rows$se, params),
-    "P-values" = setNames(rows$pvalue, params)
+    "P-values" = setNames(rows$pvalue, params),
+    "CI_lower" = setNames(rows$ci.lower, params),
+    "CI_upper" = setNames(rows$ci.upper, params)
   )
   
   RESULTS
@@ -53,12 +55,16 @@ method_sam <- function(Data = NULL, estimator = "ML",
   ests <- setNames(est_table$est[rows], est_table$rhs[rows])
   ses  <- setNames(est_table$se[rows], est_table$rhs[rows])
   pval <- setNames(est_table$pvalue[rows], est_table$rhs[rows])
+  ci_lower <- setNames(est_table$ci.lower[rows], est_table$rhs[rows])
+  ci_upper <- setNames(est_table$ci.upper[rows], est_table$rhs[rows])
   
   # order according to `params`
   RESULTS <- list(
     "Estimates"        = ests[params],
     "Standard Errors"  = ses[params],
-    "P-values"         = pval[params]
+    "P-values"         = pval[params],
+    "CI_lower"         = ci_lower[params],
+    "CI_upper"         = ci_upper[params]
   )
   
   RESULTS
@@ -91,7 +97,9 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
     RESULTS <- list(
       "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
       "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
-      "P-values" = setNames(rows$p.value[idx], rows$rhs[idx])
+      "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
+      "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
+      "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
     )
   } else {
     # 3 parameters, keep as it was before:
@@ -99,7 +107,9 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
     RESULTS <- list(
       "Estimates" = setNames(rows$est, rows$rhs),
       "Standard Errors" = setNames(rows$std.error, rows$rhs),
-      "P-values" = setNames(rows$p.value, rows$rhs)
+      "P-values" = setNames(rows$p.value, rows$rhs),
+      "CI_lower" = setNames(rows$ci.lower, rows$rhs),
+      "CI_upper" = setNames(rows$ci.upper, rows$rhs)
     )
   }
   
