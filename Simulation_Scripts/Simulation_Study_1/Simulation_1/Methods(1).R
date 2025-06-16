@@ -1,11 +1,22 @@
-#### 1. General Session Info ####
+##==============================================================================
+## General Information 
+##
+## Script name: Methods(1).R
+##
+## Purpose of script: functions used for the four different approaches. 
+## 
+#' @param Data Data frame.
+#' @param model.fit Model used for the estimation.
+#' 
+#' 
+#' 
+##==============================================================================
 
-library(modsem) # For QML, LMS, and UCA
-library(lavaan) # For SAM
+##==============================================================================
+## 1. Methods: UCA, SAM, LMS, and QML 
+##==============================================================================
 
-#### 2. Methods: UCA, SAM, LMS, and QML ####
-
-#### 2.1. Product Indicator Approaches (UCA) ####
+#### 1.1. Product Indicator Approaches (UCA) ####
 
 # Note: On page 186, Brandt et al. (2014) claim that for the interaction model
 # the term unconstrained approach (as in Marsh et al., 2004, 2006) would be 
@@ -32,13 +43,15 @@ method_uca <- function(Data = NULL, model.fit = NULL) {
   RESULTS
 }
 
-#### 2.2 Structural-After-Measurement (SAM) Approach ####
+#### 1.2 Structural-After-Measurement (SAM) Approach ####
 
 method_sam <- function(Data = NULL, estimator = "ML",
                        joint = FALSE, add.attr = FALSE, 
-                       model.fit = NULL) {
+                       model.fit = NULL,
+                       mm.list = NULL) {
   out <- lavaan::sam(model.fit, data = Data, se = "local",
-                     mm.args = list(estimator = estimator))
+                     mm.args = list(estimator = estimator),
+                     mm.list = mm.list)
   
   # parameter estimates 
   est_table <- parameterEstimates(out)
@@ -71,7 +84,7 @@ method_sam <- function(Data = NULL, estimator = "ML",
 }
 
 
-#### 2.3 Analytic Approaches (LMS and QML) ####
+#### 1.3 Analytic Approaches (LMS and QML) ####
 
 # Note: both approaches are estimated using the same function. 
 # The argument "method" used in the Simulation script that calls each.
