@@ -6,7 +6,7 @@
 # where multiple replications are run simultaneously across X cores.
 
 # Other scripts needed
-source("Simulation_Scripts/GenerateData.R")
+source("Simulation_Scripts/GenerateData_withpopvar.R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Methods(1).R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Models(1).R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Design(1).R")
@@ -24,16 +24,87 @@ timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
 results_dir <- paste0("sim_results/run_", timestamp)
 dir.create(results_dir, showWarnings = FALSE)
 
-start_time <- Sys.time()
-all_results <- list()
+# ============================================================================
+# PRE-COMPUTE POPULATION VARIANCES FOR ALL UNIQUE CONDITIONS
+# ============================================================================
+
+cat("\n=== Pre-computing population variances for all unique conditions ===\n")
+
+# Get unique combinations that affect population variances
+unique_pop_conditions <- unique(conditions[, c("Population", "Distribution", "Exo_method", "Rel")])
+unique_pop_conditions <- unique_pop_conditions[order(
+  unique_pop_conditions$Population, 
+  unique_pop_conditions$Distribution,
+  unique_pop_conditions$Exo_method,
+  unique_pop_conditions$Rel
+), ]
+
+cat(sprintf("Found %d unique population conditions\n", nrow(unique_pop_conditions)))
+
+# Storage for population variances
+pop_variances_list <- list()
+
+# Compute population variances for each unique combination
+for(i in 1:nrow(unique_pop_conditions)) {
+  cond <- unique_pop_conditions[i, ]
+  
+  # Create key for this combination
+  key <- paste(cond$Population, cond$Distribution, cond$Exo_method, cond$Rel, sep = "_")
+  
+  cat(sprintf("\nComputing population variances for: %s\n", key))
+  
+  # Set distribution parameters
+  skewness <- rep(ifelse(cond$Distribution == "normal", 0, 2), 2)
+  excesskurtosis <- rep(ifelse(cond$Distribution == "normal", 0, 7), 2)
+  
+  # Compute population variances
+  pop_data <- GenerateData(
+    model = get(cond$Population),
+    N = 100,  # Small N since we only need variances
+    compute_pop_vars = TRUE,
+    N.pop = 5000000,  # Large for accuracy
+    skewness = skewness,
+    excesskurtosis = excesskurtosis,
+    exo.mean = exo.mean,  # Assuming this is defined in your environment
+    distr.exo = cond$Exo_method,
+    distr.zeta = "normal",
+    distr.epsilon = "normal",  # Assuming normal for population computation
+    rel = cond$Rel,
+    R2 = R2,  # Assuming this is defined in your environment
+    seed = 999999  # Fixed seed for reproducibility
+  )
+  
+  # Store the population variances
+  pop_variances_list[[key]] <- list(
+    pop_var_nozeta = attr(pop_data, "pop_var_nozeta"),
+    eta_pop_vars = attr(pop_data, "eta_pop_vars")
+  )
+  
+  # Display computed variances
+  cat("  eta_pop_vars:\n")
+  print(pop_variances_list[[key]]$eta_pop_vars)
+}
+
+# Save population variances
+save(pop_variances_list, file = paste0(results_dir, "/population_variances.RData"))
+cat("\n=== Population variance computation complete ===\n")
+
+# Export to cluster
+clusterExport(cl, "pop_variances_list")
+
+# ============================================================================
+# MODIFIED process_lms_only FUNCTION
+# ============================================================================
 
 # For now (10/04), process_replication only for LMS in parallel
-process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis) {
+process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis, pop_var_nozeta, eta_pop_vars) {
   # Container just for LMS results 
   lms_res <- list(
     estimates = rep(NA, n_params),
     se = rep(NA, n_params),
     pvals = rep(NA, n_params),
+    ci_lower = rep(NA, n_params),  
+    ci_upper = rep(NA, n_params),  
     timing = NA
   )
   
@@ -47,9 +118,12 @@ process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis) {
     distr.zeta = "normal",
     distr.epsilon = conditions$Epsilon[cond],
     rel = conditions$Rel[cond],
-    #target.var = target.var,
     R2 = R2,
-    add.eta = FALSE), silent = TRUE)
+    add.eta = FALSE,
+    compute_pop_vars = FALSE,  # don't compute, use provided
+    pop_var_nozeta = pop_var_nozeta,  # use pre-computed
+    eta_pop_vars = eta_pop_vars  # use pre-computed
+  ), silent = TRUE)
   
   if(!inherits(Data, "try-error")) {
     analysis_model <- get(conditions$Analysis_model[cond])
@@ -62,6 +136,8 @@ process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis) {
       lms_res$estimates <- result$Estimates
       lms_res$se <- result$`Standard Errors`
       lms_res$pvals <- result$`P-values`
+      lms_res$ci_lower <- result$CI_lower  # ADD THIS
+      lms_res$ci_upper <- result$CI_upper  # ADD THIS
     }
   }
   
@@ -71,6 +147,12 @@ process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis) {
        lms_res = lms_res)
 }
 
+# ============================================================================
+# MAIN SIMULATION LOOP (MODIFIED)
+# ============================================================================
+
+start_time <- Sys.time()
+all_results <- list()
 
 # Simulation for all conditions
 for(cond in 1:nrow(conditions)) {
@@ -87,18 +169,31 @@ for(cond in 1:nrow(conditions)) {
   skewness <- rep(ifelse(conditions$Distribution[cond] == "normal", 0, 2), 2)
   excesskurtosis <- rep(ifelse(conditions$Distribution[cond] == "normal", 0, 7), 2)
   
+  # RETRIEVE PRE-COMPUTED POPULATION VARIANCES
+  key <- paste(conditions$Population[cond], 
+               conditions$Distribution[cond], 
+               conditions$Exo_method[cond], 
+               conditions$Rel[cond], 
+               sep = "_")
+  
+  pop_vars <- pop_variances_list[[key]]
+  pop_var_nozeta <- pop_vars$pop_var_nozeta
+  eta_pop_vars <- pop_vars$eta_pop_vars
+  
+  cat("Using pre-computed population variances for:", key, "\n")
+  
   # N of parameters as a function of the analysis model
   n_params <- ifelse(conditions$Analysis_model[cond] == "fit.full.model", 5, 3)
   
   res <- list(
-    lms = array(NA, dim = c(rep, n_params, 3),
-                dimnames = list(NULL, NULL, c("beta", "se", "pval"))),
-    qml = array(NA, dim = c(rep, n_params, 3),
-                dimnames = list(NULL, NULL, c("beta", "se", "pval"))),
-    uca = array(NA, dim = c(rep, n_params, 3),
-                dimnames = list(NULL, NULL, c("beta", "se", "pval"))),
-    sam = array(NA, dim = c(rep, n_params, 3),
-                dimnames = list(NULL, NULL, c("beta", "se", "pval"))),
+    lms = array(NA, dim = c(rep, n_params, 5), 
+                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
+    qml = array(NA, dim = c(rep, n_params, 5), 
+                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
+    uca = array(NA, dim = c(rep, n_params, 5),  
+                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
+    sam = array(NA, dim = c(rep, n_params, 5),  
+                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
     timing = data.frame(
       lms = numeric(rep),
       qml = numeric(rep),
@@ -113,7 +208,8 @@ for(cond in 1:nrow(conditions)) {
                                   .packages = c("modsem", "lavaan", "covsim"), 
                                   .errorhandling = "pass",
                                   .options.RNG = conditions$Seed[cond]) %dorng% {
-                                    process_lms_only(i, cond, n_params, skewness, excesskurtosis)
+                                    process_lms_only(i, cond, n_params, skewness, excesskurtosis, 
+                                                     pop_var_nozeta, eta_pop_vars)
                                   }
   
   # RNG states for this condition
@@ -131,6 +227,8 @@ for(cond in 1:nrow(conditions)) {
     res$lms[i, , 1] <- lms_parallel_results[[i]]$lms_res$estimates
     res$lms[i, , 2] <- lms_parallel_results[[i]]$lms_res$se
     res$lms[i, , 3] <- lms_parallel_results[[i]]$lms_res$pvals
+    res$lms[i, , 4] <- lms_parallel_results[[i]]$lms_res$ci_lower  
+    res$lms[i, , 5] <- lms_parallel_results[[i]]$lms_res$ci_upper  
     res$timing$lms[i] <- lms_parallel_results[[i]]$lms_res$timing
     
     # Dataset from parallel results
@@ -146,6 +244,8 @@ for(cond in 1:nrow(conditions)) {
       res$qml[i, , 1] <- result$Estimates
       res$qml[i, , 2] <- result$`Standard Errors`
       res$qml[i, , 3] <- result$`P-values`
+      res$qml[i, , 4] <- result$CI_lower  
+      res$qml[i, , 5] <- result$CI_upper  
     }
     
     # UCA method
@@ -157,6 +257,8 @@ for(cond in 1:nrow(conditions)) {
       res$uca[i, , 1] <- result$Estimates
       res$uca[i, , 2] <- result$`Standard Errors`
       res$uca[i, , 3] <- result$`P-values`
+      res$uca[i, , 4] <- result$CI_lower  
+      res$uca[i, , 5] <- result$CI_upper 
     }
     
     # SAM method
@@ -165,20 +267,22 @@ for(cond in 1:nrow(conditions)) {
     res$timing$sam[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
     
     if(!inherits(result, "try-error")) {
-      # As of now, still no standard errors; no SE and p-value
       res$sam[i, , 1] <- result$Estimates
       res$sam[i, , 2] <- result$`Standard Errors`
       res$sam[i, , 3] <- result$`P-values`
+      res$sam[i, , 4] <- result$CI_lower  
+      res$sam[i, , 5] <- result$CI_upper  
     }
   }
   
   all_results[[cond]] <- list(
     condition = conditions[cond, ],
     results = res,
-    rng_states = rng_states  # rng states
+    rng_states = rng_states,
+    population_variances = pop_vars  # Store which population variances were used
   )
   
-  # RResults for this condition
+  # Results for this condition
   condition_filename <- sprintf(
     "%s/condition_%d_N%d_Rel%s_%s_%s_%s_%s.RData",
     results_dir, 
@@ -211,7 +315,7 @@ for(cond in 1:nrow(conditions)) {
   rm(lms_parallel_results)  
   gc()    
   
-  # Progress information
+  # progress info
   condition_time <- difftime(Sys.time(), condition_start, units = "mins")
   cat(sprintf("\nCondition %d completed in %.2f minutes\n", cond, condition_time))
   cat(sprintf("Progress: %.1f%% complete (%d of %d conditions)\n", 
