@@ -3,21 +3,15 @@
 # This code is not processing multiple conditions in parallel. 
 # It processes the conditions one after another. 
 # The parallelization happens only within each condition, 
-# where multiple replications are run simultaneously across X cores.
+# where multiple replications are run simultaneously across X cores
 
 # Other scripts needed
-source("Simulation_Scripts/GenerateData_withpopvar.R")
+source("Simulation_Scripts/Simulation_Study_1/GenerateData.R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Methods(1).R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Models(1).R")
 source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Design(1).R")
 
-# parallel backend
-n_cores <- detectCores() - 2
-cl <- makeCluster(n_cores)
-registerDoParallel(cl)
-
-clusterExport(cl, c("GenerateData", "method_analytic", "method_uca", "method_sam", "population.interaction.model",
-                    "population.linear.model", "population.full.model", "fit.interaction.model", "fit.full.model"))
+RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
 dir.create("sim_results", showWarnings = FALSE)
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
@@ -41,64 +35,71 @@ unique_pop_conditions <- unique_pop_conditions[order(
 
 cat(sprintf("Found %d unique population conditions\n", nrow(unique_pop_conditions)))
 
-# Storage for population variances
 pop_variances_list <- list()
 
-# Compute population variances for each unique combination
+# population variances for each unique combination
 for(i in 1:nrow(unique_pop_conditions)) {
   cond <- unique_pop_conditions[i, ]
   
-  # Create key for this combination
+  # key for this combination
   key <- paste(cond$Population, cond$Distribution, cond$Exo_method, cond$Rel, sep = "_")
   
   cat(sprintf("\nComputing population variances for: %s\n", key))
   
-  # Set distribution parameters
+  # distribution parameters
   skewness <- rep(ifelse(cond$Distribution == "normal", 0, 2), 2)
   excesskurtosis <- rep(ifelse(cond$Distribution == "normal", 0, 7), 2)
   
-  # Compute population variances
+  # population variances
   pop_data <- GenerateData(
     model = get(cond$Population),
-    N = 100,  # Small N since we only need variances
+    N = 100,  # this does not matter (any above 10): we only need variances
     compute_pop_vars = TRUE,
-    N.pop = 5000000,  # Large for accuracy
+    N.pop = 5000000,  # !!
     skewness = skewness,
     excesskurtosis = excesskurtosis,
-    exo.mean = exo.mean,  # Assuming this is defined in your environment
+    exo.mean = exo.mean, 
     distr.exo = cond$Exo_method,
     distr.zeta = "normal",
-    distr.epsilon = "normal",  # Assuming normal for population computation
+    distr.epsilon = "normal", 
     rel = cond$Rel,
-    R2 = R2,  # Assuming this is defined in your environment
-    seed = 999999  # Fixed seed for reproducibility
+    R2 = R2, 
+    seed = 123
   )
   
-  # Store the population variances
   pop_variances_list[[key]] <- list(
     pop_var_nozeta = attr(pop_data, "pop_var_nozeta"),
     eta_pop_vars = attr(pop_data, "eta_pop_vars")
   )
   
-  # Display computed variances
   cat("  eta_pop_vars:\n")
   print(pop_variances_list[[key]]$eta_pop_vars)
 }
 
-# Save population variances
 save(pop_variances_list, file = paste0(results_dir, "/population_variances.RData"))
 cat("\n=== Population variance computation complete ===\n")
 
-# Export to cluster
-clusterExport(cl, "pop_variances_list")
+# parallel backend
+n_cores <- detectCores() - 2
+cl <- makeCluster(n_cores)
+registerDoParallel(cl)
+
+clusterExport(cl, c("GenerateData", "method_analytic", "method_uca", "method_sam", 
+                    "population.interaction.model", "population.linear.model", 
+                    "population.full.model", "fit.interaction.model", "fit.full.model",
+                    "pop_variances_list"))
 
 # ============================================================================
-# MODIFIED process_lms_only FUNCTION
+# SIMULATION PART
+# ============================================================================
+
+# ============================================================================
+# FUNCTION FOR SIMULATION - LMS
 # ============================================================================
 
 # For now (10/04), process_replication only for LMS in parallel
 process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis, pop_var_nozeta, eta_pop_vars) {
-  # Container just for LMS results 
+  # container for LMS 
   lms_res <- list(
     estimates = rep(NA, n_params),
     se = rep(NA, n_params),
@@ -136,8 +137,8 @@ process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis, pop_va
       lms_res$estimates <- result$Estimates
       lms_res$se <- result$`Standard Errors`
       lms_res$pvals <- result$`P-values`
-      lms_res$ci_lower <- result$CI_lower  # ADD THIS
-      lms_res$ci_upper <- result$CI_upper  # ADD THIS
+      lms_res$ci_lower <- result$CI_lower  
+      lms_res$ci_upper <- result$CI_upper  
     }
   }
   
@@ -154,7 +155,7 @@ process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis, pop_va
 start_time <- Sys.time()
 all_results <- list()
 
-# Simulation for all conditions
+# simulation for all conditions
 for(cond in 1:nrow(conditions)) {
   condition_start <- Sys.time()
   cat("\nRunning condition", cond, "of", nrow(conditions), "\n")
@@ -202,12 +203,12 @@ for(cond in 1:nrow(conditions)) {
     )
   )
   
-  # Parallel processing ONLY for LMS 
+  # parallel processing ONLY for LMS 
   cat("\nRunning LMS in parallel\n")
   lms_parallel_results <- foreach(i = seq_len(rep), 
                                   .packages = c("modsem", "lavaan", "covsim"), 
                                   .errorhandling = "pass",
-                                  .options.RNG = conditions$Seed[cond]) %dorng% {
+                                  .options.RNG = 123 + cond * 1000) %dorng% {
                                     process_lms_only(i, cond, n_params, skewness, excesskurtosis, 
                                                      pop_var_nozeta, eta_pop_vars)
                                   }
@@ -215,7 +216,7 @@ for(cond in 1:nrow(conditions)) {
   # RNG states for this condition
   rng_states <- attr(lms_parallel_results, "rng")
   
-  # Process other methods sequentially
+  # other methods sequentially
   cat("\nRunning QML, UCA, and SAM sequentially\n")
   for(i in 1:rep) {
     # skip if data generation failed
@@ -231,7 +232,7 @@ for(cond in 1:nrow(conditions)) {
     res$lms[i, , 5] <- lms_parallel_results[[i]]$lms_res$ci_upper  
     res$timing$lms[i] <- lms_parallel_results[[i]]$lms_res$timing
     
-    # Dataset from parallel results
+    # dataset from parallel results (!) - make sure we get the same exact data used in lms
     Data <- lms_parallel_results[[i]]$data
     analysis_model <- get(conditions$Analysis_model[cond])
     
@@ -279,10 +280,10 @@ for(cond in 1:nrow(conditions)) {
     condition = conditions[cond, ],
     results = res,
     rng_states = rng_states,
-    population_variances = pop_vars  # Store which population variances were used
+    population_variances = pop_vars  # population variances used
   )
   
-  # Results for this condition
+  # results for (this) condition
   condition_filename <- sprintf(
     "%s/condition_%d_N%d_Rel%s_%s_%s_%s_%s.RData",
     results_dir, 
@@ -301,10 +302,10 @@ for(cond in 1:nrow(conditions)) {
     warning(paste("Failed to save condition results:", e$message))
   })
   
-  # All results until 10th condition
+  # all results until 10th condition
   if(cond %% 10 == 0 || cond == nrow(conditions)) {
     tryCatch({
-      save(all_results, conditions, 
+      save(all_results, rng_states, conditions, 
            file = sprintf("%s/all_results_upto_condition_%d.RData", results_dir, cond))
     }, error = function(e) {
       warning(paste("Failed to save checkpoint:", e$message))
