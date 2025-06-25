@@ -20,6 +20,8 @@
 
 ##### 2.1 Libraries used for  #####
 
+library(modsem) # For QML, LMS, and UCA
+library(lavaan) # For SAM
 library(covsim) # in GenerateData.R for rIG()
 library(lavaan) # in GenerateData.R and Methods.R for SAM approach
 library(modsem) # in Methods.R for LMS, QML, and UCA approach
@@ -31,7 +33,7 @@ library(doRNG)
 
 ##### 2.2 Parameters that we vary in the simulation study #####
 
-sample_sizes <- c(200L, 1000L) 
+sample_sizes <- c(400L, 1000L) 
 reliability_values <- c(0.4, 0.6, 0.8)
 population_models <- c("population.linear.model", "population.full.model")
 latent_exo_distribution <- c("normal", "nonnormal")
@@ -75,8 +77,10 @@ conditions <- create_conditions(
 # For multiple clusters in HPC
 #conditions$Seed <- 1:nrow(conditions)
 # or this may be better: 
-set.seed(123)
-conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE))
+#set.seed(123)
+#conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE))
+# check if any equal:
+#any(duplicated(conditions$Seed))
 
 #RNGkind("L'Ecuyer-CMRG")
 #Seeds <- list(.Random.seed)
@@ -90,5 +94,5 @@ conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE))
 exo.mean <- rep(0, 2)
 #target.var <- list("eta3" = 1.0) # target variance for eta 
 R2 <- list("eta3" = 0.30)
-rep <- 1  # Repetitions (to be increased for the actual study): 1000(?)
+rep <- 2  # Repetitions (to be increased for the actual study): 1000(?)
 
