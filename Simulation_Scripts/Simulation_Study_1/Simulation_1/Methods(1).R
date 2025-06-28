@@ -22,8 +22,8 @@
 # the term unconstrained approach (as in Marsh et al., 2004, 2006) would be 
 # more adequate, but for simplicity they refer to the approach as ExUC.
 
-method_uca <- function(Data = NULL, model.fit = NULL) {
-  out <- modsem::modsem(model.syntax = model.fit, data = Data, method = "uca")
+method_dblcent <- function(Data = NULL, model.fit = NULL) {
+  out <- modsem::modsem(model.syntax = model.fit, data = Data, method = "dblcent")
   rows <- out$coefParTable[out$coefParTable$lhs == "eta3" & out$coefParTable$op == "~", ]
   
   params <- if(nrow(rows) == 3) {
@@ -105,7 +105,7 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
     idx[eta1eta1_idx] <- eta1eta2_idx
     idx[eta1eta2_idx] <- eta1eta1_idx
     
-    # Swapped parameter order
+    # swapped parameter order
     # "eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2"
     RESULTS <- list(
       "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
