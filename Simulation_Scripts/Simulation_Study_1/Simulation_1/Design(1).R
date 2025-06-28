@@ -20,8 +20,7 @@
 
 ##### 2.1 Libraries used for  #####
 
-library(modsem) # For QML, LMS, and UCA
-library(lavaan) # For SAM
+library(faux) # in GenerateData.R for rmulti()
 library(covsim) # in GenerateData.R for rIG()
 library(lavaan) # in GenerateData.R and Methods.R for SAM approach
 library(modsem) # in Methods.R for LMS, QML, and UCA approach
@@ -29,7 +28,6 @@ library(modsem) # in Methods.R for LMS, QML, and UCA approach
 library(foreach)
 library(doParallel)
 library(doRNG)
-
 
 ##### 2.2 Parameters that we vary in the simulation study #####
 
@@ -54,14 +52,14 @@ create_conditions <- function(sample_sizes, reliability_values,
     stringsAsFactors = FALSE
   )
   
-  # Remove invalid combinations
+  # invalid combinations
   base_conditions <- base_conditions[!(base_conditions$Distribution == "normal" & 
                                          base_conditions$Exo_method == "unif"), ]
   
-  # Add analysis model column (now always fit.full.model)
+  # analysis model column (now always fit.full.model)
   base_conditions$Analysis_model <- "fit.full.model"
   
-  row.names(base_conditions) <- NULL # Reset row indices
+  row.names(base_conditions) <- NULL # reset row indices
   base_conditions
 }
 
@@ -74,25 +72,11 @@ conditions <- create_conditions(
   epsilon_distributions
 )
 
-# For multiple clusters in HPC
-#conditions$Seed <- 1:nrow(conditions)
-# or this may be better: 
-#set.seed(123)
-#conditions$Seed <- (sample(1:1e9, size = nrow(conditions), replace = FALSE))
-# check if any equal:
-#any(duplicated(conditions$Seed))
-
-#RNGkind("L'Ecuyer-CMRG")
-#Seeds <- list(.Random.seed)
-#for(i in 2:216) {
-#  Seeds[[i]] <-  nextRNGStream(Seeds[[i-1]])
-#}
-
 ##### 2.3 Fixed parameters #####
 
 # Parameters that remain constant (as of 04/03/25)
 exo.mean <- rep(0, 2)
 #target.var <- list("eta3" = 1.0) # target variance for eta 
 R2 <- list("eta3" = 0.30)
-rep <- 2  # Repetitions (to be increased for the actual study): 1000(?)
+rep <- 1 # Repetitions (to be increased for the actual study): 1000(?)
 
