@@ -1,15 +1,23 @@
 #### 1. General Information ####
 
+# note:
 # This code is not processing multiple conditions in parallel. 
 # It processes the conditions one after another. 
 # The parallelization happens only within each condition, 
 # where multiple replications are run simultaneously across X cores
 
+# note:
+# Additionally, starting parameters are estimated 
+# using the double-centering approach, 
+# and the means of the observed variables are used to 
+# generate good starting parameters for faster convergence
+
+
 # Other scripts needed
-source("Simulation_Scripts/Simulation_Study_1/GenerateData.R")
-source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Methods(1).R")
-source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Models(1).R")
-source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Design(1).R")
+source("Simulation_Scripts/Simulation_Study_1/Simulation_1/GenerateData.R") # for generating data
+source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Methods(1).R") # for the estimation approaches
+source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Models(1).R") # for fit and pop models
+source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Design(1).R") # for the conditions
 
 RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
@@ -24,7 +32,7 @@ dir.create(results_dir, showWarnings = FALSE)
 
 cat("\n=== Pre-computing population variances for all unique conditions ===\n")
 
-# Get unique combinations that affect population variances
+# unique combinations that affect population variances
 unique_pop_conditions <- unique(conditions[, c("Population", "Distribution", "Exo_method", "Rel")])
 unique_pop_conditions <- unique_pop_conditions[order(
   unique_pop_conditions$Population, 
@@ -53,7 +61,8 @@ for(i in 1:nrow(unique_pop_conditions)) {
   # population variances
   pop_data <- GenerateData(
     model = get(cond$Population),
-    N = 100,  # this does not matter (any above 10): we only need variances
+    N = 10,  # this does not matter now: we only need variances and for that N.pop matters, but:
+    # 10 to avoid "Error in apply(EXO, 2, stats::var) : dim(X) must have a positive length"
     compute_pop_vars = TRUE,
     N.pop = 5000000,  # !!
     skewness = skewness,
@@ -84,10 +93,10 @@ n_cores <- detectCores() - 2
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
-clusterExport(cl, c("GenerateData", "method_analytic", "method_uca", "method_sam", 
-                    "population.interaction.model", "population.linear.model", 
-                    "population.full.model", "fit.interaction.model", "fit.full.model",
-                    "pop_variances_list"))
+clusterExport(cl, c("GenerateData", "method_analytic", "method_dblcent", "method_sam", 
+                    "population.linear.model", "population.full.model", 
+                    "fit.full.model", "pop_variances_list",
+                    "exo.mean", "R2", "conditions"))
 
 # ============================================================================
 # SIMULATION PART
@@ -191,14 +200,14 @@ for(cond in 1:nrow(conditions)) {
                 dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
     qml = array(NA, dim = c(rep, n_params, 5), 
                 dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
-    uca = array(NA, dim = c(rep, n_params, 5),  
+    dblcent = array(NA, dim = c(rep, n_params, 5),  
                 dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
     sam = array(NA, dim = c(rep, n_params, 5),  
                 dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
     timing = data.frame(
       lms = numeric(rep),
       qml = numeric(rep),
-      uca = numeric(rep),
+      dblcent = numeric(rep),
       sam = numeric(rep)
     )
   )
@@ -206,7 +215,7 @@ for(cond in 1:nrow(conditions)) {
   # parallel processing ONLY for LMS 
   cat("\nRunning LMS in parallel\n")
   lms_parallel_results <- foreach(i = seq_len(rep), 
-                                  .packages = c("modsem", "lavaan", "covsim"), 
+                                  .packages = c("modsem", "lavaan", "covsim", "faux"), 
                                   .errorhandling = "pass",
                                   .options.RNG = 123 + cond * 1000) %dorng% {
                                     process_lms_only(i, cond, n_params, skewness, excesskurtosis, 
@@ -225,6 +234,7 @@ for(cond in 1:nrow(conditions)) {
     }
     
     # LMS results
+    # order is preserved - good design from foreach
     res$lms[i, , 1] <- lms_parallel_results[[i]]$lms_res$estimates
     res$lms[i, , 2] <- lms_parallel_results[[i]]$lms_res$se
     res$lms[i, , 3] <- lms_parallel_results[[i]]$lms_res$pvals
@@ -251,15 +261,15 @@ for(cond in 1:nrow(conditions)) {
     
     # UCA method
     start_time_method <- Sys.time()
-    result <- suppressWarnings(try(method_uca(Data = Data, model.fit = analysis_model)))
-    res$timing$uca[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
+    result <- suppressWarnings(try(method_dblcent(Data = Data, model.fit = analysis_model)))
+    res$timing$dblcent[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
     
     if(!inherits(result, "try-error")) {
-      res$uca[i, , 1] <- result$Estimates
-      res$uca[i, , 2] <- result$`Standard Errors`
-      res$uca[i, , 3] <- result$`P-values`
-      res$uca[i, , 4] <- result$CI_lower  
-      res$uca[i, , 5] <- result$CI_upper 
+      res$dblcent[i, , 1] <- result$Estimates
+      res$dblcent[i, , 2] <- result$`Standard Errors`
+      res$dblcent[i, , 3] <- result$`P-values`
+      res$dblcent[i, , 4] <- result$CI_lower  
+      res$dblcent[i, , 5] <- result$CI_upper 
     }
     
     # SAM method
