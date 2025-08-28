@@ -1,340 +1,260 @@
 #### 1. General Information ####
 
-# note:
-# This code is not processing multiple conditions in parallel. 
-# It processes the conditions one after another. 
-# The parallelization happens only within each condition, 
-# where multiple replications are run simultaneously across X cores
+#RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
-# note:
-# Additionally, starting parameters are estimated 
-# using the double-centering approach, 
-# and the means of the observed variables are used to 
-# generate good starting parameters for faster convergence
+library(lavaan)
+library(modsem)
+library(doParallel)
+library(doRNG)
+library(covsim)
+library(copula)
+library(stringr)
 
+# Load required files
+load("all_models_with_null.RData")  # Contains calibrated_models, null_models, and all_models
+source("Methods(1).R")  # Your modified methods file
 
-# Other scripts needed
-source("Simulation_Scripts/Simulation_Study_1/Simulation_1/GenerateData.R") # for generating data
-source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Methods(1).R") # for the estimation approaches
-source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Models(1).R") # for fit and pop models
-source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Design(1).R") # for the conditions
+# =============================================================================
+# SIMULATION PARAMETERS
+# =============================================================================
 
-RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+N_REPLICATIONS <- 1000
+SAMPLE_SIZES <- c(400, 1000)
+SEED_START <- 123
+
+# analysis model (for fitting - no fixed values)
+analysis.model <- "
+eta1 =~ x1 + x2 + x3
+eta2 =~ x4 + x5 + x6
+eta3 =~ x7 + x8 + x9
+
+eta3 ~ eta1 + eta2 + eta1:eta2 + eta1:eta1 + eta2:eta2
+"
+
+# distribution parameters
+distributions <- list(
+  normal = list(skewness = c(0, 0), excesskurtosis = c(0, 0), distr.exo = "normal.rIG"),
+  nonnormal = list(skewness = c(2, 2), excesskurtosis = c(7, 7), distr.exo = "nonnormal.rIG"),
+  uniform = list(skewness = c(0, 0), excesskurtosis = c(0, 0), distr.exo = "unif")
+)
+
+# =============================================================================
+# MAIN SIMULATION
+# =============================================================================
 
 dir.create("sim_results", showWarnings = FALSE)
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
 results_dir <- paste0("sim_results/run_", timestamp)
 dir.create(results_dir, showWarnings = FALSE)
 
-# ============================================================================
-# PRE-COMPUTE POPULATION VARIANCES FOR ALL UNIQUE CONDITIONS
-# ============================================================================
+# conditions
+conditions <- expand.grid(
+  N = SAMPLE_SIZES,
+  Rel = c(0.4, 0.6, 0.8),
+  Distribution = names(distributions),
+  Model_Type = c("alternative", "null"),  # Add model type
+  stringsAsFactors = FALSE
+)
 
-cat("\n=== Pre-computing population variances for all unique conditions ===\n")
+# Create model names based on model type and reliability
+conditions$model_name <- ifelse(
+  conditions$Model_Type == "null",
+  paste0("null_normal_rel", gsub("\\.", "", as.character(conditions$Rel))),
+  paste0("normal_rel", gsub("\\.", "", as.character(conditions$Rel)))
+)
 
-# unique combinations that affect population variances
-unique_pop_conditions <- unique(conditions[, c("Population", "Distribution", "Exo_method", "Rel")])
-unique_pop_conditions <- unique_pop_conditions[order(
-  unique_pop_conditions$Population, 
-  unique_pop_conditions$Distribution,
-  unique_pop_conditions$Exo_method,
-  unique_pop_conditions$Rel
-), ]
+# track actual distribution used for generation
+conditions$generation_distribution <- conditions$Distribution
 
-cat(sprintf("Found %d unique population conditions\n", nrow(unique_pop_conditions)))
-
-pop_variances_list <- list()
-
-# population variances for each unique combination
-for(i in 1:nrow(unique_pop_conditions)) {
-  cond <- unique_pop_conditions[i, ]
-  
-  # key for this combination
-  key <- paste(cond$Population, cond$Distribution, cond$Exo_method, cond$Rel, sep = "_")
-  
-  cat(sprintf("\nComputing population variances for: %s\n", key))
-  
-  # distribution parameters
-  skewness <- rep(ifelse(cond$Distribution == "normal", 0, 2), 2)
-  excesskurtosis <- rep(ifelse(cond$Distribution == "normal", 0, 7), 2)
-  
-  # population variances
-  pop_data <- GenerateData(
-    model = get(cond$Population),
-    N = 10,  # this does not matter now: we only need variances and for that N.pop matters, but:
-    # 10 to avoid "Error in apply(EXO, 2, stats::var) : dim(X) must have a positive length"
-    compute_pop_vars = TRUE,
-    N.pop = 5000000,  # !!
-    skewness = skewness,
-    excesskurtosis = excesskurtosis,
-    exo.mean = exo.mean, 
-    distr.exo = cond$Exo_method,
-    distr.zeta = "normal",
-    distr.epsilon = "normal", 
-    rel = cond$Rel,
-    R2 = R2, 
-    seed = 123
-  )
-  
-  pop_variances_list[[key]] <- list(
-    pop_var_nozeta = attr(pop_data, "pop_var_nozeta"),
-    eta_pop_vars = attr(pop_data, "eta_pop_vars")
-  )
-  
-  cat("  eta_pop_vars:\n")
-  print(pop_variances_list[[key]]$eta_pop_vars)
-}
-
-save(pop_variances_list, file = paste0(results_dir, "/population_variances.RData"))
-cat("\n=== Population variance computation complete ===\n")
-
-# parallel backend
-n_cores <- detectCores() - 2
+# Parallel setup
+n_cores <- detectCores() - 6
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
-
 clusterExport(cl, c("GenerateData", "method_analytic", "method_dblcent", "method_sam", 
-                    "population.linear.model", "population.full.model", 
-                    "fit.full.model", "pop_variances_list",
-                    "exo.mean", "R2", "conditions"))
+                    "analysis.model", "all_models", "distributions"))
 
-# ============================================================================
-# SIMULATION PART
-# ============================================================================
-
-# ============================================================================
-# FUNCTION FOR SIMULATION - LMS
-# ============================================================================
-
-# For now (10/04), process_replication only for LMS in parallel
-process_lms_only <- function(i, cond, n_params, skewness, excesskurtosis, pop_var_nozeta, eta_pop_vars) {
-  # container for LMS 
-  lms_res <- list(
-    estimates = rep(NA, n_params),
-    se = rep(NA, n_params),
-    pvals = rep(NA, n_params),
-    ci_lower = rep(NA, n_params),  
-    ci_upper = rep(NA, n_params),  
-    timing = NA
-  )
-  
-  Data <- try(GenerateData(
-    model = get(conditions$Population[cond]),
-    N = conditions$N[cond],
-    skewness = skewness,
-    excesskurtosis = excesskurtosis,
-    exo.mean = exo.mean,
-    distr.exo = conditions$Exo_method[cond],
-    distr.zeta = "normal",
-    distr.epsilon = conditions$Epsilon[cond],
-    rel = conditions$Rel[cond],
-    R2 = R2,
-    add.eta = FALSE,
-    compute_pop_vars = FALSE,  # don't compute, use provided
-    pop_var_nozeta = pop_var_nozeta,  # use pre-computed
-    eta_pop_vars = eta_pop_vars  # use pre-computed
-  ), silent = TRUE)
-  
-  if(!inherits(Data, "try-error")) {
-    analysis_model <- get(conditions$Analysis_model[cond])
-    
-    start_time_method <- Sys.time()
-    result <- try(method_analytic(Data = Data, model.fit = analysis_model, method = "lms"))
-    lms_res$timing <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
-    
-    if(!inherits(result, "try-error")) {
-      lms_res$estimates <- result$Estimates
-      lms_res$se <- result$`Standard Errors`
-      lms_res$pvals <- result$`P-values`
-      lms_res$ci_lower <- result$CI_lower  
-      lms_res$ci_upper <- result$CI_upper  
-    }
-  }
-  
-  # So, here we return only LMS results as well as the data for each iteration
-  # Then I use for the remaining methods accordingly
-  list(data = if(!inherits(Data, "try-error")) Data else NULL,
-       lms_res = lms_res)
-}
-
-# ============================================================================
-# MAIN SIMULATION LOOP (MODIFIED)
-# ============================================================================
-
-start_time <- Sys.time()
+# run simulation
 all_results <- list()
+start_time <- Sys.time()
 
-# simulation for all conditions
 for(cond in 1:nrow(conditions)) {
-  condition_start <- Sys.time()
-  cat("\nRunning condition", cond, "of", nrow(conditions), "\n")
-  cat("Parameters: N =", conditions$N[cond], 
-      ", rel =", conditions$Rel[cond], 
-      ", pop_model =", conditions$Population[cond], 
-      ", analy_model =", conditions$Analysis_model[cond],
-      ", distribution =", conditions$Distribution[cond], 
-      ", exo_method =", conditions$Exo_method[cond],
-      ", epsilon =", conditions$Epsilon[cond], "\n")
+  cat("\n========================================")
+  cat("\nCondition", cond, "of", nrow(conditions))
+  cat("\n- Sample size:", conditions$N[cond])
+  cat("\n- Target reliability:", conditions$Rel[cond])
+  cat("\n- Model type:", conditions$Model_Type[cond])
+  cat("\n- Actual distribution:", conditions$Distribution[cond])
+  cat("\n- Using model:", conditions$model_name[cond])
+  cat("\n========================================\n")
   
-  skewness <- rep(ifelse(conditions$Distribution[cond] == "normal", 0, 2), 2)
-  excesskurtosis <- rep(ifelse(conditions$Distribution[cond] == "normal", 0, 7), 2)
+  # Get the appropriate model (normal or null)
+  population_model <- all_models[[conditions$model_name[cond]]]
   
-  # RETRIEVE PRE-COMPUTED POPULATION VARIANCES
-  key <- paste(conditions$Population[cond], 
-               conditions$Distribution[cond], 
-               conditions$Exo_method[cond], 
-               conditions$Rel[cond], 
-               sep = "_")
+  if(is.null(population_model)) {
+    cat("WARNING: Model", conditions$model_name[cond], "not found. Skipping...\n")
+    next
+  }
   
-  pop_vars <- pop_variances_list[[key]]
-  pop_var_nozeta <- pop_vars$pop_var_nozeta
-  eta_pop_vars <- pop_vars$eta_pop_vars
+  # distribution parameters for data generation
+  dist_params <- distributions[[conditions$Distribution[cond]]]
   
-  cat("Using pre-computed population variances for:", key, "\n")
+  # condition-specific variables to cluster
+  clusterExport(cl, c("population_model", "dist_params", "conditions", "cond"), 
+                envir = environment())
   
-  # N of parameters as a function of the analysis model
-  n_params <- ifelse(conditions$Analysis_model[cond] == "fit.full.model", 5, 3)
-  
+  # MODIFIED: Store full tables instead of extracted parameters
   res <- list(
-    lms = array(NA, dim = c(rep, n_params, 5), 
-                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
-    qml = array(NA, dim = c(rep, n_params, 5), 
-                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
-    dblcent = array(NA, dim = c(rep, n_params, 5),  
-                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
-    sam = array(NA, dim = c(rep, n_params, 5),  
-                dimnames = list(NULL, NULL, c("beta", "se", "pval", "ci_lower", "ci_upper"))),  
-    timing = data.frame(
-      lms = numeric(rep),
-      qml = numeric(rep),
-      dblcent = numeric(rep),
-      sam = numeric(rep)
-    )
+    lms_tables = vector("list", N_REPLICATIONS),
+    qml_tables = vector("list", N_REPLICATIONS),
+    dblcent_tables = vector("list", N_REPLICATIONS),
+    sam_tables = vector("list", N_REPLICATIONS),
+    timing = data.frame(lms = numeric(N_REPLICATIONS), 
+                        qml = numeric(N_REPLICATIONS),
+                        dblcent = numeric(N_REPLICATIONS), 
+                        sam = numeric(N_REPLICATIONS)),
+    # track observed R² and reliabilities
+    observed_r2 = numeric(N_REPLICATIONS),
+    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 9)
   )
   
-  # parallel processing ONLY for LMS 
-  cat("\nRunning LMS in parallel\n")
-  lms_parallel_results <- foreach(i = seq_len(rep), 
-                                  .packages = c("modsem", "lavaan", "covsim", "faux"), 
-                                  .errorhandling = "pass",
-                                  .options.RNG = 123 + cond * 1000) %dorng% {
-                                    process_lms_only(i, cond, n_params, skewness, excesskurtosis, 
-                                                     pop_var_nozeta, eta_pop_vars)
-                                  }
+  # run replications in parallel
+  parallel_results <- foreach(i = 1:N_REPLICATIONS,
+                              .packages = c("lavaan", "modsem", "covsim", "copula"),
+                              .errorhandling = "pass",
+                              .options.RNG = SEED_START + cond * 1000) %dorng% {
+                                
+                                # generate data using NORMAL-CALIBRATED model with ACTUAL distribution
+                                Data <- try(GenerateData(
+                                  model = population_model,
+                                  N = conditions$N[cond],
+                                  skewness = dist_params$skewness,
+                                  excesskurtosis = dist_params$excesskurtosis,
+                                  distr.exo = dist_params$distr.exo,
+                                  distr.epsilon = "normal",
+                                  distr.zeta = "normal",
+                                  add.eta = FALSE,
+                                  return.info = TRUE
+                                ), silent = TRUE)
+                                
+                                if(inherits(Data, "try-error")) return(NULL)
+                                
+                                # observed metrics
+                                observed_metrics <- list(
+                                  r2 = attr(Data, "observed_R2")$eta3,
+                                  rel = unlist(attr(Data, "observed_reliabilities"))
+                                )
+                                
+                                # remove attributes for methods
+                                data_clean <- as.data.frame(Data)
+                                attributes(data_clean) <- attributes(data_clean)[c("names", "row.names", "class")]
+                                
+                                # run all methods and store FULL TABLES
+                                results <- list(observed_metrics = observed_metrics)
+                                
+                                # LMS - returns full parTable
+                                t0 <- Sys.time()
+                                lms_table <- try(method_analytic(Data = data_clean, 
+                                                                 model.fit = analysis.model, 
+                                                                 method = "lms"), silent = TRUE)
+                                if(!inherits(lms_table, "try-error")) {
+                                  results$lms_table <- lms_table
+                                  results$lms_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                # QML - returns full parTable
+                                t0 <- Sys.time()
+                                qml_table <- try(method_analytic(Data = data_clean, 
+                                                                 model.fit = analysis.model, 
+                                                                 method = "qml"), silent = TRUE)
+                                if(!inherits(qml_table, "try-error")) {
+                                  results$qml_table <- qml_table
+                                  results$qml_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                # UCA - returns full coefParTable
+                                t0 <- Sys.time()
+                                uca_table <- try(method_dblcent(Data = data_clean, 
+                                                                model.fit = analysis.model), silent = TRUE)
+                                if(!inherits(uca_table, "try-error")) {
+                                  results$dblcent_table <- uca_table
+                                  results$dblcent_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                # SAM - returns full parameterEstimates table
+                                t0 <- Sys.time()
+                                sam_table <- try(method_sam(Data = data_clean, 
+                                                            model.fit = analysis.model), silent = TRUE)
+                                if(!inherits(sam_table, "try-error")) {
+                                  results$sam_table <- sam_table
+                                  results$sam_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                results
+                              }
   
-  # RNG states for this condition
-  rng_states <- attr(lms_parallel_results, "rng")
+  # RNG states 
+  rng_states_for_condition <- attr(parallel_results, "rng")
   
-  # other methods sequentially
-  cat("\nRunning QML, UCA, and SAM sequentially\n")
-  for(i in 1:rep) {
-    # skip if data generation failed
-    if(is.null(lms_parallel_results[[i]]$data)) {
-      next
-    }
-    
-    # LMS results
-    # order is preserved - good design from foreach
-    res$lms[i, , 1] <- lms_parallel_results[[i]]$lms_res$estimates
-    res$lms[i, , 2] <- lms_parallel_results[[i]]$lms_res$se
-    res$lms[i, , 3] <- lms_parallel_results[[i]]$lms_res$pvals
-    res$lms[i, , 4] <- lms_parallel_results[[i]]$lms_res$ci_lower  
-    res$lms[i, , 5] <- lms_parallel_results[[i]]$lms_res$ci_upper  
-    res$timing$lms[i] <- lms_parallel_results[[i]]$lms_res$timing
-    
-    # dataset from parallel results (!) - make sure we get the same exact data used in lms
-    Data <- lms_parallel_results[[i]]$data
-    analysis_model <- get(conditions$Analysis_model[cond])
-    
-    # QML method
-    start_time_method <- Sys.time()
-    result <- suppressWarnings(try(method_analytic(Data = Data, model.fit = analysis_model, method = "qml")))
-    res$timing$qml[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
-    
-    if(!inherits(result, "try-error")) {
-      res$qml[i, , 1] <- result$Estimates
-      res$qml[i, , 2] <- result$`Standard Errors`
-      res$qml[i, , 3] <- result$`P-values`
-      res$qml[i, , 4] <- result$CI_lower  
-      res$qml[i, , 5] <- result$CI_upper  
-    }
-    
-    # UCA method
-    start_time_method <- Sys.time()
-    result <- suppressWarnings(try(method_dblcent(Data = Data, model.fit = analysis_model)))
-    res$timing$dblcent[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
-    
-    if(!inherits(result, "try-error")) {
-      res$dblcent[i, , 1] <- result$Estimates
-      res$dblcent[i, , 2] <- result$`Standard Errors`
-      res$dblcent[i, , 3] <- result$`P-values`
-      res$dblcent[i, , 4] <- result$CI_lower  
-      res$dblcent[i, , 5] <- result$CI_upper 
-    }
-    
-    # SAM method
-    start_time_method <- Sys.time()
-    result <- suppressWarnings(try(method_sam(Data = Data, model.fit = analysis_model)))
-    res$timing$sam[i] <- as.numeric(difftime(Sys.time(), start_time_method, units = "secs"))
-    
-    if(!inherits(result, "try-error")) {
-      res$sam[i, , 1] <- result$Estimates
-      res$sam[i, , 2] <- result$`Standard Errors`
-      res$sam[i, , 3] <- result$`P-values`
-      res$sam[i, , 4] <- result$CI_lower  
-      res$sam[i, , 5] <- result$CI_upper  
+  # MODIFIED: Store full tables instead of extracting parameters
+  for(i in 1:N_REPLICATIONS) {
+    if(!is.null(parallel_results[[i]]) && !inherits(parallel_results[[i]], "error")) {
+      
+      if(!is.null(parallel_results[[i]]$observed_metrics)) {
+        res$observed_r2[i] <- parallel_results[[i]]$observed_metrics$r2
+        res$observed_rel[i,] <- parallel_results[[i]]$observed_metrics$rel[1:9]
+      }
+      
+      # Store full tables
+      if(!is.null(parallel_results[[i]]$lms_table)) {
+        res$lms_tables[[i]] <- parallel_results[[i]]$lms_table
+        res$timing$lms[i] <- parallel_results[[i]]$lms_timing
+      }
+      
+      if(!is.null(parallel_results[[i]]$qml_table)) {
+        res$qml_tables[[i]] <- parallel_results[[i]]$qml_table
+        res$timing$qml[i] <- parallel_results[[i]]$qml_timing
+      }
+      
+      if(!is.null(parallel_results[[i]]$dblcent_table)) {
+        res$dblcent_tables[[i]] <- parallel_results[[i]]$dblcent_table
+        res$timing$dblcent[i] <- parallel_results[[i]]$dblcent_timing
+      }
+      
+      if(!is.null(parallel_results[[i]]$sam_table)) {
+        res$sam_tables[[i]] <- parallel_results[[i]]$sam_table
+        res$timing$sam[i] <- parallel_results[[i]]$sam_timing
+      }
     }
   }
+  
+  res$rng_states <- rng_states_for_condition
+  
+  cat("\nObserved metrics across replications:")
+  cat("\n- Mean R²:", mean(res$observed_r2, na.rm = TRUE))
+  cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
+  cat("\n")
   
   all_results[[cond]] <- list(
-    condition = conditions[cond, ],
+    condition = conditions[cond, ], 
     results = res,
-    rng_states = rng_states,
-    population_variances = pop_vars  # population variances used
+    true_parameters = if(conditions$Model_Type[cond] == "null") {
+      c(0.316, 0.316, 0, 0, 0)  # null model: interaction and quadratic terms are 0
+    } else {
+      c(0.316, 0.316, 0.139, 0.101, 0.101)  # full model with all effects
+    }
   )
   
-  # results for (this) condition
-  condition_filename <- sprintf(
-    "%s/condition_%d_N%d_Rel%s_%s_%s_%s_%s.RData",
-    results_dir, 
-    cond,
-    conditions$N[cond],
-    conditions$Rel[cond],
-    substr(conditions$Population[cond], 11, 20),
-    conditions$Distribution[cond],
-    conditions$Exo_method[cond],
-    conditions$Epsilon[cond]
-  )
-  
-  tryCatch({
-    save(res, file = condition_filename)
-  }, error = function(e) {
-    warning(paste("Failed to save condition results:", e$message))
-  })
-  
-  # all results until 10th condition
-  if(cond %% 10 == 0 || cond == nrow(conditions)) {
-    tryCatch({
-      save(all_results, rng_states, conditions, 
-           file = sprintf("%s/all_results_upto_condition_%d.RData", results_dir, cond))
-    }, error = function(e) {
-      warning(paste("Failed to save checkpoint:", e$message))
-    })
+  # checkpoint
+  if(cond %% 5 == 0 || cond == nrow(conditions)) {
+    save(all_results, conditions, file = sprintf("%s/checkpoint_%d.RData", results_dir, cond))
   }
   
-  # removing large objects from memory
-  rm(lms_parallel_results)  
-  gc()    
-  
-  # progress info
-  condition_time <- difftime(Sys.time(), condition_start, units = "mins")
-  cat(sprintf("\nCondition %d completed in %.2f minutes\n", cond, condition_time))
-  cat(sprintf("Progress: %.1f%% complete (%d of %d conditions)\n", 
-              100 * cond / nrow(conditions), cond, nrow(conditions)))
+  gc()
 }
 
 stopCluster(cl)
 
+save(all_results, conditions, file = paste0(results_dir, "/final_results.RData"))
+
 total_time <- difftime(Sys.time(), start_time, units = "hours")
-cat(sprintf("\nTotal simulation completed in %.2f hours\n", total_time))
-save(all_results, file = paste0(results_dir, "/final_results.RData"))
+cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
