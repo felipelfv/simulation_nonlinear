@@ -1,0 +1,131 @@
+---
+title             : "A simulation study comparing structural-after-measurement versus traditional approaches to estimate nonlinear effects in structural equation modeling"
+author: 
+  - name          : "Felipe Fontana Vieira"
+    affiliation   : "1"
+    corresponding : yes    # Only one corresponding author
+    address       : "Add departments address"
+    email         : "felipe.fontanavieira@ugent.be"
+    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
+      - Conceptualization
+      - Methodology
+      - Formal Analysis
+      - Visualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+  - name          : "Yves Rosseel"
+    affiliation   : "1"
+    role:
+      - Conceptualization
+      - Methodology
+      - Writing - Review & Editing
+affiliation:
+  - id            : "1"
+    institution   : "Department of Data-Analysis, Faculty of Psychology and Educational Sciences, Ghent University"
+    
+authornote: |
+
+  \addORCIDlink{Felipe Fontana Vieira}{0009-0006-0949-6569}
+  
+  \addORCIDlink{Yves Rosseel}{0000-0002-4129-4477}
+  
+abstract: |
+  Several methods have been proposed to include quadratic or interaction terms involving latent variables in structural equation models. Some examples are the latent moderated structural equations (LMS) approach and several variants of the product indicator (PI) approach. All of these methods use a system-wide estimation approach and estimate the free parameters of the model simultaneously. They tend to perform e!ectively in models featuring only a limited number of nonlinear effects. However, as the complexity of the model increases with a higher number of nonlinear terms, the feasibility of joint or one-step methods progressively diminishes. Recently, several so-called structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed in the literature. In a SAM approach, estimation proceeds in two stages. In a first stage, we estimate the parameters related to the measurement part of the model, while in a second stage, we estimate the parameters related to the structural part of the model. In this presentation, we will present initial simulation results where di!erent one-step and SAM approaches are compared, in a large variety of conditions, including conditionsthat involve a large number of latent interaction and quadratic terms.
+
+  <!-- https://tinyurl.com/ybremelq -->
+keywords          : "nonlinear effects, structural equation modeling, structural-after-measurement"
+bibliography      : "Phd - Initial Readings.bib"
+floatsintext      : yes
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : no
+mask              : no
+draft             : no
+
+header-includes:
+  - |
+    \makeatletter
+    \renewcommand{\paragraph}{\@startsection{paragraph}{4}{\parindent}%
+      {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+      {-1em}%
+      {\normalfont\normalsize\bfseries\typesectitle}}
+    
+    \renewcommand{\subparagraph}[1]{\@startsection{subparagraph}{5}{1em}%
+      {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+      {-\z@\relax}%
+      {\normalfont\normalsize\bfseries\itshape\hspace{\parindent}{#1}\textit{\addperi}}{\relax}}
+    \makeatother
+    
+  - \usepackage[nodisplayskipstretch]{setspace}
+  - \usepackage{float}
+  - \usepackage{orcidlink}
+  - \usepackage{tikz}
+  - \usepackage{amsmath}
+  - \setlength{\parskip}{0pt}
+  - |
+    \makeatletter
+    \g@addto@macro\normalsize{%
+      \setlength\abovedisplayskip{-2pt}%
+      \setlength\belowdisplayskip{8pt}%
+      \setlength\abovedisplayshortskip{2pt}%
+      \setlength\belowdisplayshortskip{2pt}%
+    }%
+    \makeatother
+
+csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
+documentclass     : "apa7"
+output            : papaja::apa6_pdf
+
+classoption       : "man"
+
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include = FALSE}
+library(papaja)
+library(lavaan)
+library(mvtnorm)
+library(semTools)
+library(miceadds)
+library(knitr)
+library(tables)
+library(modsem)
+#library(parallel)
+library(doParallel)
+library(doRNG)
+library(covsim)
+library(copula)
+
+r_refs("Phd - Initial Readings.bib")
+```
+
+```{r analysis-preferences}
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+options(papaja.na_string = "-")
+options(knitr.kable.NA = "-")
+```
+
+```{r, child = "introduction.Rmd"}
+```
+
+```{r, child = "modelsframework.Rmd"}
+```
+
+```{r, child = "Simulation.Rmd"}
+```
+
+\newpage
+
+# References
+
+```{=tex}
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+```
+
+::: {#refs custom-style="Bibliography"}
+:::
