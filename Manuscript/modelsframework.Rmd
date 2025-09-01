@@ -1,0 +1,302 @@
+---
+title: "Framework"
+author: ""
+date: ""
+output: html_document
+---
+
+```{r methods-fit, eval=FALSE, echo=FALSE}
+##==============================================================================
+## General Information 
+##
+## Script name: Methods(1).R
+##
+## Purpose of script: functions used for the four different approaches. 
+## 
+#' @param Data Data frame.
+#' @param model.fit Model used for the estimation.
+#' 
+#' 
+#' 
+##==============================================================================
+
+##==============================================================================
+## 1. Methods: UCA, SAM, LMS, and QML 
+##==============================================================================
+
+#### 1.1. Product Indicator Approaches (UCA) ####
+
+# Note: On page 186, Brandt et al. (2014) claim that for the interaction model
+# the term unconstrained approach (as in Marsh et al., 2004, 2006) would be 
+# more adequate, but for simplicity they refer to the approach as ExUC.
+
+method_dblcent <- function(Data = NULL, model.fit = NULL) {
+  out <- modsem::modsem(model.syntax = model.fit, data = Data, method = "dblcent")
+  rows <- out$coefParTable[out$coefParTable$lhs == "eta3" & out$coefParTable$op == "~", ]
+  
+  params <- if(nrow(rows) == 3) {
+    c("eta1", "eta2", "eta1:eta2")
+  } else {
+    c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
+  }
+  
+  RESULTS <- list(
+    "Estimates" = setNames(rows$est, params),
+    "Standard Errors" = setNames(rows$se, params),
+    "P-values" = setNames(rows$pvalue, params),
+    "CI_lower" = setNames(rows$ci.lower, params),
+    "CI_upper" = setNames(rows$ci.upper, params)
+  )
+  
+  RESULTS
+}
+
+#### 1.2 Structural-After-Measurement (SAM) Approach ####
+
+method_sam <- function(Data = NULL, estimator = "ML",
+                       joint = FALSE, add.attr = FALSE, 
+                       model.fit = NULL,
+                       mm.list = NULL) {
+  out <- lavaan::sam(model.fit, data = Data, se = "local",
+                     mm.args = list(estimator = estimator),
+                     mm.list = mm.list)
+  
+  # parameter estimates 
+  est_table <- parameterEstimates(out)
+  coefs <- est_table[est_table$lhs == "eta3" & est_table$op == "~", ]
+  
+  params <- if(nrow(coefs) == 3) {
+    c("eta1", "eta2", "eta1:eta2")
+  } else {
+    c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
+  }
+  
+  rows <- est_table$lhs == "eta3" & est_table$op == "~" & est_table$rhs %in% params
+  
+  ests <- setNames(est_table$est[rows], est_table$rhs[rows])
+  ses  <- setNames(est_table$se[rows], est_table$rhs[rows])
+  pval <- setNames(est_table$pvalue[rows], est_table$rhs[rows])
+  ci_lower <- setNames(est_table$ci.lower[rows], est_table$rhs[rows])
+  ci_upper <- setNames(est_table$ci.upper[rows], est_table$rhs[rows])
+  
+  # order according to `params`
+  RESULTS <- list(
+    "Estimates"        = ests[params],
+    "Standard Errors"  = ses[params],
+    "P-values"         = pval[params],
+    "CI_lower"         = ci_lower[params],
+    "CI_upper"         = ci_upper[params]
+  )
+  
+  RESULTS
+}
+
+
+#### 1.3 Analytic Approaches (LMS and QML) ####
+
+# Note: both approaches are estimated using the same function. 
+# The argument "method" used in the Simulation script that calls each.
+
+method_analytic <- function(Data = NULL, model.fit = NULL, 
+                            standardized = FALSE, method = "lms") {
+  out <- modsem::modsem(model.syntax = model.fit, data = Data, method = method)
+  rows <- out$parTable[out$parTable$lhs == "eta3" & out$parTable$op == "~", ]
+  
+  # 5 parameters; we need to reorder because eta1:eta1 before eta1:eta2
+  if(nrow(rows) == 5) {
+    # indices of the parameters we want to swap
+    eta1eta1_idx <- which(rows$rhs == "eta1:eta1")
+    eta1eta2_idx <- which(rows$rhs == "eta1:eta2")
+    
+    # reordered index vector
+    idx <- 1:nrow(rows)
+    idx[eta1eta1_idx] <- eta1eta2_idx
+    idx[eta1eta2_idx] <- eta1eta1_idx
+    
+    # swapped parameter order
+    # "eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2"
+    RESULTS <- list(
+      "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
+      "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
+      "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
+      "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
+      "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
+    )
+  } else {
+    # 3 parameters, keep as it was before:
+    # "eta1", "eta2", "eta1:eta2"
+    RESULTS <- list(
+      "Estimates" = setNames(rows$est, rows$rhs),
+      "Standard Errors" = setNames(rows$std.error, rows$rhs),
+      "P-values" = setNames(rows$p.value, rows$rhs),
+      "CI_lower" = setNames(rows$ci.lower, rows$rhs),
+      "CI_upper" = setNames(rows$ci.upper, rows$rhs)
+    )
+  }
+  
+  RESULTS
+}
+
+##### 2.3.1 NSEMM Approach #####
+
+# Note: as of (26/02/25), not much advantage over LMS/QML given the current 
+# models being estimated. 
+```
+
+# The general SEM framework 
+
+*Notation*. Bold lowercase symbols (i.e., $\boldsymbol{\eta}$, $\boldsymbol{\nu}$, $\boldsymbol{\epsilon}$) denote column vectors, whereas bold uppercase symbols (i.e., $\mathbf{B}$, $\boldsymbol{\Lambda}$, $\boldsymbol{\Theta}$, $\boldsymbol{\Psi}$) denote matrices. Non-bold are scalars. Let $m$ be the number of latent variables and $p$ the number of observed indicators. We work with a SEM that contains both a structural and a measurement part, using LISREL all-$y$ notation. We assume the observed data are complete and continuous. Because the literature on DBLCENT, LMS, and QML traditionally uses standard LISREL notation, we will differentiate between $\eta_x$ and $\eta_y$ when referring to those methods; for LSAM this distinction is not needed. 
+
+For the structural model, we have 
+
+\begin{equation}\label{eq:structural}
+\begin{aligned}
+\boldsymbol{\eta} = \boldsymbol{\alpha} + \mathbf{B}\boldsymbol{\eta} + \boldsymbol{\zeta},
+\end{aligned}
+\end{equation}
+
+where $\boldsymbol{\eta}\in\mathbb{R}^{m}$ is the latent vector, $\boldsymbol{\alpha}\in\mathbb{R}^{m}$ the intercepts, and $\mathbf{B}\in\mathbb{R}^{m\times m}$ with $\mathrm{diag}(\mathbf{B})=\mathbf{0}$ and $(\mathbf{I}-\mathbf{B})$ invertible. The disturbance $\boldsymbol{\zeta}\in\mathbb{R}^{m}$ satisfies $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}\in\mathbb{R}^{m\times m}$. Note that no distributional form is assumed here. Thus, given $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}$, we obtain
+
+\[
+\begin{aligned}
+\mathbb{E}(\boldsymbol{\eta}) &= (\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\alpha} \\
+\mathrm{Var}(\boldsymbol{\eta}) &= (\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\Psi}\big((\mathbf{I}-\mathbf{B})^{-1}\big)^{\top}.
+\end{aligned}
+\]
+
+For the measurement model, we relate indicators to the latent variables as
+
+\begin{equation}\label{eq:measurement}
+\begin{aligned}
+\mathbf{y} = \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}.
+\end{aligned}
+\end{equation}
+
+where $\mathbf{y}\in\mathbb{R}^{p}$ is the indicator vector, $\boldsymbol{\nu}\in\mathbb{R}^{p}$ the intercepts, $\boldsymbol{\Lambda}\in\mathbb{R}^{p\times m}$ the loadings, and $\boldsymbol{\epsilon}\in\mathbb{R}^{p}$ the measurement errors with $\mathbb{E}(\boldsymbol{\epsilon})=\mathbf{0}$, $\mathrm{Var}(\boldsymbol{\epsilon})=\boldsymbol{\Theta}\in\mathbb{R}^{p\times p}$, 
+$\mathbb{E}(\boldsymbol{\eta}\boldsymbol{\epsilon}^\top)=\mathbf{0}$, and $\mathbb{E}(\boldsymbol{\epsilon}\boldsymbol{\zeta}^\top)=\mathbf{0}$. The model-implied mean vector and covariance matrix of $\mathbf{y}$ are
+
+\[
+\begin{aligned}
+\boldsymbol{\mu} &= \boldsymbol{\nu} + \boldsymbol{\Lambda}\,\mathbb{E}(\boldsymbol{\eta}) \\
+\boldsymbol{\Sigma} &= \mathrm{Var}(\mathbf{y}) = \boldsymbol{\Lambda}\,\mathrm{Var}(\boldsymbol{\eta})\,\boldsymbol{\Lambda}^{\top} + \boldsymbol{\Theta}.
+\end{aligned}
+\]
+
+Substituting the structural moments yields
+
+\begin{equation}\label{eq:moments}
+\begin{aligned}
+\boldsymbol{\mu} &= \boldsymbol{\nu} + \boldsymbol{\Lambda}(\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\alpha} \\
+\boldsymbol{\Sigma} &= \boldsymbol{\Lambda}(\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\Psi}(\mathbf{I}-\mathbf{B})^{-\top}\boldsymbol{\Lambda}^{\top} + \boldsymbol{\Theta}.
+\end{aligned}
+\end{equation}
+
+Traditionally, we collect the free parameters across the structural part $(\boldsymbol{\alpha},\mathbf{B},\boldsymbol{\Psi})$ and the measurement part $(\boldsymbol{\nu},\boldsymbol{\Lambda},\boldsymbol{\Theta})$ into $\boldsymbol{\theta}$ (length $T$). Given i.i.d. data vectors $\mathcal{Y}=\{\mathbf{y}_1,\ldots,\mathbf{y}_N\}$, we estimate $\boldsymbol{\theta}$ by minimizing the discrepancy between observed and model-implied moments. Thus, estimation proceeds as a joint ('system-wide') approach where all parameters are estimated jointly.
+
+Crucially, for estimation choices where distributional assumptions are added, normality enters only with likelihood-based estimators such as normal-theory ML (or GLS). In that case, we assume $\boldsymbol{\zeta}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi})$ and $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$, which implies
+
+\[
+\begin{aligned}
+\boldsymbol{\eta}\sim\mathcal{N}\!\left((\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\alpha},\;(\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\Psi}\big((\mathbf{I}-\mathbf{B})^{-1}\big)^{\top}\right)
+\end{aligned}
+\]
+
+and, consequently,
+
+\[
+\begin{aligned}
+\mathbf{y}\sim\mathcal{N}\left(\boldsymbol{\mu},\boldsymbol{\Sigma}\right),
+\end{aligned}
+\]
+
+with $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$ as above in \eqref{eq:moments}.
+
+# Interactions Approaches
+
+## LSAM
+
+The central idea of LSAM is to use the estimated measurement-model parameters with observed moments to construct the latent mean $\mathbb{E}(\boldsymbol{\eta})$ and covariance $\mathrm{Var}(\boldsymbol{\eta})$ [@rosseel_loh_2024]. For that, we start from the measurement model in \eqref{eq:measurement} and solve for $\eta$:
+
+\[
+\boldsymbol{\Lambda}\boldsymbol{\eta} = \mathbf{y} - \boldsymbol{\nu} - \boldsymbol{\epsilon}.
+\]
+
+As in @rosseel_loh_2024, we let $\mathbf{M}\in\mathbb{R}^{m\times p}$ be a mapping matrix with $\mathbf{M}\boldsymbol{\Lambda}=\mathbf{I}_m$. Multiplying both sides by $\mathbf{M}$ gives
+
+\[
+\begin{aligned}
+\boldsymbol{\eta} = \mathbf{M}\,[\mathbf{y} - \boldsymbol{\nu} - \boldsymbol{\epsilon}] = \underbrace{\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})}_{\mathbf{f}}\;-\;\underbrace{\mathbf{M}\boldsymbol{\epsilon}}_{\mathbf{r}},
+\end{aligned}
+\]
+
+so defining $\mathbf{f}=\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})=\boldsymbol{\eta}+\mathbf{r}$ with $\mathbf{r}=\mathbf{M}\boldsymbol{\epsilon}\in\mathbb{R}^{m}$, $\mathbb{E}(\mathbf{r})=\mathbf{0}$, and $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$. Then
+
+\[
+\begin{aligned}
+\mathbb{E}(\boldsymbol{\eta}) &= \mathbf{M}\,[\mathbb{E}(\mathbf{y})-\boldsymbol{\nu}],\\
+\mathrm{Var}(\boldsymbol{\eta}) &= \mathbf{M}\,[\mathrm{Var}(\mathbf{y})-\boldsymbol{\Theta}]\,\mathbf{M}^{\top}.
+\end{aligned}
+\]
+
+If the SEM model contained no interactions or quadratic terms, one could proceed naturally as in @rosseel_loh_2024, but for two-way interactions and quadratic terms we need second moments. Hence, @rosseel_etall_2025 proposed an expression for $\mathbb{E}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ and $\mathrm{Var}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ without assuming normality for the latent variables:
+
+\[
+\begin{aligned}
+\mathbb{E}(\boldsymbol{\eta}\otimes\boldsymbol{\eta}) 
+= \operatorname{vec}\!\big[\mathrm{Var}(\boldsymbol{\eta})\big]+\mathbb{E}(\boldsymbol{\eta})\otimes \mathbb{E}(\boldsymbol{\eta}).
+\end{aligned}
+\]
+
+Let $\mathbf{K}_m\in\mathbb{R}^{m^2\times m^2}$ be the commutation matrix. Using $\mathbf{f}=\boldsymbol{\eta}+\mathbf{r}$ with $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$, an approximation for the variance of the Kronecker product is
+
+\[
+\begin{aligned}
+\mathrm{Var}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})
+\;\approx\; \mathrm{Var}(\mathbf{f}\otimes\mathbf{f})
+-\Big[\,\mathbf{Q}+\mathbf{K}_m\mathbf{Q}+\mathbf{Q}\mathbf{K}_m^{\top}+\mathbf{K}_m\mathbf{Q}\mathbf{K}_m^{\top}
++\boldsymbol{\Gamma}_{22}^{*(NT)}(\mathbf{r})\,\Big],
+\end{aligned}
+\]
+
+where
+
+\[
+\begin{aligned}
+\mathbf{Q} = \mathrm{Var}(\boldsymbol{\eta})\otimes \mathrm{Var}(\mathbf{r})
++ \big(\mathbb{E}(\boldsymbol{\eta})\mathbb{E}(\boldsymbol{\eta})^{\top}\big)\otimes \mathrm{Var}(\mathbf{r}),
+\end{aligned}
+\]
+
+and $\boldsymbol{\Gamma}_{22}^{*(NT)}(\mathbf{r})$ is the correction term built from $\mathrm{Var}(\mathbf{r})$.
+
+Importantly, to capture covariances between first- and second-order terms, we augment the following:
+
+\[
+\boldsymbol{\eta}^*=\begin{bmatrix}1\\ \boldsymbol{\eta}\end{bmatrix}\in\mathbb{R}^{m+1},\quad
+\mathbf{f}^*=\begin{bmatrix}1\\ \mathbf{f}\end{bmatrix}\in\mathbb{R}^{m+1},\quad
+\mathbf{r}^*=\begin{bmatrix}0\\ \mathbf{r}\end{bmatrix}\in\mathbb{R}^{m+1},
+\]
+
+and use
+
+\[
+\mathbb{E}(\boldsymbol{\eta}^*\otimes \boldsymbol{\eta}^*)=\operatorname{vec}\!\big[\mathrm{Var}(\boldsymbol{\eta}^*)\big]+\mathbb{E}(\boldsymbol{\eta}^*)\otimes\mathbb{E}(\boldsymbol{\eta}^*),
+\]
+
+\[
+\mathrm{Var}(\boldsymbol{\eta}^*\otimes \boldsymbol{\eta}^*) \approx 
+\mathrm{Var}(\mathbf{f}^*\otimes \mathbf{f}^*) 
+-\Big[\mathbf{Q}^*+\mathbf{K}_{m+1}\mathbf{Q}^*+\mathbf{Q}^*\mathbf{K}_{m+1}^{\top}
++\mathbf{K}_{m+1}\mathbf{Q}^*\mathbf{K}_{m+1}^{\top}
++\boldsymbol{\Gamma}_{22}^{*(NT)}(\mathbf{r}^*)\Big],
+\]
+
+with
+
+\[
+\mathbf{Q}^*=\mathrm{Var}(\boldsymbol{\eta}^*)\otimes \mathrm{Var}(\mathbf{r}^*)
++\big(\mathbb{E}(\boldsymbol{\eta}^*)\mathbb{E}(\boldsymbol{\eta}^*)^{\top}\big)\otimes \mathrm{Var}(\mathbf{r}^*).
+\]
+
+Therefore, one can use the estimates of these augment summary statistics for a regression model in the second setp of the estimation procedure. 
+
