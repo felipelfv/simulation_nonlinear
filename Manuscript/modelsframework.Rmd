@@ -7,48 +7,16 @@ output: html_document
 
 ```{r methods-fit, eval=FALSE, echo=FALSE}
 ##==============================================================================
-## General Information 
-##
-## Script name: Methods(1).R
-##
-## Purpose of script: functions used for the four different approaches. 
-## 
-#' @param Data Data frame.
-#' @param model.fit Model used for the estimation.
-#' 
-#' 
-#' 
-##==============================================================================
-
-##==============================================================================
-## 1. Methods: UCA, SAM, LMS, and QML 
+## 1. Methods: UCA, SAM, LMS, and QML - Modified to return full tables
 ##==============================================================================
 
 #### 1.1. Product Indicator Approaches (UCA) ####
 
-# Note: On page 186, Brandt et al. (2014) claim that for the interaction model
-# the term unconstrained approach (as in Marsh et al., 2004, 2006) would be 
-# more adequate, but for simplicity they refer to the approach as ExUC.
-
 method_dblcent <- function(Data = NULL, model.fit = NULL) {
   out <- modsem::modsem(model.syntax = model.fit, data = Data, method = "dblcent")
-  rows <- out$coefParTable[out$coefParTable$lhs == "eta3" & out$coefParTable$op == "~", ]
   
-  params <- if(nrow(rows) == 3) {
-    c("eta1", "eta2", "eta1:eta2")
-  } else {
-    c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
-  }
-  
-  RESULTS <- list(
-    "Estimates" = setNames(rows$est, params),
-    "Standard Errors" = setNames(rows$se, params),
-    "P-values" = setNames(rows$pvalue, params),
-    "CI_lower" = setNames(rows$ci.lower, params),
-    "CI_upper" = setNames(rows$ci.upper, params)
-  )
-  
-  RESULTS
+  # Entire coefficient parameter table
+  out$coefParTable
 }
 
 #### 1.2 Structural-After-Measurement (SAM) Approach ####
@@ -61,86 +29,19 @@ method_sam <- function(Data = NULL, estimator = "ML",
                      mm.args = list(estimator = estimator),
                      mm.list = mm.list)
   
-  # parameter estimates 
-  est_table <- parameterEstimates(out)
-  coefs <- est_table[est_table$lhs == "eta3" & est_table$op == "~", ]
-  
-  params <- if(nrow(coefs) == 3) {
-    c("eta1", "eta2", "eta1:eta2")
-  } else {
-    c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
-  }
-  
-  rows <- est_table$lhs == "eta3" & est_table$op == "~" & est_table$rhs %in% params
-  
-  ests <- setNames(est_table$est[rows], est_table$rhs[rows])
-  ses  <- setNames(est_table$se[rows], est_table$rhs[rows])
-  pval <- setNames(est_table$pvalue[rows], est_table$rhs[rows])
-  ci_lower <- setNames(est_table$ci.lower[rows], est_table$rhs[rows])
-  ci_upper <- setNames(est_table$ci.upper[rows], est_table$rhs[rows])
-  
-  # order according to `params`
-  RESULTS <- list(
-    "Estimates"        = ests[params],
-    "Standard Errors"  = ses[params],
-    "P-values"         = pval[params],
-    "CI_lower"         = ci_lower[params],
-    "CI_upper"         = ci_upper[params]
-  )
-  
-  RESULTS
+  # parameter estimates table
+  parameterEstimates(out, remove.step1 = FALSE)
 }
 
-
 #### 1.3 Analytic Approaches (LMS and QML) ####
-
-# Note: both approaches are estimated using the same function. 
-# The argument "method" used in the Simulation script that calls each.
 
 method_analytic <- function(Data = NULL, model.fit = NULL, 
                             standardized = FALSE, method = "lms") {
   out <- modsem::modsem(model.syntax = model.fit, data = Data, method = method)
-  rows <- out$parTable[out$parTable$lhs == "eta3" & out$parTable$op == "~", ]
   
-  # 5 parameters; we need to reorder because eta1:eta1 before eta1:eta2
-  if(nrow(rows) == 5) {
-    # indices of the parameters we want to swap
-    eta1eta1_idx <- which(rows$rhs == "eta1:eta1")
-    eta1eta2_idx <- which(rows$rhs == "eta1:eta2")
-    
-    # reordered index vector
-    idx <- 1:nrow(rows)
-    idx[eta1eta1_idx] <- eta1eta2_idx
-    idx[eta1eta2_idx] <- eta1eta1_idx
-    
-    # swapped parameter order
-    # "eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2"
-    RESULTS <- list(
-      "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
-      "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
-      "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
-      "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
-      "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
-    )
-  } else {
-    # 3 parameters, keep as it was before:
-    # "eta1", "eta2", "eta1:eta2"
-    RESULTS <- list(
-      "Estimates" = setNames(rows$est, rows$rhs),
-      "Standard Errors" = setNames(rows$std.error, rows$rhs),
-      "P-values" = setNames(rows$p.value, rows$rhs),
-      "CI_lower" = setNames(rows$ci.lower, rows$rhs),
-      "CI_upper" = setNames(rows$ci.upper, rows$rhs)
-    )
-  }
-  
-  RESULTS
+  # entire parameter table
+  out$parTable
 }
-
-##### 2.3.1 NSEMM Approach #####
-
-# Note: as of (26/02/25), not much advantage over LMS/QML given the current 
-# models being estimated. 
 ```
 
 # The general SEM framework 
@@ -410,3 +311,34 @@ QML sketch: apply a fixed full-rank linear transform to $\mathbf{y}$ so exactly 
 **Assumptions and Performance**. The LMS assumes jointly normal latent predictors and structural disturbance, i.e., $\boldsymbol{\eta}_x\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}{xx})$, $\zeta_y\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy})$, with independent normal measurement errors $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$. Hence, under these conditions we obtain estimates that are consistent, asymptotically unbiased, efficient, and normal. Indeed, previous simulation results show that the LMS produced unbiased results under the condition of normally distributed $\boldsymbol{\eta}_x$. Recently, however, @lonati_etall_2025 also manipulated the distribution for the structural disturbance and measurement errors. In that case, the results showed that the distribution for the measurement error did not have much negative impact. 
 
 Moreover, the QML applies a linear transform and models an approximating density that requires only (approximate) conditional normality of the latent criterion given the predictors. Thus, it does not require $\boldsymbol{\eta}_x$ to be normal. Under normal data, QML can be slightly less efficient than LMS. Under nonnormal latent predictors, QML is typically more robust than LMS, showing lower bias and smaller or comparable MSE, and it scales well as the number of nonlinear terms grows. Reliability affects QML through the indicator error variance in the same way.
+
+## DBLCENT
+
+We use the unconstrained product-indicator approach (UCA) in the all-$y$ framework. For an interaction between two first-order latents $\eta_1$ and $\eta_2$, introduce a latent product factor $\eta_{1\times2}$ and include it among the predictors in the structural model; with centered predictors (see below) the single-endogenous case is written without an intercept as
+
+$$
+\eta_3=B_{31}\eta_1+B_{32}\eta_2+B_{3,\,1\times2}\eta_{1\times2}+\zeta_3,
+$$
+
+and, in general, $\eta_{1\times2}$ is stacked with the exogenous block so the block form of $\mathbf{B}$ from the general SEM section is preserved.
+
+Product indicators are formed without Kenny–Judd constraints using **double mean centering (DMC)**. Let $I_1$ and $I_2$ index indicators of $\eta_1$ and $\eta_2$. For each pair $(i,j)\in I_1\times I_2$ define
+
+$$
+p_{ij}
+=\big(y_i-\bar y_i\big)\big(y_j-\bar y_j\big)
+-\overline{\big(y_i-\bar y_i\big)\big(y_j-\bar y_j\big)}\,,
+$$
+
+that is, center each indicator, take their product, then center the product again. This yields $\mathbb{E}(p_{ij})=0$ in sample. Measure the latent product with a simple reflective block,
+
+$$
+\mathbf{p}=\boldsymbol{\Lambda}_{\times}\,\eta_{1\times2}+\boldsymbol{\epsilon}_{\times},
+$$
+
+with one loading in $\boldsymbol{\Lambda}_{\times}$ fixed for scale (or $\mathrm{Var}(\eta_{1\times2})=1$). Because DMC produces zero-mean product indicators, no mean structure is modeled for the **product block** (no intercepts for $\mathbf{p}$ and $\mathbb{E}(\eta_{1\times2})=0$). In practice, residual covariances among product indicators that share a constituent indicator may be freely estimated, while others are fixed to zero.
+
+DMC implies that the product block measures $\eta_{1}\eta_{2}-\mathbb{E}(\eta_{1}\eta_{2})$. When the first-order predictor indicators are centered as above, $\mathbb{E}(\eta_1)=\mathbb{E}(\eta_2)=0$ and the interaction latent also has mean zero, making a structural intercept for $\eta_3$ unnecessary. In all applications below we adopt this **unconstrained** approach with **double mean centering** for constructing product indicators and estimate the model jointly in all-$y$ notation.
+
+**Assumptions and Performance**
+The unconstrained approach (Kelava & Brandt, 2009), freely estimates all parameters in latent interaction models (Marsh et al., 2004). This method uses standard maximum likelihood estimation, which assumes multivariate normality for statistical inference. However, product indicators are inherently non-normal due to their multiplicative construction, violating this assumption. The maximum likelihood estimator remains consistent and asymptotically normal when data are multivariate normal (Yuan et al., 2005) and maintains consistency regardless of the data distribution (Browne & Shapiro, 1988; White, 1982; Yuan et al., 2005). Despite this robustness in point estimation, both theory (Wall & Amemiya, 2001) and simulation work (Curran et al., 1996) demonstrate that standard errors and fit statistics are not trustworthy with non-normal variables. Simulation studies show that while bias in parameter estimates is small (Marsh et al., 2004; Kelava et al., 2014), the approach systematically underestimates standard errors (Cham et al., 2012). This problem can be addressed through robust standard error estimation, though these corrections are valid only asymptotically and may remain slightly underestimated in small samples (Brandt et al., 2014). The non-normality of product indicators thus presents a persistent challenge for statistical inference in this otherwise straightforward approach.
