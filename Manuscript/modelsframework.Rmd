@@ -300,3 +300,113 @@ with
 
 Therefore, one can use the estimates of these augment summary statistics for a regression model in the second setp of the estimation procedure. 
 
+**Assumptions and Performance**. Similar to the 2SMM approach, in the first stage, LSAM inherits the CFA measurement model assumptions. Distributional assumptions in the CFA stage depend on the estimator used. Concerning the second stage, specifically for the second-order corrections, the LSAM assumes only $\mathbf{r}\sim\mathcal{N}(\mathbf{0},\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^\top)$. No distributional assumptions are imposed on the latent predictors $\boldsymbol{\eta}$. For the local two-step standard errors, a sandwich formula for "robust" standard errors is used (future work will elaborate the derivations for it in contrast to the 2SMM). Importantly, for the LSAM, alpha correction may be applied, which introduces some bias in order to obtain lower variance (see Rosseel et al.). Reliability reduces $\mathrm{Var}(\mathbf{r})$ and therefore shrinks the measurement-error corrections, leading to smaller sampling variance/MSE. Lastly, variability may increase only for heavy-tailed/skewed cases as higher-order moments inflate $\mathrm{Var}(\mathbf{f}\otimes\mathbf{f})$.
+
+With respect to previous simulation studies, LSAM should in principle perform similarly to the 2SMM as observed in @rosseel_etall_2025. Indeed, the results show that bias for both approaches was small under normal and non-normal conditions. Moreover, the variance of the point estimates as well as the mean squared error were also closely related. Moreover, the general findings from previous simulation studies investigated the 2SMM approach (Brandt et al. 2014; Wall & Amemiya, 2003) should extend to the LSAM.
+
+## Distribution Analytic (LMS and QML)
+
+Let $k$ be the number of endogenous latents and $n_x$ the number of exogenous latent predictors; set $m=k+n_x$. Stack
+$\boldsymbol{\eta}=\begin{bmatrix}\boldsymbol{\eta}_y\\ \boldsymbol{\eta}_x\end{bmatrix}$ with
+$\boldsymbol{\eta}_y\in\mathbb{R}^{k}$ and $\boldsymbol{\eta}_x\in\mathbb{R}^{n_x}$, and collect the $p$ indicators in $\mathbf{y}\in\mathbb{R}^{p}$. The measurement model is
+
+\[
+\begin{aligned}
+\mathbf{y}=\boldsymbol{\nu}+\boldsymbol{\Lambda}\boldsymbol{\eta}+\boldsymbol{\epsilon},
+\end{aligned}
+\]
+
+where $\boldsymbol{\nu}\in\mathbb{R}^{p}$, $\boldsymbol{\Lambda}\in\mathbb{R}^{p\times m}$,
+$\boldsymbol{\epsilon}\in\mathbb{R}^{p}$, and $\boldsymbol{\Theta}=\operatorname{Var}(\boldsymbol{\epsilon})\in\mathbb{R}^{p\times p}$.
+
+Use strict all-$y$ notation for the structural model,
+
+\[
+\begin{aligned}
+\boldsymbol{\eta}=\boldsymbol{\alpha}+\mathbf{B}\boldsymbol{\eta}+\boldsymbol{\zeta},
+\end{aligned}
+\]
+
+with block structure
+
+\[
+\begin{aligned}
+\mathbf{B}=\begin{bmatrix}\mathbf{B}_{yy}&\mathbf{B}_{yx}\\ \mathbf{0}&\mathbf{0}\end{bmatrix},\quad
+\boldsymbol{\alpha}=\begin{bmatrix}\boldsymbol{\alpha}_y\\ \mathbf{0}\end{bmatrix},\quad
+\boldsymbol{\zeta}=\begin{bmatrix}\boldsymbol{\zeta}_y\\ \boldsymbol{\zeta}_x\end{bmatrix},\quad
+\boldsymbol{\Psi}=\operatorname{Var}(\boldsymbol{\zeta})=\begin{bmatrix}\boldsymbol{\Psi}_{yy}&\mathbf{0}\\ \mathbf{0}&\boldsymbol{\Psi}_{xx}\end{bmatrix},
+\end{aligned}
+\]
+
+where $\mathbf{B}_{yy}\in\mathbb{R}^{k\times k}$, $\mathbf{B}_{yx}\in\mathbb{R}^{k\times n_x}$,
+$\boldsymbol{\Psi}_{yy}\in\mathbb{R}^{k\times k}$, and $\boldsymbol{\Psi}_{xx}\in\mathbb{R}^{n_x\times n_x}$. For identification, fix $\mathbb{E}(\boldsymbol{\eta}_x)=\mathbf{0}$.
+
+To include nonlinear effects (LPT) without selectors, write the endogenous block explicitly:
+
+\[
+\begin{aligned}
+\boldsymbol{\eta}_y
+=\boldsymbol{\alpha}_y+\mathbf{B}_{yy}\boldsymbol{\eta}_y+\mathbf{B}_{yx}\boldsymbol{\eta}_x
++\big(\mathbf{I}_k\otimes \boldsymbol{\eta}_x^{\!\top}\big)\boldsymbol{\Omega}\,\boldsymbol{\eta}_x
++\big(\mathbf{I}_k\otimes \boldsymbol{\eta}_x^{\!\top}\big)\boldsymbol{\Xi}\,\boldsymbol{\eta}_y
++\boldsymbol{\zeta}_y,
+\end{aligned}
+\]
+
+with $\mathbf{I}_k$ the $k\times k$ identity and $\otimes$ the Kronecker product, and
+
+\[
+\boldsymbol{\Omega}=\begin{bmatrix}\boldsymbol{\Omega}_1\\ \vdots\\ \boldsymbol{\Omega}_k\end{bmatrix}\in\mathbb{R}^{k n_x\times n_x},\qquad
+\boldsymbol{\Xi}=\begin{bmatrix}\boldsymbol{\Xi}_1\\ \vdots\\ \boldsymbol{\Xi}_k\end{bmatrix}\in\mathbb{R}^{k n_x\times k},
+\]
+
+where each $\boldsymbol{\Omega}_i\in\mathbb{R}^{n_x\times n_x}$ and $\boldsymbol{\Xi}_i\in\mathbb{R}^{n_x\times k}$. A reduced-form rearrangement is
+
+\[
+\begin{aligned}
+\mathbf{C}^{-1}=\Big(\mathbf{I}_k-\mathbf{B}_{yy}-(\mathbf{I}_k\otimes \boldsymbol{\eta}_x^{\!\top})\boldsymbol{\Xi}\Big)^{-1},\qquad
+\boldsymbol{\eta}_y=\mathbf{C}^{-1}\!\left(\boldsymbol{\alpha}_y+\mathbf{B}_{yx}\boldsymbol{\eta}_x+(\mathbf{I}_k\otimes \boldsymbol{\eta}_x^{\!\top})\boldsymbol{\Omega}\boldsymbol{\eta}_x+\boldsymbol{\zeta}_y\right).
+\end{aligned}
+\]
+
+Special case ($k=1$, $n_x=2$, $\mathbf{B}_{yy}=\mathbf{0}$, $\boldsymbol{\Xi}=\mathbf{0}$). With $\boldsymbol{\eta}_x=(\eta_{x1},\eta_{x2})^\top$,
+
+\[
+\begin{aligned}
+\eta_y=\alpha_y+\mathbf{B}_{yx}\boldsymbol{\eta}_x+\boldsymbol{\eta}_x^{\!\top}\boldsymbol{\Omega}_1\boldsymbol{\eta}_x+\zeta_y,
+\end{aligned}
+\]
+
+where $\mathbf{B}_{yx}=(\gamma_1,\gamma_2)$ and
+
+\[
+\begin{aligned}
+\boldsymbol{\Omega}_1=\begin{bmatrix}\beta_1 & \tfrac{\omega}{2}\\[2pt] \tfrac{\omega}{2} & \beta_2\end{bmatrix}
+\ \Rightarrow\
+\boldsymbol{\eta}_x^{\!\top}\boldsymbol{\Omega}_1\boldsymbol{\eta}_x=\beta_1\eta_{x1}^2+\omega\,\eta_{x1}\eta_{x2}+\beta_2\eta_{x2}^2.
+\end{aligned}
+\]
+
+Distributional assumptions for LMS/QML (mutually independent):
+
+\[
+\begin{aligned}
+\boldsymbol{\eta}_x\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{xx}),\qquad
+\boldsymbol{\zeta}_y\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy}),\qquad
+\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta}).
+\end{aligned}
+\]
+
+LMS sketch: let $\boldsymbol{\Psi}_{xx}=\mathbf{A}\mathbf{A}^{\top}$ (Cholesky), write $\boldsymbol{\eta}_x=\mathbf{A}\mathbf{z}$ with $\mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I}_{n_x})$, and integrate the nonlinear components to obtain a Hermite–Gauss quadrature approximation
+
+\[
+\begin{aligned}
+f(\mathbf{y})\approx \sum_{j=1}^{M}\pi_j\,\varphi\!\big(\mathbf{y}\mid \boldsymbol{\mu}_j,\boldsymbol{\Sigma}_j\big).
+\end{aligned}
+\]
+
+QML sketch: apply a fixed full-rank linear transform to $\mathbf{y}$ so exactly one component is non-normal while the others are (conditionally) normal; specify the implied mean/variance under the same LPT structure and maximize a quasi-log-likelihood with robust (sandwich) SEs.
+
+**Assumptions and Performance**. The LMS assumes jointly normal latent predictors and structural disturbance, i.e., $\boldsymbol{\eta}_x\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}{xx})$, $\zeta_y\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy})$, with independent normal measurement errors $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$. Hence, under these conditions we obtain estimates that are consistent, asymptotically unbiased, efficient, and normal. Indeed, previous simulation results show that the LMS produced unbiased results under the condition of normally distributed $\boldsymbol{\eta}_x$. Recently, however, @lonati_etall_2025 also manipulated the distribution for the structural disturbance and measurement errors. In that case, the results showed that the distribution for the measurement error did not have much negative impact. 
+
+Moreover, the QML applies a linear transform and models an approximating density that requires only (approximate) conditional normality of the latent criterion given the predictors. Thus, it does not require $\boldsymbol{\eta}_x$ to be normal. Under normal data, QML can be slightly less efficient than LMS. Under nonnormal latent predictors, QML is typically more robust than LMS, showing lower bias and smaller or comparable MSE, and it scales well as the number of nonlinear terms grows. Reliability affects QML through the indicator error variance in the same way.
