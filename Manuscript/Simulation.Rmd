@@ -1,0 +1,379 @@
+---
+title: "Simulation"
+author: ""
+date: ""
+output: html_document
+---
+
+```{r package versions, echo=FALSE}
+modsem_version <- packageVersion("modsem")
+lavaan_version <- packageVersion("lavaan")
+covsim_version <- packageVersion("covsim")
+faux_version <- packageVersion("faux")
+```
+
+# Simulation Study 1
+
+In this section, we present the simulation design. This includes the different aspects considered under the simulation conditions, details concerning the software used, and the metrics used to evaluate the performance of the different methods. The information presented here follows the suggestions from previous articles that investigated the quality of simulation studies [@siepe_etall_2024; @white_etall_2024; @morris_etall_2019].
+
+## Reproducibility and Computational details 
+
+All analyses were conducted in R [@R-base] (version: 4.4.2). For the DBLCENT, LMS, and QML approach, the modsem package was used [@kjell_etall_2024] (version: `r modsem_version`). For the LSAM approach, the lavaan package was used [@R-lavaan] (version: `r lavaan_version`). Importantly, we used the default settings for the functions provided in the packages. 
+
+For the manipulation of the data generating mechanism as well as the conditions varied, we also created self-costumed functions in R. All the information is available on osf as well as github. We included an renv.lock file that allows interested readers to retrieve the package versions used. Moreover, this paper was written with papaja. 
+
+## Simulation Conditions
+
+The simulation design employed a factorial combination of conditions to evaluate the performance of DBLCENT, LMS, QML and LSAM. Sample sizes of 400 and 1000 were selected to represent moderate to large samples. Previous simulations have evaluated different sample sizes. In fact, some were even more extensive. This choice was based on same choices as previous studies, but also due to computational constraints. Three reliability levels (0.4, 0.6, and 0.8) were examined, covering a broad range for measurement quality. This was chosen to further extend the scenario in @brandt_etall_2020, which used 0.8 and 0.5. Three distributional conditions were investigated: normal, non-normal, and uniform distributions generated through a copula-based approach. This factorial design yielded 18 unique experimental conditions, each replicated 1000 times. 
+
+## Data Generation
+
+The simulation study employed a custom data generation process designed to create latent variable models with controlled reliability levels and distributional properties. The generation process followed a structured approach to ensure precise control over both measurement quality and statistical characteristics.
+
+Prior to data generation, population models were created to achieve specific reliability levels ($\rho = 0.4, 0.6, 0.8$) and a target $R^2$ of 0.30 for the dependent latent variable. Importantly, all calibration was performed under the assumption of normally distributed exogenous latent variables. The calibration process involved iteratively adjusting residual variances until the desired targets were achieved. For the structural model, the residual variance $\psi_{33}$ was calibrated such that:
+
+$$R^2_{\eta_3} = \frac{\text{Var}(\eta_3^*)}{\text{Var}(\eta_3^*) + \psi_{33}} = 0.30$$
+
+where $\eta_3^*$ represents the deterministic portion of $\eta_3$. For the measurement model, indicator error variances were calibrated to achieve:
+
+$$\rho_{x_j} = \frac{\lambda_{j}^2 \cdot \phi_{kk}}{\lambda_{j}^2 \cdot \phi_{kk} + \theta_{jj}} = \rho$$
+
+where $\lambda_j$ represents the factor loading (fixed at 1), $\phi_{kk}$ the latent variable variance, $\theta_{jj}$ the measurement error variance, and $\rho \in \{0.4, 0.6, 0.8\}$. These normal-calibrated variance parameters were then used across all distributional conditions in the actual simulation.
+
+The exogenous latent variables were generated with the covariance structure:
+
+$$\boldsymbol{\Phi} = \begin{bmatrix} 1 & 0.375 \\ 0.375 & 1 \end{bmatrix}$$
+
+Under normal conditions, $(\eta_1, \eta_2)' \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Phi})$. For non-normal conditions, the `rIG()` function generated variables with population skewness $\gamma_1 = 2$ and excess kurtosis $\gamma_2 = 7$, while maintaining the same covariance structure. The uniform condition employed a Gumbel copula approach where marginal distributions were $\text{Uniform}(-2.5, 2.5)$, transformed to achieve the target covariance structure through:
+
+$$\mathbf{Y} = \mathbf{X} \mathbf{S}_x^{-1/2} \boldsymbol{\Sigma}^{1/2}$$
+
+where $\mathbf{S}_x$ represents the sample covariance of the copula-generated data and $\boldsymbol{\Sigma}$ the target covariance matrix.
+
+The dependent latent variable was generated according to:
+
+$$\eta_3 = \beta_0 + \beta_1\eta_1 + \beta_2\eta_2 + \beta_3(\eta_1 \times \eta_2) + \beta_4\eta_1^2 + \beta_5\eta_2^2 + \zeta$$
+
+with parameters $\beta_0 = -0.255$, $\beta_1 = \beta_2 = 0.316$, $\beta_3 = 0.139$, $\beta_4 = \beta_5 = 0.101$. 
+
+The structural residual $\zeta \sim \mathcal{N}(0, \psi_{33})$ where $\psi_{33}$ was the calibrated variance (under normality assumptions) ensuring the target $R^2$.
+
+For the measurement model, observed indicators were generated through:
+
+$$\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}$$
+
+where $\boldsymbol{\Lambda}$ contained unit loadings and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta})$ with:
+
+$$\boldsymbol{\Theta} = \text{diag}(\theta_{11}, \theta_{22}, ..., \theta_{99})$$
+
+The diagonal elements $\theta_{jj}$ were set according to the normal-calibrated values specific to each reliability condition, with separate calibrations for indicators of the exogenous variables ($\eta_1, \eta_2$) and the endogenous variable ($\eta_3$) to maintain the target reliabilities across all latent variables.
+
+## Nonconvergence and Outliers
+
+Before analyzing the simulation data, we inspected solutions flagged as nonconvergent or where no coefficients or standard errors were produced. After ensuring that these were caused by a nonconvergent estimator and not a programming error, we excluded these specific method-replication combinations from analysis. The convergence rate for each method was calculated as $\text{Convergence Rate} = N_{\text{complete}}/N_{\text{total}} \times 100\%$, where $N_{\text{complete}}$ represents successfully converged replications with complete output and $N_{\text{total}}$ represents all attempted replications for that method.
+
+Following Boomsma (2013), we used the box-plot method to identify outliers in the parameter estimates. Proceeding with one method-parameter combination at a time, we flagged all estimates that were more than three interquartile ranges below the first quartile or above the third quartile as outliers, formally defined as estimates outside the bounds $[Q_1 - 3 \times \text{IQR}, Q_3 + 3 \times \text{IQR}]$, where $Q_1$ and $Q_3$ represent the first and third quartiles and $\text{IQR} = Q_3 - Q_1$. Importantly, to avoid the arguably arbitrary interquartile range chosen, we also computed median estimates, median bias, and median absolute deviation (MAD) on the full set of converged solutions before outlier removal. Therefore, all metrics were calculated after removing non-converged replications, but with median-based robust measures computed before outlier removal and mean-based measures computed after outlier removal.
+
+## Performance Measures
+
+Method performance was assessed through multiple metrics following the formulas from the simhelpers package (Pustejovsky, 2024). Let $T$ denote an estimator for parameter $\theta$, with $K$ valid replications producing estimates $T_1, ..., T_K$ for each simulation condition. The sample mean and variance were calculated as $\bar{T} = (1/K)\sum_{k=1}^{K}T_k$ and $S_T^2 = (1/(K-1))\sum_{k=1}^{K}(T_k - \bar{T})^2$.
+
+### Absolute Criteria
+
+The mean estimate, $\bar{T} = (1/K)\sum_{k=1}^{K}T_k$, provides the average of the parameter estimates across replications. Bias characterizes whether an estimator tends to lie above or below the true parameter on average, calculated as $\text{Bias} = E[T] - \theta$, empirically estimated as $\bar{T} - \theta$. Variance characterizes the precision of an estimator as the average squared deviation from its mean, empirically estimated as $S_T^2$. The standard deviation, $S_T = \sqrt{S_T^2}$, provides precision in the scale of the estimates. Mean squared error measures accuracy by quantifying how far off an estimator is from the true parameter on average, calculated as $\text{MSE} = E[(T - \theta)^2]$, empirically computed as $(1/K)\sum_{k=1}^{K}(T_k - \theta)^2$. Root mean squared error, $\text{RMSE} = \sqrt{(1/K)\sum_{k=1}^{K}(T_k - \theta)^2}$, expresses accuracy in the scale of the estimates.
+
+Robust alternatives to these mean-based measures included the median estimate, $\text{Median}(T)$, median bias, $\text{Bias}_{\text{median}} = \text{Median}(T) - \theta$, the median absolute deviation, $\text{MAD} = \text{Median}(|T_k - \text{Median}(T)|)$, and median-based RMSE, $\text{RMSE}_{\text{median}} = \sqrt{\text{Bias}_{\text{median}}^2 + \text{MAD}^2}$.
+
+### Relative Criteria
+
+Relative criteria express performance as proportions of the true parameter value, applicable when $\theta \neq 0$. Relative bias was defined as $E[T]/\theta$, empirically estimated as $\bar{T}/\theta$. The relative difference from true parameter, often reported as percent relative bias, was calculated as $(\bar{T} - \theta)/\theta \times 100\%$. Relative MSE was computed as $((\bar{T} - \theta)^2 + S_T^2)/\theta^2$, and relative RMSE as $\sqrt{((\bar{T} - \theta)^2 + S_T^2)/\theta^2}$. For robust measures, relative median bias was calculated as $(\text{Median}(T) - \theta)/\theta$, with percent relative median bias as $\text{PRB}_{\text{median}} = \text{RB}_{\text{median}} \times 100\%$.
+
+### Standard Error Assessment
+
+The accuracy of standard error estimation was evaluated through the mean standard error, $\overline{SE} = (1/K)\sum_{k=1}^{K}\widehat{SE}_k$, where $\widehat{SE}_k$ represents the estimated standard error from replication $k$. The standard error ratio, $\text{SE Ratio} = \overline{SE}/S_T$, assesses whether standard errors are accurately estimated, with values close to unity indicating unbiased standard error estimation.
+
+### Hypothesis Testing and Confidence Intervals
+
+Rejection rate captures the proportion of hypothesis tests rejecting the null hypothesis at significance level $\alpha$, calculated as $r_\alpha = (1/K)\sum_{k=1}^{K}I(P_k < \alpha)$, where $P_k$ denotes the p-value from replication $k$ and $I(\cdot)$ is the indicator function. When the true parameter equals the null value ($\theta = 0$), this rejection rate represents the Type I error rate. When the alternative hypothesis is true ($\theta \neq 0$), the rejection rate measures statistical power.
+
+Coverage quantifies the proportion of confidence intervals containing the true parameter. For confidence intervals with nominal level $\beta$, where $A_k$ and $B_k$ denote the lower and upper endpoints from replication $k$, coverage was calculated as $c_\beta = (1/K)\sum_{k=1}^{K}I(A_k \leq \theta \leq B_k)$. The average confidence interval width, $\bar{W} = \bar{B} - \bar{A}$, where $W_k = B_k - A_k$, quantifies the precision of interval estimators.
+
+### Monte Carlo Standard Errors
+
+Following Morris, White, and Crowther (2019) and Efron and Stein (1981), Monte Carlo standard errors quantified simulation uncertainty. For bias, $\text{MCSE}_{\text{Bias}} = \sqrt{S_T^2/K}$. For variance, $\text{MCSE}_{\text{Var}} = S_T^2\sqrt{(k_T - 1)/K}$, where $k_T = (1/(KS_T^4))\sum_{k=1}^{K}(T_k - \bar{T})^4$ is the standardized kurtosis.
+
+For standard deviation, using the jackknife technique with $S_{T(j)}^2 = (1/(K-2))[(K-1)S_T^2 - (K/(K-1))(T_j - \bar{T})^2]$, the MCSE was $\text{MCSE}_{S_T} = \sqrt{((K-1)/K)\sum_{j=1}^{K}(\sqrt{S_{T(j)}^2} - S_T)^2}$.
+
+For MSE, $\text{MCSE}_{\text{MSE}} = \sqrt{(1/K)[S_T^4(k_T - 1) + 4S_T^2 g_T(\bar{T} - \theta) + 4S_T^2(\bar{T} - \theta)^2]}$, where $g_T = (1/(KS_T^3))\sum_{k=1}^{K}(T_k - \bar{T})^3$ is the standardized skewness.
+
+For RMSE, using the jackknife with $T_{(j)} = (K\bar{T} - T_j)/(K-1)$, $S_{T(j)}^2 = (1/(K-2))[(K-1)S_T^2 - (K/(K-1))(T_j - \bar{T})^2]$, and $\text{RMSE}_{(j)} = \sqrt{(T_{(j)} - \theta)^2 + S_{T(j)}^2}$, the MCSE was $\text{MCSE}_{\text{RMSE}} = \sqrt{((K-1)/K)\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$.
+
+For relative bias when $\theta \neq 0$, $\text{MCSE}_{\text{RB}} = \sqrt{S_T^2/(K\theta^2)}$. For relative MSE, $\text{MCSE}_{\text{Relative MSE}} = \sqrt{(1/(K\theta^4))[S_T^4(k_T - 1) + 4S_T^2 g_T(\bar{T} - \theta) + 4S_T^2(\bar{T} - \theta)^2]}$. For relative RMSE, using the jackknife with $\text{rRMSE}_{(j)} = \sqrt{((T_{(j)} - \theta)^2 + S_{T(j)}^2)/\theta^2}$, the MCSE was $\text{MCSE}_{\text{Relative RMSE}} = \sqrt{((K-1)/K)\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$.
+
+For variance estimators $V$ estimating $\lambda = \text{Var}(T)$, with $\bar{V} = (1/K)\sum_{k=1}^{K}V_k$ and $S_V^2 = (1/(K-1))\sum_{k=1}^{K}(V_k - \bar{V})^2$, the relative bias $\text{rB} = \bar{V}/S_T^2$ had MCSE computed via jackknife as $\text{MCSE}_{\text{rB}} = \sqrt{((K-1)/K)\sum_{j=1}^{K}(\text{rB}_{(j)} - \text{rB})^2}$, where $\text{rB}_{(j)} = V_{(j)}/S_{T(j)}^2$ with $V_{(j)} = (K\bar{V} - V_j)/(K-1)$. Similarly, relative MSE and RMSE for variance estimators used jackknife MCSEs.
+
+For proportions such as coverage and rejection rates, $\text{MCSE}_p = \sqrt{p(1-p)/K}$. For confidence interval width with sample variance $S_W^2$, $\text{MCSE}_{\text{Width}} = \sqrt{S_W^2/K}$.
+
+These metrics collectively provide a comprehensive assessment of estimator performance across point estimation accuracy, uncertainty quantification, and inference validity under varying simulation conditions.
+
+### Interpretation and Implementation
+
+```{r simulation-script, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+library(lavaan)
+library(modsem)
+library(doParallel)
+library(doRNG)
+library(covsim)
+library(copula)
+library(stringr)
+
+# Load required files
+load("all_models_with_null.RData")  # Contains calibrated_models, null_models, and all_models
+source("Methods(1).R")  # Your modified methods file
+
+# =============================================================================
+# SIMULATION PARAMETERS
+# =============================================================================
+
+N_REPLICATIONS <- 500
+SAMPLE_SIZES <- c(400, 1000)
+SEED_START <- 123
+
+# analysis model (for fitting - no fixed values)
+analysis.model <- "
+eta1 =~ x1 + x2 + x3
+eta2 =~ x4 + x5 + x6
+eta3 =~ x7 + x8 + x9
+
+eta3 ~ eta1 + eta2 + eta1:eta2 + eta1:eta1 + eta2:eta2
+"
+
+# distribution parameters
+distributions <- list(
+  normal = list(skewness = c(0, 0), excesskurtosis = c(0, 0), distr.exo = "normal.rIG"),
+  nonnormal = list(skewness = c(2, 2), excesskurtosis = c(7, 7), distr.exo = "nonnormal.rIG"),
+  uniform = list(skewness = c(0, 0), excesskurtosis = c(0, 0), distr.exo = "unif")
+)
+
+# =============================================================================
+# MAIN SIMULATION
+# =============================================================================
+
+dir.create("sim_results", showWarnings = FALSE)
+timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
+results_dir <- paste0("sim_results/run_", timestamp)
+dir.create(results_dir, showWarnings = FALSE)
+
+# conditions
+conditions <- expand.grid(
+  N = SAMPLE_SIZES,
+  Rel = c(0.4, 0.6, 0.8),
+  Distribution = names(distributions),
+  Model_Type = c("alternative", "null"),  # Add model type
+  stringsAsFactors = FALSE
+)
+
+# Create model names based on model type and reliability
+conditions$model_name <- ifelse(
+  conditions$Model_Type == "null",
+  paste0("null_normal_rel", gsub("\\.", "", as.character(conditions$Rel))),
+  paste0("normal_rel", gsub("\\.", "", as.character(conditions$Rel)))
+)
+
+# track actual distribution used for generation
+conditions$generation_distribution <- conditions$Distribution
+
+# Parallel setup
+n_cores <- detectCores() - 6
+cl <- makeCluster(n_cores)
+registerDoParallel(cl)
+clusterExport(cl, c("GenerateData", "method_analytic", "method_dblcent", "method_sam", 
+                    "analysis.model", "all_models", "distributions"))
+
+# run simulation
+all_results <- list()
+start_time <- Sys.time()
+
+for(cond in 1:nrow(conditions)) {
+  cat("\n========================================")
+  cat("\nCondition", cond, "of", nrow(conditions))
+  cat("\n- Sample size:", conditions$N[cond])
+  cat("\n- Target reliability:", conditions$Rel[cond])
+  cat("\n- Model type:", conditions$Model_Type[cond])
+  cat("\n- Actual distribution:", conditions$Distribution[cond])
+  cat("\n- Using model:", conditions$model_name[cond])
+  cat("\n========================================\n")
+  
+  # Get the appropriate model (normal or null)
+  population_model <- all_models[[conditions$model_name[cond]]]
+  
+  if(is.null(population_model)) {
+    cat("WARNING: Model", conditions$model_name[cond], "not found. Skipping...\n")
+    next
+  }
+  
+  # distribution parameters for data generation
+  dist_params <- distributions[[conditions$Distribution[cond]]]
+  
+  # condition-specific variables to cluster
+  clusterExport(cl, c("population_model", "dist_params", "conditions", "cond"), 
+                envir = environment())
+  
+  # MODIFIED: Store full tables instead of extracted parameters
+  res <- list(
+    lms_tables = vector("list", N_REPLICATIONS),
+    qml_tables = vector("list", N_REPLICATIONS),
+    dblcent_tables = vector("list", N_REPLICATIONS),
+    sam_tables = vector("list", N_REPLICATIONS),
+    timing = data.frame(lms = numeric(N_REPLICATIONS), 
+                        qml = numeric(N_REPLICATIONS),
+                        dblcent = numeric(N_REPLICATIONS), 
+                        sam = numeric(N_REPLICATIONS)),
+    # track observed R² and reliabilities
+    observed_r2 = numeric(N_REPLICATIONS),
+    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 9)
+  )
+  
+  # run replications in parallel
+  parallel_results <- foreach(i = 1:N_REPLICATIONS,
+                              .packages = c("lavaan", "modsem", "covsim", "copula"),
+                              .errorhandling = "pass",
+                              .options.RNG = SEED_START + cond * 1000) %dorng% {
+                                
+                                # generate data using NORMAL-CALIBRATED model with ACTUAL distribution
+                                Data <- try(GenerateData(
+                                  model = population_model,
+                                  N = conditions$N[cond],
+                                  skewness = dist_params$skewness,
+                                  excesskurtosis = dist_params$excesskurtosis,
+                                  distr.exo = dist_params$distr.exo,
+                                  distr.epsilon = "normal",
+                                  distr.zeta = "normal",
+                                  add.eta = FALSE,
+                                  return.info = TRUE
+                                ), silent = TRUE)
+                                
+                                if(inherits(Data, "try-error")) return(NULL)
+                                
+                                # observed metrics
+                                observed_metrics <- list(
+                                  r2 = attr(Data, "observed_R2")$eta3,
+                                  rel = unlist(attr(Data, "observed_reliabilities"))
+                                )
+                                
+                                # remove attributes for methods
+                                data_clean <- as.data.frame(Data)
+                                attributes(data_clean) <- attributes(data_clean)[c("names", "row.names", "class")]
+                                
+                                # run all methods and store FULL TABLES
+                                results <- list(observed_metrics = observed_metrics)
+                                
+                                # LMS - returns full parTable
+                                t0 <- Sys.time()
+                                lms_table <- try(method_analytic(Data = data_clean, 
+                                                                 model.fit = analysis.model, 
+                                                                 method = "lms"), silent = TRUE)
+                                if(!inherits(lms_table, "try-error")) {
+                                  results$lms_table <- lms_table
+                                  results$lms_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                # QML - returns full parTable
+                                t0 <- Sys.time()
+                                qml_table <- try(method_analytic(Data = data_clean, 
+                                                                 model.fit = analysis.model, 
+                                                                 method = "qml"), silent = TRUE)
+                                if(!inherits(qml_table, "try-error")) {
+                                  results$qml_table <- qml_table
+                                  results$qml_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                # UCA - returns full coefParTable
+                                t0 <- Sys.time()
+                                uca_table <- try(method_dblcent(Data = data_clean, 
+                                                                model.fit = analysis.model), silent = TRUE)
+                                if(!inherits(uca_table, "try-error")) {
+                                  results$dblcent_table <- uca_table
+                                  results$dblcent_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                # SAM - returns full parameterEstimates table
+                                t0 <- Sys.time()
+                                sam_table <- try(method_sam(Data = data_clean, 
+                                                            model.fit = analysis.model), silent = TRUE)
+                                if(!inherits(sam_table, "try-error")) {
+                                  results$sam_table <- sam_table
+                                  results$sam_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                }
+                                
+                                results
+                              }
+  
+  # RNG states 
+  rng_states_for_condition <- attr(parallel_results, "rng")
+  
+  # MODIFIED: Store full tables instead of extracting parameters
+  for(i in 1:N_REPLICATIONS) {
+    if(!is.null(parallel_results[[i]]) && !inherits(parallel_results[[i]], "error")) {
+      
+      if(!is.null(parallel_results[[i]]$observed_metrics)) {
+        res$observed_r2[i] <- parallel_results[[i]]$observed_metrics$r2
+        res$observed_rel[i,] <- parallel_results[[i]]$observed_metrics$rel[1:9]
+      }
+      
+      # Store full tables
+      if(!is.null(parallel_results[[i]]$lms_table)) {
+        res$lms_tables[[i]] <- parallel_results[[i]]$lms_table
+        res$timing$lms[i] <- parallel_results[[i]]$lms_timing
+      }
+      
+      if(!is.null(parallel_results[[i]]$qml_table)) {
+        res$qml_tables[[i]] <- parallel_results[[i]]$qml_table
+        res$timing$qml[i] <- parallel_results[[i]]$qml_timing
+      }
+      
+      if(!is.null(parallel_results[[i]]$dblcent_table)) {
+        res$dblcent_tables[[i]] <- parallel_results[[i]]$dblcent_table
+        res$timing$dblcent[i] <- parallel_results[[i]]$dblcent_timing
+      }
+      
+      if(!is.null(parallel_results[[i]]$sam_table)) {
+        res$sam_tables[[i]] <- parallel_results[[i]]$sam_table
+        res$timing$sam[i] <- parallel_results[[i]]$sam_timing
+      }
+    }
+  }
+  
+  res$rng_states <- rng_states_for_condition
+  
+  cat("\nObserved metrics across replications:")
+  cat("\n- Mean R²:", mean(res$observed_r2, na.rm = TRUE))
+  cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
+  cat("\n")
+  
+  all_results[[cond]] <- list(
+    condition = conditions[cond, ], 
+    results = res,
+    true_parameters = if(conditions$Model_Type[cond] == "null") {
+      c(0.316, 0.316, 0, 0, 0)  # null model: interaction and quadratic terms are 0
+    } else {
+      c(0.316, 0.316, 0.139, 0.101, 0.101)  # full model with all effects
+    }
+  )
+  
+  # checkpoint
+  if(cond %% 5 == 0 || cond == nrow(conditions)) {
+    save(all_results, conditions, file = sprintf("%s/checkpoint_%d.RData", results_dir, cond))
+  }
+  
+  gc()
+}
+
+stopCluster(cl)
+
+save(all_results, conditions, file = paste0(results_dir, "/final_results.RData"))
+
+total_time <- difftime(Sys.time(), start_time, units = "hours")
+cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
+```
+
