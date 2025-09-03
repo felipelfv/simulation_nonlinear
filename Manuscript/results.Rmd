@@ -1,0 +1,395 @@
+---
+title: "results"
+author: ""
+date: ""
+output: html_document
+---
+
+## Results
+
+```{r results, echo=FALSE, warning=FALSE, message=FALSE}
+
+library(dplyr); library(tidyr); library(purrr); library(stringr); library(kableExtra); library(glue); library(simhelpers)
+
+load("sim_results/run_20250827_1707_36_500/final_results.RData")
+
+extract_eta3_parameters <- function(table, method_type) {
+  if (is.null(table)) return(NULL)
+  
+  if (method_type == "dblcent") {
+    rows <- table[table$lhs == "eta3" & table$op == "~", ]
+    params <- if (nrow(rows) == 3) {
+      c("eta1", "eta2", "eta1:eta2")
+    } else {
+      c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
+    }
+    RESULTS <- list(
+      "Estimates"        = setNames(rows$est, params),
+      "Standard Errors"  = setNames(rows$se, params),
+      "P-values"         = setNames(rows$pvalue, params),
+      "CI_lower"         = setNames(rows$ci.lower, params),
+      "CI_upper"         = setNames(rows$ci.upper, params)
+    )
+    
+  } else if (method_type == "sam") {
+    coefs <- table[table$lhs == "eta3" & table$op == "~", ]
+    params <- if (nrow(coefs) == 3) {
+      c("eta1", "eta2", "eta1:eta2")
+    } else {
+      c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
+    }
+    rows <- table$lhs == "eta3" & table$op == "~" & table$rhs %in% params
+    ests     <- setNames(table$est[rows], table$rhs[rows])
+    ses      <- setNames(table$se[rows], table$rhs[rows])
+    pval     <- setNames(table$pvalue[rows], table$rhs[rows])
+    ci_lower <- setNames(table$ci.lower[rows], table$rhs[rows])
+    ci_upper <- setNames(table$ci.upper[rows], table$rhs[rows])
+    RESULTS <- list(
+      "Estimates"        = ests[params],
+      "Standard Errors"  = ses[params],
+      "P-values"         = pval[params],
+      "CI_lower"         = ci_lower[params],
+      "CI_upper"         = ci_upper[params]
+    )
+    
+  } else if (method_type %in% c("lms", "qml")) {
+    rows <- table[table$lhs == "eta3" & table$op == "~", ]
+    if (nrow(rows) == 5) {
+      eta1eta1_idx <- which(rows$rhs == "eta1:eta1")
+      eta1eta2_idx <- which(rows$rhs == "eta1:eta2")
+      idx <- seq_len(nrow(rows))
+      if (length(eta1eta1_idx) == 1 && length(eta1eta2_idx) == 1) {
+        idx[eta1eta1_idx] <- eta1eta2_idx
+        idx[eta1eta2_idx] <- eta1eta1_idx
+      }
+      RESULTS <- list(
+        "Estimates"        = setNames(rows$est[idx], rows$rhs[idx]),
+        "Standard Errors"  = setNames(rows$std.error[idx], rows$rhs[idx]),
+        "P-values"         = setNames(rows$p.value[idx], rows$rhs[idx]),
+        "CI_lower"         = setNames(rows$ci.lower[idx], rows$rhs[idx]),
+        "CI_upper"         = setNames(rows$ci.upper[idx], rows$rhs[idx])
+      )
+    } else {
+      RESULTS <- list(
+        "Estimates"        = setNames(rows$est, rows$rhs),
+        "Standard Errors"  = setNames(rows$std.error, rows$rhs),
+        "P-values"         = setNames(rows$p.value, rows$rhs),
+        "CI_lower"         = setNames(rows$ci.lower, rows$rhs),
+        "CI_upper"         = setNames(rows$ci.upper, rows$rhs)
+      )
+    }
+  }
+  RESULTS
+}
+
+
+CalculateBiasAndCoverage <- function(all_results,
+                                     parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+                                     remove_outliers = TRUE,
+                                     outlier_threshold = 3,  # IQR multiplier for outlier removal
+                                     alpha = 0.05,
+                                     min_reps = 10) {
+  options(scipen = 999)
+  if (is.null(all_results) || length(all_results) == 0) {
+    stop("all_results is NULL or empty. Please load your data first.")
+  }
+  methods <- c("sam", "lms", "qml", "dblcent")
+  results_summary <- dplyr::tibble()
+  param_index <- c("eta1"=1, "eta2"=2, "eta1:eta2"=3, "eta1:eta1"=4, "eta2:eta2"=5)
+  
+  for (i in seq_along(all_results)) {
+    condition <- all_results[[i]]$condition
+    res_list  <- all_results[[i]]$results
+    
+    # true values (fallbacks)
+    true_values <- all_results[[i]]$true_parameters
+    if (is.null(true_values)) {
+      if (!is.null(condition$Model_Type)) {
+        if (condition$Model_Type == "null") {
+          true_values <- c(0.316, 0.316, 0, 0, 0)
+        } else if (condition$Model_Type == "alternative") {
+          true_values <- c(0.316, 0.316, 0.139, 0.101, 0.101)
+        }
+      } else {
+        true_values <- c(0.316, 0.316, 0.139, 0.101, 0.101)
+      }
+    }
+    model_name <- if (!is.null(condition$Model_Type)) {
+      ifelse(condition$Model_Type == "null", "Linear", "Full")
+    } else "Full"
+    distribution <- as.character(condition$Distribution)
+    if (is.null(distribution) || distribution == "") distribution <- "normal"
+    sample_size <- condition$N
+    reliability <- condition$Rel
+    
+    for (method in methods) {
+      tbls <- res_list[[paste0(method, "_tables")]]
+      if (is.null(tbls)) next
+      
+      # accumulators by parameter
+      params <- parameters_of_interest
+      ests <- setNames(vector("list", length(params)), params)
+      ses  <- setNames(vector("list", length(params)), params)
+      pvs  <- setNames(vector("list", length(params)), params)
+      los  <- setNames(vector("list", length(params)), params)
+      his  <- setNames(vector("list", length(params)), params)
+      
+      # gather across reps
+      for (rep in seq_along(tbls)) {
+        tab <- tbls[[rep]]
+        if (is.null(tab)) next
+        extr <- extract_eta3_parameters(tab, method)
+        if (is.null(extr)) next
+        
+        have <- intersect(names(extr$Estimates), params)
+        if (length(have) == 0) next
+        for (p in have) {
+          ests[[p]] <- c(ests[[p]], unname(extr$Estimates[p]))
+          ses [[p]] <- c(ses [[p]], unname(extr$`Standard Errors`[p]))
+          pvs [[p]] <- c(pvs [[p]], unname(extr$`P-values`[p]))
+          los [[p]] <- c(los [[p]], unname(extr$CI_lower[p]))
+          his [[p]] <- c(his [[p]], unname(extr$CI_upper[p]))
+        }
+      }
+      
+      # compute summaries per parameter
+      for (p_name in params) {
+        df <- tibble::tibble(
+          est = unlist(ests[[p_name]]),
+          se  = unlist(ses [[p_name]]),
+          p_val = unlist(pvs [[p_name]]),
+          lower_bound = unlist(los [[p_name]]),
+          upper_bound = unlist(his [[p_name]])
+        )
+        if (nrow(df) == 0) next
+        
+        # remove incomplete cases (non-convergence)
+        valid <- stats::complete.cases(df)
+        n_total <- nrow(df)
+        n_complete <- sum(valid)
+        if (n_complete < min_reps) next
+        
+        dfv <- df[valid, , drop = FALSE]
+        tv <- true_values[param_index[p_name]]
+        
+        # ============================================================
+        # CALCULATE MEDIAN-BASED METRICS BEFORE OUTLIER REMOVAL
+        # (but after removing non-convergence cases)
+        # ============================================================
+        median_est <- stats::median(dfv$est)
+        bias_median <- median_est - tv
+        mad_est <- stats::mad(dfv$est, constant = 1)
+        rmse_median <- sqrt(bias_median^2 + mad_est^2)
+        
+        if (tv != 0) {
+          rel_bias_median <- bias_median / tv
+          rel_bias_median_pct <- rel_bias_median * 100
+        } else {
+          rel_bias_median <- NA_real_
+          rel_bias_median_pct <- NA_real_
+        }
+        
+        # ============================================================
+        # NOW REMOVE OUTLIERS FOR MEAN-BASED METRICS
+        # ============================================================
+        n_out <- 0
+        if (remove_outliers && nrow(dfv) > 0) {
+          q1 <- stats::quantile(dfv$est, 0.25, na.rm = TRUE)
+          q3 <- stats::quantile(dfv$est, 0.75, na.rm = TRUE)
+          iqr <- q3 - q1
+          lb <- q1 - outlier_threshold * iqr
+          ub <- q3 + outlier_threshold * iqr
+          keep <- dfv$est >= lb & dfv$est <= ub
+          n_out <- sum(!keep, na.rm = TRUE)
+          dfv_clean <- dfv[keep, , drop = FALSE]  # cleaned dataset
+        } else {
+          dfv_clean <- dfv  # no outlier removal
+        }
+        
+        # check if we still have enough data after outlier removal
+        if (nrow(dfv_clean) < min_reps) next
+        
+        # add true parameter column for simhelpers functions
+        dfv_clean$true_param <- tv
+        
+        # ============================================================
+        # CALCULATE ALL MEAN-BASED METRICS USING SIMHELPERS ON CLEANED DATA
+        # ============================================================
+        
+        # ABSOLUTE METRICS (bias, variance, MSE, RMSE) without winsorization 
+        abs_metrics <- calc_absolute(
+          data = dfv_clean,
+          estimates = est, 
+          true_param = true_param,
+          criteria = c("bias", "variance", "stddev", "mse", "rmse"),
+          winz = Inf  # No winsorization, we already removed outliers
+        )
+        
+        # RELATIVE METRICS (only if true value is non-zero)
+        if (tv != 0) {
+          rel_metrics <- calc_relative(
+            data = dfv_clean,
+            estimates = est,
+            true_param = true_param,
+            criteria = c("relative bias", "relative mse", "relative rmse"),
+            winz = Inf  # No winsorization
+          )
+          
+          # simhelpers returns E(T)/θ (ratio), but we want (E(T) - θ)/θ (relative difference)
+          rel_bias_mean <- rel_metrics$rel_bias - 1      # convert from ratio to relative difference
+          rel_bias_mean_pct <- rel_bias_mean * 100       # convert to percentage
+          rel_bias_mcse <- rel_metrics$rel_bias_mcse     # MCSE for the ratio
+          
+          rel_mse <- rel_metrics$rel_mse
+          rel_rmse <- rel_metrics$rel_rmse
+          rel_mse_mcse <- rel_metrics$rel_mse_mcse
+          rel_rmse_mcse <- rel_metrics$rel_rmse_mcse
+        } else {
+          rel_bias_mean <- NA_real_
+          rel_bias_mean_pct <- NA_real_
+          rel_mse <- NA_real_
+          rel_rmse <- NA_real_
+          rel_bias_mcse <- NA_real_
+          rel_mse_mcse <- NA_real_
+          rel_rmse_mcse <- NA_real_
+        }
+        
+        # COVERAGE AND CI WIDTH
+        cov_metrics <- calc_coverage(
+          data = dfv_clean,
+          lower_bound = lower_bound, 
+          upper_bound = upper_bound, 
+          true_param = true_param,
+          criteria = c("coverage", "width"),
+          winz = Inf  # No winsorization
+        )
+        
+        # REJECTION RATES (Type I Error / Power)
+        rej_metrics <- calc_rejection(
+          data = dfv_clean,
+          p_values = p_val,
+          alpha = alpha
+        )
+        
+        # convert rejection rate to percentage but keep MCSE as proportion
+        rejection_rate <- rej_metrics$rej_rate * 100
+        rej_mcse <- rej_metrics$rej_rate_mcse  # Keep as proportion
+        
+        # determine Type I Error vs Power
+        if (tv == 0) {
+          type_i <- rejection_rate
+          power <- NA_real_
+          typei_mcse <- rej_mcse  # as proportion
+          power_mcse <- NA_real_
+        } else {
+          type_i <- NA_real_
+          power <- rejection_rate
+          typei_mcse <- NA_real_
+          power_mcse <- rej_mcse  # as proportion
+        }
+        
+        # ============================================================
+        # ADDITIONAL METRICS
+        # ============================================================
+        
+        # Mean estimate (on cleaned data)
+        mean_est <- mean(dfv_clean$est)
+        
+        # Standard error metrics (on cleaned data)
+        mean_se <- mean(dfv_clean$se)
+        se_sd_ratio <- mean_se / abs_metrics$stddev
+        
+        # ============================================================
+        # COMPILE RESULTS
+        # ============================================================
+        
+        results_summary <- dplyr::bind_rows(
+          results_summary,
+          tibble::tibble(
+            Condition = i,
+            Method = toupper(method),
+            Model = model_name,
+            Distribution = distribution,
+            SampleSize = sample_size,
+            Reliability = reliability,
+            Parameter = p_name,
+            TrueValue = tv,
+            
+            # Mean-based metrics from simhelpers (on cleaned data)
+            MeanEstimate = mean_est,
+            Bias_Mean = abs_metrics$bias,
+            RelativeBias_Mean = rel_bias_mean,
+            PercentRelativeBias_Mean = rel_bias_mean_pct,
+            
+            # Median-based metrics (calculated BEFORE outlier removal)
+            MedianEstimate = median_est,
+            Bias_Median = bias_median,
+            RelativeBias_Median = rel_bias_median,
+            PercentRelativeBias_Median = rel_bias_median_pct,
+            MAD = mad_est,
+            
+            # Variability and accuracy metrics from simhelpers (on cleaned data)
+            Variance = abs_metrics$var,
+            SD = abs_metrics$stddev,
+            MSE_Mean = abs_metrics$mse,
+            RMSE_Mean = abs_metrics$rmse,
+            RMSE_Median = rmse_median,  # Based on pre-outlier-removal median
+            
+            # Relative metrics from simhelpers (on cleaned data)
+            Relative_MSE = rel_mse,
+            Relative_RMSE = rel_rmse,
+            
+            # Standard error metrics (on cleaned data)
+            MeanSE = mean_se,
+            SE_SD_Ratio = se_sd_ratio,
+            
+            # Coverage and CI metrics from simhelpers (on cleaned data)
+            CoverageRate = cov_metrics$coverage * 100,
+            CI_Width = cov_metrics$width,
+            
+            # Testing metrics (on cleaned data)
+            RejectionRate = rejection_rate,
+            TypeI_Error = type_i,
+            Power = power,
+            
+            # Monte Carlo standard errors (all kept as proportions/raw units)
+            Bias_Mean_MCSE = abs_metrics$bias_mcse,
+            RelativeBias_MCSE = rel_bias_mcse,
+            Variance_MCSE = abs_metrics$var_mcse,
+            SD_MCSE = abs_metrics$stddev_mcse,
+            MSE_Mean_MCSE = abs_metrics$mse_mcse,
+            RMSE_Mean_MCSE = abs_metrics$rmse_mcse,
+            Relative_MSE_MCSE = rel_mse_mcse,
+            Relative_RMSE_MCSE = rel_rmse_mcse,
+            CoverageRate_MCSE = cov_metrics$coverage_mcse,  # Proportion
+            CI_Width_MCSE = cov_metrics$width_mcse,
+            RejectionRate_MCSE = rej_mcse,  # Proportion
+            TypeI_Error_MCSE = typei_mcse,  # Proportion
+            Power_MCSE = power_mcse,  # Proportion
+            
+            # Sample size tracking
+            N_Total = n_total,
+            N_Complete_Cases = n_complete,
+            N_Outliers_Removed = n_out,
+            N_Final_Valid = nrow(dfv_clean),
+            N_Total_Excluded = n_total - nrow(dfv_clean),
+            Percent_Total_Excluded = round((n_total - nrow(dfv_clean)) / n_total * 100, 2)
+          )
+        )
+      } # end per-parameter
+    } # end per-method
+  } # end per-condition
+  
+  results_summary
+}
+
+
+results_with_mcse<- CalculateBiasAndCoverage(
+  all_results,
+  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+  remove_outliers = TRUE,
+  outlier_threshold = 3,  # remove outliers at 3 IQR from Q1/Q3
+  alpha = 0.05,
+  min_reps = 10 # just trial for now
+)
+```
