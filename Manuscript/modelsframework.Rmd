@@ -1,5 +1,5 @@
 ---
-title: "Framework"
+title: ""
 author: ""
 date: ""
 output: html_document
@@ -46,9 +46,9 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
 
 # The general SEM framework 
 
-*Notation*. Bold lowercase symbols (i.e., $\boldsymbol{\eta}$, $\boldsymbol{\nu}$, $\boldsymbol{\epsilon}$) denote column vectors, whereas bold uppercase symbols (i.e., $\mathbf{B}$, $\boldsymbol{\Lambda}$, $\boldsymbol{\Theta}$, $\boldsymbol{\Psi}$) denote matrices. Non-bold are scalars. Let $m$ be the number of latent variables and $p$ the number of observed indicators. We work with a SEM that contains both a structural and a measurement part, using LISREL all-$y$ notation. We assume the observed data are complete and continuous. Because the literature on DBLCENT, LMS, and QML traditionally uses standard LISREL notation, we will differentiate between $\eta_x$ and $\eta_y$ when referring to those methods; for LSAM this distinction is not needed. 
+*Notation*. Bold lowercase symbols (i.e., $\boldsymbol{\eta}$, $\boldsymbol{\nu}$, $\boldsymbol{\epsilon}$) denote column vectors, whereas bold uppercase symbols (i.e., $\mathbf{B}$, $\boldsymbol{\Lambda}$, $\boldsymbol{\Theta}$, $\boldsymbol{\Psi}$) denote matrices. Non-bold are scalars. Let $m$ be the number of latent variables and $p$ the number of observed indicators. We work with a SEM that contains both a structural and a measurement part, using LISREL all-$y$ notation. We assume the observed data are complete and continuous. Because the literature on LMS and QML traditionally uses standard LISREL notation, we will differentiate between $\eta_x$ and $\eta_y$ when referring to those methods; for LSAM and DBLCENT this distinction is not needed. 
 
-For the structural model, we have 
+For the structural model we have:
 
 \begin{equation}\label{eq:structural}
 \begin{aligned}
@@ -56,7 +56,7 @@ For the structural model, we have
 \end{aligned}
 \end{equation}
 
-where $\boldsymbol{\eta}\in\mathbb{R}^{m}$ is the latent vector, $\boldsymbol{\alpha}\in\mathbb{R}^{m}$ the intercepts, and $\mathbf{B}\in\mathbb{R}^{m\times m}$ with $\mathrm{diag}(\mathbf{B})=\mathbf{0}$ and $(\mathbf{I}-\mathbf{B})$ invertible. The disturbance $\boldsymbol{\zeta}\in\mathbb{R}^{m}$ satisfies $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}\in\mathbb{R}^{m\times m}$. Note that no distributional form is assumed here. Thus, given $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}$, we obtain
+where $\boldsymbol{\eta}\in\mathbb{R}^{m}$ is the latent vector, $\boldsymbol{\alpha}\in\mathbb{R}^{m}$ the intercepts, and $\mathbf{B}\in\mathbb{R}^{m\times m}$ with $\mathrm{diag}(\mathbf{B})=\mathbf{0}$ and $(\mathbf{I}-\mathbf{B})$ invertible. The disturbance $\boldsymbol{\zeta}\in\mathbb{R}^{m}$ satisfies $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}\in\mathbb{R}^{m\times m}$. Note that no distributional form is assumed here. Thus, given $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}$, we obtain:
 
 \[
 \begin{aligned}
@@ -65,16 +65,16 @@ where $\boldsymbol{\eta}\in\mathbb{R}^{m}$ is the latent vector, $\boldsymbol{\a
 \end{aligned}
 \]
 
-For the measurement model, we relate indicators to the latent variables as
+For the measurement model it holds:
 
 \begin{equation}\label{eq:measurement}
 \begin{aligned}
-\mathbf{y} = \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}.
+\mathbf{y} = \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon},
 \end{aligned}
 \end{equation}
 
 where $\mathbf{y}\in\mathbb{R}^{p}$ is the indicator vector, $\boldsymbol{\nu}\in\mathbb{R}^{p}$ the intercepts, $\boldsymbol{\Lambda}\in\mathbb{R}^{p\times m}$ the loadings, and $\boldsymbol{\epsilon}\in\mathbb{R}^{p}$ the measurement errors with $\mathbb{E}(\boldsymbol{\epsilon})=\mathbf{0}$, $\mathrm{Var}(\boldsymbol{\epsilon})=\boldsymbol{\Theta}\in\mathbb{R}^{p\times p}$, 
-$\mathbb{E}(\boldsymbol{\eta}\boldsymbol{\epsilon}^\top)=\mathbf{0}$, and $\mathbb{E}(\boldsymbol{\epsilon}\boldsymbol{\zeta}^\top)=\mathbf{0}$. The model-implied mean vector and covariance matrix of $\mathbf{y}$ are
+$\mathbb{E}(\boldsymbol{\eta}\boldsymbol{\epsilon}^\top)=\mathbf{0}$, and $\mathbb{E}(\boldsymbol{\epsilon}\boldsymbol{\zeta}^\top)=\mathbf{0}$. The model-implied mean vector and covariance matrix of $\mathbf{y}$ are:
 
 \[
 \begin{aligned}
@@ -83,7 +83,7 @@ $\mathbb{E}(\boldsymbol{\eta}\boldsymbol{\epsilon}^\top)=\mathbf{0}$, and $\math
 \end{aligned}
 \]
 
-Substituting the structural moments yields
+Substituting the structural moments yields the following:
 
 \begin{equation}\label{eq:moments}
 \begin{aligned}
@@ -92,9 +92,9 @@ Substituting the structural moments yields
 \end{aligned}
 \end{equation}
 
-Traditionally, we collect the free parameters across the structural part $(\boldsymbol{\alpha},\mathbf{B},\boldsymbol{\Psi})$ and the measurement part $(\boldsymbol{\nu},\boldsymbol{\Lambda},\boldsymbol{\Theta})$ into $\boldsymbol{\theta}$ (length $T$). Given i.i.d. data vectors $\mathcal{Y}=\{\mathbf{y}_1,\ldots,\mathbf{y}_N\}$, we estimate $\boldsymbol{\theta}$ by minimizing the discrepancy between observed and model-implied moments. Thus, estimation proceeds as a joint ('system-wide') approach where all parameters are estimated jointly.
+Traditionally, we collect the free parameters across the structural part $(\boldsymbol{\alpha},\mathbf{B},\boldsymbol{\Psi})$ and the measurement part $(\boldsymbol{\nu},\boldsymbol{\Lambda},\boldsymbol{\Theta})$ into $\boldsymbol{\theta}$. Given i.i.d. data vectors $\mathcal{Y}=\{\mathbf{y}_1,\ldots,\mathbf{y}_N\}$, we estimate $\boldsymbol{\theta}$ by minimizing the discrepancy between observed and model-implied moments. Thus, estimation proceeds as a joint ('system-wide') approach where all parameters are estimated jointly.
 
-Crucially, for estimation choices where distributional assumptions are added, normality enters only with likelihood-based estimators such as normal-theory ML (or GLS). In that case, we assume $\boldsymbol{\zeta}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi})$ and $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$, which implies
+Crucially, for estimation choices where distributional assumptions are added, normality enters only with likelihood-based estimators such as normal-theory ML (or GLS). In that case, we assume $\boldsymbol{\zeta}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi})$ and $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$, which implies:
 
 \[
 \begin{aligned}
@@ -102,15 +102,7 @@ Crucially, for estimation choices where distributional assumptions are added, no
 \end{aligned}
 \]
 
-and, consequently,
-
-\[
-\begin{aligned}
-\mathbf{y}\sim\mathcal{N}\left(\boldsymbol{\mu},\boldsymbol{\Sigma}\right),
-\end{aligned}
-\]
-
-with $\boldsymbol{\mu}$ and $\boldsymbol{\Sigma}$ as above in \eqref{eq:moments}.
+and, consequently $\mathbf{y}\sim\mathcal{N}\left(\boldsymbol{\mu},\boldsymbol{\Sigma}\right)$.
 
 # Interactions Approaches
 
@@ -122,7 +114,7 @@ The central idea of LSAM is to use the estimated measurement-model parameters wi
 \boldsymbol{\Lambda}\boldsymbol{\eta} = \mathbf{y} - \boldsymbol{\nu} - \boldsymbol{\epsilon}.
 \]
 
-As in @rosseel_loh_2024, we let $\mathbf{M}\in\mathbb{R}^{m\times p}$ be a mapping matrix with $\mathbf{M}\boldsymbol{\Lambda}=\mathbf{I}_m$. Multiplying both sides by $\mathbf{M}$ gives
+As in @rosseel_loh_2024, we let $\mathbf{M}\in\mathbb{R}^{m\times p}$ be a mapping matrix with $\mathbf{M}\boldsymbol{\Lambda}=\mathbf{I}_m$. Multiplying both sides by $\mathbf{M}$ gives,
 
 \[
 \begin{aligned}
@@ -130,7 +122,7 @@ As in @rosseel_loh_2024, we let $\mathbf{M}\in\mathbb{R}^{m\times p}$ be a mappi
 \end{aligned}
 \]
 
-so defining $\mathbf{f}=\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})=\boldsymbol{\eta}+\mathbf{r}$ with $\mathbf{r}=\mathbf{M}\boldsymbol{\epsilon}\in\mathbb{R}^{m}$, $\mathbb{E}(\mathbf{r})=\mathbf{0}$, and $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$. Then
+thus defining $\mathbf{f}=\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})=\boldsymbol{\eta}+\mathbf{r}$ with $\mathbf{r}=\mathbf{M}\boldsymbol{\epsilon}\in\mathbb{R}^{m}$, $\mathbb{E}(\mathbf{r})=\mathbf{0}$, and $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$. Then,
 
 \[
 \begin{aligned}
@@ -139,7 +131,7 @@ so defining $\mathbf{f}=\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})=\boldsymbol{\eta
 \end{aligned}
 \]
 
-If the SEM model contained no interactions or quadratic terms, one could proceed naturally as in @rosseel_loh_2024, but for two-way interactions and quadratic terms we need second moments. Hence, @rosseel_etall_2025 proposed an expression for $\mathbb{E}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ and $\mathrm{Var}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ without assuming normality for the latent variables:
+If the SEM model contained no interactions or quadratic terms, one could proceed naturally as in @rosseel_loh_2024, but for two-way interactions and quadratic terms we need second moments. So, @rosseel_etall_2025 proposed an expression for $\mathbb{E}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ and $\mathrm{Var}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ without assuming normality for the latent variables:
 
 \[
 \begin{aligned}
@@ -148,7 +140,7 @@ If the SEM model contained no interactions or quadratic terms, one could proceed
 \end{aligned}
 \]
 
-Let $\mathbf{K}_m\in\mathbb{R}^{m^2\times m^2}$ be the commutation matrix. Using $\mathbf{f}=\boldsymbol{\eta}+\mathbf{r}$ with $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$, an approximation for the variance of the Kronecker product is
+Moreover, let $\mathbf{K}_m\in\mathbb{R}^{m^2\times m^2}$ be the commutation matrix. Using $\mathbf{f}=\boldsymbol{\eta}+\mathbf{r}$ with $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$, an approximation for the variance of the Kronecker product is:
 
 \[
 \begin{aligned}
@@ -168,7 +160,7 @@ where
 \end{aligned}
 \]
 
-and $\boldsymbol{\Gamma}_{22}^{*(NT)}(\mathbf{r})$ is the correction term built from $\mathrm{Var}(\mathbf{r})$.
+and $\boldsymbol{\Gamma}_{22}^{*(NT)}(\mathbf{r})$ is the correction term built from $\mathrm{Var}(\mathbf{r})$. 
 
 Importantly, to capture covariances between first- and second-order terms, we augment the following:
 
@@ -201,7 +193,7 @@ with
 
 Therefore, one can use the estimates of these augment summary statistics for a regression model in the second setp of the estimation procedure. 
 
-**Assumptions and Performance**. Similar to the 2SMM approach, in the first stage, LSAM inherits the CFA measurement model assumptions. Distributional assumptions in the CFA stage depend on the estimator used. Concerning the second stage, specifically for the second-order corrections, the LSAM assumes only $\mathbf{r}\sim\mathcal{N}(\mathbf{0},\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^\top)$. No distributional assumptions are imposed on the latent predictors $\boldsymbol{\eta}$. For the local two-step standard errors, a sandwich formula for "robust" standard errors is used (future work will elaborate the derivations for it in contrast to the 2SMM). Importantly, for the LSAM, alpha correction may be applied, which introduces some bias in order to obtain lower variance (see Rosseel et al.). Reliability reduces $\mathrm{Var}(\mathbf{r})$ and therefore shrinks the measurement-error corrections, leading to smaller sampling variance/MSE. Lastly, variability may increase only for heavy-tailed/skewed cases as higher-order moments inflate $\mathrm{Var}(\mathbf{f}\otimes\mathbf{f})$.
+**Assumptions and Performance**. Similar to the 2SMM approach, in the first stage, LSAM inherits the CFA measurement model assumptions. Distributional assumptions in the CFA stage depend on the estimator used. Concerning the second stage, specifically for the second-order corrections, the LSAM assumes only $\mathbf{r}\sim\mathcal{N}(\mathbf{0},\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^\top)$. No distributional assumptions are imposed on the latent predictors $\boldsymbol{\eta}$. For the local two-step standard errors, a sandwich formula for "robust" standard errors is used (future work will elaborate the derivations for it in contrast to the 2SMM). Importantly, for the LSAM, alpha correction may be applied, which introduces some bias in order to obtain lower variance (see Rosseel et al.). Reliability influencesreduces $\mathrm{Var}(\mathbf{r})$ and therefore shrinks the measurement-error corrections, leading to smaller sampling variance/MSE. Lastly, variability may increase only for heavy-tailed/skewed cases as higher-order moments inflate $\mathrm{Var}(\mathbf{f}\otimes\mathbf{f})$.
 
 With respect to previous simulation studies, LSAM should in principle perform similarly to the 2SMM as observed in @rosseel_etall_2025. Indeed, the results show that bias for both approaches was small under normal and non-normal conditions. Moreover, the variance of the point estimates as well as the mean squared error were also closely related. Moreover, the general findings from previous simulation studies investigated the 2SMM approach (Brandt et al. 2014; Wall & Amemiya, 2003) should extend to the LSAM.
 
@@ -220,7 +212,7 @@ $\boldsymbol{\eta}_y\in\mathbb{R}^{k}$ and $\boldsymbol{\eta}_x\in\mathbb{R}^{n_
 where $\boldsymbol{\nu}\in\mathbb{R}^{p}$, $\boldsymbol{\Lambda}\in\mathbb{R}^{p\times m}$,
 $\boldsymbol{\epsilon}\in\mathbb{R}^{p}$, and $\boldsymbol{\Theta}=\operatorname{Var}(\boldsymbol{\epsilon})\in\mathbb{R}^{p\times p}$.
 
-Use strict all-$y$ notation for the structural model,
+Using all-$y$ notation for the structural model,
 
 \[
 \begin{aligned}
@@ -270,43 +262,11 @@ where each $\boldsymbol{\Omega}_i\in\mathbb{R}^{n_x\times n_x}$ and $\boldsymbol
 \end{aligned}
 \]
 
-Special case ($k=1$, $n_x=2$, $\mathbf{B}_{yy}=\mathbf{0}$, $\boldsymbol{\Xi}=\mathbf{0}$). With $\boldsymbol{\eta}_x=(\eta_{x1},\eta_{x2})^\top$,
+Importantly, the distributional assumptions for LMS and QML are: $\boldsymbol{\eta}_x\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{xx})$, $\boldsymbol{\zeta}_y\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy})$, and $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$. Both procedures target the same parameterization, but they differ only in estimation strategy.
 
-\[
-\begin{aligned}
-\eta_y=\alpha_y+\mathbf{B}_{yx}\boldsymbol{\eta}_x+\boldsymbol{\eta}_x^{\!\top}\boldsymbol{\Omega}_1\boldsymbol{\eta}_x+\zeta_y,
-\end{aligned}
-\]
+For the LMS, let $\boldsymbol{\Psi}_{xx}=\mathbf{A}\mathbf{A}^{\top}$ and write $\boldsymbol{\eta}_x=\mathbf{A}\mathbf{z}$ with $\mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I}_{n_x})$. Integrating over $\boldsymbol{\eta}_x$ via Gauss–Hermite quadrature yields a finite normal–mixture approximation to $f(\mathbf{y})$. Parameters are estimated by full-information ML (EM), with standard errors from the observed information.
 
-where $\mathbf{B}_{yx}=(\gamma_1,\gamma_2)$ and
-
-\[
-\begin{aligned}
-\boldsymbol{\Omega}_1=\begin{bmatrix}\beta_1 & \tfrac{\omega}{2}\\[2pt] \tfrac{\omega}{2} & \beta_2\end{bmatrix}
-\ \Rightarrow\
-\boldsymbol{\eta}_x^{\!\top}\boldsymbol{\Omega}_1\boldsymbol{\eta}_x=\beta_1\eta_{x1}^2+\omega\,\eta_{x1}\eta_{x2}+\beta_2\eta_{x2}^2.
-\end{aligned}
-\]
-
-Distributional assumptions for LMS/QML (mutually independent):
-
-\[
-\begin{aligned}
-\boldsymbol{\eta}_x\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{xx}),\qquad
-\boldsymbol{\zeta}_y\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy}),\qquad
-\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta}).
-\end{aligned}
-\]
-
-LMS sketch: let $\boldsymbol{\Psi}_{xx}=\mathbf{A}\mathbf{A}^{\top}$ (Cholesky), write $\boldsymbol{\eta}_x=\mathbf{A}\mathbf{z}$ with $\mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I}_{n_x})$, and integrate the nonlinear components to obtain a Hermite–Gauss quadrature approximation
-
-\[
-\begin{aligned}
-f(\mathbf{y})\approx \sum_{j=1}^{M}\pi_j\,\varphi\!\big(\mathbf{y}\mid \boldsymbol{\mu}_j,\boldsymbol{\Sigma}_j\big).
-\end{aligned}
-\]
-
-QML sketch: apply a fixed full-rank linear transform to $\mathbf{y}$ so exactly one component is non-normal while the others are (conditionally) normal; specify the implied mean/variance under the same LPT structure and maximize a quasi-log-likelihood with robust (sandwich) SEs.
+With respect to the QML, a fixed full-rank linear transformation $\mathbf{T}$ of $\mathbf{y}$ is applied to isolate the nonnormal component induced by the latent polynomial while the remaining transformed components are (conditionally) normal. The transformation is constructed from $\boldsymbol{\Theta}$ and the loading structure (i.e., it separates the subspace spanned by $\boldsymbol{\Lambda}_y$ so that $p-k$ components are orthogonal to it and $k$ components retain it). The implied mean and variance of $\mathbf{T}\mathbf{y}$ are specified under the same latent–polynomial structure, a quasi log-likelihood is maximized, and robust (sandwich) standard errors are used. 
 
 **Assumptions and Performance**. The LMS assumes jointly normal latent predictors and structural disturbance, i.e., $\boldsymbol{\eta}_x\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}{xx})$, $\zeta_y\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy})$, with independent normal measurement errors $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$. Hence, under these conditions we obtain estimates that are consistent, asymptotically unbiased, efficient, and normal. Indeed, previous simulation results show that the LMS produced unbiased results under the condition of normally distributed $\boldsymbol{\eta}_x$. Recently, however, @lonati_etall_2025 also manipulated the distribution for the structural disturbance and measurement errors. In that case, the results showed that the distribution for the measurement error did not have much negative impact. 
 
@@ -314,31 +274,10 @@ Moreover, the QML applies a linear transform and models an approximating density
 
 ## DBLCENT
 
-We use the unconstrained product-indicator approach (UCA) in the all-$y$ framework. For an interaction between two first-order latents $\eta_1$ and $\eta_2$, introduce a latent product factor $\eta_{1\times2}$ and include it among the predictors in the structural model; with centered predictors (see below) the single-endogenous case is written without an intercept as
-
-$$
-\eta_3=B_{31}\eta_1+B_{32}\eta_2+B_{3,\,1\times2}\eta_{1\times2}+\zeta_3,
-$$
-
-and, in general, $\eta_{1\times2}$ is stacked with the exogenous block so the block form of $\mathbf{B}$ from the general SEM section is preserved.
-
-Product indicators are formed without Kenny–Judd constraints using **double mean centering (DMC)**. Let $I_1$ and $I_2$ index indicators of $\eta_1$ and $\eta_2$. For each pair $(i,j)\in I_1\times I_2$ define
-
-$$
-p_{ij}
-=\big(y_i-\bar y_i\big)\big(y_j-\bar y_j\big)
--\overline{\big(y_i-\bar y_i\big)\big(y_j-\bar y_j\big)}\,,
-$$
-
-that is, center each indicator, take their product, then center the product again. This yields $\mathbb{E}(p_{ij})=0$ in sample. Measure the latent product with a simple reflective block,
-
-$$
-\mathbf{p}=\boldsymbol{\Lambda}_{\times}\,\eta_{1\times2}+\boldsymbol{\epsilon}_{\times},
-$$
-
-with one loading in $\boldsymbol{\Lambda}_{\times}$ fixed for scale (or $\mathrm{Var}(\eta_{1\times2})=1$). Because DMC produces zero-mean product indicators, no mean structure is modeled for the **product block** (no intercepts for $\mathbf{p}$ and $\mathbb{E}(\eta_{1\times2})=0$). In practice, residual covariances among product indicators that share a constituent indicator may be freely estimated, while others are fixed to zero.
-
-DMC implies that the product block measures $\eta_{1}\eta_{2}-\mathbb{E}(\eta_{1}\eta_{2})$. When the first-order predictor indicators are centered as above, $\mathbb{E}(\eta_1)=\mathbb{E}(\eta_2)=0$ and the interaction latent also has mean zero, making a structural intercept for $\eta_3$ unnecessary. In all applications below we adopt this **unconstrained** approach with **double mean centering** for constructing product indicators and estimate the model jointly in all-$y$ notation.
+This approach has been extensively documented. For more details we refer the reader to Marsh et al., 2004; Kelava and Brandt 2009; Lin et al. 2010). Briefly, we retain the general SEM in §\ref{eq:structural}–\ref{eq:moments}. DBLCENT only specifies how additional observed indicators for a single nonlinear term are created. Thus, the structural and measurement specifications are otherwise unchanged. For each indicator $y_i$, define a centered score $z_i=y_i-\bar y_i$ and, for any relevant pair $(i,j)$, define a double–mean–centered product $p_{ij}=z_i z_j-\overline{z_i z_j}$.  
 
 **Assumptions and Performance**
-The unconstrained approach (Kelava & Brandt, 2009), freely estimates all parameters in latent interaction models (Marsh et al., 2004). This method uses standard maximum likelihood estimation, which assumes multivariate normality for statistical inference. However, product indicators are inherently non-normal due to their multiplicative construction, violating this assumption. The maximum likelihood estimator remains consistent and asymptotically normal when data are multivariate normal (Yuan et al., 2005) and maintains consistency regardless of the data distribution (Browne & Shapiro, 1988; White, 1982; Yuan et al., 2005). Despite this robustness in point estimation, both theory (Wall & Amemiya, 2001) and simulation work (Curran et al., 1996) demonstrate that standard errors and fit statistics are not trustworthy with non-normal variables. Simulation studies show that while bias in parameter estimates is small (Marsh et al., 2004; Kelava et al., 2014), the approach systematically underestimates standard errors (Cham et al., 2012). This problem can be addressed through robust standard error estimation, though these corrections are valid only asymptotically and may remain slightly underestimated in small samples (Brandt et al., 2014). The non-normality of product indicators thus presents a persistent challenge for statistical inference in this otherwise straightforward approach.
+This approach freely estimates all parameters in latent interaction models (Marsh et al., 2004; Kelava and Brandt 2009). Typically, standard maximum likelihood is used for the estimation, which assumes multivariate normality for statistical inference. However, product indicators are inherently non-normal due to their multiplicative construction. The maximum likelihood estimator remains consistent and asymptotically normal when data are multivariate normal (Yuan et al., 2005) and maintains consistency regardless of the data distribution (Browne & Shapiro, 1988; White, 1982; Yuan et al., 2005). Despite this robustness in point estimation, both theory (Wall & Amemiya, 2001) and simulation work (Curran et al., 1996) demonstrate that standard errors and fit statistics are not trustworthy with non-normal variables. Simulation studies show that while bias in parameter estimates is small (Marsh et al., 2004; Kelava et al., 2014), the approach systematically underestimates standard errors (Cham et al., 2012). This problem can be addressed through robust standard error estimation, though these corrections are valid only asymptotically and may remain slightly underestimated in small samples (Brandt et al., 2014). The non-normality of product indicators thus presents a persistent challenge for statistical inference in this otherwise straightforward approach.
+
+
+
