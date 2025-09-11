@@ -1,17 +1,18 @@
 ---
-title: "results"
+title: ""
 author: ""
 date: ""
 output: html_document
 ---
 
-## Results
+# Results for simulation studies 
+
+## Result for simulation study 1
 
 ```{r results, echo=FALSE, warning=FALSE, message=FALSE}
-
 library(dplyr); library(tidyr); library(purrr); library(stringr); library(kableExtra); library(glue); library(simhelpers)
 
-load("sim_results/run_20250827_1707_36_500/final_results.RData")
+load("sim_results/run_20250828_1758_36_1000/final_results.RData")
 
 extract_eta3_parameters <- function(table, method_type) {
   if (is.null(table)) return(NULL)
@@ -82,13 +83,13 @@ extract_eta3_parameters <- function(table, method_type) {
   RESULTS
 }
 
-
 CalculateBiasAndCoverage <- function(all_results,
                                      parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                      remove_outliers = TRUE,
                                      outlier_threshold = 3,  # IQR multiplier for outlier removal
                                      alpha = 0.05,
-                                     min_reps = 10) {
+                                     min_reps = 10,
+                                     return_convergence_details = TRUE) {  # New parameter
   options(scipen = 999)
   if (is.null(all_results) || length(all_results) == 0) {
     stop("all_results is NULL or empty. Please load your data first.")
@@ -96,6 +97,9 @@ CalculateBiasAndCoverage <- function(all_results,
   methods <- c("sam", "lms", "qml", "dblcent")
   results_summary <- dplyr::tibble()
   param_index <- c("eta1"=1, "eta2"=2, "eta1:eta2"=3, "eta1:eta1"=4, "eta2:eta2"=5)
+  
+  # Initialize convergence details storage
+  convergence_details <- list()
   
   for (i in seq_along(all_results)) {
     condition <- all_results[[i]]$condition
@@ -122,11 +126,179 @@ CalculateBiasAndCoverage <- function(all_results,
     sample_size <- condition$N
     reliability <- condition$Rel
     
+    # ============================================================
+    # STEP 1: TRACK CONVERGENCE FOR EACH METHOD SEPARATELY
+    # ============================================================
+    
+    # Get the number of replications
+    max_reps <- 0
+    for (method in methods) {
+      tbls <- res_list[[paste0(method, "_tables")]]
+      if (!is.null(tbls)) {
+        max_reps <- max(max_reps, length(tbls))
+      }
+    }
+    
+    if (max_reps == 0) next
+    
+    # Track convergence for each method separately
+    method_convergence <- list()
+    for (method in methods) {
+      method_convergence[[method]] <- rep(FALSE, max_reps)  # Initialize all as non-converged
+    }
+    
+    # Check each method's convergence independently
+    for (method in methods) {
+      tbls <- res_list[[paste0(method, "_tables")]]
+      if (is.null(tbls)) {
+        # If this method doesn't exist, all remain FALSE
+        next
+      }
+      
+      for (rep in seq_len(max_reps)) {
+        if (rep > length(tbls) || is.null(tbls[[rep]])) {
+          next  # Already FALSE
+        }
+        
+        # Extract parameters for this replication
+        extr <- extract_eta3_parameters(tbls[[rep]], method)
+        if (is.null(extr)) {
+          next  # Already FALSE
+        }
+        
+        # Check if all required parameters are present and complete
+        converged <- TRUE
+        for (p in parameters_of_interest) {
+          if (p %in% names(extr$Estimates)) {
+            # Check for NA, NaN, or Inf in any of the statistics
+            if (is.na(extr$Estimates[p]) || is.nan(extr$Estimates[p]) || is.infinite(extr$Estimates[p]) ||
+                is.na(extr$`Standard Errors`[p]) || is.nan(extr$`Standard Errors`[p]) || is.infinite(extr$`Standard Errors`[p]) ||
+                is.na(extr$`P-values`[p]) || is.nan(extr$`P-values`[p]) || is.infinite(extr$`P-values`[p]) ||
+                is.na(extr$CI_lower[p]) || is.nan(extr$CI_lower[p]) || is.infinite(extr$CI_lower[p]) ||
+                is.na(extr$CI_upper[p]) || is.nan(extr$CI_upper[p]) || is.infinite(extr$CI_upper[p])) {
+              converged <- FALSE
+              break
+            }
+          } else {
+            # Required parameter is missing
+            converged <- FALSE
+            break
+          }
+        }
+        method_convergence[[method]][rep] <- converged
+      }
+    }
+    
+    # Store convergence details for this condition
+    convergence_details[[paste0("Condition_", i)]] <- list(
+      condition_info = list(
+        Model = model_name,
+        Distribution = distribution,
+        SampleSize = sample_size,
+        Reliability = reliability
+      ),
+      convergence_matrix = do.call(cbind, method_convergence),
+      converged_iterations = lapply(method_convergence, which),  # Which iterations converged for each method
+      convergence_counts = sapply(method_convergence, sum),
+      convergence_rates = sapply(method_convergence, sum) / max_reps * 100
+    )
+    colnames(convergence_details[[paste0("Condition_", i)]]$convergence_matrix) <- methods
+    
+    # Calculate individual method convergence statistics
+    method_convergence_counts <- list()
+    method_convergence_rates <- list()
+    method_outlier_counts <- list()  # NEW: Track outliers by method
+    
+    for (method in methods) {
+      method_convergence_counts[[method]] <- sum(method_convergence[[method]])
+      method_convergence_rates[[method]] <- sum(method_convergence[[method]]) / max_reps * 100
+      method_outlier_counts[[method]] <- 0  # Initialize
+    }
+    
+    # ============================================================
+    # STEP 2: TRACK OUTLIERS FOR EACH METHOD INDEPENDENTLY (BEFORE COMPLETE CASE)
+    # ============================================================
+    
+    if (remove_outliers) {
+      for (method in methods) {
+        tbls <- res_list[[paste0(method, "_tables")]]
+        if (is.null(tbls)) next
+        
+        # Collect all estimates for this method (only from converged cases)
+        all_estimates <- list()
+        for (p in parameters_of_interest) {
+          all_estimates[[p]] <- numeric()
+        }
+        
+        for (rep in which(method_convergence[[method]])) {
+          extr <- extract_eta3_parameters(tbls[[rep]], method)
+          if (!is.null(extr)) {
+            for (p in names(extr$Estimates)) {
+              if (p %in% parameters_of_interest) {
+                all_estimates[[p]] <- c(all_estimates[[p]], extr$Estimates[p])
+              }
+            }
+          }
+        }
+        
+        # Count outliers across all parameters for this method
+        total_outliers <- 0
+        for (p in parameters_of_interest) {
+          if (length(all_estimates[[p]]) > 0) {
+            q1 <- stats::quantile(all_estimates[[p]], 0.25, na.rm = TRUE)
+            q3 <- stats::quantile(all_estimates[[p]], 0.75, na.rm = TRUE)
+            iqr <- q3 - q1
+            lb <- q1 - outlier_threshold * iqr
+            ub <- q3 + outlier_threshold * iqr
+            outliers <- sum(all_estimates[[p]] < lb | all_estimates[[p]] > ub, na.rm = TRUE)
+            total_outliers <- total_outliers + outliers
+          }
+        }
+        method_outlier_counts[[method]] <- total_outliers
+      }
+    }
+    
+    # ============================================================
+    # STEP 3: IDENTIFY VALID REPLICATIONS ACROSS ALL METHODS
+    # ============================================================
+    
+    # A replication is valid only if ALL methods converged
+    valid_reps <- rep(TRUE, max_reps)
+    for (method in methods) {
+      valid_reps <- valid_reps & method_convergence[[method]]
+    }
+    
+    # Get indices of valid replications
+    valid_rep_indices <- which(valid_reps)
+    n_total <- max_reps
+    n_valid_complete_case <- length(valid_rep_indices)
+    complete_case_convergence_rate <- n_valid_complete_case / n_total * 100
+    
+    # Add complete case info to convergence details
+    convergence_details[[paste0("Condition_", i)]]$complete_case_iterations <- valid_rep_indices
+    convergence_details[[paste0("Condition_", i)]]$complete_case_count <- n_valid_complete_case
+    convergence_details[[paste0("Condition_", i)]]$complete_case_rate <- complete_case_convergence_rate
+    
+    if (n_valid_complete_case < min_reps) {
+      message(paste("Condition", i, ": Only", n_valid_complete_case, 
+                    "valid replications across all methods. Skipping."))
+      next
+    }
+    
+    # ============================================================
+    # STEP 4: PROCESS EACH METHOD USING ONLY VALID REPLICATIONS
+    # ============================================================
+    
     for (method in methods) {
       tbls <- res_list[[paste0(method, "_tables")]]
       if (is.null(tbls)) next
       
-      # accumulators by parameter
+      # Get convergence stats for this specific method
+      n_converged_this_method <- method_convergence_counts[[method]]
+      convergence_rate_this_method <- method_convergence_rates[[method]]
+      n_outliers_this_method <- method_outlier_counts[[method]]  # NEW
+      
+      # accumulators by parameter - now only for valid reps
       params <- parameters_of_interest
       ests <- setNames(vector("list", length(params)), params)
       ses  <- setNames(vector("list", length(params)), params)
@@ -134,12 +306,12 @@ CalculateBiasAndCoverage <- function(all_results,
       los  <- setNames(vector("list", length(params)), params)
       his  <- setNames(vector("list", length(params)), params)
       
-      # gather across reps
-      for (rep in seq_along(tbls)) {
+      # gather ONLY from valid replications
+      for (rep in valid_rep_indices) {
         tab <- tbls[[rep]]
-        if (is.null(tab)) next
+        if (is.null(tab)) next  # This shouldn't happen given our validation
         extr <- extract_eta3_parameters(tab, method)
-        if (is.null(extr)) next
+        if (is.null(extr)) next  # This shouldn't happen given our validation
         
         have <- intersect(names(extr$Estimates), params)
         if (length(have) == 0) next
@@ -163,18 +335,13 @@ CalculateBiasAndCoverage <- function(all_results,
         )
         if (nrow(df) == 0) next
         
-        # remove incomplete cases (non-convergence)
-        valid <- stats::complete.cases(df)
-        n_total <- nrow(df)
-        n_complete <- sum(valid)
-        if (n_complete < min_reps) next
-        
-        dfv <- df[valid, , drop = FALSE]
         tv <- true_values[param_index[p_name]]
+        
+        # All data should already be complete cases now
+        dfv <- df
         
         # ============================================================
         # CALCULATE MEDIAN-BASED METRICS BEFORE OUTLIER REMOVAL
-        # (but after removing non-convergence cases)
         # ============================================================
         median_est <- stats::median(dfv$est)
         bias_median <- median_est - tv
@@ -235,8 +402,8 @@ CalculateBiasAndCoverage <- function(all_results,
             winz = Inf  # No winsorization
           )
           
-          # simhelpers returns E(T)/θ (ratio), but we want (E(T) - θ)/θ (relative difference)
-          rel_bias_mean <- rel_metrics$rel_bias - 1      # convert from ratio to relative difference
+          # simhelpers returns E(T)/θ (ratio)
+          rel_bias_mean <- rel_metrics$rel_bias - 1
           rel_bias_mean_pct <- rel_bias_mean * 100       # convert to percentage
           rel_bias_mcse <- rel_metrics$rel_bias_mcse     # MCSE for the ratio
           
@@ -367,11 +534,17 @@ CalculateBiasAndCoverage <- function(all_results,
             TypeI_Error_MCSE = typei_mcse,  # Proportion
             Power_MCSE = power_mcse,  # Proportion
             
-            # Sample size tracking
+            # SAMPLE SIZE TRACKING
             N_Total = n_total,
-            N_Complete_Cases = n_complete,
-            N_Outliers_Removed = n_out,
-            N_Final_Valid = nrow(dfv_clean),
+            N_Converged_This_Method = n_converged_this_method,  # How many converged for THIS method
+            Convergence_Rate_This_Method = convergence_rate_this_method,  # % converged for THIS method
+            N_Used_After_Convergence = n_valid_complete_case,  # What's actually used after complete-case deletion
+            Complete_Case_Convergence_Rate = complete_case_convergence_rate,  # % converged for ALL methods
+            N_Outliers_Removed = n_out,  # Outliers removed from this method/parameter
+            Percent_Outliers_Removed = round(n_out / n_valid_complete_case * 100, 2),  # % of complete cases that were outliers
+            N_Final_After_Outliers = nrow(dfv_clean),  # Final N after convergence AND outlier removal
+            
+            # TOTAL EXCLUSION SUMMARY
             N_Total_Excluded = n_total - nrow(dfv_clean),
             Percent_Total_Excluded = round((n_total - nrow(dfv_clean)) / n_total * 100, 2)
           )
@@ -380,16 +553,729 @@ CalculateBiasAndCoverage <- function(all_results,
     } # end per-method
   } # end per-condition
   
-  results_summary
+  # Return both results and convergence details if requested
+  if (return_convergence_details) {
+    return(list(
+      results = results_summary,
+      convergence_details = convergence_details
+    ))
+  } else {
+    return(results_summary)
+  }
 }
 
-
-results_with_mcse<- CalculateBiasAndCoverage(
+# Run the function with convergence details
+results_with_mcse <- CalculateBiasAndCoverage(
   all_results,
   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
   remove_outliers = TRUE,
-  outlier_threshold = 3,  # remove outliers at 3 IQR from Q1/Q3
+  outlier_threshold = 3,
   alpha = 0.05,
-  min_reps = 10 # just trial for now
+  min_reps = 10,
+  return_convergence_details = FALSE  
 )
+
 ```
+
+```{r tables, echo=FALSE, results='asis', message=FALSE, eval=FALSE}
+
+# ---- Landscape APA tables | Method-first | ± MCSE | Rej. = Type I if true=0 else Power ----
+# Chunk tip: use results='asis'
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(glue)
+library(kableExtra)
+library(tools)
+
+# ---------- helpers ----------
+fmt_num <- function(x, digits = 3) ifelse(is.na(x), "", formatC(x, digits = digits, format = "f"))
+fmt_pm  <- function(value, mcse, digits_value = 3, digits_mcse = 3, scale_mcse = 1) {
+  ifelse(is.na(value), "", paste0(fmt_num(value, digits_value), " ± ", fmt_num(mcse * scale_mcse, digits_mcse)))
+}
+cap_first <- function(x) tools::toTitleCase(tolower(as.character(x)))
+
+METHOD_ORDER <- c("SAM","LMS","QML","DBLCENT")
+PARAM_ORDER  <- c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2")
+
+# ---------- table builder (Method first) ----------
+build_condition_table_landscape <- function(df, N, Rel, Dist, model_type, latex_font_size = 9) {
+
+  dfc <- df %>%
+    filter(
+      SampleSize == N,
+      Reliability == Rel,
+      tolower(Distribution) == tolower(Dist),
+      Model == model_type
+    ) %>%
+    mutate(
+      Method    = factor(toupper(Method), levels = METHOD_ORDER),
+      Parameter = factor(Parameter, levels = PARAM_ORDER)
+    ) %>%
+    arrange(Method, Parameter)
+
+  if (nrow(dfc) == 0) return(NULL)
+
+  # Rejection logic: Type I when true = 0; Power otherwise
+  rej_value <- ifelse(dfc$TrueValue == 0, dfc$TypeI_Error,      dfc$Power)
+  rej_mcse  <- ifelse(dfc$TrueValue == 0, dfc$TypeI_Error_MCSE, dfc$Power_MCSE)
+
+  # Use columns that exist in results:
+  # - Convergence_Rate_This_Method           (percent for this method alone)
+  # - Complete_Case_Convergence_Rate         (percent when ALL methods converge)
+  # - N_Used_After_Convergence               (complete-case N before outlier removal)
+  # - N_Outliers_Removed                     (per-parameter outliers removed)
+  # - N_Final_After_Outliers                 (final N after convergence + outliers)
+  conv_rate_method   <- dfc$Convergence_Rate_This_Method
+  conv_rate_complete <- dfc$Complete_Case_Convergence_Rate
+  n_used_complete    <- dfc$N_Used_After_Convergence
+  n_final            <- dfc$N_Final_After_Outliers
+
+  tbl <- dfc %>%
+    transmute(
+      Method, Parameter,
+      `True`                      = fmt_num(TrueValue, 3),
+      `Mean`                      = fmt_num(MeanEstimate, 3),
+
+      `Bias ± MCSE`               = fmt_pm(Bias_Mean, Bias_Mean_MCSE, 3, 3, 1),
+      `% Rel. Bias ± MCSE`        = ifelse(TrueValue == 0, "",
+                                           fmt_pm(PercentRelativeBias_Mean, RelativeBias_MCSE * 100, 1, 1, 1)),
+
+      `Median`                    = fmt_num(MedianEstimate, 3),
+      `Bias (median)`             = fmt_num(Bias_Median, 3),
+      `MAD`                       = fmt_num(MAD, 4),
+
+      `Variance ± MCSE`           = fmt_pm(Variance, Variance_MCSE, 4, 4, 1),
+      `SD ± MCSE`                 = fmt_pm(SD, SD_MCSE, 4, 4, 1),
+      `MSE ± MCSE`                = fmt_pm(MSE_Mean, MSE_Mean_MCSE, 4, 4, 1),
+      `RMSE ± MCSE`               = fmt_pm(RMSE_Mean, RMSE_Mean_MCSE, 4, 4, 1),
+      `RMSE (median)`             = fmt_num(RMSE_Median, 4),
+      `Rel. MSE ± MCSE`           = fmt_pm(Relative_MSE, Relative_MSE_MCSE, 4, 4, 1),
+      `Rel. RMSE ± MCSE`          = fmt_pm(Relative_RMSE, Relative_RMSE_MCSE, 4, 4, 1),
+
+      `Mean SE`                   = fmt_num(MeanSE, 4),
+      `SE/SD`                     = fmt_num(SE_SD_Ratio, 3),
+
+      `Coverage (%) ± MCSE`       = fmt_pm(CoverageRate, CoverageRate_MCSE, 1, 1, 100),
+      `CI width ± MCSE`           = fmt_pm(CI_Width, CI_Width_MCSE, 4, 4, 1),
+      `Rej. (%) ± MCSE`           = fmt_pm(rej_value, rej_mcse, 1, 1, 100),
+
+      # Sample size tracking (now aligned with available columns)
+      `Conv. Rate (method) %`     = fmt_num(conv_rate_method, 1),
+      `Conv. Rate (complete) %`   = fmt_num(conv_rate_complete, 1),
+      `Outliers`                  = N_Outliers_Removed,
+      `N Used (post-conv)`        = n_used_complete,
+      `N Used (final)`            = n_final
+    )
+
+  caption <- glue(
+    "N = {N}, Reliability = {Rel}, Distribution = {cap_first(Dist)}, Model = {model_type}."
+  )
+
+  if (knitr::is_latex_output()) {
+    kb <- kbl(
+      tbl,
+      booktabs   = TRUE,
+      align      = c("l","l", rep("r", ncol(tbl) - 2)),
+      col.names  = names(tbl),
+      caption    = caption
+    )
+    kb <- kable_classic(kb, full_width = FALSE, html_font = "Times New Roman")
+    kb <- kable_styling(kb, latex_options = c("hold_position","scale_down"), font_size = latex_font_size)
+    kb <- collapse_rows(kb, columns = 1, valign = "top")
+    kb <- add_header_above(kb, c(" " = 2, "Metrics (MCSE shown as ±)" = ncol(tbl) - 6, "Sample Sizes" = 4))
+    kb <- footnote(
+      kb,
+      general = paste0(
+        "Conv. Rate (method) = % of replications converged for this method alone; ",
+        "Conv. Rate (complete) = % where all methods converged (complete-case). ",
+        "Outliers = # removed; N Used (post-conv) = complete-case N before outliers; ",
+        "N Used (final) = after convergence + outlier removal. ",
+        "Rej. is Type I error when true=0, Power otherwise. ",
+        "Coverage/Type I/Power are percentages; MCSEs are percentage points. ",
+        "Cells blank where relative measures are undefined (true value = 0)."
+      ),
+      threeparttable = TRUE
+    )
+    return(kableExtra::landscape(kb))
+  } else {
+    kb <- kbl(
+      tbl,
+      booktabs   = TRUE,
+      align      = c("l","l", rep("r", ncol(tbl) - 2)),
+      col.names  = names(tbl),
+      caption    = caption
+    )
+    kb <- kable_classic(kb, full_width = FALSE, html_font = "Times New Roman")
+    kb <- kable_styling(kb, font_size = 14)
+    kb <- collapse_rows(kb, columns = 1, valign = "top")
+    kb <- add_header_above(kb, c(" " = 2, "Metrics (MCSE shown as ±)" = ncol(tbl) - 6, "Sample Sizes" = 4))
+    kb <- footnote(
+      kb,
+      general = paste0(
+        "Conv. Rate (method) = % of replications converged for this method alone; ",
+        "Conv. Rate (complete) = % where all methods converged (complete-case). ",
+        "Outliers = # removed; N Used (post-conv) = complete-case N before outliers; ",
+        "N Used (final) = after convergence + outlier removal. ",
+        "Rej. is Type I error when true=0, Power otherwise. ",
+        "Coverage/Type I/Power are percentages; MCSEs are percentage points. ",
+        "Cells blank where relative measures are undefined (true value = 0)."
+      ),
+      threeparttable = TRUE
+    )
+    return(scroll_box(kb, width = "100%", height = "520px"))
+  }
+}
+
+
+```
+
+```{r convergence-outliers-summary, echo=FALSE, results='asis'}
+# Comprehensive convergence and outlier summary table
+create_summary_table <- function(results_with_mcse,
+                                core_params = c("eta1","eta2","eta1:eta2")) {
+  
+  # Filter to core parameters and get worst-case scenario across parameters
+  summary_data <- results_with_mcse |>
+    dplyr::filter(Parameter %in% core_params) |>
+    dplyr::group_by(Condition, Method, Model, Distribution, SampleSize, Reliability) |>
+    dplyr::summarise(
+      # Take values from first parameter (they should be same across params for convergence columns)
+      N_Total = first(N_Total),
+      N_Converged_This_Method = first(N_Converged_This_Method),
+      Convergence_Rate_This_Method = first(Convergence_Rate_This_Method),
+      N_Used_After_Convergence = first(N_Used_After_Convergence),
+      
+      # For outliers, take the maximum across parameters (worst case)
+      N_Outliers_Removed = max(N_Outliers_Removed, na.rm = TRUE),
+      Percent_Outliers_Removed = max(Percent_Outliers_Removed, na.rm = TRUE),
+      
+      # For final N, take the minimum across parameters (most conservative)
+      N_Final_After_Outliers = min(N_Final_After_Outliers, na.rm = TRUE),
+      
+      .groups = "drop"
+    ) |>
+    dplyr::arrange(Condition, Method)
+  
+  # Comprehensive table with reorganized structure
+  comprehensive_table <- summary_data |>
+    dplyr::select(
+      Condition,
+      Method,
+      Model,
+      Distribution,
+      `Sample Size` = SampleSize,
+      Reliability,
+      # Convergence section - all convergence-related metrics together
+      `N Total` = N_Total,
+      `N Converged` = N_Converged_This_Method,
+      `Conv. Rate (%)` = Convergence_Rate_This_Method,
+      `N Converged Total` = N_Used_After_Convergence,  # This is the complete cases within converged
+      # Outliers section - remains as is
+      `N Outliers` = N_Outliers_Removed,
+      `Outlier Rate (%)` = Percent_Outliers_Removed,
+      `N Final` = N_Final_After_Outliers
+    ) |>
+    dplyr::mutate(
+      `Conv. Rate (%)` = round(`Conv. Rate (%)`, 1),
+      `Outlier Rate (%)` = round(`Outlier Rate (%)`, 1),
+      `Final Rate (%)` = round(100 * `N Final` / `N Total`, 1)
+    )
+  
+  comprehensive_table
+}
+
+# Create summary table
+summary_table <- create_summary_table(results_with_mcse)
+
+# Helper function to get rates from the summary table
+get_rate <- function(metric, method, model, dist, n, rel) {
+  # Map the metric names to new column names
+  metric_map <- c(
+    "ConvergenceRate" = "Conv. Rate (%)",
+    "OutlierRate" = "Outlier Rate (%)",
+    "FinalRate" = "Final Rate (%)"
+  )
+  
+  # Get mapped metric name, or use as-is if not in map
+  col_name <- ifelse(metric %in% names(metric_map), metric_map[metric], metric)
+  
+  result <- summary_table |>
+    dplyr::filter(
+      Method == method,
+      Model == model,
+      Distribution == dist,
+      `Sample Size` == n,
+      Reliability == rel
+    ) |>
+    dplyr::pull(!!sym(col_name))
+  
+  result
+}
+
+```
+
+### Convergence Rate and Outliers
+We refer the reader to Table 2 for a detailed summary for convergence and outliers. For most approaches there were a few convergence issues. One notable exception was for the DBLCENT under the condition with moderate sample size, low reliability, and uniformly distributed latent predictors. In that case, convergence rates were `r round(get_rate("ConvergenceRate", "DBLCENT", "Full", "uniform", 400, 0.4), 2)`% with the full population model and `r round(get_rate("ConvergenceRate", "DBLCENT", "Linear", "uniform", 400, 0.4), 2)`% with the linear population model. For the SAM, convergence rate was `r round(get_rate("ConvergenceRate", "SAM", "Linear", "uniform", 400, 0.4), 2)`% across all conditions. The remaining approaches, LMS and QML, also showed decent convergence rates, with the lowest value being respectively `r round(get_rate("ConvergenceRate", "LMS", "Linear", "uniform", 400, 0.4), 2)`% and `r round(get_rate("ConvergenceRate", "QML", "Linear", "uniform", 400, 0.4), 2)`% for both cases under the same scenario in which DBLCENT, but now only specifically with the linear population model. 
+
+With respect to outliers, a somewhat similar trend as with convergence rates was observed. The DBLCENT had the highest outlier rate (`r round(get_rate("OutlierRate", "DBLCENT", "Linear", "uniform", 400, 0.4), 2)`%) for the condition with moderate sample size, low reliability, and uniformly distributed latent predictors. Both the LMS and QML also had their highest outlier rates in the same condition, with `r round(get_rate("OutlierRate", "LMS", "Linear", "uniform", 400, 0.4), 2)`% and `r round(get_rate("OutlierRate", "QML", "Linear", "uniform", 400, 0.4), 2)`% respectively. For the SAM, however, the highest outlier rate was observed in the condition with moderate sample size, low reliability, and nonnormally distributed latent predictors (`r round(get_rate("OutlierRate", "SAM", "Linear", "nonnormal", 400, 0.4), 2)`%).
+
+```{r apa-plots, echo=FALSE}
+# ---- Shared setup: helpers, themes, palettes ----
+library(dplyr)
+library(ggplot2)
+library(stringr)
+
+# Orderings & labels
+METHOD_ORDER <- c("SAM","LMS","QML","DBLCENT")
+DIST_LABS    <- c(normal="Normal", nonnormal="Nonnormal", uniform="Uniform")
+PARAM_ORDER  <- c("eta1:eta2","eta1:eta1","eta2:eta2")
+PARAM_LABS   <- c("eta1:eta2"="beta[3]",
+                  "eta1:eta1"="beta[4]",
+                  "eta2:eta2"="beta[5]")
+# Grayscale palettes
+GREYS_METHOD <- c(SAM="grey20", LMS="grey45", QML="grey65", DBLCENT="grey85")
+GREYS_PARAM  <- c("eta1:eta2"="grey20", "eta1:eta1"="grey55", "eta2:eta2"="grey85")
+
+# APA-ish theme
+theme_apa_bw <- function(base_size = 11) {
+  theme_bw(base_size = base_size) +
+    theme(
+      panel.grid.minor = element_blank(),
+      strip.text = element_text(face = "bold"),
+      legend.position = "bottom",
+      legend.title = element_blank()
+    )
+}
+
+# Convenience: build a Condition factor "N=..., Rel=..."
+make_condition <- function(N, Rel) {
+  factor(paste0("N=", N, ", Rel=", Rel),
+         levels = c("N=400, Rel=0.4","N=400, Rel=0.6","N=400, Rel=0.8",
+                    "N=1000, Rel=0.4","N=1000, Rel=0.6","N=1000, Rel=0.8"))
+}
+
+# ---- Data prep for nonlinear parameters only ----
+prep_nonlinear <- function(df, model = c("Full","Linear")) {
+  model <- match.arg(model)
+  df %>%
+    filter(Parameter %in% PARAM_ORDER, Model == model) %>%
+    mutate(
+      Method       = factor(Method, levels = METHOD_ORDER),
+      Distribution = factor(Distribution, levels = names(DIST_LABS), labels = DIST_LABS),
+      Parameter    = factor(Parameter, levels = PARAM_ORDER, 
+                           labels = c("beta[3]", "beta[4]", "beta[5]")),  # Add labels here
+      Reliability  = factor(Reliability),
+      SampleSize   = factor(SampleSize),
+      Condition    = make_condition(SampleSize, Reliability)
+    )
+}
+
+```
+
+```{r bias, echo=FALSE}
+shapes <- c(SAM=16, LMS=17, QML=15, DBLCENT=18)
+ltys   <- c(SAM="solid", LMS="dashed", QML="dotdash", DBLCENT="twodash")
+
+dat_bias <- bind_rows(
+  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+) %>%
+  mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
+  transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
+            y = Bias_Mean, yerr = Bias_Mean_MCSE)
+
+get_absolute_bias <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
+  model <- match.arg(model)
+  dat_bias %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           SampleSize == n,
+           Reliability == rel,
+           Model == model) %>%
+    select(y)
+}
+
+p_bias <- ggplot(
+  dat_bias,
+  aes(x = Reliability, y = y, shape = Method, linetype = Method, group = Method)
+) +
+  geom_pointrange(aes(ymin = y - yerr, ymax = y + yerr),
+                  position = position_dodge(width = .6), color = "black") +
+  geom_line(position = position_dodge(width = .6), color = "black") +
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  scale_shape_manual(values = shapes) +
+  scale_linetype_manual(values = ltys) +
+  facet_grid(Distribution + Parameter ~ Model + SampleSize,
+             labeller = labeller(SampleSize = label_value,
+                                 Parameter = label_parsed)) +
+  labs(x = "Reliability", y = "Bias", title = "") +
+  theme_apa_bw()
+
+dat_bias_relative <- bind_rows(
+  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+) %>%
+  mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
+  transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
+            y = RelativeBias_Mean, yerr = RelativeBias_MCSE)  # Convert MCSE to percentage
+
+get_bias <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
+  model <- match.arg(model)
+  dat_bias_relative %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           SampleSize == n,
+           Reliability == rel,
+           Model == model) %>%
+    select(y)
+}
+```
+
+```{r rmse, echo=FALSE}
+## ----- RMSE (no scaling) -----
+dat_rmse <- bind_rows(
+  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+) %>%
+  mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
+  transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
+            y    = RMSE_Mean,
+            yerr = RMSE_Mean_MCSE)   # adjust to RMSE_MCSE if that's your column
+
+p_rmse <- ggplot(
+  dat_rmse,
+  aes(x = Reliability, y = y, shape = Method, linetype = Method, group = Method)
+) +
+  geom_pointrange(aes(ymin = y - yerr, ymax = y + yerr),
+                  position = position_dodge(width = .6), color = "black") +
+  geom_line(position = position_dodge(width = .6), color = "black") +
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  scale_shape_manual(values = shapes) +
+  scale_linetype_manual(values = ltys) +
+  facet_grid(Distribution + Parameter ~ Model + SampleSize,
+             labeller = labeller(SampleSize = label_value,
+                                 Parameter = label_parsed)) +
+  labs(x = "Reliability", y = "RMSE", title = "") +
+  theme_apa_bw()
+
+get_rmse <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
+  model <- match.arg(model)
+  dat_rmse %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           SampleSize == n,
+           Reliability == rel,
+           Model == model) %>%
+    select(y)
+}
+
+## ----- Relative RMSE (no scaling; stays on 0–1 scale) -----
+dat_rmse_relative <- bind_rows(
+  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+) %>%
+  mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
+  transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
+            y    = Relative_RMSE,
+            yerr = Relative_RMSE_MCSE)
+
+get_relative_rmse <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
+  model <- match.arg(model)
+  dat_rmse_relative %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           SampleSize == n,
+           Reliability == rel,
+           Model == model) %>%
+    select(y)
+}
+```
+
+### Bias in the Presence of Nonlinear Effects
+Figure 1 presents a visualization of the reported values. In that case, we show absolute bias rather than relative bias for the linear models (where nonlinear effects are absent), as relative bias would be undefined in these cases. Figure 2 shows the RMSE. Note that, given the relatively small magnitude of the true effects, relative bias metrics can appear disproportionately large; therefore, we report in the text both absolute and relative bias alongside RMSE and relative RMSE metrics.
+
+Under normal distributional conditions, most estimation approaches demonstrated comparable performance. Specifically, SAM, LMS, and QML remained consistently unbiased across variations in reliability and sample size, regardless of the nonlinear effect. The most challenging condition across all methods occurred at the combination of smallest sample size (N = 400) and lowest reliability ($\rho=0.4$). For instance, for the interaction parameter ($\beta_3$), SAM exhibited a relative bias of `r round(get_bias("SAM", "Normal", "beta[3]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("SAM", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Normal", "beta[3]", 400, 0.4, "Full"),3)`). LMS and QML yielded relative biases of `r round(get_bias("LMS", "Normal", "beta[3]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("LMS", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Normal", "beta[3]", 400, 0.4, "Full"),3)`) and `r round(get_bias("QML", "Normal", "beta[3]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("QML", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Normal", "beta[3]", 400, 0.4, "Full"),3)`), respectively. Performance improved systematically with increasing reliability. At medium reliability ($\rho = 0.6$) with the same sample size, SAM demonstrated a relative bias of `r round(get_bias("SAM", "Normal", "beta[3]", 400, 0.6, "Full"),3)` (absolute bias = `r round(get_absolute_bias("SAM", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Normal", "beta[3]", 400, 0.6, "Full"),3)`), which further decreased to `r round(get_bias("SAM", "Normal", "beta[3]", 400, 0.8, "Full"),3)` at high reliability (absolute bias = `r round(get_absolute_bias("SAM", "Normal", "beta[3]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Normal", "beta[3]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Normal", "beta[3]", 400, 0.8, "Full"),3)`). LMS exhibited similar improvement patterns, with relative biases of `r round(get_bias("LMS", "Normal", "beta[3]", 400, 0.6, "Full"),3)` at medium reliability (absolute bias = `r round(get_absolute_bias("LMS", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Normal", "beta[3]", 400, 0.6, "Full"),3)`) and `r round(get_bias("LMS", "Normal", "beta[3]", 400, 0.8, "Full"),3)` at high reliability (absolute bias = `r round(get_absolute_bias("LMS", "Normal", "beta[3]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Normal", "beta[3]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Normal", "beta[3]", 400, 0.8, "Full"),3)`). Similarly to it, QML showed a relative biases of `r round(get_bias("QML", "Normal", "beta[3]", 400, 0.6, "Full"),3)` at medium reliability (absolute bias = `r round(get_absolute_bias("QML", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Normal", "beta[3]", 400, 0.6, "Full"),3)`) and `r round(get_bias("QML", "Normal", "beta[3]", 400, 0.8, "Full"),3)` at high reliability ($\rho = 0.8$) (absolute bias = `r round(get_absolute_bias("QML", "Normal", "beta[3]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Normal", "beta[3]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Normal", "beta[3]", 400, 0.8, "Full"),3)`). 
+
+On the other hand, DBLCENT demonstrated different performance patterns across nonlinear effect types. For the interaction parameter ($\beta_3$) at the low reliability and moderate sample size, we observed a relative bias of `r round(get_bias("DBLCENT", "Normal", "beta[3]", 400, 0.4, "Full"),2)` (absolute bias = `r round(get_absolute_bias("DBLCENT", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Normal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Normal", "beta[3]", 400, 0.4, "Full"),3)`), which decreased with a large sample size to `r round(get_bias("DBLCENT", "Normal", "beta[3]", 1000, 0.4, "Full"),2)` (absolute bias = `r round(get_absolute_bias("DBLCENT", "Normal", "beta[3]", 1000, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Normal", "beta[3]", 1000, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Normal", "beta[3]", 1000, 0.4, "Full"),3)`). At medium reliability ($\rho= 0.6$), substantial negative bias persisted, with relative bias of `r round(get_bias("DBLCENT", "Normal", "beta[3]", 400, 0.6, "Full"),2)` at the moderate sample size (absolute bias = `r round(get_absolute_bias("DBLCENT", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Normal", "beta[3]", 400, 0.6, "Full"),3)`) and `r round(get_bias("DBLCENT", "Normal", "beta[3]", 1000, 0.6, "Full"),2)` at the large sample size (absolute bias = `r round(get_absolute_bias("DBLCENT", "Normal", "beta[3]", 1000, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Normal", "beta[3]", 1000, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Normal", "beta[3]", 1000, 0.6, "Full"),3)`). The quadratic terms exhibited contrasting patterns relative to the interaction term. For $\beta_4$ ($\eta_1^2$), DBLCENT showed a relative bias of `r round(get_bias("DBLCENT", "Normal", "beta[4]", 400, 0.4, "Full"),2)` at the low reliability and moderate sample size (absolute bias = `r round(get_absolute_bias("DBLCENT", "Normal", "beta[4]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Normal", "beta[4]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Normal", "beta[4]", 400, 0.4, "Full"),3)`), improving to `r round(get_bias("DBLCENT", "Normal", "beta[4]", 400, 0.6, "Full"),2)` at medium reliability (absolute bias = `r round(get_absolute_bias("DBLCENT", "Normal", "beta[4]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Normal", "beta[4]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Normal", "beta[4]", 400, 0.6, "Full"),3)`) and `r round(get_bias("DBLCENT", "Normal", "beta[4]", 400, 0.8, "Full"),2)` at high reliability (absolute bias = `r round(get_absolute_bias("DBLCENT", "Normal", "beta[4]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Normal", "beta[4]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Normal", "beta[4]", 400, 0.8, "Full"),3)`).
+
+Under nonnormal distributional conditions, substantial differences emerged across estimation approaches. The degree varied depending on the nonlinear effect considered. For the interaction parameter ($\beta_3$), SAM performance struggled at the low reliability and moderate sample size combination, yielding a relative bias of `r round(get_bias("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`). Performance improved across remaining conditions. At medium reliability with moderate sample size, the relative bias decreased to `r round(get_bias("SAM", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)` (absolute bias = `r round(get_absolute_bias("SAM", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`). In contrast, LMS and QML exhibited substantial bias across all reliability and sample size conditions. For the interaction term, at the moderate sample size and low reliability, LMS produced a relative bias of `r round(get_bias("LMS", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("LMS", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`), while QML yielded `r round(get_bias("QML", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("QML", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`). Although performance improved with increasing reliability, substantial bias persisted. LMS showed relative biases of `r round(get_bias("LMS", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)` at medium reliability (absolute bias = `r round(get_absolute_bias("LMS", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`) and `r round(get_bias("LMS", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)` at high reliability (absolute bias = `r round(get_absolute_bias("LMS", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)`). While the QML showed relative biases of `r round(get_bias("QML", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)` at medium reliability (absolute bias = `r round(get_absolute_bias("QML", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`) and `r round(get_bias("QML", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)` at high reliability (absolute bias = `r round(get_absolute_bias("QML", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)`). Sample size did not substantially influence bias reduction for either LMS or QML. Notably, quadratic terms demonstrated positive bias under nonnormal conditions, contrasting with the negative bias observed for interaction terms. For $\beta_4$ ($\eta_1^2$), LMS exhibited a relative bias of `r round(get_bias("LMS", "Nonnormal", "beta[4]", 400, 0.4, "Full"),3)` at moderate sample size and low reliability (absolute bias = `r round(get_absolute_bias("LMS", "Nonnormal", "beta[4]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Nonnormal", "beta[4]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Nonnormal", "beta[4]", 400, 0.4, "Full"),3)`). Similarly, for $\beta_5$ ($\eta_2^2$), we observed a relative bias of `r round(get_bias("LMS", "Nonnormal", "beta[5]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("LMS", "Nonnormal", "beta[5]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Nonnormal", "beta[5]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Nonnormal", "beta[5]", 400, 0.4, "Full"),3)`). Despite improvements with increasing reliability, both quadratic terms remained substantially biased under these approaches (see Figure 1). Indeed, for example, LMS showed a relative bias of `r round(get_bias("LMS", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)` (absolute bias = `r round(get_absolute_bias("LMS", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)`) under the high reliability and QML a relative bias of `r round(get_bias("QML", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)` (absolute bias = `r round(get_absolute_bias("QML", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Nonnormal", "beta[5]", 400, 0.8, "Full"),3)`).
+
+DBLCENT's performance for interaction terms mirrored that of the distribution analytic approaches, albeit with reduced bias at the moderate sample size and low reliability combination (`r round(get_bias("DBLCENT", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, absolute bias = `r round(get_absolute_bias("DBLCENT", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`) compared to the medium reliability condition (`r round(get_bias("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, absolute bias = `r round(get_absolute_bias("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Full"),3)`). However, DBLCENT demonstrated negligible bias for quadratic terms across all conditions.
+
+Under uniform distributional conditions, only the DBLCENT exhibited bias for the interaction term, which decreased with increasing reliability. At the moderate sample size and low reliability, the relative bias equaled `r round(get_bias("DBLCENT", "Uniform", "beta[3]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("DBLCENT", "Uniform", "beta[3]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Uniform", "beta[3]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Uniform", "beta[3]", 400, 0.4, "Full"),3)`), improving to `r round(get_bias("DBLCENT", "Uniform", "beta[3]", 400, 0.8, "Full"),3)` at the high reliability case (absolute bias = `r round(get_absolute_bias("DBLCENT", "Uniform", "beta[3]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Uniform", "beta[3]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Uniform", "beta[3]", 400, 0.8, "Full"),3)`). For quadratic terms, all approaches exhibited bias at the moderate sample size and low reliability combination. For $\beta_4$ ($\eta_1^2$), SAM demonstrated a relative bias of `r round(get_bias("SAM", "Uniform", "beta[4]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("SAM", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`), while LMS, QML, and DBLCENT showed relative biases of `r round(get_bias("LMS", "Uniform", "beta[4]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("LMS", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`), `r round(get_bias("QML", "Uniform", "beta[4]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("QML", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`), and `r round(get_bias("DBLCENT", "Uniform", "beta[4]", 400, 0.4, "Full"),3)` (absolute bias = `r round(get_absolute_bias("DBLCENT", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Uniform", "beta[4]", 400, 0.4, "Full"),3)`), respectively. All approaches improved with increasing reliability, though only SAM achieved unbiased estimation at medium reliability (`r round(get_bias("SAM", "Uniform", "beta[4]", 400, 0.6, "Full"),2)`, absolute bias = `r round(get_absolute_bias("SAM", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`). At the high reliability, both SAM and DBLCENT produced unbiased estimates, with relative biases of `r round(get_bias("SAM", "Uniform", "beta[4]", 400, 0.8, "Full"),2)` (absolute bias = `r round(get_absolute_bias("SAM", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("SAM", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("SAM", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`) and `r round(get_bias("DBLCENT", "Uniform", "beta[4]", 400, 0.8, "Full"),2)` (absolute bias = `r round(get_absolute_bias("DBLCENT", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("DBLCENT", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("DBLCENT", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`), respectively. LMS and QML remained biased despite reliability improvements, showing relative biases of `r round(get_bias("LMS", "Uniform", "beta[4]", 400, 0.6, "Full"),2)` (absolute bias = `r round(get_absolute_bias("LMS", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`) and `r round(get_bias("QML", "Uniform", "beta[4]", 400, 0.6, "Full"),2)` (absolute bias = `r round(get_absolute_bias("QML", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`) at medium reliability, and `r round(get_bias("LMS", "Uniform", "beta[4]", 400, 0.8, "Full"),2)` (absolute bias = `r round(get_absolute_bias("LMS", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("LMS", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("LMS", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`) and `r round(get_bias("QML", "Uniform", "beta[4]", 400, 0.8, "Full"),2)` (absolute bias = `r round(get_absolute_bias("QML", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, RMSE = `r round(get_rmse("QML", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, relative RMSE = `r round(get_relative_rmse("QML", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`) at high reliability. These patterns persisted regardless of sample size increases. The quadratic term $\beta_5$ ($\eta_2^2$) exhibited qualitatively identical patterns.
+
+**Bias when nonlinear effects were not present.** As shown in Figure 1, the bias results are somewhat similar when the nonlinear effects were present (full model) and not present (linear model), but overall with decreased magnitude. There are two main differences worth noting. Under normally distributed latent variables, the bias in this case is smaller than in the case of the full model for all approaches. Moreover, for the uniform condition, the DBLCENT, LMS and QML showed little bias in contrast to before. Hence, the approaches are more homogeneous.
+
+```{r plot-bias, echo=FALSE, fig.cap = "Absolute bias.", fig.align='center', fig.height=11, fig.width=9}
+(p_bias)
+```
+
+```{r plot-rmse, echo=FALSE, fig.cap = "Root Mean Squared Error.", fig.align='center', fig.height=11, fig.width=9}
+(p_rmse)
+```
+
+```{r ratio, echo=FALSE}
+library(dplyr)
+library(ggplot2)
+
+# data for both models
+dat_sesd2 <- bind_rows(
+  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_with_mcse, model = "Full") %>% mutate(Model = "Full")
+) %>%
+  mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
+  transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
+            ratio = SE_SD_Ratio)
+
+shapes <- c(SAM=16, LMS=17, QML=15, DBLCENT=18)
+ltys <- c(SAM="solid", LMS="dashed", QML="dotdash", DBLCENT="twodash")
+
+p_slope <- ggplot(dat_sesd2,
+                  aes(x = Reliability, y = ratio, group = Method,
+                      shape = Method, linetype = Method)) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  geom_line(aes(y = pmax(pmin(ratio, 1.6), 0.85)), 
+            color = "black", position = position_dodge(width = 0.0)) +
+  geom_point(aes(y = pmax(pmin(ratio, 1.6), 0.85)),
+             color = "black", size = 2, position = position_dodge(width = 0.0)) +
+  # Add text labels for values above 1.6
+  geom_text(data = filter(dat_sesd2, ratio > 1.6) %>%
+              group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
+              arrange(desc(ratio)) %>%
+              mutate(label_y = 1.59 - (row_number() - 1) * 0.8), 
+            aes(label = sprintf("%s: %.2f", Method, ratio),
+                y = label_y),
+            size = 1.5, hjust = 0, vjust = 1) +
+  # Add text labels for values below 0.85
+  geom_text(data = filter(dat_sesd2, ratio < 0.85) %>%
+              group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
+              arrange(ratio) %>%
+              mutate(label_y = 0.86 + (row_number() - 1) * 0.8), 
+            aes(label = sprintf("%s: %.2f", Method, ratio),
+                y = label_y),
+            size = 1.5, hjust = 0, vjust = 0) +
+  scale_shape_manual(values = shapes) +
+  scale_linetype_manual(values = ltys) +
+  facet_grid(Distribution + Parameter ~ Model + SampleSize,
+             labeller = labeller(SampleSize = label_value,
+                                 Parameter = label_parsed)) +
+  coord_cartesian(ylim = c(0.85, 1.6)) +  # Zoom to reasonable range
+  labs(x = "Reliability", y = "SE / SD",
+       title = "") +
+  theme_apa_bw()
+
+# Update get_ratio function to include model parameter
+get_ratio <- function(method, dist, param, n, rel, model = c("Full", "Linear")) {
+  model <- match.arg(model)
+  dat_sesd2 %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           SampleSize == n,
+           Reliability == rel,
+           Model == model) %>%
+    pull(ratio)
+}
+
+```
+
+### Efficiency and Accuracy of Standard Errors for Nonlinear Effects
+
+Figure 3 shows the computed SE/SD ratios under both linear and full models. Note that for some approaches, under specific conditions, the exact values are shown.
+
+Under normal distributional conditions with the full model specification, LMS and QML maintained near-optimal efficiency across most conditions. For the interaction parameter ($\beta_3$) at the low reliability and moderate sample size combination, LMS achieved a ratio of `r round(get_ratio("LMS", "Normal", "beta[3]", 400, 0.4, "Full"),3)` and QML yielded `r round(get_ratio("QML", "Normal", "beta[3]", 400, 0.4, "Full"),3)`. For the SAM a ratio of `r round(get_ratio("SAM", "Normal", "beta[3]", 400, 0.4, "Full"),2)` was obtained, while DBLCENT showed an overestimation at `r round(get_ratio("DBLCENT", "Normal", "beta[3]", 400, 0.4, "Full"),2)`. As reliability increased to medium levels ($\rho$ = 0.6) with moderate sample size, all methods converged toward unity, with SAM improving to `r round(get_ratio("SAM", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, LMS at `r round(get_ratio("LMS", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, QML at `r round(get_ratio("QML", "Normal", "beta[3]", 400, 0.6, "Full"),3)`, and DBLCENT at `r round(get_ratio("DBLCENT", "Normal", "beta[3]", 400, 0.6, "Full"),2)`. At high reliability ($\rho$ = 0.8), the methods achieved near-optimal performance, with ratios ranging from `r round(get_ratio("SAM", "Normal", "beta[3]", 400, 0.8, "Full"),3)` (SAM) to `r round(get_ratio("LMS", "Normal", "beta[3]", 400, 0.8, "Full"),3)` (LMS). The quadratic parameters ($\beta_4$ and $\beta_5$) exhibited similar patterns under normal conditions. For $\beta_4$ at low reliability and moderate sample size, ratios were `r round(get_ratio("SAM", "Normal", "beta[4]", 400, 0.4, "Full"),2)` (SAM), `r round(get_ratio("LMS", "Normal", "beta[4]", 400, 0.4, "Full"),3)` (LMS), `r round(get_ratio("QML", "Normal", "beta[4]", 400, 0.4, "Full"),3)` (QML), and `r round(get_ratio("DBLCENT", "Normal", "beta[4]", 400, 0.4, "Full"),2)` (DBLCENT). For $\beta_5$, the corresponding values were `r round(get_ratio("SAM", "Normal", "beta[5]", 400, 0.4, "Full"),2)` (SAM), `r round(get_ratio("LMS", "Normal", "beta[5]", 400, 0.4, "Full"),3)` (LMS), `r round(get_ratio("QML", "Normal", "beta[5]", 400, 0.4, "Full"),3)` (QML), and `r round(get_ratio("DBLCENT", "Normal", "beta[5]", 400, 0.4, "Full"),2)` (DBLCENT). DBLCENT consistently showed the largest overestimation of standard errors in low reliability conditions, with ratios exceeding 1.5 for all nonlinear parameters.
+
+Nonnormal distributional conditions revealed more pronounced differences between methods. SAM's efficiency deteriorated at low reliability and moderate sample size, with the interaction term ratio increasing to `r round(get_ratio("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),2)`. This pattern was more extreme for $\beta_5$, reaching `r round(get_ratio("SAM", "Nonnormal", "beta[5]", 400, 0.4, "Full"),2)`. LMS maintained a relatively stable performance, with a ratio of `r round(get_ratio("LMS", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)` for $\beta_3$, but QML exhibited underestimation at `r round(get_ratio("QML", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`. DBLCENT demonstrated severe inefficiency under these conditions, with ratios of `r round(get_ratio("DBLCENT", "Nonnormal", "beta[3]", 400, 0.4, "Full"),2)` ($\beta_3$), `r round(get_ratio("DBLCENT", "Nonnormal", "beta[4]", 400, 0.4, "Full"),2)` ($\beta_4$), and `r round(get_ratio("DBLCENT", "Nonnormal", "beta[5]", 400, 0.4, "Full"),2)` ($\beta_5$) at the low reliability and moderate sample size. Increasing to a high sample size under nonnormal conditions substantially improved DBLCENT's performance, reducing ratios to `r round(get_ratio("DBLCENT", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),2)` ($\beta_3$), `r round(get_ratio("DBLCENT", "Nonnormal", "beta[4]", 1000, 0.4, "Full"),2)` ($\beta_4$), and `r round(get_ratio("DBLCENT", "Nonnormal", "beta[5]", 1000, 0.4, "Full"),2)` ($\beta_5$), though these values still indicated overestimation. SAM achieved near-optimal efficiency at a large sample size (`r round(get_ratio("SAM", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),3)` for $\beta_3$), while LMS maintained excellent performance (`r round(get_ratio("LMS", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),3)`). QML continued to show underestimation, with ratios of `r round(get_ratio("QML", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),3)` ($\beta_3$), `r round(get_ratio("QML", "Nonnormal", "beta[4]", 1000, 0.4, "Full"),3)` ($\beta_4$), and `r round(get_ratio("QML", "Nonnormal", "beta[5]", 1000, 0.4, "Full"),3)` ($\beta_5$).
+
+Under uniform distributional conditions, the most extreme inefficiencies emerged. At low reliability and moderate sample size, SAM showed ratios of `r round(get_ratio("SAM", "Uniform", "beta[3]", 400, 0.4, "Full"),2)` ($\beta_3$), `r round(get_ratio("SAM", "Uniform", "beta[4]", 400, 0.4, "Full"),2)` ($\beta_4$), and `r round(get_ratio("SAM", "Uniform", "beta[5]", 400, 0.4, "Full"),2)` ($\beta_5$). DBLCENT exhibited for the interaction term with a ratio of `r round(get_ratio("DBLCENT", "Uniform", "beta[3]", 400, 0.4, "Full"),1)`, and the quadratic terms showed overestimation at `r round(get_ratio("DBLCENT", "Uniform", "beta[4]", 400, 0.4, "Full"),2)` ($\beta_4$) and `r round(get_ratio("DBLCENT", "Uniform", "beta[5]", 400, 0.4, "Full"),2)` ($\beta_5$). LMS and QML maintained reasonable efficiency, with LMS showing ratios of `r round(get_ratio("LMS", "Uniform", "beta[3]", 400, 0.4, "Full"),3)`, `r round(get_ratio("LMS", "Uniform", "beta[4]", 400, 0.4, "Full"),2)`, and `r round(get_ratio("LMS", "Uniform", "beta[5]", 400, 0.4, "Full"),3)`, while QML yielded `r round(get_ratio("QML", "Uniform", "beta[3]", 400, 0.4, "Full"),3)`, `r round(get_ratio("QML", "Uniform", "beta[4]", 400, 0.4, "Full"),2)`, and `r round(get_ratio("QML", "Uniform", "beta[5]", 400, 0.4, "Full"),3)` for $\beta_3$, $\beta_4$, and $\beta_5$ respectively. As reliability increased under uniform conditions, substantial improvements occurred across all methods. At medium reliability ($\rho$ = 0.6, N = 400), SAM achieved ratios of `r round(get_ratio("SAM", "Uniform", "beta[3]", 400, 0.6, "Full"),3)` ($\beta_3$), `r round(get_ratio("SAM", "Uniform", "beta[4]", 400, 0.6, "Full"),3)` ($\beta_4$), and `r round(get_ratio("SAM", "Uniform", "beta[5]", 400, 0.6, "Full"),3)` ($\beta_5$), approaching the efficiency of LMS and QML. DBLCENT improved dramatically to `r round(get_ratio("DBLCENT", "Uniform", "beta[3]", 400, 0.6, "Full"),3)`, `r round(get_ratio("DBLCENT", "Uniform", "beta[4]", 400, 0.6, "Full"),3)`, and `r round(get_ratio("DBLCENT", "Uniform", "beta[5]", 400, 0.6, "Full"),3)` for the respective parameters. At high reliability ($\rho$ = 0.8), all methods demonstrated near-optimal performance, with SAM showing ratios of `r round(get_ratio("SAM", "Uniform", "beta[3]", 400, 0.8, "Full"),2)` ($\beta_3$), `r round(get_ratio("SAM", "Uniform", "beta[4]", 400, 0.8, "Full"),2)` ($\beta_4$), and `r round(get_ratio("SAM", "Uniform", "beta[5]", 400, 0.8, "Full"),3)` ($\beta_5$), while DBLCENT achieved `r round(get_ratio("DBLCENT", "Uniform", "beta[3]", 400, 0.8, "Full"),2)`, `r round(get_ratio("DBLCENT", "Uniform", "beta[4]", 400, 0.8, "Full"),3)`, and `r round(get_ratio("DBLCENT", "Uniform", "beta[5]", 400, 0.8, "Full"),3)`.
+
+**Efficiency and Accuracy of Standard Errors when nonlinear effects were not present.** The linear model specification generally showed improved standard error accuracy compared to the full model, particularly for DBLCENT under nonnormal conditions. For instance, under nonnormal conditions with medium reliability and moderate sample size, DBLCENT's ratio for $\beta_3$ was `r round(get_ratio("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Linear"),2)` in the linear model compared to `r round(get_ratio("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Full"),2)` in the full model. However, the relative performance ordering remained consistent, with LMS and QML providing the most efficient standard error estimates, followed by SAM, and DBLCENT showing the greatest sensitivity to adverse conditions.
+
+```{r coverage, echo=FALSE}
+dat_cov <- bind_rows(
+  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+) %>%
+  mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
+  transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
+            y = CoverageRate, yerr = 100*CoverageRate_MCSE)
+
+p_cov <- ggplot(
+  dat_cov,
+  aes(x = Reliability, y = y, shape = Method, linetype = Method, group = Method)
+) +
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = 93, ymax = 97,
+           fill = "grey93", alpha = .9) +
+  geom_pointrange(aes(ymin = pmax(y - yerr, 80), 
+                      ymax = pmin(y + yerr, 100)),
+                  position = position_dodge(width = .6), color = "black") +
+  geom_line(aes(y = pmax(y, 80)), position = position_dodge(width = .6), color = "black") +
+  # Add text labels for values below 80% with smart positioning
+  geom_text(data = filter(dat_cov, y < 80) %>%
+              group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
+              arrange(Method) %>%
+              mutate(label_y = 81 + (row_number() - 1) * 2.5), # Stack labels vertically
+            aes(label = sprintf("%s: %.0f%%", Method, y),
+                y = label_y),
+            size = 1.5, hjust = 0, vjust = 0) +
+  geom_hline(yintercept = 95, linetype = "dotted") +
+  scale_shape_manual(values = shapes) +
+  scale_linetype_manual(values = ltys) +
+  facet_grid(Distribution + Parameter ~ Model + SampleSize,
+             labeller = labeller(SampleSize = label_value,
+                                 Parameter = label_parsed)) +
+  coord_cartesian(ylim = c(80, 100)) +
+  labs(x = "Reliability", y = "Coverage (%)", title = "") +
+  theme_apa_bw()
+
+get_coverage <- function(method, dist, param, n, rel, model = c("Full", "Linear")) {
+  model <- match.arg(model)
+  dat_cov %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           SampleSize == n,
+           Reliability == rel,
+           Model == model) %>%
+    pull(y)
+}
+```
+
+### Coverage for nonlinear effects 
+
+Figure 4 contains the visualization of the results reported here. Note that here as well for some approaches, under specific conditions, the exact values are shown.
+
+Under normal distributional conditions with the full model, in general, all methods demonstrated adequate coverage levels. As in other performance measures, at the low reliability and moderate sample size condition, some methods had difficulties. The SAM showed some overcoverage for the interaction parameter ($\beta_3$) at `r round(get_coverage("SAM", "Normal", "beta[3]", 400, 0.4, "Full"),1)`%, while LMS and QML achieved `r round(get_coverage("LMS", "Normal", "beta[3]", 400, 0.4, "Full"),1)`% and `r round(get_coverage("QML", "Normal", "beta[3]", 400, 0.4, "Full"),1)`%, respectively. DBLCENT showed also overcoverage at `r round(get_coverage("DBLCENT", "Normal", "beta[3]", 400, 0.4, "Full"),1)`%. For quadratic parameters under these conditions, coverage rates were `r round(get_coverage("SAM", "Normal", "beta[4]", 400, 0.4, "Full"),1)`% (SAM), `r round(get_coverage("LMS", "Normal", "beta[4]", 400, 0.4, "Full"),1)`% (LMS), `r round(get_coverage("QML", "Normal", "beta[4]", 400, 0.4, "Full"),1)`% (QML), and `r round(get_coverage("DBLCENT", "Normal", "beta[4]", 400, 0.4, "Full"),1)`% (DBLCENT) for $\beta_4$, with similar patterns for $\beta_5$. As reliability increased to medium levels ($\rho$ = 0.6, N = 400), coverage converged toward nominal levels. SAM achieved `r round(get_coverage("SAM", "Normal", "beta[3]", 400, 0.6, "Full"),1)`% coverage for $\beta_3$, while LMS, QML, and DBLCENT yielded `r round(get_coverage("LMS", "Normal", "beta[3]", 400, 0.6, "Full"),1)`%, `r round(get_coverage("QML", "Normal", "beta[3]", 400, 0.6, "Full"),1)`%, and `r round(get_coverage("DBLCENT", "Normal", "beta[3]", 400, 0.6, "Full"),1)`%, respectively. At high reliability ($\rho$ = 0.8, N = 400), all methods maintained near-nominal coverage.
+
+Nonnormal distributional conditions revealed dramatic coverage failures for distribution analytic methods. At low reliability and moderate sample size, while SAM maintained a coverage of `r round(get_coverage("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),1)`% for $\beta_3$, LMS coverage dropped to `r round(get_coverage("LMS", "Nonnormal", "beta[3]", 400, 0.4, "Full"),1)`% and QML to `r round(get_coverage("QML", "Nonnormal", "beta[3]", 400, 0.4, "Full"),1)`%. DBLCENT maintained reasonable coverage at `r round(get_coverage("DBLCENT", "Nonnormal", "beta[3]", 400, 0.4, "Full"),1)`%. The coverage degradation was even more severe for quadratic parameters, with LMS achieving only `r round(get_coverage("LMS", "Nonnormal", "beta[4]", 400, 0.4, "Full"),1)`% for $\beta_4$ and `r round(get_coverage("LMS", "Nonnormal", "beta[5]", 400, 0.4, "Full"),1)`% for $\beta_5$. QML showed substantial failure with coverage rates of `r round(get_coverage("QML", "Nonnormal", "beta[4]", 400, 0.4, "Full"),1)`% and `r round(get_coverage("QML", "Nonnormal", "beta[5]", 400, 0.4, "Full"),1)`% for the quadratic terms.
+
+Increasing to a large sample size under nonnormal conditions provided limited improvement for the distribution analytic methods. LMS coverage for $\beta_3$ remained poor at `r round(get_coverage("LMS", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),1)`%, while quadratic parameters showed extreme undercoverage at `r round(get_coverage("LMS", "Nonnormal", "beta[4]", 1000, 0.4, "Full"),1)`% ($\beta_4$) and `r round(get_coverage("LMS", "Nonnormal", "beta[5]", 1000, 0.4, "Full"),1)`% ($\beta_5$). QML demonstrated even worse performance with `r round(get_coverage("QML", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),1)`% coverage for $\beta_3$ and `r round(get_coverage("QML", "Nonnormal", "beta[4]", 1000, 0.4, "Full"),1)`% and `r round(get_coverage("QML", "Nonnormal", "beta[5]", 1000, 0.4, "Full"),1)`% for the quadratic terms. SAM maintained robust coverage at `r round(get_coverage("SAM", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),1)`%, while DBLCENT achieved an overstimation of `r round(get_coverage("DBLCENT", "Nonnormal", "beta[3]", 1000, 0.4, "Full"),1)`%. At medium reliability under nonnormal conditions ($\rho$ = 0.6, N = 400), SAM continued to demonstrate robust performance with `r round(get_coverage("SAM", "Nonnormal", "beta[3]", 400, 0.6, "Full"),1)`% coverage for $\beta_3$. LMS showed modest improvement to `r round(get_coverage("LMS", "Nonnormal", "beta[3]", 400, 0.6, "Full"),1)`%, though quadratic parameters remained problematic at `r round(get_coverage("LMS", "Nonnormal", "beta[4]", 400, 0.6, "Full"),1)`% ($\beta_4$) and `r round(get_coverage("LMS", "Nonnormal", "beta[5]", 400, 0.6, "Full"),1)`% ($\beta_5$). QML coverage was `r round(get_coverage("QML", "Nonnormal", "beta[3]", 400, 0.6, "Full"),1)`% for the interaction term but deteriorated to `r round(get_coverage("QML", "Nonnormal", "beta[4]", 400, 0.6, "Full"),1)`% and `r round(get_coverage("QML", "Nonnormal", "beta[5]", 400, 0.6, "Full"),1)`% for quadratic terms.
+
+Under uniform distributional conditions, distinct patterns emerged. At low reliability and moderate sample size, SAM showed overcoverage at `r round(get_coverage("SAM", "Uniform", "beta[3]", 400, 0.4, "Full"),1)`% for $\beta_3$ and `r round(get_coverage("SAM", "Uniform", "beta[4]", 400, 0.4, "Full"),1)`% and `r round(get_coverage("SAM", "Uniform", "beta[5]", 400, 0.4, "Full"),1)`% for the quadratic terms. LMS and QML maintained reasonable coverage for the interaction term (`r round(get_coverage("LMS", "Uniform", "beta[3]", 400, 0.4, "Full"),1)`% and `r round(get_coverage("QML", "Uniform", "beta[3]", 400, 0.4, "Full"),1)`%, respectively) but showed undercoverage for quadratic parameters, with LMS at `r round(get_coverage("LMS", "Uniform", "beta[4]", 400, 0.4, "Full"),1)`% ($\beta_4$) and `r round(get_coverage("LMS", "Uniform", "beta[5]", 400, 0.4, "Full"),1)`% ($\beta_5$), and QML at `r round(get_coverage("QML", "Uniform", "beta[4]", 400, 0.4, "Full"),1)`% and `r round(get_coverage("QML", "Uniform", "beta[5]", 400, 0.4, "Full"),1)`%. DBLCENT demonstrated mixed performance with `r round(get_coverage("DBLCENT", "Uniform", "beta[3]", 400, 0.4, "Full"),1)`% for $\beta_3$, `r round(get_coverage("DBLCENT", "Uniform", "beta[4]", 400, 0.4, "Full"),1)`% for ($\beta_4$) and `r round(get_coverage("DBLCENT", "Uniform", "beta[5]", 400, 0.4, "Full"),1)`% for ($\beta_5$).
+
+With increased sample size under uniform conditions (N = 1000, $\rho$ = 0.4), coverage patterns persisted. SAM maintained overcoverage at `r round(get_coverage("SAM", "Uniform", "beta[3]", 1000, 0.4, "Full"),1)`% for $\beta_3$, while LMS and QML showed severe undercoverage for quadratic parameters at `r round(get_coverage("LMS", "Uniform", "beta[4]", 1000, 0.4, "Full"),1)`% and `r round(get_coverage("LMS", "Uniform", "beta[5]", 1000, 0.4, "Full"),1)`% (LMS), and `r round(get_coverage("QML", "Uniform", "beta[4]", 1000, 0.4, "Full"),1)`% and `r round(get_coverage("QML", "Uniform", "beta[5]", 1000, 0.4, "Full"),1)`% (QML). DBLCENT improved to `r round(get_coverage("DBLCENT", "Uniform", "beta[3]", 1000, 0.4, "Full"),1)`% for the interaction term but maintained inadequate coverage for quadratic parameters. At medium reliability under uniform conditions ($\rho$ = 0.6, N = 400), substantial improvements occurred. SAM achieved `r round(get_coverage("SAM", "Uniform", "beta[3]", 400, 0.6, "Full"),1)`% coverage for $\beta_3$, with `r round(get_coverage("SAM", "Uniform", "beta[4]", 400, 0.6, "Full"),1)`% and `r round(get_coverage("SAM", "Uniform", "beta[5]", 400, 0.6, "Full"),1)`% for quadratic terms. LMS and QML continued to show undercoverage for quadratic parameters, with LMS at `r round(get_coverage("LMS", "Uniform", "beta[4]", 400, 0.6, "Full"),1)`% ($\beta_4$) and `r round(get_coverage("LMS", "Uniform", "beta[5]", 400, 0.6, "Full"),1)`% ($\beta_5$), while QML achieved `r round(get_coverage("QML", "Uniform", "beta[4]", 400, 0.6, "Full"),1)`% and `r round(get_coverage("QML", "Uniform", "beta[5]", 400, 0.6, "Full"),1)`%. DBLCENT showed improved but still suboptimal coverage at `r round(get_coverage("DBLCENT", "Uniform", "beta[3]", 400, 0.6, "Full"),1)`%, `r round(get_coverage("DBLCENT", "Uniform", "beta[4]", 400, 0.6, "Full"),1)`%, and `r round(get_coverage("DBLCENT", "Uniform", "beta[5]", 400, 0.6, "Full"),1)`% for the respective parameters.
+
+At high reliability ($\rho$ = 0.8), coverage generally improved across all methods. Under uniform conditions with moderate sample size, SAM achieved `r round(get_coverage("SAM", "Uniform", "beta[3]", 400, 0.8, "Full"),1)`% for $\beta_3$, while LMS and QML reached `r round(get_coverage("LMS", "Uniform", "beta[3]", 400, 0.8, "Full"),1)`% and `r round(get_coverage("QML", "Uniform", "beta[3]", 400, 0.8, "Full"),1)`%, respectively. The quadratic parameters showed for the MS (`r round(get_coverage("LMS", "Uniform", "beta[4]", 400, 0.8, "Full"),1)`% and `r round(get_coverage("LMS", "Uniform", "beta[5]", 400, 0.8, "Full"),1)`%) and QML (`r round(get_coverage("QML", "Uniform", "beta[4]", 400, 0.8, "Full"),1)`% and `r round(get_coverage("QML", "Uniform", "beta[5]", 400, 0.8, "Full"),1)`%).
+
+**Coverage when nonlinear effects were not present.** The linear model specification showed differential effects on coverage performance. Under nonnormal conditions, the linear model often provided better coverage than the full model for DBLCENT, though distribution analytic methods continued to show poor performance. For instance, at N = 400, $\rho$ = 0.6 under nonnormal conditions, DBLCENT achieved `r round(get_coverage("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Linear"),1)`% coverage in the linear model compared to `r round(get_coverage("DBLCENT", "Nonnormal", "beta[3]", 400, 0.6, "Full"),1)`% in the full model.
+
+```{r plot-ratio, echo=FALSE, fig.cap="SE/SD Ratio.", fig.align='center', fig.height=12, fig.width=8}
+(p_slope)
+```
+
+```{r plot-coverage, echo=FALSE, fig.cap="Coverage.", fig.align='center', fig.height=12, fig.width=8}
+(p_cov)
+```
+
+```{r type, echo=FALSE, fig.align='center', fig.height=12, fig.width=9}
+
+# --- TYPE I (grayscale bars, thin dotted line @ 5%, no x-axis labels) ---
+dat_t1 <- prep_nonlinear(results_with_mcse, model = "Linear") %>%
+  transmute(Distribution, Parameter, Condition, Method,
+            y = TypeI_Error)
+
+ymax_t1 <- max(dat_t1$y, na.rm = TRUE) * 1.15  # Add 15% headroom for labels
+
+p_t1 <- ggplot(dat_t1, aes(x = Method, y = y, fill = Method)) +
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = 3, ymax = 7,
+           fill = "grey92", alpha = .9) +
+  geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black") +
+  geom_text(aes(label = sprintf("%.1f", y)), vjust = -0.4, size = 3) +
+  geom_hline(yintercept = 5, linetype = "dotted", linewidth = 0.3) +
+  facet_grid(Distribution + Parameter ~ Condition,
+             labeller = labeller(Parameter = label_parsed)) +
+  scale_fill_manual(values = GREYS_METHOD) +
+  coord_cartesian(ylim = c(0, ymax_t1)) +
+  labs(x = NULL, y = "Type I error (%)",
+       title = "") +
+  theme_apa_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank())
+
+
+get_type <- function(method, dist, param, cond) {
+  dat_t1 %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           Condition == cond) %>%
+    select(y)
+}
+```
+
+```{r power, echo=FALSE, fig.align='center', fig.height=12, fig.width=9}
+# --- POWER (grayscale bars, thin dotted line @ 80%, no x-axis labels) ---
+dat_pow <- prep_nonlinear(results_with_mcse, model = "Full") %>%
+  transmute(Distribution, Parameter, Condition, Method,
+            y = Power)
+
+# y-axis to go to 110 to accommodate labels at 100%
+ymax_pow <- 110  
+
+p_pow <- ggplot(dat_pow, aes(x = Method, y = y, fill = Method)) +
+  geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black") +
+  geom_text(aes(label = sprintf("%.0f", y)), vjust = -0.4, size = 3) +
+  geom_hline(yintercept = 80, linetype = "dotted", linewidth = 0.3) +
+  facet_grid(Distribution + Parameter ~ Condition,
+             labeller = labeller(Parameter = label_parsed)) +
+  scale_fill_manual(values = GREYS_METHOD) +
+  coord_cartesian(ylim = c(0, ymax_pow)) +
+  labs(x = NULL, y = "Power (%)",
+       title = "") +
+  theme_apa_bw() +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank())
+
+get_power <- function(method, dist, param, cond) {
+  dat_pow %>%
+    filter(Method == method,
+           Distribution == dist,
+           Parameter == param,
+           Condition == cond) %>%
+    select(y)
+}
+```
+
+### Type I Error Control
+
+Figure 5 illustrates the type I error rates across approaches and conditions.
+
+Under normal distributional conditions with low reliability and moderate sample size, SAM and DBLCENT demonstrated the most conservative performances. SAM showed Type I error rates of `r round(get_type("SAM", "Normal", "beta[3]", "N=400, Rel=0.4"),2)`% for $\beta_3$, `r round(get_type("SAM", "Normal", "beta[4]", "N=400, Rel=0.4"),2)`% for $\beta_4$, and `r round(get_type("SAM", "Normal", "beta[5]", "N=400, Rel=0.4"),2)`% for $\beta_5$. DBLCENT was even more conservative with rates of `r round(get_type("DBLCENT", "Normal", "beta[3]", "N=400, Rel=0.4"),3)`%, `r round(get_type("DBLCENT", "Normal", "beta[4]", "N=400, Rel=0.4"),2)`%, and `r round(get_type("DBLCENT", "Normal", "beta[5]", "N=400, Rel=0.4"),2)`% for the respective parameters. In contrast, LMS and QML maintained similar rates closer to nominal levels, with LMS showing `r round(get_type("LMS", "Normal", "beta[3]", "N=400, Rel=0.4"),2)`%, `r round(get_type("LMS", "Normal", "beta[4]", "N=400, Rel=0.4"),2)`%, and `r round(get_type("LMS", "Normal", "beta[5]", "N=400, Rel=0.4"),2)`%. Increasing to a large sample size with low reliability revealed persistent conservativeness for DBLCENT, with Type I error rates of `r round(get_type("DBLCENT", "Normal", "beta[3]", "N=1000, Rel=0.4"),3)`% ($\beta_3$), `r round(get_type("DBLCENT", "Normal", "beta[4]", "N=1000, Rel=0.4"),3)`% ($\beta_4$), and `r round(get_type("DBLCENT", "Normal", "beta[5]", "N=1000, Rel=0.4"),3)`% ($\beta_5$). SAM showed improved but still suboptimal rates of `r round(get_type("SAM", "Normal", "beta[3]", "N=1000, Rel=0.4"),2)`%, `r round(get_type("SAM", "Normal", "beta[4]", "N=1000, Rel=0.4"),2)`%, and `r round(get_type("SAM", "Normal", "beta[5]", "N=1000, Rel=0.4"),2)`% for the same respective estimates. At medium and high reliability levels under normal conditions, all methods achieved acceptable Type I error control. With $\rho$ = 0.6 and N = 400, the DBLCENT shows a coverage of `r round(get_type("DBLCENT", "Normal", "beta[5]", "N=400, Rel=0.6"),2)`%, the SAM shows `r round(get_type("SAM", "Normal", "beta[3]", "N=400, Rel=0.6"),2)`%, the LMS `r round(get_type("LMS", "Normal", "beta[3]", "N=400, Rel=0.6"),2)`% and QML `r round(get_type("QML", "Normal", "beta[3]", "N=400, Rel=0.6"),2)`%. At high reliability ($\rho$ = 0.8), all approaches maintained rates within acceptable bounds of the nominal 5% level.
+
+Nonnormal distributional conditions revealed markedly different patterns. For the interaction term ($\beta_3$) at low reliability and moderate sample size, SAM and DBLCENT remained conservative (`r round(get_type("SAM", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),2)`% and `r round(get_type("DBLCENT", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),3)`%, respectively), while LMS and QML showed desirable rates of `r round(get_type("LMS", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),2)`% and `r round(get_type("QML", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),2)`%. However, for quadratic parameters, LMS and QML exhibited severe inflation, with LMS showing `r round(get_type("LMS", "Nonnormal", "beta[4]", "N=400, Rel=0.4"),1)`% ($\beta_4$) and `r round(get_type("LMS", "Nonnormal", "beta[5]", "N=400, Rel=0.4"),1)`% ($\beta_5$), while QML reached `r round(get_type("QML", "Nonnormal", "beta[4]", "N=400, Rel=0.4"),1)`% and `r round(get_type("QML", "Nonnormal", "beta[5]", "N=400, Rel=0.4"),1)`%. With a large sample size, under nonnormal conditions, the inflation for quadratic terms worsened dramatically. LMS showed Type I error rates of `r round(get_type("LMS", "Nonnormal", "beta[4]", "N=1000, Rel=0.4"),1)`% ($\beta_4$) and `r round(get_type("LMS", "Nonnormal", "beta[5]", "N=1000, Rel=0.4"),1)`% ($\beta_5$), while QML exhibited `r round(get_type("QML", "Nonnormal", "beta[4]", "N=1000, Rel=0.4"),1)`% and `r round(get_type("QML", "Nonnormal", "beta[5]", "N=1000, Rel=0.4"),1)`%. Notably, SAM performed optimally for the interaction term at `r round(get_type("SAM", "Nonnormal", "beta[3]", "N=1000, Rel=0.4"),2)`%, demonstrating its robustness. At medium reliability under nonnormal conditions, quadratic term inflation persisted for distribution-analytic methods. With moderate sample size, $\rho$ = 0.6, LMS showed rates of `r round(get_type("LMS", "Nonnormal", "beta[4]", "N=400, Rel=0.6"),2)`% and `r round(get_type("LMS", "Nonnormal", "beta[5]", "N=400, Rel=0.6"),2)`% for quadratic terms, while QML reached `r round(get_type("QML", "Nonnormal", "beta[4]", "N=400, Rel=0.6"),1)`% and `r round(get_type("QML", "Nonnormal", "beta[5]", "N=400, Rel=0.6"),2)`%. Even at high reliability ($\rho$ = 0.8, N = 1000), LMS maintained inflated rates of `r round(get_type("LMS", "Nonnormal", "beta[4]", "N=1000, Rel=0.8"),1)`% and `r round(get_type("LMS", "Nonnormal", "beta[5]", "N=1000, Rel=0.8"),2)`%.
+
+Under uniform distributions, Type I error control was generally adequate except for low reliability conditions. In fact, results were similar qualitatively as under normal distributional conditions. For instance, at moderate sample size and low reliability, SAM showed extreme conservativeness for quadratic terms with rates of `r round(get_type("SAM", "Uniform", "beta[4]", "N=400, Rel=0.4"),3)`% ($\beta_4$) and `r round(get_type("SAM", "Uniform", "beta[5]", "N=400, Rel=0.4"),3)`% ($\beta_5$), while DBLCENT showed similar patterns at `r round(get_type("DBLCENT", "Uniform", "beta[4]", "N=400, Rel=0.4"),3)`% and `r round(get_type("DBLCENT", "Uniform", "beta[5]", "N=400, Rel=0.4"),3)`%. With increased reliability, all methods achieved acceptable Type I error control under uniform conditions. Again, the main factor affecting the performance was the reliability as there are no major differences observed with increasing sample size. 
+
+### Statistical Power
+
+Figure 6 illustrates power across approaches and conditions.
+
+Under normal conditions with low reliability and moderate sample size, power was extremely low for all approaches. Indeed, for the interaction term ($\beta_3$), power was `r round(get_power("LMS", "Normal", "beta[3]", "N=400, Rel=0.4"),1)`% (LMS) and `r round(get_power("QML", "Normal", "beta[3]", "N=400, Rel=0.4"),1)`% (QML), compared to `r round(get_power("SAM", "Normal", "beta[3]", "N=400, Rel=0.4"),1)`% (SAM) and `r round(get_power("DBLCENT", "Normal", "beta[3]", "N=400, Rel=0.4"),1)`% (DBLCENT). This pattern was consistent for quadratic terms, with LMS achieving `r round(get_power("LMS", "Normal", "beta[4]", "N=400, Rel=0.4"),1)`% and `r round(get_power("LMS", "Normal", "beta[5]", "N=400, Rel=0.4"),1)`% for $\beta_4$ and $\beta_5$, while DBLCENT showed severely limited power at `r round(get_power("DBLCENT", "Normal", "beta[4]", "N=400, Rel=0.4"),1)`% and `r round(get_power("DBLCENT", "Normal", "beta[5]", "N=400, Rel=0.4"),1)`%. Increasing to a large sample size increased power substantially for all methods, except the DBLCENT. The SAM achieved `r round(get_power("SAM", "Normal", "beta[3]", "N=1000, Rel=0.4"),1)`% for $\beta_3$, while LMS and QML reached `r round(get_power("LMS", "Normal", "beta[3]", "N=1000, Rel=0.4"),1)`% and `r round(get_power("QML", "Normal", "beta[3]", "N=1000, Rel=0.4"),1)`%, respectively. DBLCENT remained severely underpowered at `r round(get_power("DBLCENT", "Normal", "beta[3]", "N=1000, Rel=0.4"),1)`%. At medium reliability ($\rho$ = 0.6), power improved for all methods yet sample size played a role in the magnitude. With a moderate sample size, SAM achieved `r round(get_power("SAM", "Normal", "beta[3]", "N=400, Rel=0.6"),1)`% for the interaction term ($\beta_3$), comparable to LMS (`r round(get_power("LMS", "Normal", "beta[3]", "N=400, Rel=0.6"),1)`%) and QML (`r round(get_power("QML", "Normal", "beta[3]", "N=400, Rel=0.6"),1)`%). DBLCENT showed a result of `r round(get_power("DBLCENT", "Normal", "beta[3]", "N=400, Rel=0.6"),1)`%. At a large sample size, power exceeded 60% for all methods except DBLCENT, with SAM, LMS, and QML achieving `r round(get_power("SAM", "Normal", "beta[3]", "N=1000, Rel=0.6"),1)`%, `r round(get_power("LMS", "Normal", "beta[3]", "N=1000, Rel=0.6"),1)`%, and `r round(get_power("QML", "Normal", "beta[3]", "N=1000, Rel=0.6"),1)`%, respectively. Finally, with high reliability and large sample size, all approaches showed power above 80%.
+
+Under nonnormal conditions, power patterns shifted dramatically. For the interaction term at low reliability and moderate sample size, all methods showed reduced power: SAM (`r round(get_power("SAM", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),1)`%), LMS (`r round(get_power("LMS", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),1)`%), QML (`r round(get_power("QML", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),1)`%), and DBLCENT (`r round(get_power("DBLCENT", "Nonnormal", "beta[3]", "N=400, Rel=0.4"),1)`%). However, for quadratic terms, LMS and QML showed power of `r round(get_power("LMS", "Nonnormal", "beta[4]", "N=400, Rel=0.4"),1)`% and `r round(get_power("QML", "Nonnormal", "beta[4]", "N=400, Rel=0.4"),1)`% for $\beta_4$. With a large sample size and low reliability, power for quadratic terms reached extreme levels for distribution analytic methods: LMS showed `r round(get_power("LMS", "Nonnormal", "beta[4]", "N=1000, Rel=0.4"),1)`% and `r round(get_power("LMS", "Nonnormal", "beta[5]", "N=1000, Rel=0.4"),1)`%, while QML achieved `r round(get_power("QML", "Nonnormal", "beta[4]", "N=1000, Rel=0.4"),1)`% and `r round(get_power("QML", "Nonnormal", "beta[5]", "N=1000, Rel=0.4"),1)`%. 
+
+Under uniform distributions, power was generally reduced compared to normal conditions. At low reliability and moderate sample size, SAM showed particularly poor power for quadratic terms at `r round(get_power("SAM", "Uniform", "beta[4]", "N=400, Rel=0.4"),2)`% ($\beta_4$) and `r round(get_power("SAM", "Uniform", "beta[5]", "N=400, Rel=0.4"),2)`% ($\beta_5$), while maintaining `r round(get_power("SAM", "Uniform", "beta[3]", "N=400, Rel=0.4"),1)`% for the interaction term. DBLCENT showed similarly limited power at `r round(get_power("DBLCENT", "Uniform", "beta[4]", "N=400, Rel=0.4"),3)`% and `r round(get_power("DBLCENT", "Uniform", "beta[5]", "N=400, Rel=0.4"),2)`% for quadratic terms. At high reliability under uniform conditions (N = 1000, $\rho$ = 0.8), power reached acceptable levels for interaction effects across all methods, with SAM achieving `r round(get_power("SAM", "Uniform", "beta[3]", "N=1000, Rel=0.8"),1)`%, LMS `r round(get_power("LMS", "Uniform", "beta[3]", "N=1000, Rel=0.8"),1)`%, and DBLCENT `r round(get_power("DBLCENT", "Uniform", "beta[3]", "N=1000, Rel=0.8"),1)`%. However, quadratic term detection remained challenging, with power ranging from `r round(get_power("DBLCENT", "Uniform", "beta[4]", "N=1000, Rel=0.8"),1)`% to `r round(get_power("SAM", "Uniform", "beta[4]", "N=1000, Rel=0.8"),1)`% for $\beta_4$.
+
+```{r plot-type, echo=FALSE, fig.cap="Type I error rate.", fig.align='center', fig.height=12, fig.width=9}
+(p_t1)
+```
+
+```{r plot-power, echo=FALSE, fig.cap="Power.", fig.align='center', fig.height=12, fig.width=9}
+(p_pow)
+```
+
+### Brief discussion of simulation study 1
+
+The results from simulation study 1 are aligned with previous simulation studies. With respect to bias, the same pattern of positive bias and negative bias for the nonlinear effects was observed as in @brandt_etall_2014. Moreover, as in @brandt_etall_2020 similar findings were also observed for extremely large biased results in cases on small reliability, despite not manipulating structural misspecifications here. We also observed similar patterns as in @lonati_etall_2024 for the interaction term. Importantly, however, is the difference between the nonlinear effects terms, which was not investigated in their case. For instance, the interaction term showing unbiased results under non-normal conditions, but biased results for the quadratic terms under the same condition. Last, [comment about the insane power for lms and qml under non-normal: check with yves] and add more about se/sd ratio, power, type I error.
+
+## Result for simulation study 2
+
+[...]
