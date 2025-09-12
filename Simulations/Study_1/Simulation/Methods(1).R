@@ -1,8 +1,18 @@
-##==============================================================================
-## 1. Methods: UCA, SAM, LMS, and QML - Modified to return full tables
-##==============================================================================
+############################ 1. General Information ############################
 
-#### 1.1. Product Indicator Approaches (UCA) ####
+# See README file for more information concerning this file. 
+
+# This file contains the code used to estimate the different approaches. We use
+# modsem for all except the SAM approach. Thus, we have the DBLCENT, LMS, and 
+# QML estimated through modsem and the SAM approach with lavaan. 
+# All functions return the full parameter table.
+
+# Importantly, the helper function is used to extract only the relevant 
+# estimates. In our case, the structural model. 
+
+############################### 2. Functions ###################################
+
+#### 2.1. Product Indicator Approach with double mean centering (DBLCENT) ####
 
 method_dblcent <- function(Data = NULL, model.fit = NULL) {
   out <- modsem::modsem(model.syntax = model.fit, data = Data, method = "dblcent")
@@ -11,7 +21,7 @@ method_dblcent <- function(Data = NULL, model.fit = NULL) {
   out$coefParTable
 }
 
-#### 1.2 Structural-After-Measurement (SAM) Approach ####
+#### 2.2 Structural-After-Measurement (SAM) Approach ####
 
 method_sam <- function(Data = NULL, estimator = "ML",
                        joint = FALSE, add.attr = FALSE, 
@@ -25,7 +35,7 @@ method_sam <- function(Data = NULL, estimator = "ML",
   parameterEstimates(out, remove.step1 = FALSE)
 }
 
-#### 1.3 Analytic Approaches (LMS and QML) ####
+#### 2.3 Distribution Analytic Approaches (LMS and QML) ####
 
 method_analytic <- function(Data = NULL, model.fit = NULL, 
                             standardized = FALSE, method = "lms") {
@@ -43,7 +53,7 @@ extract_eta3_parameters <- function(table, method_type) {
   if(is.null(table)) return(NULL)
   
   if(method_type == "dblcent") {
-    # For dblcent: use coefParTable structure
+    # for dblcent: use coefParTable structure
     rows <- table[table$lhs == "eta3" & table$op == "~", ]
     
     params <- if(nrow(rows) == 3) {
@@ -61,7 +71,7 @@ extract_eta3_parameters <- function(table, method_type) {
     )
     
   } else if(method_type == "sam") {
-    # For SAM: use parameterEstimates structure
+    # for SAM: use parameterEstimates structure
     coefs <- table[table$lhs == "eta3" & table$op == "~", ]
     
     params <- if(nrow(coefs) == 3) {
@@ -88,7 +98,7 @@ extract_eta3_parameters <- function(table, method_type) {
     )
     
   } else if(method_type %in% c("lms", "qml")) {
-    # For LMS/QML: use parTable structure
+    # for LMS/QML: use parTable structure
     rows <- table[table$lhs == "eta3" & table$op == "~", ]
     
     # 5 parameters; we need to reorder because eta1:eta1 before eta1:eta2
