@@ -1,6 +1,6 @@
 library(dplyr); library(tidyr); library(purrr); library(stringr); library(kableExtra); library(glue); library(simhelpers)
 
-load("sim_results/run_20250828_1758_36_1000/final_results.RData")
+load("final_results.RData")
 
 
 CalculatePerformance <- function(all_results,
