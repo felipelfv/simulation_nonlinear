@@ -255,7 +255,7 @@ for(cond in 1:nrow(conditions)) {
 
 stopCluster(cl)
 
-save(all_results, conditions, file = paste0(results_dir, "/final_results.RData"))
+#save(all_results, conditions, file = paste0(results_dir, "/final_results.RData"))
 
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
