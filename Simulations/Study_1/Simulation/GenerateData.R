@@ -1,5 +1,10 @@
-#library(copula)
-#install.packages("copula")
+############################ 1. General Information ############################
+
+# See README file for more information concerning this file. 
+
+# This file contains the code for the generation of the dataset. 
+
+############################### 2. Function ####################################
 
 GenerateData <- function(model, 
                          N = 1000L,
