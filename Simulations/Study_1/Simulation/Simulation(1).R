@@ -17,7 +17,7 @@ library(lavaan); library(modsem); library(doParallel); library(doRNG)
 library(covsim); library(copula); library(stringr)
 
 # required files
-load("all_models_with_null.RData")  # calibrated_models, null_models, and all_models
+load("Models.RData")  # calibrated_models, null_models, and all_models
 source("Methods(1).R")  # methods file
 
 # SIMULATION PARAMETERS
