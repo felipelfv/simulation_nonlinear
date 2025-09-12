@@ -1,22 +1,26 @@
-#### 1. General Information ####
+############################ 1. General Information ############################
 
-#RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+# See README file for more information concerning this file. 
 
-library(lavaan)
-library(modsem)
-library(doParallel)
-library(doRNG)
-library(covsim)
-library(copula)
-library(stringr)
+# This file contains the code necessary to run the simulation study. 
+# It is dependent on the file "Models.RData" where we store the lavaan-based 
+# syntax models for generating the data. It is also dependent on the file
+# "Methods.R" where we specify the functions for estimating the different
+# approaches
 
-# Load required files
-load("all_models_with_null.RData")  # Contains calibrated_models, null_models, and all_models
-source("Methods(1).R")  # Your modified methods file
+# Relevant to re-start after running this script once to default MT
+# RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
-# =============================================================================
+############################### 2. Simulation ##################################
+
+library(lavaan); library(modsem); library(doParallel); library(doRNG)
+library(covsim); library(copula); library(stringr)
+
+# required files
+load("all_models_with_null.RData")  # calibrated_models, null_models, and all_models
+source("Methods(1).R")  # methods file
+
 # SIMULATION PARAMETERS
-# =============================================================================
 
 N_REPLICATIONS <- 1000
 SAMPLE_SIZES <- c(400, 1000)
@@ -38,9 +42,7 @@ distributions <- list(
   uniform = list(skewness = c(0, 0), excesskurtosis = c(0, 0), distr.exo = "unif")
 )
 
-# =============================================================================
 # MAIN SIMULATION
-# =============================================================================
 
 dir.create("sim_results", showWarnings = FALSE)
 timestamp <- format(Sys.time(), "%Y%m%d_%H%M")
@@ -52,11 +54,11 @@ conditions <- expand.grid(
   N = SAMPLE_SIZES,
   Rel = c(0.4, 0.6, 0.8),
   Distribution = names(distributions),
-  Model_Type = c("alternative", "null"),  # Add model type
+  Model_Type = c("alternative", "null"),  # model type; null = linear
   stringsAsFactors = FALSE
 )
 
-# Create model names based on model type and reliability
+# model names based on model type and reliability
 conditions$model_name <- ifelse(
   conditions$Model_Type == "null",
   paste0("null_normal_rel", gsub("\\.", "", as.character(conditions$Rel))),
@@ -66,7 +68,7 @@ conditions$model_name <- ifelse(
 # track actual distribution used for generation
 conditions$generation_distribution <- conditions$Distribution
 
-# Parallel setup
+# parallel setup
 n_cores <- detectCores() - 6
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
@@ -87,7 +89,7 @@ for(cond in 1:nrow(conditions)) {
   cat("\n- Using model:", conditions$model_name[cond])
   cat("\n========================================\n")
   
-  # Get the appropriate model (normal or null)
+  # get the appropriate model (normal or null)
   population_model <- all_models[[conditions$model_name[cond]]]
   
   if(is.null(population_model)) {
@@ -102,7 +104,7 @@ for(cond in 1:nrow(conditions)) {
   clusterExport(cl, c("population_model", "dist_params", "conditions", "cond"), 
                 envir = environment())
   
-  # MODIFIED: Store full tables instead of extracted parameters
+  # store full tables instead of extracted parameters
   res <- list(
     lms_tables = vector("list", N_REPLICATIONS),
     qml_tables = vector("list", N_REPLICATIONS),
@@ -112,7 +114,7 @@ for(cond in 1:nrow(conditions)) {
                         qml = numeric(N_REPLICATIONS),
                         dblcent = numeric(N_REPLICATIONS), 
                         sam = numeric(N_REPLICATIONS)),
-    # track observed R² and reliabilities
+    # observed R^2 and reliabilities
     observed_r2 = numeric(N_REPLICATIONS),
     observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 9)
   )
@@ -123,7 +125,7 @@ for(cond in 1:nrow(conditions)) {
                               .errorhandling = "pass",
                               .options.RNG = SEED_START + cond * 1000) %dorng% {
                                 
-                                # generate data using NORMAL-CALIBRATED model with ACTUAL distribution
+                                # generate data using normal-based model with actual distribution
                                 Data <- try(GenerateData(
                                   model = population_model,
                                   N = conditions$N[cond],
@@ -148,10 +150,10 @@ for(cond in 1:nrow(conditions)) {
                                 data_clean <- as.data.frame(Data)
                                 attributes(data_clean) <- attributes(data_clean)[c("names", "row.names", "class")]
                                 
-                                # run all methods and store FULL TABLES
+                                # run all methods
                                 results <- list(observed_metrics = observed_metrics)
                                 
-                                # LMS - returns full parTable
+                                # LMS
                                 t0 <- Sys.time()
                                 lms_table <- try(method_analytic(Data = data_clean, 
                                                                  model.fit = analysis.model, 
@@ -161,7 +163,7 @@ for(cond in 1:nrow(conditions)) {
                                   results$lms_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
                                 }
                                 
-                                # QML - returns full parTable
+                                # QML 
                                 t0 <- Sys.time()
                                 qml_table <- try(method_analytic(Data = data_clean, 
                                                                  model.fit = analysis.model, 
@@ -171,7 +173,7 @@ for(cond in 1:nrow(conditions)) {
                                   results$qml_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
                                 }
                                 
-                                # UCA - returns full coefParTable
+                                # UCA 
                                 t0 <- Sys.time()
                                 uca_table <- try(method_dblcent(Data = data_clean, 
                                                                 model.fit = analysis.model), silent = TRUE)
@@ -180,7 +182,7 @@ for(cond in 1:nrow(conditions)) {
                                   results$dblcent_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
                                 }
                                 
-                                # SAM - returns full parameterEstimates table
+                                # SAM 
                                 t0 <- Sys.time()
                                 sam_table <- try(method_sam(Data = data_clean, 
                                                             model.fit = analysis.model), silent = TRUE)
@@ -195,7 +197,7 @@ for(cond in 1:nrow(conditions)) {
   # RNG states 
   rng_states_for_condition <- attr(parallel_results, "rng")
   
-  # MODIFIED: Store full tables instead of extracting parameters
+  # store full tables instead of extracting parameters
   for(i in 1:N_REPLICATIONS) {
     if(!is.null(parallel_results[[i]]) && !inherits(parallel_results[[i]], "error")) {
       
@@ -204,7 +206,6 @@ for(cond in 1:nrow(conditions)) {
         res$observed_rel[i,] <- parallel_results[[i]]$observed_metrics$rel[1:9]
       }
       
-      # Store full tables
       if(!is.null(parallel_results[[i]]$lms_table)) {
         res$lms_tables[[i]] <- parallel_results[[i]]$lms_table
         res$timing$lms[i] <- parallel_results[[i]]$lms_timing
@@ -238,7 +239,7 @@ for(cond in 1:nrow(conditions)) {
     condition = conditions[cond, ], 
     results = res,
     true_parameters = if(conditions$Model_Type[cond] == "null") {
-      c(0.316, 0.316, 0, 0, 0)  # null model: interaction and quadratic terms are 0
+      c(0.316, 0.316, 0, 0, 0)  # null (linear) model: interaction and quadratic terms are 0
     } else {
       c(0.316, 0.316, 0.139, 0.101, 0.101)  # full model with all effects
     }
