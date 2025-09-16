@@ -1,0 +1,223 @@
+---
+title: ""
+output: html_document
+date: "2025-09-05"
+---
+
+## Appendix
+
+\landscape
+\footnotesize
+
+## Table 2
+
+| Performance Measure | Empirical Calculation | MCSE |
+|---|---|---|
+| **Absolute Criteria** | | |
+| Bias | $\bar{B} - \beta$ | $\sqrt{S_B^2/K}$ |
+| MSE | $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ | $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
+| RMSE | $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ |
+| Median Estimate | $\textit{Mdn}(B)$ | — |
+| Median Bias | $\textit{Mdn}(B) - \beta$ | — |
+| MAD | $\textit{Mdn}(\|B_k - \textit{Mdn}(B)\|)$ | — |
+| Median RMSE | $\sqrt{\text{Bias}_{\textit{Mdn}}^2 + \text{MAD}^2}$ | — |
+| **Relative Criteria** | | |
+| Relative Bias | $(\frac{\bar{B}}{\beta})- 1$ | $\sqrt{S_B^2/(K\beta^2)}$ |
+| Percent Relative Bias | $(\frac{\bar{B}}{\beta})- 1\times 100\%$ | — |
+| Relative MSE | $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ | $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
+| Relative RMSE | $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ |
+| Relative Median Bias | $\frac{\text{Mdn}(B) - \beta}{\beta}$ | — |
+| Percent Relative Median Bias | $\frac{\textit{Mdn}(B) - \beta}{\beta} \times 100\%$ | — |
+| **Standard Error Assessment** | | |
+| Mean SE | $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ | — |
+| SE Ratio | $\overline{SE}/S_B$ | — |
+| **Hypothesis Testing** | | |
+| Rejection Rate | $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ | $\sqrt{r_\alpha(1-r_\alpha)/K}$ |
+| **Confidence Intervals** | | |
+| Coverage | $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ | $\sqrt{c_\beta(1-c_\beta)/K}$ |
+| Average Width | $\bar{W} = \bar{B} - \bar{A}$ | $\sqrt{S_W^2/K}$ |
+
+*Note.* $B$ = parameter estimator; $\beta$ = true parameter value; $K$ = number of replications; $S_B^2$ = sample variance; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $S_W^2$ = variance of CI widths. MCSE = Monte Carlo Standard Error. Dashes indicate MCSEs not computed for these measures.
+
+\endlandscape
+\normalsize
+
+```{r conv-table, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+tab <- summary_table %>%
+  select(-`N Total`) %>%
+  arrange(Condition, Method, Model, Distribution, `Sample Size`, Reliability)
+
+tab_caption <- "Convergence and outliers"
+tab_note <- "Conv. Rate (%) = percentage of runs that converged; Outlier Rate (%) = percentage removed as outliers; Final Rate (%) = percentage of final sample retained from original N."
+
+kbl(
+  tab,
+  booktabs = TRUE,
+  longtable = TRUE,
+  align = c("l","l","l","l","r","l",
+            "r","r","r",
+            "r","r",
+            "r","r"),
+  caption = tab_caption,
+  linesep = ""
+) %>%
+  add_header_above(c(
+    " " = 6,
+    "Convergence" = 3,
+    "Outliers"    = 2,
+    "Final"       = 2
+  )) %>%
+  kable_styling(
+    latex_options = c("hold_position", "repeat_header", "scale_down"),
+    font_size = 6
+  ) %>%
+  # collapse ONLY the Condition column
+  collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
+  footnote(
+    general = tab_note,
+    threeparttable = TRUE,
+    escape = TRUE
+  ) %>%
+  landscape()
+
+```
+
+```{r dist_tables_landscape, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(glue)
+library(kableExtra)
+library(tools)
+
+# --- formatting helpers ---
+fmt_num <- function(x, digits = 3) ifelse(is.na(x), "", formatC(x, digits = digits, format = "f"))
+fmt_pm  <- function(value, mcse, digits_value = 3, digits_mcse = 3, scale_mcse = 1) {
+  ifelse(is.na(value), "", paste0(fmt_num(value, digits_value), " ± ", fmt_num(mcse * scale_mcse, digits_mcse)))
+}
+cap_first <- function(x) tools::toTitleCase(tolower(as.character(x)))
+
+METHOD_ORDER <- c("SAM","LMS","QML","DBLCENT")
+PARAM_KEPT   <- c("eta1:eta2","eta1:eta1","eta2:eta2")
+
+# ---- Styling to match the convergence/outliers table ----
+LATEX_FONT_SIZE <- 6              # same font size
+FIRST_COL_WIDTH <- "7em"          # width for Method (first column)
+MAX_ROWS_PAGE   <- 40
+NOTE_TEXT <- paste(
+  "Values are mean ± MCSE where available.",
+  "Coverage (%) and Rej. (%) are percentages; MCSEs are scaled accordingly.",
+  "% Rel. Bias is blank when the true value is 0."
+)
+
+# --- sanitize for LaTeX label ids ---
+slugify <- function(x) {
+  x |>
+    tolower() |>
+    gsub("[^a-z0-9]+","-", x = _) |>
+    gsub("(^-|-$)", "", x = _)
+}
+
+# --- core table builder (Method first) ---
+.make_table <- function(dfi, model_type, dist_name, caption_main = "Reported Measures") {
+  if (nrow(dfi) == 0) return(NULL)
+
+  # Rejection logic: Type I when true = 0; Power otherwise
+  rej_value <- ifelse(dfi$TrueValue == 0, dfi$TypeI_Error, dfi$Power)
+  rej_mcse  <- ifelse(dfi$TrueValue == 0, dfi$TypeI_Error_MCSE, dfi$Power_MCSE)
+
+  # Build display data (Method BEFORE Parameter)
+  out <- dfi %>%
+    transmute(
+      Method, Parameter, Reliability, SampleSize,
+      `Bias ± MCSE`         = fmt_pm(Bias_Mean, Bias_Mean_MCSE, 3, 3, 1),
+      `% Rel. Bias ± MCSE`  = ifelse(TrueValue == 0, "",
+                                      fmt_pm(PercentRelativeBias_Mean, RelativeBias_MCSE * 100, 1, 1, 1)),
+      `RMSE ± MCSE`         = fmt_pm(RMSE_Mean, RMSE_Mean_MCSE, 4, 4, 1),
+      `Rel. RMSE ± MCSE`    = fmt_pm(Relative_RMSE, Relative_RMSE_MCSE, 4, 4, 1),
+      `Coverage (%) ± MCSE` = fmt_pm(CoverageRate, CoverageRate_MCSE, 1, 1, 100),
+      `SE/SD`               = fmt_num(SE_SD_Ratio, 3),
+      `Rej. (%) ± MCSE`     = fmt_pm(rej_value, rej_mcse, 1, 1, 100)
+    )
+
+  safe_names <- names(out) |> stringr::str_replace_all("%", "\\\\%")
+
+  # --- caption: main line + italic metadata line right under it ---
+  Ns <- sort(unique(dfi$SampleSize))
+  N_str <- if (length(Ns) == 1) glue("N = {Ns}") else glue("N = {paste(Ns, collapse = ', ')}")
+  caption_meta <- glue("\\textit{{{model_type} model — {cap_first(dist_name)} — {N_str}}}")
+  full_caption <- glue("{caption_main}\\\\{caption_meta}")  # LaTeX line break under 'Table X:'
+
+  # label so you can \@ref(tab:...)
+  lbl <- glue("tab:{slugify(model_type)}-{slugify(dist_name)}-{if(length(Ns)==1) paste0('n', Ns) else 'multiN'}")
+
+  kb <- kbl(
+    out,
+    booktabs   = TRUE,
+    longtable  = TRUE,
+    linesep    = "",
+    align      = c("l","l","r","r", rep("r", ncol(out) - 4)),
+    col.names  = safe_names,
+    escape     = FALSE,
+    caption    = full_caption,
+    label      = lbl
+  ) |>
+    kable_styling(
+      latex_options = c("hold_position","repeat_header","scale_down"),
+      font_size     = LATEX_FONT_SIZE
+    ) |>
+    # collapse by Method (first column) with no inner lines between blocks
+    collapse_rows(columns = 1, valign = "top", latex_hline = "major") |>
+    add_header_above(
+      c(" " = 4, "Requested Measures ($\\pm$ MCSE where available)" = ncol(out) - 4),
+      escape = FALSE
+    ) |>
+    footnote(
+      general = NOTE_TEXT,
+      threeparttable = TRUE,
+      escape = TRUE
+    )
+
+  # Landscape + width for first column (Method)
+  kb <- column_spec(kb, 1, width = FIRST_COL_WIDTH)
+  kb <- landscape(kb)
+  return(kb)
+}
+
+# --- orchestrator: one landscape table per distribution (split if too tall) ---
+build_tables_by_distribution <- function(df, model_type, dist_name) {
+  dfi <- df %>%
+    filter(Model == model_type,
+           tolower(Distribution) == tolower(dist_name),
+           Parameter %in% PARAM_KEPT) %>%
+    mutate(
+      Method    = factor(toupper(Method), levels = METHOD_ORDER),
+      Parameter = factor(Parameter, levels = PARAM_KEPT)
+    ) %>%
+    arrange(Method, Parameter, Reliability, SampleSize)
+
+  if (nrow(dfi) == 0) return(invisible(NULL))
+
+  if (nrow(dfi) > MAX_ROWS_PAGE && length(unique(dfi$SampleSize)) > 1) {
+    # split by N so each table has a single N in its caption meta
+    for (s in unique(dfi$SampleSize)) {
+      dsub <- dfi %>% filter(SampleSize == s)
+      print(.make_table(dsub, model_type, dist_name))
+    }
+  } else {
+    print(.make_table(dfi, model_type, dist_name))
+  }
+}
+
+# --- driver: generate tables (PDF only) ---
+all_dists <- results_with_mcse$Distribution %>% as.character() %>% unique() %>% sort()
+
+for (mdl in c("Full","Linear")) {
+  for (dd in all_dists) build_tables_by_distribution(results_with_mcse, mdl, dd)
+}
+
+```
