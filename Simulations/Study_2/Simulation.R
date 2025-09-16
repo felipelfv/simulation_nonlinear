@@ -1,35 +1,83 @@
-# R^2 very close to 0.30
-population_full_model <- "
-# measurement model
+# Define population models for each reliability level
+population_model_rel08 <- "
+# Measurement model
 eta1 =~ 1*x1 + 1*x2 + 1*x3
 eta2 =~ 1*x4 + 1*x5 + 1*x6
 eta3 =~ 1*x7 + 1*x8 + 1*x9
 eta4 =~ 1*x10 + 1*x11 + 1*x12
 eta5 =~ 1*x13 + 1*x14 + 1*x15
-
-# structural model
+# Structural model
 eta3 ~ 0.3*eta1 + 0.3*eta2 + 0.15*eta1:eta2 + 0.1*eta1:eta1
 eta4 ~ 0.25*eta1 + 0.25*eta3 + 0.12*eta1:eta3 + 0.08*eta2:eta2
 eta5 ~ 0.2*eta2 + 0.2*eta3 + 0.2*eta4 + 0.1*eta3:eta4 + 0.1*eta3:eta3 + 0.08*eta4:eta4
-
-# variances and covariances
+# Variances and covariances
 eta1 ~~ 0.4*eta2
 eta1 ~~ 1*eta1
 eta2 ~~ 1*eta2
-
-# residual variances
-eta3 ~~ 0.8*eta3   
-eta4 ~~ 0.75*eta4  
-eta5 ~~ 1.25*eta5 
-
-# measurement errors for reliability approx. 0.8
+eta3 ~~ 0.8*eta3
+eta4 ~~ 0.75*eta4
+eta5 ~~ 1.39*eta5
+# Measurement errors for reliability ≈ 0.8
 x1 ~~ 0.25*x1; x2 ~~ 0.25*x2; x3 ~~ 0.25*x3
 x4 ~~ 0.25*x4; x5 ~~ 0.25*x5; x6 ~~ 0.25*x6
 x7 ~~ 0.25*x7; x8 ~~ 0.25*x8; x9 ~~ 0.25*x9
 x10 ~~ 0.24*x10; x11 ~~ 0.24*x11; x12 ~~ 0.24*x12
-x13 ~~ 0.42*x13; x14 ~~ 0.42*x14; x15 ~~ 0.42*x15 
+x13 ~~ 0.40*x13; x14 ~~ 0.40*x14; x15 ~~ 0.40*x15
 "
 
+population_model_rel06 <- "
+# Measurement model
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural model
+eta3 ~ 0.3*eta1 + 0.3*eta2 + 0.15*eta1:eta2 + 0.1*eta1:eta1
+eta4 ~ 0.25*eta1 + 0.25*eta3 + 0.12*eta1:eta3 + 0.08*eta2:eta2
+eta5 ~ 0.2*eta2 + 0.2*eta3 + 0.2*eta4 + 0.1*eta3:eta4 + 0.1*eta3:eta3 + 0.08*eta4:eta4
+# Variances and covariances
+eta1 ~~ 0.4*eta2
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 0.8*eta3
+eta4 ~~ 0.75*eta4
+eta5 ~~ 1.39*eta5
+# Measurement errors for reliability ≈ 0.6
+x1 ~~ 0.67*x1; x2 ~~ 0.67*x2; x3 ~~ 0.67*x3
+x4 ~~ 0.67*x4; x5 ~~ 0.67*x5; x6 ~~ 0.67*x6
+x7 ~~ 0.78*x7; x8 ~~ 0.78*x8; x9 ~~ 0.78*x9
+x10 ~~ 0.71*x10; x11 ~~ 0.71*x11; x12 ~~ 0.71*x12
+x13 ~~ 1.32*x13; x14 ~~ 1.32*x14; x15 ~~ 1.32*x15
+"
+
+population_model_rel04 <- "
+# Measurement model
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural model
+eta3 ~ 0.3*eta1 + 0.3*eta2 + 0.15*eta1:eta2 + 0.1*eta1:eta1
+eta4 ~ 0.25*eta1 + 0.25*eta3 + 0.12*eta1:eta3 + 0.08*eta2:eta2
+eta5 ~ 0.2*eta2 + 0.2*eta3 + 0.2*eta4 + 0.1*eta3:eta4 + 0.1*eta3:eta3 + 0.08*eta4:eta4
+# Variances and covariances
+eta1 ~~ 0.4*eta2
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 0.8*eta3
+eta4 ~~ 0.75*eta4
+eta5 ~~ 1.39*eta5
+# Measurement errors for reliability ≈ 0.4
+x1 ~~ 1.50*x1; x2 ~~ 1.50*x2; x3 ~~ 1.50*x3
+x4 ~~ 1.50*x4; x5 ~~ 1.50*x5; x6 ~~ 1.50*x6
+x7 ~~ 1.76*x7; x8 ~~ 1.76*x8; x9 ~~ 1.76*x9
+x10 ~~ 1.61*x10; x11 ~~ 1.61*x11; x12 ~~ 1.61*x12
+x13 ~~ 2.98*x13; x14 ~~ 2.98*x14; x15 ~~ 2.98*x15
+"
+
+# Define analysis model (same for all)
 analysis_model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
@@ -37,127 +85,64 @@ eta2 =~ x4 + x5 + x6
 eta3 =~ x7 + x8 + x9
 eta4 =~ x10 + x11 + x12
 eta5 =~ x13 + x14 + x15
-
 # Structural model
 eta3 ~ eta1 + eta2 + eta1:eta2 + eta1:eta1
 eta4 ~ eta1 + eta3 + eta1:eta3 + eta2:eta2
-eta5 ~ eta2 + eta3 + eta4 + eta3:eta4 + eta3:eta3 
+eta5 ~ eta2 + eta3 + eta4 + eta3:eta4 + eta3:eta3 + eta4:eta4
 "
-
-data_final <- GenerateData(
-  model = population_full_model,
-  N = 1000,
-  skewness = c(0, 0),
-  excesskurtosis = c(0, 0),
-  distr.exo = "normal.rIG",
-  distr.zeta = "normal",
-  distr.epsilon = "normal",
-  seed = 123,
-  add.eta = FALSE,
-  return.info = TRUE
-)
-
-fit <- sam(model = analysis_model, data = data_final)
-
-library(lavaan)
 
 # conditions
 sample_sizes <- c(200, 400, 1000)
 distributions <- c("normal.rIG", "uniform", "nonnormal.rIG")
-n_sim <- 100
-
+reliabilities <- c(0.8, 0.6, 0.4)
+n_sim <- 2
 all_results <- list()
+
+# Create list of population models
+population_models <- list(
+  "0.8" = population_model_rel08,
+  "0.6" = population_model_rel06,
+  "0.4" = population_model_rel04
+)
 
 # simulations for each condition
 for(N in sample_sizes) {
   for(distr in distributions) {
-    
-    condition_name <- paste0("N", N, "_", distr)
-    cat("\n\nStarting condition:", condition_name, "\n")
-    
-    # storage for this condition
-    condition_results <- list()
-    
-    for(i in 1:n_sim) {
-      cat("\rIteration", i, "/", n_sim)
+    for(rel in reliabilities) {
       
-      # Generate data
-      data <- GenerateData(
-        model = population_full_model,
-        N = N,
-        seed = 123 + i,
-        skewness = c(0, 0),
-        excesskurtosis = c(0, 0),
-        distr.exo = distr,
-        distr.zeta = "normal",
-        distr.epsilon = "normal",
-        add.eta = FALSE,
-        return.info = TRUE
-      )
+      condition_name <- paste0("N", N, "_", distr, "_rel", rel)
+      cat("\n\nStarting condition:", condition_name, "\n")
       
-      fit <- sam(analysis_model, data = data, se = "twostep")
+      # Select appropriate population model
+      population_model <- population_models[[as.character(rel)]]
       
-      condition_results[[i]] <- parameterEstimates(fit, remove.step1 = FALSE)
-    }
-    
-    # results for this condition
-    all_results[[condition_name]] <- condition_results
-  }
-}
-
-#saveRDS(all_results, "simulation_all_conditions.rds")
-
-# SE/SD ratios for each condition
-interaction_terms <- c("eta3 ~ eta1:eta2", "eta3 ~ eta1:eta1", 
-                       "eta4 ~ eta1:eta3", "eta4 ~ eta2:eta2",
-                       "eta5 ~ eta3:eta4", "eta5 ~ eta3:eta3")
-
-summary_all <- data.frame()
-
-for(N in sample_sizes) {
-  for(distr in distributions) {
-    
-    condition_name <- paste0("N", N, "_", distr)
-    results <- all_results[[condition_name]]
-    
-    # estimates and SEs
-    n_params <- length(interaction_terms)
-    estimates_matrix <- matrix(NA, nrow = n_sim, ncol = n_params)
-    se_matrix <- matrix(NA, nrow = n_sim, ncol = n_params)
-    
-    for(i in 1:n_sim) {
-      pe <- results[[i]]
+      # storage for this condition
+      condition_results <- list()
       
-      for(j in 1:n_params) {
-        parts <- strsplit(interaction_terms[j], " ~ ")[[1]]
-        lhs <- parts[1]
-        rhs <- parts[2]
+      for(i in 1:n_sim) {
+        cat("\rIteration", i, "/", n_sim)
         
-        row_idx <- which(pe$lhs == lhs & pe$op == "~" & pe$rhs == rhs)
+        # Generate data
+        data <- GenerateData(
+          model = population_model,
+          N = N,
+          seed = 123 + i,
+          skewness = c(0, 0),
+          excesskurtosis = c(0, 0),
+          distr.exo = distr,
+          distr.zeta = "normal",
+          distr.epsilon = "normal",
+          add.eta = FALSE,
+          return.info = TRUE
+        )
         
-        if(length(row_idx) > 0) {
-          estimates_matrix[i, j] <- pe$est[row_idx]
-          se_matrix[i, j] <- pe$se[row_idx]
-        }
+        fit <- sam(analysis_model, data = data, se = "twostep")
+        
+        condition_results[[i]] <- parameterEstimates(fit, remove.step1 = FALSE)
       }
-    }
-    
-    empirical_sd <- apply(estimates_matrix, 2, sd, na.rm = TRUE)
-    average_se <- apply(se_matrix, 2, mean, na.rm = TRUE)
-    se_sd_ratio <- average_se / empirical_sd
-    
-    for(j in 1:n_params) {
-      summary_all <- rbind(summary_all, data.frame(
-        N = N,
-        Distribution = distr,
-        Parameter = interaction_terms[j],
-        Avg_Estimate = mean(estimates_matrix[, j], na.rm = TRUE),
-        Empirical_SD = empirical_sd[j],
-        Average_SE = average_se[j],
-        SE_SD_Ratio = se_sd_ratio[j]
-      ))
+      
+      # results for this condition
+      all_results[[condition_name]] <- condition_results
     }
   }
 }
-
-(summary_all)
