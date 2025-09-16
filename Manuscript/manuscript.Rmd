@@ -30,7 +30,7 @@ authornote: |
   \addORCIDlink{Yves Rosseel}{0000-0002-4129-4477}
   
 abstract: |
-  Several methods have been proposed to include quadratic or interaction terms involving latent variables in structural equation models. Some examples are the latent moderated structural equations (LMS) approach and several variants of the product indicator (PI) approach. All of these methods use a system-wide estimation approach and estimate the free parameters of the model simultaneously. They tend to perform e!ectively in models featuring only a limited number of nonlinear effects. However, as the complexity of the model increases with a higher number of nonlinear terms, the feasibility of joint or one-step methods progressively diminishes. Recently, several so-called structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed in the literature. In a SAM approach, estimation proceeds in two stages. In a first stage, we estimate the parameters related to the measurement part of the model, while in a second stage, we estimate the parameters related to the structural part of the model. In this presentation, we will present initial simulation results where di!erent one-step and SAM approaches are compared, in a large variety of conditions, including conditionsthat involve a large number of latent interaction and quadratic terms.
+  Several methods have been proposed to include quadratic or interaction terms involving latent variables in structural equation models. Some examples are the latent moderated structural equations (LMS) approach and several variants of the product indicator (PI) approach. All of these methods use a system-wide estimation approach and estimate the free parameters of the model simultaneously. They tend to perform effectively in models featuring only a limited number of nonlinear effects. However, as the complexity of the model increases with a higher number of nonlinear terms, the feasibility of joint or one-step methods progressively diminishes. Recently, several so-called structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed in the literature. In a SAM approach, estimation proceeds in two stages. In a first stage, we estimate the parameters related to the measurement part of the model, while in a second stage, we estimate the parameters related to the structural part of the model. In this article, we show with two simulation studies that the recently proposed SAM approach (Rosseel et al., 2025) performs well, in a variety of conditions, including conditions that involve a large number of latent interaction and quadratic terms [..rewrite this last part once completely done..].
 
   <!-- https://tinyurl.com/ybremelq -->
 keywords          : "nonlinear effects, structural equation modeling, structural-after-measurement"
@@ -44,34 +44,15 @@ mask              : no
 draft             : no
 
 header-includes:
-  - |
-    \makeatletter
-    \renewcommand{\paragraph}{\@startsection{paragraph}{4}{\parindent}%
-      {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
-      {-1em}%
-      {\normalfont\normalsize\bfseries\typesectitle}}
-    
-    \renewcommand{\subparagraph}[1]{\@startsection{subparagraph}{5}{1em}%
-      {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
-      {-\z@\relax}%
-      {\normalfont\normalsize\bfseries\itshape\hspace{\parindent}{#1}\textit{\addperi}}{\relax}}
-    \makeatother
-    
   - \usepackage[nodisplayskipstretch]{setspace}
+  - \usepackage{pdflscape}
+  - \usepackage{longtable} 
+  - \usepackage{array}
   - \usepackage{float}
   - \usepackage{orcidlink}
   - \usepackage{tikz}
   - \usepackage{amsmath}
   - \setlength{\parskip}{0pt}
-  - |
-    \makeatletter
-    \g@addto@macro\normalsize{%
-      \setlength\abovedisplayskip{-2pt}%
-      \setlength\belowdisplayskip{8pt}%
-      \setlength\abovedisplayshortskip{2pt}%
-      \setlength\belowdisplayshortskip{2pt}%
-    }%
-    \makeatother
 
 csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
 documentclass     : "apa7"
@@ -106,6 +87,7 @@ r_refs("Phd - Initial Readings.bib")
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 options(papaja.na_string = "-")
 options(knitr.kable.NA = "-")
+knitr::opts_chunk$set(fig.cap = NULL)
 ```
 
 ```{r, child = "introduction.Rmd"}
@@ -115,6 +97,9 @@ options(knitr.kable.NA = "-")
 ```
 
 ```{r, child = "Simulation.Rmd"}
+```
+
+```{r, child = "results.Rmd"}
 ```
 
 \newpage
@@ -129,3 +114,25 @@ options(knitr.kable.NA = "-")
 
 ::: {#refs custom-style="Bibliography"}
 :::
+
+\newpage
+
+```{r, echo=FALSE, results='asis', eval=FALSE}
+# MOVE TO APPENDIX
+# ---------- render all 36 tables ----------
+Ns     <- c(400, 1000)
+Rels   <- c(0.4, 0.6, 0.8)
+Dists  <- c("normal","nonnormal","uniform")
+Models <- c("Linear","Full")
+
+for (N in Ns) for (Rel in Rels) for (Dist in Dists) for (Model in Models) {
+  tab <- build_condition_table_landscape(results_with_mcse, N, Rel, Dist, model_type = Model)
+  if (!is.null(tab)) print(tab)
+  if (knitr::is_latex_output()) cat("\n\\clearpage\n")
+}
+```
+
+```{r, child="appendix.Rmd"}
+
+
+```
