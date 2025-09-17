@@ -13,20 +13,39 @@
 ############################### 2. Functions ###################################
 
 #### 2.1. Product Indicator Approach with double mean centering (DBLCENT) ####
-
-method_dblcent <- function(Data = NULL, model.fit = NULL) {
-  out <- modsem::modsem(model.syntax = model.fit, data = Data, method = "dblcent")
+method_dblcent <- function(Data = NULL, model.fit = NULL, robust.se = FALSE, match = NULL) {
+  # Build argument list
+  args <- list(model.syntax = model.fit, data = Data, method = "dblcent")
+  
+  # Add robust SE if requested
+  if (robust.se) {
+    args$se <- "robust.huber.white"
+  }
+  
+  # Add match if specified (for modsem_pi)
+  if (!is.null(match)) {
+    args$match <- match
+    out <- do.call(modsem::modsem_pi, args)
+  } else {
+    out <- do.call(modsem::modsem, args)
+  }
   
   # Entire coefficient parameter table
   out$coefParTable
 }
 
 #### 2.2 Structural-After-Measurement (SAM) Approach ####
-
 method_sam <- function(Data = NULL, estimator = "ML",
                        joint = FALSE, add.attr = FALSE, 
                        model.fit = NULL,
-                       mm.list = NULL) {
+                       mm.list = NULL, 
+                       robust.se = FALSE) {
+  
+  # Adjust estimator if robust SE requested
+  if (robust.se) {
+    estimator <- "MLR"  # or "MLM" depending on your needs
+  }
+  
   out <- lavaan::sam(model.fit, data = Data, se = "local",
                      mm.args = list(estimator = estimator),
                      mm.list = mm.list)
@@ -36,10 +55,18 @@ method_sam <- function(Data = NULL, estimator = "ML",
 }
 
 #### 2.3 Distribution Analytic Approaches (LMS and QML) ####
-
 method_analytic <- function(Data = NULL, model.fit = NULL, 
-                            standardized = FALSE, method = "lms") {
-  out <- modsem::modsem(model.syntax = model.fit, data = Data, method = method)
+                            standardized = FALSE, method = "lms", robust.se = FALSE) {
+  
+  # Build argument list
+  args <- list(model.syntax = model.fit, data = Data, method = method)
+  
+  # Add robust SE if requested
+  if (robust.se) {
+    args$robust.se <- TRUE
+  }
+  
+  out <- do.call(modsem::modsem, args)
   
   # entire parameter table
   out$parTable
@@ -48,7 +75,6 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
 ##==============================================================================
 ## 2. Helper function to extract specific parameters from stored tables
 ##==============================================================================
-
 extract_eta3_parameters <- function(table, method_type) {
   if(is.null(table)) return(NULL)
   
