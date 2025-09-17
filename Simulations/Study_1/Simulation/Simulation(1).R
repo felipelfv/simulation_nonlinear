@@ -17,13 +17,13 @@ library(lavaan); library(modsem); library(doParallel); library(doRNG)
 library(covsim); library(copula); library(stringr)
 
 # required files
-load("Models.RData")  # calibrated_models, null_models, and all_models
+load("Models.RData")  # all_models
 source("Methods(1).R")  # methods file
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 1000
-SAMPLE_SIZES <- c(400, 1000)
+N_REPLICATIONS <- 1
+SAMPLE_SIZES <- c(100, 1000)
 SEED_START <- 123
 
 # analysis model (for fitting - no fixed values)
@@ -89,7 +89,7 @@ for(cond in 1:nrow(conditions)) {
   cat("\n- Using model:", conditions$model_name[cond])
   cat("\n========================================\n")
   
-  # get the appropriate model (normal or null)
+  # get the appropriate model (normal or null/linear)
   population_model <- all_models[[conditions$model_name[cond]]]
   
   if(is.null(population_model)) {
@@ -104,7 +104,7 @@ for(cond in 1:nrow(conditions)) {
   clusterExport(cl, c("population_model", "dist_params", "conditions", "cond"), 
                 envir = environment())
   
-  # store full tables instead of extracted parameters
+  # Initialize results storage with error and warning tracking
   res <- list(
     lms_tables = vector("list", N_REPLICATIONS),
     qml_tables = vector("list", N_REPLICATIONS),
@@ -114,6 +114,17 @@ for(cond in 1:nrow(conditions)) {
                         qml = numeric(N_REPLICATIONS),
                         dblcent = numeric(N_REPLICATIONS), 
                         sam = numeric(N_REPLICATIONS)),
+    # error tracking - stores error messages as strings
+    errors = data.frame(lms = character(N_REPLICATIONS),
+                        qml = character(N_REPLICATIONS),
+                        dblcent = character(N_REPLICATIONS),
+                        sam = character(N_REPLICATIONS),
+                        stringsAsFactors = FALSE),
+    # warning tracking - stores lists of warning messages
+    warnings = list(lms = vector("list", N_REPLICATIONS),
+                    qml = vector("list", N_REPLICATIONS),
+                    dblcent = vector("list", N_REPLICATIONS),
+                    sam = vector("list", N_REPLICATIONS)),
     # observed R^2 and reliabilities
     observed_r2 = numeric(N_REPLICATIONS),
     observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 9)
@@ -153,43 +164,102 @@ for(cond in 1:nrow(conditions)) {
                                 # run all methods
                                 results <- list(observed_metrics = observed_metrics)
                                 
-                                # LMS
+                                #=============== LMS METHOD ===============#
                                 t0 <- Sys.time()
-                                lms_table <- try(method_analytic(Data = data_clean, 
-                                                                 model.fit = analysis.model, 
-                                                                 method = "lms"), silent = TRUE)
+                                lms_warnings <- NULL 
+                                
+                                # withCallingHandlers wraps the try() to catch warnings
+                                lms_table <- withCallingHandlers(
+                                  # try() catches errors and returns them as objects instead of stopping
+                                  try(method_analytic(Data = data_clean, 
+                                                      model.fit = analysis.model, 
+                                                      method = "lms"), silent = TRUE),
+                                  # this function executes when a warning occurs
+                                  warning = function(w) {
+                                    # <<- assigns to parent environment (lms_warnings outside this function)
+                                    # conditionMessage(w) extracts the warning text
+                                    # c() concatenates to existing warnings (multiple warnings possible)
+                                    lms_warnings <<- c(lms_warnings, conditionMessage(w))
+                                    invokeRestart("muffleWarning")
+                                  }
+                                )
+                                
+                                # check if try() caught an error
                                 if(!inherits(lms_table, "try-error")) {
+                                  # no error: store successful results
                                   results$lms_table <- lms_table
                                   results$lms_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                } else {
+                                  # error occurred: store error message
+                                  results$lms_error <- as.character(lms_table)
                                 }
+                                # store any warnings that were caught
+                                results$lms_warnings <- lms_warnings
                                 
-                                # QML 
+                                #=============== QML METHOD ===============#
                                 t0 <- Sys.time()
-                                qml_table <- try(method_analytic(Data = data_clean, 
-                                                                 model.fit = analysis.model, 
-                                                                 method = "qml"), silent = TRUE)
+                                qml_warnings <- NULL
+                                
+                                qml_table <- withCallingHandlers(
+                                  try(method_analytic(Data = data_clean, 
+                                                      model.fit = analysis.model, 
+                                                      method = "qml"), silent = TRUE),
+                                  warning = function(w) {
+                                    # same pattern: capture warning text and add to list
+                                    qml_warnings <<- c(qml_warnings, conditionMessage(w))
+                                    invokeRestart("muffleWarning")
+                                  }
+                                )
+                                
                                 if(!inherits(qml_table, "try-error")) {
                                   results$qml_table <- qml_table
                                   results$qml_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                } else {
+                                  results$qml_error <- as.character(qml_table)
                                 }
+                                results$qml_warnings <- qml_warnings
                                 
-                                # UCA 
+                                #=============== UCA/DBLCENT METHOD ===============#
                                 t0 <- Sys.time()
-                                uca_table <- try(method_dblcent(Data = data_clean, 
-                                                                model.fit = analysis.model), silent = TRUE)
+                                dblcent_warnings <- NULL  
+                                
+                                uca_table <- withCallingHandlers(
+                                  try(method_dblcent(Data = data_clean, 
+                                                     model.fit = analysis.model), silent = TRUE),
+                                  warning = function(w) {
+                                    dblcent_warnings <<- c(dblcent_warnings, conditionMessage(w))
+                                    invokeRestart("muffleWarning")
+                                  }
+                                )
+                                
                                 if(!inherits(uca_table, "try-error")) {
                                   results$dblcent_table <- uca_table
                                   results$dblcent_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                } else {
+                                  results$dblcent_error <- as.character(uca_table)
                                 }
+                                results$dblcent_warnings <- dblcent_warnings
                                 
-                                # SAM 
+                                #=============== SAM METHOD ===============#
                                 t0 <- Sys.time()
-                                sam_table <- try(method_sam(Data = data_clean, 
-                                                            model.fit = analysis.model), silent = TRUE)
+                                sam_warnings <- NULL  
+                                
+                                sam_table <- withCallingHandlers(
+                                  try(method_sam(Data = data_clean, 
+                                                 model.fit = analysis.model), silent = TRUE),
+                                  warning = function(w) {
+                                    sam_warnings <<- c(sam_warnings, conditionMessage(w))
+                                    invokeRestart("muffleWarning")
+                                  }
+                                )
+                                
                                 if(!inherits(sam_table, "try-error")) {
                                   results$sam_table <- sam_table
                                   results$sam_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
+                                } else {
+                                  results$sam_error <- as.character(sam_table)
                                 }
+                                results$sam_warnings <- sam_warnings
                                 
                                 results
                               }
@@ -197,42 +267,85 @@ for(cond in 1:nrow(conditions)) {
   # RNG states 
   rng_states_for_condition <- attr(parallel_results, "rng")
   
-  # store full tables instead of extracting parameters
+  # store results from parallel execution
   for(i in 1:N_REPLICATIONS) {
     if(!is.null(parallel_results[[i]]) && !inherits(parallel_results[[i]], "error")) {
       
+      # observed metrics
       if(!is.null(parallel_results[[i]]$observed_metrics)) {
         res$observed_r2[i] <- parallel_results[[i]]$observed_metrics$r2
         res$observed_rel[i,] <- parallel_results[[i]]$observed_metrics$rel[1:9]
       }
       
+      # LMS results, errors, and warnings
       if(!is.null(parallel_results[[i]]$lms_table)) {
         res$lms_tables[[i]] <- parallel_results[[i]]$lms_table
         res$timing$lms[i] <- parallel_results[[i]]$lms_timing
       }
+      if(!is.null(parallel_results[[i]]$lms_error)) {
+        res$errors$lms[i] <- parallel_results[[i]]$lms_error
+      }
+      if(!is.null(parallel_results[[i]]$lms_warnings)) {
+        res$warnings$lms[[i]] <- parallel_results[[i]]$lms_warnings
+      }
       
+      # QML results, errors, and warnings
       if(!is.null(parallel_results[[i]]$qml_table)) {
         res$qml_tables[[i]] <- parallel_results[[i]]$qml_table
         res$timing$qml[i] <- parallel_results[[i]]$qml_timing
       }
+      if(!is.null(parallel_results[[i]]$qml_error)) {
+        res$errors$qml[i] <- parallel_results[[i]]$qml_error
+      }
+      if(!is.null(parallel_results[[i]]$qml_warnings)) {
+        res$warnings$qml[[i]] <- parallel_results[[i]]$qml_warnings
+      }
       
+      # UCA results, errors, and warnings
       if(!is.null(parallel_results[[i]]$dblcent_table)) {
         res$dblcent_tables[[i]] <- parallel_results[[i]]$dblcent_table
         res$timing$dblcent[i] <- parallel_results[[i]]$dblcent_timing
       }
+      if(!is.null(parallel_results[[i]]$dblcent_error)) {
+        res$errors$dblcent[i] <- parallel_results[[i]]$dblcent_error
+      }
+      if(!is.null(parallel_results[[i]]$dblcent_warnings)) {
+        res$warnings$dblcent[[i]] <- parallel_results[[i]]$dblcent_warnings
+      }
       
+      # SAM results, errors, and warnings
       if(!is.null(parallel_results[[i]]$sam_table)) {
         res$sam_tables[[i]] <- parallel_results[[i]]$sam_table
         res$timing$sam[i] <- parallel_results[[i]]$sam_timing
+      }
+      if(!is.null(parallel_results[[i]]$sam_error)) {
+        res$errors$sam[i] <- parallel_results[[i]]$sam_error
+      }
+      if(!is.null(parallel_results[[i]]$sam_warnings)) {
+        res$warnings$sam[[i]] <- parallel_results[[i]]$sam_warnings
       }
     }
   }
   
   res$rng_states <- rng_states_for_condition
   
+  # summary including error/warning counts
   cat("\nObserved metrics across replications:")
   cat("\n- Mean R²:", mean(res$observed_r2, na.rm = TRUE))
   cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
+  
+  # error and warning summary
+  cat("\n\nErrors encountered:")
+  cat("\n- LMS:", sum(res$errors$lms != ""), "errors")
+  cat("\n- QML:", sum(res$errors$qml != ""), "errors")
+  cat("\n- DBLCENT:", sum(res$errors$dblcent != ""), "errors")
+  cat("\n- SAM:", sum(res$errors$sam != ""), "errors")
+  
+  cat("\n\nWarnings encountered:")
+  cat("\n- LMS:", sum(lengths(res$warnings$lms) > 0), "iterations with warnings")
+  cat("\n- QML:", sum(lengths(res$warnings$qml) > 0), "iterations with warnings")
+  cat("\n- DBLCENT:", sum(lengths(res$warnings$dblcent) > 0), "iterations with warnings")
+  cat("\n- SAM:", sum(lengths(res$warnings$sam) > 0), "iterations with warnings")
   cat("\n")
   
   all_results[[cond]] <- list(
