@@ -13,16 +13,26 @@
 ############################### 2. Functions ###################################
 
 #### 2.1. Product Indicator Approach with double mean centering (DBLCENT) ####
-method_dblcent <- function(Data = NULL, model.fit = NULL, robust.se = FALSE, match = NULL) {
-  # Build argument list
-  args <- list(model.syntax = model.fit, data = Data, method = "dblcent")
+method_dblcent <- function(
+    Data = NULL,
+    model.fit = NULL,
+    robust.se = FALSE,
+    match = NULL,
+    bounds = FALSE
+) {
+  # for matching, robust, and bounds
+  args <- list(
+    model.syntax = model.fit,
+    data = Data,
+    method = "dblcent",
+    bounds = bounds
+  )
   
-  # Add robust SE if requested
+  # robust SE if requested
   if (robust.se) {
     args$se <- "robust.huber.white"
   }
   
-  # Add match if specified (for modsem_pi)
   if (!is.null(match)) {
     args$match <- match
     out <- do.call(modsem::modsem_pi, args)
@@ -30,7 +40,7 @@ method_dblcent <- function(Data = NULL, model.fit = NULL, robust.se = FALSE, mat
     out <- do.call(modsem::modsem, args)
   }
   
-  # Entire coefficient parameter table
+  # coefficient parameter table
   out$coefParTable
 }
 
