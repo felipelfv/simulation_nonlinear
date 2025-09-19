@@ -242,7 +242,7 @@ GenerateData <- function(model,
       }
       
       # variance of deterministic part
-      var_det <- var(as.vector(deterministic_part))
+      var_det <- var(as.vector(deterministic_part)) * (N-1)/N
       deterministic_vars[[var]] <- var_det
       
       # fixed residual variance from model
@@ -265,7 +265,7 @@ GenerateData <- function(model,
       }
       
       # observed R^2
-      total_var <- var(Values[, var])
+      total_var <- var(Values[, var]) * (N-1)/N
       observed_R2[[var]] <- var_det / total_var
     }
   }
@@ -313,7 +313,7 @@ GenerateData <- function(model,
   if(return.info) {
     for(i in seq_along(fit@pta$vnames$lv.regular[[1]])) {
       eta <- fit@pta$vnames$lv.regular[[1]][i]
-      eta_var <- var(Values[, eta])
+      eta_var <- var(Values[, eta]) * (N-1)/N
       
       ind_idx <- which(LAMBDA[, i] != 0)
       if(length(ind_idx) > 0) {
