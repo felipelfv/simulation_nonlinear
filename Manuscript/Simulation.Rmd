@@ -1,8 +1,10 @@
 ---
-title: ""
-author: ""
-date: ""
-output: html_document
+title: ''
+author: ''
+date: ''
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r package versions, echo=FALSE}
@@ -16,21 +18,15 @@ dorng_version <- packageVersion("dorng")
 R_version <- getRversion()
 ```
 
-# Simulation studies design 
+# Simulation design and performance evaluation
 
 In this section, we present the simulation design for the simulation study 1 and study 2. This includes the simulation conditions, computational information, and the metrics used to evaluate the performance of the approaches under investigation. The information presented here follows the suggestions from previous articles that investigated the quality of simulation studies [@siepe_etall_2024; @white_etall_2024; @morris_etall_2019].
-
-## Reproducibility and Computational details 
-
-The simulation was conducted on a Mac Studio with an Apple M4 Max chip (with 14 cores and 36 GB of RAM), running macOS Sequoia 15.5. All analyses were performed in R [@R-base] (version `r R_version`). Parallel processing was implemented through the *doParalell* package (version `r doparallel_version`) [@R-doParallel], with *doRNG* (version `r dorng_version`) [@R-doRNG] to ensure independent and reproducible random number streams. For the DBLCENT, LMS, and QML approach, the *modsem* package was used [@kjell_etall_2024] (version `r modsem_version`). For the SAM approach, the *lavaan* package was used [@R-lavaan] (version `r lavaan_version`). Importantly, we used the default settings for the functions provided in the packages^[This is important to acknowledge because there are arguments for the functions used that, in principle, could be tweaked to obtain better results. For instance, one could change the maximum steps for the M-step in the EM algorithm for the LMS. However, this also leads to substantial researcher degrees of freedom and hence were avoided.]. Specific to the SAM approach, we estimated the latent factors with three different measurement blocks as opposed to a single one [@rosseel_loh_2024].
-
-All the materials to reproduce this article available on the following GitHub link: https://github.com/felipelfv/Simulation_First_PhD_Article.git. We included a `README` file that contains the step-by-step information required to reproduce the results reported, a `sessionInfo` file, the *renv* lockfile with the information for the relevant packages used [@R-renv], a Dockerfile for system dependencies, and all the estimates obtained for all iterations. Moreover, this paper was written with *papaja* [@R-papaja] in Rmarkdown.
 
 ## Simulation study 1
 
 ### Simulation Conditions
 
-The simulation design employed a fully crossed factorial design with 2 (sample sizes) × 3 (reliability levels) × 3 (latent predictor distributions) to evaluate the performance of DBLCENT, LMS, QML, and SAM. This factorial design yielded 18 unique experimental conditions^[To examine Type I error rates and power, we implemented two model specifications: (a) data generated under a linear model (no interaction and quadratic terms) but fitted with a full interaction model, and (b) data generated under and fitted with a full interaction model. Thus, resulting in 36 total conditions. The null model conditions allow us to assess Type I error rates, while the full model conditions evaluate parameter recovery and statistical power.], each replicated 1000 times. 
+The simulation design employed a fully crossed factorial design with 2 (sample sizes) × 3 (reliability levels) × 3 (latent predictor distributions) to evaluate the performance of DBLCENT, LMS, QML, and SAM. This factorial design yielded 18 unique experimental conditions. To examine Type I error rates and power, we implemented two model specifications: (a) data generated under a linear model (no interaction and quadratic terms) but fitted with a full interaction model, and (b) data generated under and fitted with a full interaction model. Thus, resulting in 36 total conditions. The null model conditions allow us to assess Type I error rates, while the full model conditions evaluate statistical power. Each replicated 1000 times. 
 
 Sample sizes of 400 and 1000 were selected to represent moderate to large samples. While some simulation studies have examined more extensive ranges of sample sizes [@brandt_etall_2014; @cham_etall_2012; @wall_amemiya_2000; @lonati_etall_2024], we focused on 400 and 1000 for specific reasons. We attempted to examine an intermediate sample size not used in the previous simulations (i.e., 250, 350, 500, or 650). Moreover, it allowed us to explore performance just below the 500 threshold that some studies suggest as a minimum for complex latent interaction models (Wall et al., 2012, as cited in Brandt et al., 2020), while still representing a realistic sample size in applied research. In contrast, a sample size equal to 1000 enabled us to evaluate the asymptotic properties of these estimators, while also aligning with previous simulation studies that commonly employed this sample size. Last, although examining additional sample size conditions would provide more information, computational constraints required a more focused selection.
 
@@ -39,6 +35,63 @@ Three reliability levels (0.4, 0.6, and 0.8) were examined, covering a broad ran
 The three distributional conditions investigated were: normal, non-normal, and uniform distributions. These choices were based on previous research that also varied the nonnormality to different degrees [@brandt_etall_2014; brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024]. We used the copula method to generate correlated non-normal latent variables due to issues identified with the more commonly used Vale and Maurelli (1983) method [@foldnes_olsson_2016].
 
 ### Data Generation
+
+```{tikz, dev='pdf', fig.ext='pdf', fig.cap="Structural equation model.", fig.align="center", out.width="\\linewidth"}
+\tikzset{
+  latent/.style  ={circle,draw,minimum size=14mm},
+  ind/.style     ={rectangle,draw,minimum height=6mm,minimum width=8mm,align=center},
+  derived/.style ={circle,draw,minimum size=14mm}, % same as latent
+  every node/.style={font=\small}
+}
+
+\begin{tikzpicture}
+
+\node[ind] (y1)  at (0,  0.8) {y$_1$};
+\node[ind] (y2)  at (0,  0.0) {y$_2$};
+\node[ind] (y3)  at (0, -0.8) {y$_3$};
+\node[latent] (eta1) at (2.4, 0.0) {$\eta_1$};
+
+\draw[->] (eta1.west) -- (y1.east);
+\draw[->] (eta1.west) -- (y2.east);
+\draw[->] (eta1.west) -- (y3.east);
+
+\node[ind] (y4)  at (0, -2.8) {y$_4$};
+\node[ind] (y5)  at (0, -3.6) {y$_5$};
+\node[ind] (y6)  at (0, -4.4) {y$_6$};
+\node[latent] (eta2) at (2.4, -3.6) {$\eta_2$};
+
+\draw[->] (eta2.west) -- (y4.east);
+\draw[->] (eta2.west) -- (y5.east);
+\draw[->] (eta2.west) -- (y6.east);
+
+% middle-right latent eta3
+\node[latent] (eta3) at (6.6, -1.6) {$\eta_3$};
+
+\draw[->] (eta1) -- node[above] {$b_1$} (eta3);
+\draw[->] (eta2) -- node[above,sloped] {$b_2$} (eta3);
+
+% nonlinear terms (aligned horizontally; same y, spaced x)
+\node[derived] (eta1sq) at (4.3, -4.2) {$\eta_1^{2}$};
+\node[derived] (eta2sq) at (6.6, -4.2) {$\eta_2^{2}$};
+\node[derived] (eta12)  at (8.9, -4.2) {$\eta_1\eta_2$};
+
+\draw[->] (eta1sq) -- node[above,sloped] {$b_3$} (eta3);
+\draw[->] (eta2sq) -- node[right]         {$b_4$} (eta3);
+\draw[->] (eta12)  -- node[above,sloped] {$b_5$} (eta3);
+
+% idicators of eta3 (aligned row above; latent -> indicators; same arrow length ≈ 2.4)
+\node[ind] (y7) at (5.6, 0.8) {y$_7$};
+\node[ind] (y8) at (6.6, 0.8) {y$_8$};
+\node[ind] (y9) at (7.6, 0.8) {y$_9$};
+
+% exactly like eta1/eta2: same start point for all three arrows
+\draw[->] (eta3.north) -- (y7.south);
+\draw[->] (eta3.north) -- (y8.south);
+\draw[->] (eta3.north) -- (y9.south);
+
+\end{tikzpicture}
+```
+
 
 All the population models were first specified to achieve target reliability levels ($\rho \approx 0.4, 0.6, 0.8$) and $R^2 \approx 0.30$ under normally distributed predictor latent variables. The variance parameters derived from these normal-based models were then used unchanged across all distributional conditions, allowing us to isolate the impact of distributional violations on model estimation.
 
@@ -52,7 +105,23 @@ $$\eta_3 = \beta_0 + \beta_1\eta_1 + \beta_2\eta_2 + \beta_3(\eta_1\eta_2) + \be
 
 with parameters $\beta_0 = -0.255$, $\beta_1 = \beta_2 = 0.316$, $\beta_3 = 0.139$, $\beta_4 = \beta_5 = 0.101$. The structural residual $\zeta \sim \mathcal{N}(0, \psi_{33})$ used the same $\psi_{33}$ value derived under normality across all distributional conditions. For the linear model, we simply set $\beta_3 = \beta_4 = \beta_5 = 0$.
 
-For the measurement model, observed indicators were generated through $\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}$, where $\boldsymbol{\Lambda}$ contained unit loadings and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta})$. The diagonal elements of $\boldsymbol{\Theta}$ were the values determined under normality for each reliability condition, applied uniformly across all distributional conditions.
+For the measurement model, observed indicators were generated through $\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}$, where $\boldsymbol{\Lambda}$ contained unit loadings and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta})$. The diagonal elements of $\boldsymbol{\Theta}$ were the values determined under normality for each reliability condition, applied uniformly across all distributional conditions. For each latent variable we generated three indicators.
+
+## Simulation study 2
+
+### Simulation Conditions
+
+[...]
+
+### Data Generation
+
+[...]
+
+## Reproducibility and Computational details 
+
+The simulation was conducted on a Mac Studio with an Apple M4 Max chip (with 14 cores and 36 GB of RAM), running macOS Sequoia 15.5. All analyses were performed in R [@R-base] (version `r R_version`). Parallel processing was implemented through the *doParalell* package (version `r doparallel_version`) [@R-doParallel], with *doRNG* (version `r dorng_version`) [@R-doRNG] to ensure independent and reproducible random number streams. For the DBLCENT, LMS, and QML approach, the *modsem* package was used [@kjell_etall_2024] (version `r modsem_version`). For the SAM approach, the *lavaan* package was used [@R-lavaan] (version `r lavaan_version`). Importantly, we used the default settings for the functions provided in the packages^[This is important to acknowledge because there are arguments for the functions used that, in principle, could be tweaked to obtain better results. For instance, one could change the maximum steps for the M-step in the EM algorithm for the LMS. However, this also leads to substantial researcher degrees of freedom and hence were avoided.]. Specific to the SAM approach, we estimated the latent factors with three different measurement blocks as opposed to a single one [@rosseel_loh_2024].
+
+All the materials to reproduce this article available on the following GitHub link: https://github.com/felipelfv/Simulation_First_PhD_Article.git. We included a `README` file that contains the step-by-step information required to reproduce the results reported, a `sessionInfo` file, the *renv* lockfile with the information for the relevant packages used [@R-renv], a Dockerfile for system dependencies, and all the estimates obtained for all iterations. Moreover, this paper was written with *papaja* [@R-papaja] in Rmarkdown.
 
 ### Nonconvergence and Outliers
 
@@ -357,12 +426,3 @@ total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
 ```
 
-## Simulation study 2
-
-### Simulation Conditions
-
-[...]
-
-### Data Generation
-
-[...]
