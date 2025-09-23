@@ -18,7 +18,7 @@ library(covsim); library(copula);
 #library(stringr)
 
 # required files
-load("Models.RData")  # all_models
+load("Models(1).RData")  # all_models
 source("Simulations/Methods.R")  # methods file
 source("Simulations/GenerateData.R") # generate data function
 
