@@ -7,10 +7,33 @@ library(doParallel)
 library(doRNG)
 library(copula)
 
+load("Simulations/Study_2/Simulation/Models(2).RData")  # all_models
+source("Simulations/Methods.R")  # methods file
+source("Simulations/GenerateData.R") # generate data function
+
+# --- output dirs ---
+base_dir <- "Simulations/Study_2/Data"
+dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
+results_base <- file.path(base_dir, "Results_Study_2")
+
+analysis_model <- "
+# Measurement model
+eta1 =~ x1 + x2 + x3
+eta2 =~ x4 + x5 + x6
+eta3 =~ x7 + x8 + x9
+eta4 =~ x10 + x11 + x12
+eta5 =~ x13 + x14 + x15
+eta6 =~ x16 + x17 + x18
+
+# Structural model
+eta4 ~ eta1 + eta2 + eta3 + eta1:eta2 + eta1:eta1 + eta2:eta2
+eta5 ~ eta4 + eta1 + eta2 + eta3 + eta2:eta4 + eta3:eta3
+eta6 ~ eta5 + eta1 + eta2 + eta3 + eta1:eta5 + eta2:eta3
+"
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 1500
+N_REPLICATIONS <- 10
 SAMPLE_SIZES <- c(400, 1000)
 RELIABILITIES <- c(0.8, 0.6, 0.4)
 SEED_START <- 123
@@ -40,13 +63,13 @@ conditions <- expand.grid(
   N = SAMPLE_SIZES,
   Rel = RELIABILITIES,
   Distribution = names(distributions),
-  Model_Type = c("alternative", "null"),  
+  Model_Type = c("full", "linear"),  
   stringsAsFactors = FALSE
 )
 
-# Updated model naming to account for null vs alternative
+# Updated model naming to account for linear vs full
 conditions$model_name <- ifelse(
-  conditions$Model_Type == "null",
+  conditions$Model_Type == "linear",
   paste0("null_model_rel", gsub("\\.", "", as.character(conditions$Rel))),
   paste0("normal_rel", gsub("\\.", "", as.character(conditions$Rel)))
 )
@@ -57,7 +80,7 @@ cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
 # Updated cluster export to include all models
-clusterExport(cl, c("GenerateData", "method_sam", "method_qml", "method_dblcent",
+clusterExport(cl, c("GenerateData", "method_sam", "method_analytic", "method_dblcent",
                     "analysis_model", "all_models", "distributions"))
 
 # MAIN SIMULATION — store messages
@@ -184,7 +207,7 @@ for (cond in 1:nrow(conditions)) {
     qml_warnings <- NULL
     
     qml_table <- withCallingHandlers(
-      try(method_qml(Data = data_clean, model.fit = analysis_model), silent = TRUE),
+      try(method_analytic(Data = data_clean, model.fit = analysis_model), silent = TRUE),
       warning = function(w) {
         qml_warnings <<- c(qml_warnings, conditionMessage(w))
         invokeRestart("muffleWarning")
@@ -303,13 +326,13 @@ for (cond in 1:nrow(conditions)) {
     condition   = conditions[cond, ],
     results     = res,
     convergence = convergence_count,
-    true_parameters = if (conditions$Model_Type[cond] == "null") {
+    true_parameters = if (conditions$Model_Type[cond] == "linear") {
       list(
-        # main effects only (same as alternative)
+        # main effects only (same as full)
         eta4_eta1 = 0.21, eta4_eta2 = 0.21, eta4_eta3 = 0.21,
         eta5_eta4 = 0.18, eta5_eta1 = 0.18, eta5_eta2 = 0.18, eta5_eta3 = 0.18,
         eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
-        # interactions and quadratics set to 0 for null model
+        # interactions and quadratics set to 0 for linear model
         eta4_eta1eta2 = 0, eta4_eta1eta1 = 0, 
         eta5_eta2eta4 = 0, eta5_eta3eta3 = 0,
         eta6_eta1eta5 = 0, eta6_eta2eta3 = 0
@@ -320,7 +343,7 @@ for (cond in 1:nrow(conditions)) {
         eta4_eta1 = 0.21, eta4_eta2 = 0.21, eta4_eta3 = 0.21,
         eta5_eta4 = 0.18, eta5_eta1 = 0.18, eta5_eta2 = 0.18, eta5_eta3 = 0.18,
         eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
-        # interactions and quadratics (non-zero for alternative)
+        # interactions and quadratics (non-zero for full)
         eta4_eta1eta2 = 0.13, eta4_eta1eta1 = 0.09, 
         eta5_eta2eta4 = 0.11, eta5_eta2eta2 = 0.09,
         eta6_eta3eta5 = 0.10, eta6_eta3eta3 = 0.09
@@ -328,8 +351,8 @@ for (cond in 1:nrow(conditions)) {
     }
   )
   
-  if (cond %% 3 == 0 || cond == nrow(conditions)) {
-    saveRDS(all_results, file = sprintf("checkpoint_%d.rds", cond))
+  if (cond %% 5 == 0 || cond == nrow(conditions)) {
+    save(all_results, conditions, file = sprintf("%s_checkpoint_%d.RData", results_base, cond))
   }
   
   gc()  
@@ -337,7 +360,9 @@ for (cond in 1:nrow(conditions)) {
 
 stopCluster(cl)
 
-#saveRDS(all_results, file = "final_simulation_results.rds")
+#save(all_results, conditions, file = paste0(results_base, "_final.RData"))
+total_time <- difftime(Sys.time(), start_time, units = "hours")
+cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
 
 # POST-SIMULATION ANALYSIS OF ERRORS AND WARNINGS
 
