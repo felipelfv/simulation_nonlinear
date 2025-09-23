@@ -1,6 +1,6 @@
 library(dplyr); library(tidyr); library(purrr); library(stringr); library(kableExtra); library(glue); library(simhelpers)
 
-load("Simulations/Study_1/Data/final_results.RData")
+load("Simulations/Study_1/Data/Results_Study_1_final.RData")
 
 CalculatePerformance <- function(all_results,
                                      parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),

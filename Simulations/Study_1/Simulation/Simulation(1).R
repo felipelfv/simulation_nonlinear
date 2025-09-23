@@ -18,7 +18,7 @@ library(covsim); library(copula);
 #library(stringr)
 
 # required files
-load("Models(1).RData")  # all_models
+load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models
 source("Simulations/Methods.R")  # methods file
 source("Simulations/GenerateData.R") # generate data function
 
@@ -47,9 +47,7 @@ distributions <- list(
 # --- output dirs ---
 base_dir <- "Simulations/Study_1/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
-timestamp    <- format(Sys.time(), "%Y%m%d_%H%M")
-results_dir  <- file.path(base_dir, paste0("run_", timestamp))
-dir.create(results_dir, showWarnings = FALSE)
+results_base <- file.path(base_dir, "Results_Study_1")
 
 # --- conditions grid ---
 conditions <- expand.grid(
@@ -286,7 +284,7 @@ for (cond in 1:nrow(conditions)) {
   
   # checkpoint every 5 conditions (and final)
   if (cond %% 5 == 0 || cond == nrow(conditions)) {
-    save(all_results, conditions, file = sprintf("%s/checkpoint_%d.RData", results_dir, cond))
+    save(all_results, conditions, file = sprintf("%s_checkpoint_%d.RData", results_base, cond))
   }
   
   gc()
@@ -294,7 +292,7 @@ for (cond in 1:nrow(conditions)) {
 
 stopCluster(cl)
 
-#save(all_results, conditions, file = paste0(results_dir, "/final_results.RData"))
+# save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
