@@ -8,19 +8,21 @@
 # "Methods.R" where we specify the functions for estimating the different
 # approaches
 
-# Relevant to re-start after running this script once to default MT
+# Relevant to re-start after running this script once to default Mer-Twi.
 # RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
 ############################### 2. Simulation ##################################
 
-library(lavaan); library(modsem); library(doParallel); library(doRNG)
-library(covsim); library(copula); 
+library(lavaan); library(modsem); library(doParallel); 
+library(doRNG); library(covsim); library(copula); 
 #library(stringr)
 
 # required files
 load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models
 source("Simulations/Methods.R")  # methods file
 source("Simulations/GenerateData.R") # generate data function
+
+# SIMULATION PARAMETERS
 
 # SIMULATION PARAMETERS
 
@@ -54,13 +56,13 @@ conditions <- expand.grid(
   N             = SAMPLE_SIZES,
   Rel           = c(0.4, 0.6, 0.8),
   Distribution  = names(distributions),
-  Model_Type    = c("alternative", "null"),  # null = linear
+  Model_Type    = c("full", "linear"),  # linear = no interaction/quadratic terms
   stringsAsFactors = FALSE
 )
 
 # model names based on model type and reliability
 conditions$model_name <- ifelse(
-  conditions$Model_Type == "null",
+  conditions$Model_Type == "linear",
   paste0("null_normal_rel", gsub("\\.", "", as.character(conditions$Rel))),
   paste0("normal_rel", gsub("\\.", "", as.character(conditions$Rel)))
 )
@@ -275,8 +277,8 @@ for (cond in 1:nrow(conditions)) {
   all_results[[cond]] <- list(
     condition = conditions[cond, ],
     results   = res,
-    true_parameters = if (conditions$Model_Type[cond] == "null") {
-      c(0.316, 0.316, 0, 0, 0)   # null (linear): interaction & quadratics 0
+    true_parameters = if (conditions$Model_Type[cond] == "linear") {
+      c(0.316, 0.316, 0, 0, 0)   # linear model: interaction & quadratics 0
     } else {
       c(0.316, 0.316, 0.139, 0.101, 0.101)  # full model
     }
