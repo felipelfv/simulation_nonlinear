@@ -10,8 +10,8 @@ library(copula)
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 1000
-SAMPLE_SIZES <- c(200, 400, 1000)
+N_REPLICATIONS <- 1500
+SAMPLE_SIZES <- c(400, 1000)
 RELIABILITIES <- c(0.8, 0.6, 0.4)
 SEED_START <- 123
 
@@ -34,48 +34,31 @@ distributions <- list(
   )
 )
 
-
-# METHOD FUNCTIONS (but later use the same r script for both studies)
-
-method_sam <- function(Data = NULL, model.fit = NULL) {
-  out <- lavaan::sam(model.fit, data = Data, se = "twostep")
-  parameterEstimates(out, remove.step1 = FALSE)
-}
-
-method_qml <- function(Data = NULL, model.fit = NULL) {
-  out <- modsem::modsem(model.syntax = model.fit, data = Data, 
-                        method = "qml", auto.split.syntax = TRUE)
-  out$parTable
-}
-
-method_dblcent <- function(Data = NULL, model.fit = NULL) {
-  out <- modsem::modsem(model.syntax = model.fit, data = Data, 
-                        method = "dblcent")
-  out$coefParTable
-}
-
-
-# CONDITIONS
+# CONDITIONS - Now includes Model_Type
 
 conditions <- expand.grid(
   N = SAMPLE_SIZES,
   Rel = RELIABILITIES,
   Distribution = names(distributions),
+  Model_Type = c("alternative", "null"),  
   stringsAsFactors = FALSE
 )
 
-conditions$model_name <- paste0("rel", gsub("\\.", "", as.character(conditions$Rel)))
-
+# Updated model naming to account for null vs alternative
+conditions$model_name <- ifelse(
+  conditions$Model_Type == "null",
+  paste0("null_model_rel", gsub("\\.", "", as.character(conditions$Rel))),
+  paste0("normal_rel", gsub("\\.", "", as.character(conditions$Rel)))
+)
 
 # SETUP PARALLEL PROCESSING
 n_cores <- detectCores() - 2
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
+# Updated cluster export to include all models
 clusterExport(cl, c("GenerateData", "method_sam", "method_qml", "method_dblcent",
-                    "analysis_model", "population_model_rel08", 
-                    "population_model_rel06", "population_model_rel04",
-                    "distributions"))
+                    "analysis_model", "all_models", "distributions"))
 
 # MAIN SIMULATION — store messages
 
@@ -88,13 +71,17 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Sample size:", conditions$N[cond])
   cat("\n- Reliability:", conditions$Rel[cond])
   cat("\n- Distribution:", conditions$Distribution[cond])
+  cat("\n- Model type:", conditions$Model_Type[cond])  
+  cat("\n- Using model:", conditions$model_name[cond]) 
   cat("\n", paste(rep("=", 60), collapse = ""), "\n")
   
-  # population model
-  population_model <- switch(as.character(conditions$Rel[cond]),
-                             "0.8" = population_model_rel08,
-                             "0.6" = population_model_rel06,
-                             "0.4" = population_model_rel04)
+  # population model from all_models based on model_name
+  population_model <- all_models[[conditions$model_name[cond]]]
+  
+  if (is.null(population_model)) {
+    cat("WARNING: Model", conditions$model_name[cond], "not found. Skipping...\n")
+    next
+  }
   
   dist_params <- distributions[[conditions$Distribution[cond]]]
   
@@ -243,7 +230,7 @@ for (cond in 1:nrow(conditions)) {
   
   for (i in 1:N_REPLICATIONS) {
     if (!is.null(parallel_results[[i]]) && !inherits(parallel_results[[i]], "error")) {
-
+      
       if (!is.null(parallel_results[[i]]$observed_metrics)) {
         res$observed_r2[i, ]  <- parallel_results[[i]]$observed_metrics$r2
         res$observed_rel[i, ] <- parallel_results[[i]]$observed_metrics$rel
@@ -311,21 +298,34 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- DBLCENT:", round(mean(res$timing$dblcent, na.rm = TRUE), 2))
   cat("\n")
   
-  # results for this condition
+  # true parameters based on model type
   all_results[[cond]] <- list(
     condition   = conditions[cond, ],
     results     = res,
     convergence = convergence_count,
-    true_parameters = list(
-      # main effects
-      eta4_eta1 = 0.21, eta4_eta2 = 0.21, eta4_eta3 = 0.21,
-      eta5_eta4 = 0.18, eta5_eta1 = 0.18, eta5_eta2 = 0.18, eta5_eta3 = 0.18,
-      eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
-      # interactions and quadratics
-      eta4_eta1eta2 = 0.13, eta4_eta1eta1 = 0.09, 
-      eta5_eta2eta4 = 0.11, eta5_eta3eta3 = 0.09,
-      eta6_eta1eta5 = 0.10, eta6_eta2eta3 = 0.09
-    )
+    true_parameters = if (conditions$Model_Type[cond] == "null") {
+      list(
+        # main effects only (same as alternative)
+        eta4_eta1 = 0.21, eta4_eta2 = 0.21, eta4_eta3 = 0.21,
+        eta5_eta4 = 0.18, eta5_eta1 = 0.18, eta5_eta2 = 0.18, eta5_eta3 = 0.18,
+        eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
+        # interactions and quadratics set to 0 for null model
+        eta4_eta1eta2 = 0, eta4_eta1eta1 = 0, 
+        eta5_eta2eta4 = 0, eta5_eta3eta3 = 0,
+        eta6_eta1eta5 = 0, eta6_eta2eta3 = 0
+      )
+    } else {
+      list(
+        # main effects
+        eta4_eta1 = 0.21, eta4_eta2 = 0.21, eta4_eta3 = 0.21,
+        eta5_eta4 = 0.18, eta5_eta1 = 0.18, eta5_eta2 = 0.18, eta5_eta3 = 0.18,
+        eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
+        # interactions and quadratics (non-zero for alternative)
+        eta4_eta1eta2 = 0.13, eta4_eta1eta1 = 0.09, 
+        eta5_eta2eta4 = 0.11, eta5_eta2eta2 = 0.09,
+        eta6_eta3eta5 = 0.10, eta6_eta3eta3 = 0.09
+      )
+    }
   )
   
   if (cond %% 3 == 0 || cond == nrow(conditions)) {
@@ -337,5 +337,55 @@ for (cond in 1:nrow(conditions)) {
 
 stopCluster(cl)
 
-saveRDS(all_results, file = "final_simulation_results.rds")
+#saveRDS(all_results, file = "final_simulation_results.rds")
 
+# POST-SIMULATION ANALYSIS OF ERRORS AND WARNINGS
+
+# categorize warnings
+categorize_warnings <- function(warnings) {
+  list(
+    quadrature = sum(grepl("adaptive quadrature", warnings, ignore.case = TRUE)),
+    null_values = sum(grepl("is NULL", warnings)),
+    std_errors = sum(grepl("Standard errors.*could not", warnings)),
+    large_variances = sum(grepl("factor 1000", warnings)),
+    vcov_not_pd = sum(grepl("not.*positive definite", warnings)),
+    identification = sum(grepl("not identified", warnings))
+  )
+}
+
+for(cond_idx in seq_along(all_results)) {
+  cond_info <- all_results[[cond_idx]]$condition
+  res <- all_results[[cond_idx]]$results
+  
+  # total warnings by type for each method
+  sam_all_warnings <- unlist(res$warnings$sam)
+  qml_all_warnings <- unlist(res$warnings$qml)
+  dblcent_all_warnings <- unlist(res$warnings$dblcent)
+  
+  if(length(c(sam_all_warnings, qml_all_warnings, dblcent_all_warnings)) > 0) {
+    cat(sprintf("\nCondition %d (N=%d, Rel=%.1f, Dist=%s, Model=%s):\n", 
+                cond_idx, cond_info$N, cond_info$Rel, cond_info$Distribution, 
+                cond_info$Model_Type)) 
+    
+    if(length(sam_all_warnings) > 0) {
+      sam_cats <- categorize_warnings(sam_all_warnings)
+      cat("  SAM warnings:", paste(names(sam_cats)[sam_cats > 0], 
+                                   "=", sam_cats[sam_cats > 0], collapse=", "), "\n")
+    }
+    
+    if(length(qml_all_warnings) > 0) {
+      qml_cats <- categorize_warnings(qml_all_warnings)
+      cat("  QML warnings:", paste(names(qml_cats)[qml_cats > 0], 
+                                   "=", qml_cats[qml_cats > 0], collapse=", "), "\n")
+    }
+    
+    if(length(dblcent_all_warnings) > 0) {
+      dblcent_cats <- categorize_warnings(dblcent_all_warnings)
+      cat("  DBLCENT warnings:", paste(names(dblcent_cats)[dblcent_cats > 0], 
+                                       "=", dblcent_cats[dblcent_cats > 0], collapse=", "), "\n")
+    }
+  }
+}
+
+total_time <- difftime(Sys.time(), start_time, units = "hours")
+cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
