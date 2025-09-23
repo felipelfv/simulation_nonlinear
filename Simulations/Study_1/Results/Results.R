@@ -2,7 +2,6 @@ library(dplyr); library(tidyr); library(purrr); library(stringr); library(kableE
 
 load("final_results.RData")
 
-
 CalculatePerformance <- function(all_results,
                                      parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                      remove_outliers = TRUE,

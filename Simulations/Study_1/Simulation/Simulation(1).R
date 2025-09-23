@@ -14,7 +14,8 @@
 ############################### 2. Simulation ##################################
 
 library(lavaan); library(modsem); library(doParallel); library(doRNG)
-library(covsim); library(copula); library(stringr)
+library(covsim); library(copula); 
+#library(stringr)
 
 # required files
 load("Models.RData")  # all_models
