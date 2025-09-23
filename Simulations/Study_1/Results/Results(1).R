@@ -107,12 +107,12 @@ library(dplyr); library(simhelpers)
 load("Simulations/Study_1/Data/Results_Study_1_final.RData")
 
 CalculatePerformance <- function(all_results,
-                                     parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-                                     remove_outliers = TRUE,
-                                     outlier_threshold = 3, 
-                                     alpha = 0.05,
-                                     min_reps = 10,
-                                     return_convergence_details = TRUE) {  
+                                 parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+                                 remove_outliers = TRUE,
+                                 outlier_threshold = 3, 
+                                 alpha = 0.05,
+                                 min_reps = 10,
+                                 return_convergence_details = TRUE) {  
   options(scipen = 999)
   if (is.null(all_results) || length(all_results) == 0) {
     stop("all_results is NULL or empty. Please load your data first.")
@@ -131,9 +131,9 @@ CalculatePerformance <- function(all_results,
     true_values <- all_results[[i]]$true_parameters
     if (is.null(true_values)) {
       if (!is.null(condition$Model_Type)) {
-        if (condition$Model_Type == "null") {
+        if (condition$Model_Type == "linear") {
           true_values <- c(0.316, 0.316, 0, 0, 0)
-        } else if (condition$Model_Type == "alternative") {
+        } else if (condition$Model_Type == "full") {
           true_values <- c(0.316, 0.316, 0.139, 0.101, 0.101)
         }
       } else {
@@ -141,13 +141,13 @@ CalculatePerformance <- function(all_results,
       }
     }
     model_name <- if (!is.null(condition$Model_Type)) {
-      ifelse(condition$Model_Type == "null", "Linear", "Full")
+      ifelse(condition$Model_Type == "linear", "Linear", "Full")
     } else "Full"
     distribution <- as.character(condition$Distribution)
     if (is.null(distribution) || distribution == "") distribution <- "normal"
     sample_size <- condition$N
     reliability <- condition$Rel
-
+    
     # TRACK CONVERGENCE FOR EACH METHOD SEPARATEL
     
     # number of replications
@@ -274,7 +274,7 @@ CalculatePerformance <- function(all_results,
         method_outlier_counts[[method]] <- total_outliers
       }
     }
-
+    
     # IDENTIFY VALID REPLICATIONS ACROSS ALL METHODS
     
     # replication is valid only if all methods converged
@@ -352,9 +352,9 @@ CalculatePerformance <- function(all_results,
         
         # all data should already be complete cases now (?)
         dfv <- df
-
+        
         # CALCULATE MEDIAN-BASED METRICS BEFORE OUTLIER REMOVAL
-
+        
         median_est <- stats::median(dfv$est)
         bias_median <- median_est - tv
         mad_est <- stats::mad(dfv$est, constant = 1)
@@ -391,7 +391,7 @@ CalculatePerformance <- function(all_results,
         dfv_clean$true_param <- tv
         
         # CALCULATE ALL MEAN-BASED METRICS USING SIMHELPERS ON CLEANED DATA
-
+        
         # ABSOLUTE METRICS (bias, variance, MSE, RMSE) without winsorization 
         abs_metrics <- calc_absolute(
           data = dfv_clean,
@@ -463,7 +463,7 @@ CalculatePerformance <- function(all_results,
           typei_mcse <- NA_real_
           power_mcse <- rej_mcse  # as proportion
         }
-
+        
         # ADDITIONAL METRICS
         
         # mean estimate (on cleaned data)
@@ -577,5 +577,4 @@ results_study_1 <- CalculatePerformance(
   min_reps = 10,
   return_convergence_details = FALSE  
 )
-
 
