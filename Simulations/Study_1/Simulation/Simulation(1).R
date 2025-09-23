@@ -19,11 +19,12 @@ library(covsim); library(copula);
 
 # required files
 load("Models.RData")  # all_models
-source("Methods(1).R")  # methods file
+source("Simulations/Methods.R")  # methods file
+source("Simulations/GenerateData.R") # generate data function
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 2
+N_REPLICATIONS <- 1000
 SAMPLE_SIZES   <- c(400, 1000)
 SEED_START     <- 123
 
@@ -44,9 +45,10 @@ distributions <- list(
 )
 
 # --- output dirs ---
-dir.create("sim_results", showWarnings = FALSE)
+base_dir <- "Simulations/Study_1/Data"
+dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 timestamp    <- format(Sys.time(), "%Y%m%d_%H%M")
-results_dir  <- paste0("sim_results/run_", timestamp)
+results_dir  <- file.path(base_dir, paste0("run_", timestamp))
 dir.create(results_dir, showWarnings = FALSE)
 
 # --- conditions grid ---
