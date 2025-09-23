@@ -1,4 +1,17 @@
-library(dplyr); library(tidyr); library(purrr); library(stringr); library(kableExtra); library(glue); library(simhelpers)
+############################ 1. General Information ############################
+
+# See README file for more information concerning this file. 
+
+# This file contains the code necessary to calculate the performance results 
+# reported in the manuscript. The final dataset contains all the necessary
+# metrics to plot. These are also used in the tables. 
+
+############################### 2. Simulation ##################################
+
+#library(tidyr); library(purrr); library(stringr); 
+#library(kableExtra); library(glue); 
+
+library(dplyr); library(simhelpers)
 
 load("Simulations/Study_1/Data/Results_Study_1_final.RData")
 
@@ -464,7 +477,7 @@ CalculatePerformance <- function(all_results,
   }
 }
 
-results_with_mcse <- CalculatePerformance(
+results_study_1 <- CalculatePerformance(
   all_results,
   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
   remove_outliers = TRUE,

@@ -53,8 +53,8 @@ ltys   <- c(SAM="solid", LMS="dashed", QML="dotdash", DBLCENT="twodash")
 
 # BIAS
 dat_bias <- bind_rows(
-  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
-  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+  prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
 ) %>%
   mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
   transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
@@ -89,8 +89,8 @@ p_bias <- ggplot(
   theme_apa_bw()
 
 dat_bias_relative <- bind_rows(
-  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
-  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+  prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
 ) %>%
   mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
   transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
@@ -115,8 +115,8 @@ get_bias <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
 
 # RMSE
 dat_rmse <- bind_rows(
-  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
-  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+  prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
 ) %>%
   mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
   transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
@@ -154,8 +154,8 @@ get_rmse <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
 
 ## RELATIVE RMSE 
 dat_rmse_relative <- bind_rows(
-  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
-  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+  prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
 ) %>%
   mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
   transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
@@ -180,8 +180,8 @@ get_relative_rmse <- function(method, dist, param, n, rel, model = c("Full","Lin
 
 # SE/SD RATIO
 dat_sesd2 <- bind_rows(
-  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
-  prep_nonlinear(results_with_mcse, model = "Full") %>% mutate(Model = "Full")
+  prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_study_1, model = "Full") %>% mutate(Model = "Full")
 ) %>%
   mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
   transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
@@ -242,8 +242,8 @@ get_ratio <- function(method, dist, param, n, rel, model = c("Full", "Linear")) 
 
 # COVERAGE 
 dat_cov <- bind_rows(
-  prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
-  prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
+  prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
+  prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
 ) %>%
   mutate(Model = factor(Model, levels = c("Linear", "Full"))) %>%
   transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
@@ -294,7 +294,7 @@ get_coverage <- function(method, dist, param, n, rel, model = c("Full", "Linear"
 
 
 # TYPE I 
-dat_t1 <- prep_nonlinear(results_with_mcse, model = "Linear") %>%
+dat_t1 <- prep_nonlinear(results_study_1, model = "Linear") %>%
   transmute(Distribution, Parameter, Condition, Method,
             y = TypeI_Error)
 
@@ -333,7 +333,7 @@ get_type <- function(method, dist, param, cond) {
 
 
 # POWER 
-dat_pow <- prep_nonlinear(results_with_mcse, model = "Full") %>%
+dat_pow <- prep_nonlinear(results_study_1, model = "Full") %>%
   transmute(Distribution, Parameter, Condition, Method,
             y = Power)
 
