@@ -26,7 +26,7 @@ dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 results_base <- file.path(base_dir, "Results_Study_2")
 
 # analysis model
-analysis_model <- "
+analysis.model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
 eta2 =~ x4 + x5 + x6
@@ -43,7 +43,7 @@ eta6 ~ eta5 + eta1 + eta2 + eta3 + eta3:eta5 + eta3:eta3
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 1000
+N_REPLICATIONS <- 100
 SAMPLE_SIZES <- c(400, 1000)
 RELIABILITIES <- c(0.4, 0.6, 0.8)
 SEED_START <- 123
@@ -90,7 +90,7 @@ registerDoParallel(cl)
 
 # cluster export to include all models
 clusterExport(cl, c("GenerateData", "method_sam", "method_analytic", "method_dblcent",
-                    "analysis_model", "all_models", "distributions"))
+                    "analysis.model", "all_models", "distributions"))
 
 # MAIN SIMULATION 
 
@@ -207,7 +207,7 @@ for (cond in 1:nrow(conditions)) {
     
     #=============== SAM ===============#
     sam_res <- run_with_warnings(
-      method_sam(Data = data_clean, model.fit = analysis_model)
+      method_sam(Data = data_clean, model.fit = analysis.model)
     )
     results$sam_table    <- sam_res$table
     results$sam_timing   <- sam_res$timing
@@ -215,7 +215,7 @@ for (cond in 1:nrow(conditions)) {
     
     #=============== QML ===============#
     qml_res <- run_with_warnings(
-      method_analytic(Data = data_clean, model.fit = analysis_model)
+      method_analytic(Data = data_clean, model.fit = analysis.model, method = "qml")
     )
     results$qml_table    <- qml_res$table
     results$qml_timing   <- qml_res$timing
@@ -223,7 +223,7 @@ for (cond in 1:nrow(conditions)) {
     
     #=============== DBLCENT ===============#
     dblcent_res <- run_with_warnings(
-      method_dblcent(Data = data_clean, model.fit = analysis_model)
+      method_dblcent(Data = data_clean, model.fit = analysis.model)
     )
     results$dblcent_table    <- dblcent_res$table
     results$dblcent_timing   <- dblcent_res$timing
@@ -365,6 +365,3 @@ for(cond_idx in seq_along(all_results)) {
     }
   }
 }
-
-total_time <- difftime(Sys.time(), start_time, units = "hours")
-cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
