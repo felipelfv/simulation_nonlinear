@@ -1,21 +1,31 @@
-# PARALLEL SIMULATION WITH SAM, QML, DBLCENT
+############################ 1. General Information ############################
 
-library(lavaan)
-library(modsem)
-library(parallel)
-library(doParallel)
-library(doRNG)
-library(copula)
+# See README file for more information concerning this file. 
+
+# This file contains the code necessary to run the simulation study 2. 
+# It is dependent on the file "Models.RData" where we store the lavaan-based 
+# syntax models for generating the data. It is also dependent on the file
+# "Methods.R" where we specify the functions for estimating the different
+# approaches
+
+# Relevant to re-start after running this script once to default Mer-Twi.
+# RNGkind("Mersenne-Twister", "Inversion", "Rejection")
+
+############################### 2. Simulation ##################################
+
+library(lavaan); library(modsem); library(covsim)
+library(doParallel); library(doRNG); library(copula)
 
 load("Simulations/Study_2/Simulation/Models(2).RData")  # all_models
 source("Simulations/Methods.R")  # methods file
 source("Simulations/GenerateData.R") # generate data function
 
-# --- output dirs ---
+# output directory
 base_dir <- "Simulations/Study_2/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 results_base <- file.path(base_dir, "Results_Study_2")
 
+# analysis model
 analysis_model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
@@ -33,9 +43,9 @@ eta6 ~ eta5 + eta1 + eta2 + eta3 + eta3:eta5 + eta3:eta3
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 10
+N_REPLICATIONS <- 1000
 SAMPLE_SIZES <- c(400, 1000)
-RELIABILITIES <- c(0.8, 0.6, 0.4)
+RELIABILITIES <- c(0.4, 0.6, 0.8)
 SEED_START <- 123
 
 # distribution parameters
@@ -57,7 +67,7 @@ distributions <- list(
   )
 )
 
-# CONDITIONS - Now includes Model_Type
+# conditions
 
 conditions <- expand.grid(
   N = SAMPLE_SIZES,
@@ -67,7 +77,6 @@ conditions <- expand.grid(
   stringsAsFactors = FALSE
 )
 
-# Updated model naming to account for linear vs full
 conditions$model_name <- ifelse(
   conditions$Model_Type == "linear",
   paste0("null_model_rel", gsub("\\.", "", as.character(conditions$Rel))),
@@ -79,11 +88,11 @@ n_cores <- detectCores() - 2
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
-# Updated cluster export to include all models
+# cluster export to include all models
 clusterExport(cl, c("GenerateData", "method_sam", "method_analytic", "method_dblcent",
                     "analysis_model", "all_models", "distributions"))
 
-# MAIN SIMULATION — store messages
+# MAIN SIMULATION 
 
 all_results <- list()
 start_time <- Sys.time()
@@ -115,6 +124,7 @@ for (cond in 1:nrow(conditions)) {
     envir = environment()
   )
   
+  # --- initialize results (warnings only, no error storage) ---
   res <- list(
     sam_tables     = vector("list", N_REPLICATIONS),
     qml_tables     = vector("list", N_REPLICATIONS),
@@ -126,15 +136,7 @@ for (cond in 1:nrow(conditions)) {
       dblcent = numeric(N_REPLICATIONS)
     ),
     
-    # ERROR STORAGE: character vectors ("" if none)
-    errors = data.frame(
-      sam     = character(N_REPLICATIONS),
-      qml     = character(N_REPLICATIONS),
-      dblcent = character(N_REPLICATIONS),
-      stringsAsFactors = FALSE
-    ),
-    
-    # WARNING STORAGE: list of character vectors per replication
+    # warning tracking - lists of character vectors (one per replication)
     warnings = list(
       sam     = vector("list", N_REPLICATIONS),
       qml     = vector("list", N_REPLICATIONS),
@@ -153,7 +155,7 @@ for (cond in 1:nrow(conditions)) {
     .options.RNG = SEED_START + cond * 10000
   ) %dorng% {
     
-    # generate data
+    #----- data generation (skip iteration on hard error) -----
     Data <- try(GenerateData(
       model          = population_model,
       N              = conditions$N[cond],
@@ -182,150 +184,101 @@ for (cond in 1:nrow(conditions)) {
     
     results <- list(observed_metrics = observed_metrics)
     
-    # SAM 
-    t0 <- Sys.time()
-    sam_warnings <- NULL
-    
-    sam_table <- withCallingHandlers(
-      try(method_sam(Data = data_clean, model.fit = analysis_model), silent = TRUE),
-      warning = function(w) {
-        sam_warnings <<- c(sam_warnings, conditionMessage(w))
-        invokeRestart("muffleWarning")
+    #----- helper: run a method & capture warnings only -----
+    run_with_warnings <- function(expr) {
+      warns <- NULL
+      t0 <- Sys.time()
+      out <- withCallingHandlers(
+        try(expr, silent = TRUE),
+        warning = function(w) {
+          warns <<- c(warns, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        }
+      )
+      if (!inherits(out, "try-error")) {
+        list(table = out,
+             timing = as.numeric(difftime(Sys.time(), t0, units = "secs")),
+             warnings = warns)
+      } else {
+        # hard error: no table/timing; warnings (if any) already captured
+        list(table = NULL, timing = NA_real_, warnings = warns)
       }
-    )
-    
-    if (!inherits(sam_table, "try-error")) {
-      results$sam_table  <- sam_table
-      results$sam_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-    } else {
-      results$sam_error <- as.character(sam_table)
     }
-    results$sam_warnings <- sam_warnings
     
-    # QML 
-    t0 <- Sys.time()
-    qml_warnings <- NULL
-    
-    qml_table <- withCallingHandlers(
-      try(method_analytic(Data = data_clean, model.fit = analysis_model), silent = TRUE),
-      warning = function(w) {
-        qml_warnings <<- c(qml_warnings, conditionMessage(w))
-        invokeRestart("muffleWarning")
-      }
+    #=============== SAM ===============#
+    sam_res <- run_with_warnings(
+      method_sam(Data = data_clean, model.fit = analysis_model)
     )
+    results$sam_table    <- sam_res$table
+    results$sam_timing   <- sam_res$timing
+    results$sam_warnings <- sam_res$warnings
     
-    if (!inherits(qml_table, "try-error")) {
-      results$qml_table  <- qml_table
-      results$qml_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-    } else {
-      results$qml_error <- as.character(qml_table)
-    }
-    results$qml_warnings <- qml_warnings
-    
-    # DBLCENT 
-    t0 <- Sys.time()
-    dblcent_warnings <- NULL
-    
-    dblcent_table <- withCallingHandlers(
-      try(method_dblcent(Data = data_clean, model.fit = analysis_model), silent = TRUE),
-      warning = function(w) {
-        dblcent_warnings <<- c(dblcent_warnings, conditionMessage(w))
-        invokeRestart("muffleWarning")
-      }
+    #=============== QML ===============#
+    qml_res <- run_with_warnings(
+      method_analytic(Data = data_clean, model.fit = analysis_model)
     )
+    results$qml_table    <- qml_res$table
+    results$qml_timing   <- qml_res$timing
+    results$qml_warnings <- qml_res$warnings
     
-    if (!inherits(dblcent_table, "try-error")) {
-      results$dblcent_table  <- dblcent_table
-      results$dblcent_timing <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-    } else {
-      results$dblcent_error <- as.character(dblcent_table)
-    }
-    results$dblcent_warnings <- dblcent_warnings
+    #=============== DBLCENT ===============#
+    dblcent_res <- run_with_warnings(
+      method_dblcent(Data = data_clean, model.fit = analysis_model)
+    )
+    results$dblcent_table    <- dblcent_res$table
+    results$dblcent_timing   <- dblcent_res$timing
+    results$dblcent_warnings <- dblcent_res$warnings
     
     results
   }
   
-  # store RNG states
+  # RNG states (for reproducibility if needed)
   rng_states_for_condition <- attr(parallel_results, "rng")
   
-  # process parallel results
-  convergence_count <- list(sam = 0, qml = 0, dblcent = 0)
-  
+  # --- collect results (skip NULLs and foreach error objects) ---
   for (i in 1:N_REPLICATIONS) {
-    if (!is.null(parallel_results[[i]]) && !inherits(parallel_results[[i]], "error")) {
-      
-      if (!is.null(parallel_results[[i]]$observed_metrics)) {
-        res$observed_r2[i, ]  <- parallel_results[[i]]$observed_metrics$r2
-        res$observed_rel[i, ] <- parallel_results[[i]]$observed_metrics$rel
-      }
-      
-      # SAM results, errors, warnings
-      if (!is.null(parallel_results[[i]]$sam_table)) {
-        res$sam_tables[[i]] <- parallel_results[[i]]$sam_table
-        res$timing$sam[i]   <- parallel_results[[i]]$sam_timing
-        convergence_count$sam <- convergence_count$sam + 1
-      }
-      if (!is.null(parallel_results[[i]]$sam_error)) {
-        res$errors$sam[i] <- parallel_results[[i]]$sam_error
-      }
-      if (!is.null(parallel_results[[i]]$sam_warnings)) {
-        res$warnings$sam[[i]] <- parallel_results[[i]]$sam_warnings
-      }
-      
-      # QML results, errors, warnings
-      if (!is.null(parallel_results[[i]]$qml_table)) {
-        res$qml_tables[[i]] <- parallel_results[[i]]$qml_table
-        res$timing$qml[i]   <- parallel_results[[i]]$qml_timing
-        convergence_count$qml <- convergence_count$qml + 1
-      }
-      if (!is.null(parallel_results[[i]]$qml_error)) {
-        res$errors$qml[i] <- parallel_results[[i]]$qml_error
-      }
-      if (!is.null(parallel_results[[i]]$qml_warnings)) {
-        res$warnings$qml[[i]] <- parallel_results[[i]]$qml_warnings
-      }
-      
-      # DBLCENT results, errors, warnings
-      if (!is.null(parallel_results[[i]]$dblcent_table)) {
-        res$dblcent_tables[[i]] <- parallel_results[[i]]$dblcent_table
-        res$timing$dblcent[i]   <- parallel_results[[i]]$dblcent_timing
-        convergence_count$dblcent <- convergence_count$dblcent + 1
-      }
-      if (!is.null(parallel_results[[i]]$dblcent_error)) {
-        res$errors$dblcent[i] <- parallel_results[[i]]$dblcent_error
-      }
-      if (!is.null(parallel_results[[i]]$dblcent_warnings)) {
-        res$warnings$dblcent[[i]] <- parallel_results[[i]]$dblcent_warnings
-      }
+    iter <- parallel_results[[i]]
+    if (is.null(iter) || inherits(iter, "error")) next
+    
+    # observed metrics
+    if (!is.null(iter$observed_metrics)) {
+      res$observed_r2[i, ]  <- iter$observed_metrics$r2
+      res$observed_rel[i, ] <- iter$observed_metrics$rel
     }
+    
+    # SAM
+    if (!is.null(iter$sam_table))  res$sam_tables[[i]]   <- iter$sam_table
+    if (!is.null(iter$sam_timing)) res$timing$sam[i]     <- iter$sam_timing
+    if (!is.null(iter$sam_warnings)) res$warnings$sam[[i]] <- iter$sam_warnings
+    
+    # QML
+    if (!is.null(iter$qml_table))  res$qml_tables[[i]]   <- iter$qml_table
+    if (!is.null(iter$qml_timing)) res$timing$qml[i]     <- iter$qml_timing
+    if (!is.null(iter$qml_warnings)) res$warnings$qml[[i]] <- iter$qml_warnings
+    
+    # DBLCENT
+    if (!is.null(iter$dblcent_table))  res$dblcent_tables[[i]] <- iter$dblcent_table
+    if (!is.null(iter$dblcent_timing)) res$timing$dblcent[i]   <- iter$dblcent_timing
+    if (!is.null(iter$dblcent_warnings)) res$warnings$dblcent[[i]] <- iter$dblcent_warnings
   }
   
   res$rng_states <- rng_states_for_condition
   
-  # summary during sim
-  cat("\nConvergence rates:")
-  cat("\n- SAM:", convergence_count$sam, "/", N_REPLICATIONS,
-      sprintf("(%.1f%%)", 100 * convergence_count$sam / N_REPLICATIONS))
-  cat("\n- QML:", convergence_count$qml, "/", N_REPLICATIONS,
-      sprintf("(%.1f%%)", 100 * convergence_count$qml / N_REPLICATIONS))
-  cat("\n- DBLCENT:", convergence_count$dblcent, "/", N_REPLICATIONS,
-      sprintf("(%.1f%%)", 100 * convergence_count$dblcent / N_REPLICATIONS))
+  # --- summary (warnings only) ---
+  cat("\nObserved metrics across replications:")
+  cat("\n- Mean R² (eta4, eta5, eta6):", round(colMeans(res$observed_r2, na.rm = TRUE), 3))
+  cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
   
-  cat("\n\nObserved metrics (means):")
-  cat("\n- R² (eta4, eta5, eta6):", round(colMeans(res$observed_r2, na.rm = TRUE), 3))
-  cat("\n- Reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
-  
-  cat("\n\nMean computation time (seconds):")
-  cat("\n- SAM:", round(mean(res$timing$sam,     na.rm = TRUE), 2))
-  cat("\n- QML:", round(mean(res$timing$qml,     na.rm = TRUE), 2))
-  cat("\n- DBLCENT:", round(mean(res$timing$dblcent, na.rm = TRUE), 2))
+  cat("\n\nWarnings encountered:")
+  cat("\n- SAM:",     sum(lengths(res$warnings$sam) > 0),     "iterations with warnings")
+  cat("\n- QML:",     sum(lengths(res$warnings$qml) > 0),     "iterations with warnings")
+  cat("\n- DBLCENT:", sum(lengths(res$warnings$dblcent) > 0), "iterations with warnings")
   cat("\n")
   
-  # true parameters based on model type
+  # store condition results
   all_results[[cond]] <- list(
     condition   = conditions[cond, ],
     results     = res,
-    convergence = convergence_count,
     true_parameters = if (conditions$Model_Type[cond] == "linear") {
       list(
         # main effects only (same as full)
@@ -334,8 +287,8 @@ for (cond in 1:nrow(conditions)) {
         eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
         # interactions and quadratics set to 0 for linear model
         eta4_eta1eta2 = 0, eta4_eta1eta1 = 0, 
-        eta5_eta2eta4 = 0, eta5_eta3eta3 = 0,
-        eta6_eta1eta5 = 0, eta6_eta2eta3 = 0
+        eta5_eta2eta4 = 0, eta5_eta2eta2 = 0,
+        eta6_eta3eta5 = 0, eta6_eta3eta3 = 0
       )
     } else {
       list(
@@ -351,6 +304,7 @@ for (cond in 1:nrow(conditions)) {
     }
   )
   
+  # checkpoint every 5 conditions (and final)
   if (cond %% 5 == 0 || cond == nrow(conditions)) {
     save(all_results, conditions, file = sprintf("%s_checkpoint_%d.RData", results_base, cond))
   }
