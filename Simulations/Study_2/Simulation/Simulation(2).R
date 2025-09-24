@@ -26,9 +26,9 @@ eta5 =~ x13 + x14 + x15
 eta6 =~ x16 + x17 + x18
 
 # Structural model
-eta4 ~ eta1 + eta2 + eta3 + eta1:eta2 + eta1:eta1 + eta2:eta2
-eta5 ~ eta4 + eta1 + eta2 + eta3 + eta2:eta4 + eta3:eta3
-eta6 ~ eta5 + eta1 + eta2 + eta3 + eta1:eta5 + eta2:eta3
+eta4 ~ eta1 + eta2 + eta3 + eta1:eta2 + eta1:eta1 
+eta5 ~ eta4 + eta1 + eta2 + eta3 + eta2:eta4 + eta2:eta2
+eta6 ~ eta5 + eta1 + eta2 + eta3 + eta3:eta5 + eta3:eta3
 "
 
 # SIMULATION PARAMETERS
