@@ -1,8 +1,25 @@
 ############################ 1. General Information ############################
-
 # See README file for more information concerning this file. 
 
-# This file contains the code for the generation of the dataset. 
+# This file contains the code for the generation of datasets according to a 
+# specified SEM model in lavaan-based syntax.
+
+#' @param model A lavaan-based model syntax string specifying the structural equation model.
+#' @param N Integer. Sample size for the generated dataset. Default is 1000L.
+#' @param skewness Numeric. Target skewness for exogenous variables when using rIG. Default is NULL.
+#' @param excesskurtosis Numeric. Target excess kurtosis for exogenous variables when using rIG. Default is NULL.
+#' @param exo.mean Numeric vector. Mean values for exogenous variables. Default is NULL.
+#' @param distr.exo Character. Distribution for exogenous variables. Options: "normal.rIG" (default), "nonnormal.rIG", and "unif".
+#' @param distr.zeta Character. Distribution for structural residuals. Options: "normal" (default), "exp.rate1"
+#' @param distr.epsilon Character. Distribution for measurement errors. Options: "normal" (default), "exp.rate1"
+#' @param center.exogenous.latent Logical. Whether to center exogenous latent variables. Default is FALSE.
+#' @param center.exogenous.manifest Logical. Whether to center exogenous manifest variables. Default is FALSE.
+#' @param center.lv.dependent Logical. Whether to center dependent latent variables. Default is FALSE.
+#' @param center.lv.prod Logical. Whether to center latent variable products/interactions. Default is FALSE.
+#' @param center.indicators Logical. Whether to center indicator variables. Default is FALSE.
+#' @param seed Integer. Random seed for reproducibility. Default is NULL.
+#' @param add.eta Logical. Whether to include latent variables (eta) in the output dataset. Default is FALSE.
+#' @param return.info Logical. Whether to return additional model information as attributes. Default is TRUE.
 
 ############################### 2. Function ####################################
 
