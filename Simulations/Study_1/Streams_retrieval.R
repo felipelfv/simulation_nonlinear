@@ -1,91 +1,127 @@
-replicate_condition_data <- function(condition_id, rep_id, results_dir, 
-                                     exo.mean = rep(0, 2), R2 = list("eta3" = 0.30)) {
+replicate_condition_data <- function(condition_id, rep_id, study = 1, 
+                                     results_file = NULL) {
   
-  library(covsim)
+  library(lavaan); library(covsim); library(copula)
   
-  # necessary scripts
-  source("Simulation_Scripts/Simulation_Study_1/Simulation_1/GenerateData.R")
-  source("Simulation_Scripts/Simulation_Study_1/Simulation_1/Models(1).R")
-  
-  # population variances
-  pop_var_file <- file.path(results_dir, "population_variances.RData")
-  if (!file.exists(pop_var_file)) {
-    stop("Population variances file not found in ", results_dir)
-  }
-  load(pop_var_file)  # Loads 'pop_variances_list'
-  
-  # full results to get condition info and RNG states
-  checkpoint_files <- list.files(results_dir, pattern = "all_results_upto_condition_.*\\.RData", 
-                                 full.names = TRUE)
-  if (length(checkpoint_files) == 0) {
-    final_results_file <- file.path(results_dir, "final_results.RData")
-    if (file.exists(final_results_file)) {
-      load(final_results_file)
-    } else {
-      stop("No checkpoint or final results files found in ", results_dir)
-    }
+  # appropriate models based on study
+  if (study == 1) {
+    load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models
+    default_file <- "Simulations/Study_1/Data/Results_Study_1_final.RData"
+  } else if (study == 2) {
+    load("Simulations/Study_2/Simulation/Models(2).RData")  # all_models
+    default_file <- "Simulations/Study_2/Data/Results_Study_2_final.RData"
   } else {
-    for (file in rev(sort(checkpoint_files))) {
-      load(file)  # Loads 'all_results'
-      if (length(all_results) >= condition_id) break
-    }
+    stop("Study must be 1 or 2")
   }
+  
+  source("Simulations/GenerateData.R")  
+  
+  # load results file
+  if (is.null(results_file)) {
+    results_file <- default_file
+  }
+  
+  if (!file.exists(results_file)) {
+    stop("Results file not found: ", results_file)
+  }
+  
+  load(results_file)
   
   if (length(all_results) < condition_id) {
-    stop("Condition ", condition_id, " not found in results files")
+    stop("Condition ", condition_id, " not found in results (max: ", 
+         length(all_results), ")")
   }
   
-  # RNG state and condition parameters
+  # condition data
   cond_data <- all_results[[condition_id]]
-  rng_state <- cond_data$rng_states[[rep_id]]
-  cond_row <- cond_data$condition
+  condition <- cond_data$condition
+  results <- cond_data$results
   
-  # RNG state
+  # if rep_id exists
+  max_reps <- if (study == 1) {
+    max(length(results$lms_tables), 
+        length(results$qml_tables),
+        length(results$dblcent_tables),
+        length(results$sam_tables))
+  } else {
+    max(length(results$qml_tables),
+        length(results$dblcent_tables),
+        length(results$sam_tables))
+  }
+  
+  if (rep_id > max_reps) {
+    stop("Replication ", rep_id, " not found (max: ", max_reps, ")")
+  }
+  
+  # RNG state as this is essential for replication
+  if (is.null(results$rng_states)) {
+    stop("RNG states not found in results. Cannot replicate exact data.")
+  }
+  
+  rng_state <- results$rng_states[[rep_id]]
+  if (is.null(rng_state)) {
+    stop("RNG state for replication ", rep_id, " not found. Cannot replicate exact data.")
+  }
+  
   assign(".Random.seed", rng_state, envir = .GlobalEnv)
   
-  # distribution parameters
-  is_normal <- cond_row$Distribution == "normal"
-  skewness <- rep(ifelse(is_normal, 0, 2), 2)
-  excesskurtosis <- rep(ifelse(is_normal, 0, 7), 2)
+  # population model
+  model_name <- condition$model_name
+  population_model <- all_models[[model_name]]
   
-  # pre-computed population variances
-  key <- paste(cond_row$Population, 
-               cond_row$Distribution, 
-               cond_row$Exo_method, 
-               cond_row$Rel, 
-               sep = "_")
-  
-  pop_vars <- pop_variances_list[[key]]
-  if (is.null(pop_vars)) {
-    stop("Population variances not found for key: ", key)
+  if (is.null(population_model)) {
+    stop("Model ", model_name, " not found")
   }
   
-  pop_var_nozeta <- pop_vars$pop_var_nozeta
-  eta_pop_vars <- pop_vars$eta_pop_vars
-  
-  # original data with pre-computed population variances
-  Data <- GenerateData(
-    model = get(as.character(cond_row$Population)),
-    N = cond_row$N,
-    skewness = skewness,
-    excesskurtosis = excesskurtosis,
-    exo.mean = exo.mean,
-    distr.exo = as.character(cond_row$Exo_method),
-    distr.zeta = "normal",
-    distr.epsilon = as.character(cond_row$Epsilon),
-    rel = cond_row$Rel,
-    R2 = R2,
-    add.eta = FALSE,
-    compute_pop_vars = FALSE,  # use provided
-    pop_var_nozeta = pop_var_nozeta,  # pre-computed
-    eta_pop_vars = eta_pop_vars  # pre-computed
+  # distribution parameters
+  distributions <- list(
+    normal    = list(skewness = c(0, 0, 0), 
+                     excesskurtosis = c(0, 0, 0), 
+                     distr.exo = "normal.rIG"),
+    nonnormal = list(skewness = c(2, 2, 2), 
+                     excesskurtosis = c(7, 7, 7), 
+                     distr.exo = "nonnormal.rIG"),
+    uniform   = list(skewness = c(0, 0, 0), 
+                     excesskurtosis = c(0, 0, 0), 
+                     distr.exo = "unif")
   )
+  
+  # study 1, use 2-element vectors; for Study 2, use 3-element vectors
+  if (study == 1) {
+    distributions$normal$skewness <- c(0, 0)
+    distributions$normal$excesskurtosis <- c(0, 0)
+    distributions$nonnormal$skewness <- c(2, 2)
+    distributions$nonnormal$excesskurtosis <- c(7, 7)
+    distributions$uniform$skewness <- c(0, 0)
+    distributions$uniform$excesskurtosis <- c(0, 0)
+  }
+  
+  dist_params <- distributions[[tolower(condition$Distribution)]]
+  
+  Data <- GenerateData(
+    model          = population_model,
+    N              = condition$N,
+    skewness       = dist_params$skewness,
+    excesskurtosis = dist_params$excesskurtosis,
+    distr.exo      = dist_params$distr.exo,
+    distr.epsilon  = "normal",
+    distr.zeta     = "normal",
+    add.eta        = FALSE,
+    return.info    = TRUE
+  )
+  
+  # data with condition info as attributes
+  attr(Data, "condition") <- condition
+  attr(Data, "condition_id") <- condition_id
+  attr(Data, "rep_id") <- rep_id
+  attr(Data, "study") <- study
   
   Data
 }
 
-Data <- replicate_condition_data(
+# example:
+data_to_replicate <- replicate_condition_data(
   condition_id = 1, 
-  rep_id = 15, 
-  results_dir = "sim_results/run_20250626_1435" 
+  rep_id = 15,
+  study = 1
 )
