@@ -1,6 +1,87 @@
+############################ 1. General Information ############################
+
 # Organized but for now include plots together with get_functions for reporting in markdown
 
-# PLOTS
+############################### 2. Documentation ################################
+
+#' Plotting and Reporting Functions for Simulation Study Results
+#' 
+#' @section Global Settings:
+#' @param METHOD_ORDER   Character vector. Display order for methods: c("SAM","LMS","QML","DBLCENT")
+#' @param DIST_LABS      Named vector. Labels for distributions: normal="Normal", nonnormal="Nonnormal", uniform="Uniform"
+#' @param PARAM_ORDER    Character vector. Display order for parameters: c("eta1:eta2","eta1:eta1","eta2:eta2")
+#' @param PARAM_LABS     Named vector. LaTeX labels for parameters in plots
+#' @param GREYS_METHOD   Named vector. Grayscale colors for each method (SAM darkest to DBLCENT lightest)
+#' @param GREYS_PARAM    Named vector. Grayscale colors for each parameter
+#' 
+#' @section Plotting Theme:
+#' theme_apa_bw()
+#' @param base_size      Numeric. Base font size for plots (default = 11)
+#' @return ggplot2 theme object with APA-style formatting (white background, minimal grid, bold facet labels)
+#' 
+#' @section Helper Functions:
+#' make_condition()
+#' @param N              Numeric. Sample size (400 or 1000)
+#' @param Rel            Numeric. Reliability level (0.4, 0.6, or 0.8)
+#' @return Factor with formatted condition labels "N=..., Rel=..."
+#' 
+#' prep_nonlinear()
+#' @param df             Data.frame. Results data containing performance metrics
+#' @param model          Character. "Full" or "Linear" model type
+#' @return Tibble with filtered nonlinear parameters and formatted factors for plotting
+#' 
+#' @section Functions:
+#' 
+#' get_absolute_bias()
+#' @param method         Character. Method name ("SAM", "LMS", "QML", or "DBLCENT")
+#' @param dist           Character. Distribution type ("Normal", "Nonnormal", or "Uniform")
+#' @param param          Character. Parameter ("beta[3]", "beta[4]", or "beta[5]")
+#' @param n              Numeric. Sample size (400 or 1000)
+#' @param rel            Numeric. Reliability (0.4, 0.6, or 0.8)
+#' @param model          Character. Model type ("Full" or "Linear")
+#' @return Numeric. Absolute bias value (Mean estimate - True value)
+#' 
+#' get_bias()
+#' @param method, dist, param, n, rel, model  Same as get_absolute_bias()
+#' @return Numeric. Relative bias value ((Mean estimate / True value) - 1)
+#' 
+#' get_rmse()
+#' @param method, dist, param, n, rel, model  Same as get_absolute_bias()
+#' @return Numeric. Root mean squared error
+#' 
+#' get_relative_rmse()
+#' @param method, dist, param, n, rel, model  Same as get_absolute_bias()
+#' @return Numeric. Relative root mean squared error
+#' 
+#' get_ratio()
+#' @param method, dist, param, n, rel, model  Same as get_absolute_bias()
+#' @return Numeric. SE/SD ratio (Mean SE / SD of estimates)
+#' 
+#' get_coverage()
+#' @param method, dist, param, n, rel, model  Same as get_absolute_bias()
+#' @return Numeric. Coverage rate percentage
+#' 
+#' get_type()
+#' @param method         Character. Method name
+#' @param dist           Character. Distribution type
+#' @param param          Character. Parameter
+#' @param cond           Character. Condition label "N=..., Rel=..."
+#' @return Numeric. Type I error rate percentage (for Linear model)
+#' 
+#' get_power()
+#' @param method, dist, param, cond  Same as get_type()
+#' @return Numeric. Statistical power percentage (for Full model)
+#' 
+#' @section Plot Objects:
+#' 
+#' p_bias           - Absolute bias plot with error bars (MCSE)
+#' p_rmse           - RMSE plot with error bars (MCSE)  
+#' p_slope          - SE/SD ratio plot with truncation at [0.85, 1.6] and text labels for outliers
+#' p_cov            - Coverage rate plot with 95% confidence band and text labels for <80%
+#' p_t1             - Type I error bar chart with 5% reference line (Linear model only)
+#' p_pow            - Statistical power bar chart with 80% reference line (Full model only)
+
+############################### 3. PLOTS ########################################
 
 # orderings and labels
 METHOD_ORDER <- c("SAM","LMS","QML","DBLCENT")
@@ -24,7 +105,7 @@ theme_apa_bw <- function(base_size = 11) {
     )
 }
 
-# condition factor "N=..., Rel=..."
+# condition factor 
 make_condition <- function(N, Rel) {
   factor(paste0("N=", N, ", Rel=", Rel),
          levels = c("N=400, Rel=0.4","N=400, Rel=0.6","N=400, Rel=0.8",
@@ -47,11 +128,10 @@ prep_nonlinear <- function(df, model = c("Full","Linear")) {
     )
 }
 
-
 shapes <- c(SAM=16, LMS=17, QML=15, DBLCENT=18)
 ltys   <- c(SAM="solid", LMS="dashed", QML="dotdash", DBLCENT="twodash")
 
-# BIAS
+# BIAS functions and plots
 dat_bias <- bind_rows(
   prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
   prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
@@ -109,11 +189,7 @@ get_bias <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
 }
 
 
-
-
-
-
-# RMSE
+# RMSE functions and plots
 dat_rmse <- bind_rows(
   prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
   prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
@@ -152,7 +228,7 @@ get_rmse <- function(method, dist, param, n, rel, model = c("Full","Linear")) {
 }
 
 
-## RELATIVE RMSE 
+# RELATIVE RMSE functions and plots
 dat_rmse_relative <- bind_rows(
   prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
   prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
@@ -174,11 +250,7 @@ get_relative_rmse <- function(method, dist, param, n, rel, model = c("Full","Lin
     select(y)
 }
 
-
-
-
-
-# SE/SD RATIO
+# SE/SD RATIO functions and plots
 dat_sesd2 <- bind_rows(
   prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
   prep_nonlinear(results_study_1, model = "Full") %>% mutate(Model = "Full")
@@ -237,10 +309,7 @@ get_ratio <- function(method, dist, param, n, rel, model = c("Full", "Linear")) 
 }
 
 
-
-
-
-# COVERAGE 
+# COVERAGE functions and plots
 dat_cov <- bind_rows(
   prep_nonlinear(results_study_1, model = "Linear") %>% mutate(Model = "Linear"),
   prep_nonlinear(results_study_1, model = "Full")   %>% mutate(Model = "Full")
@@ -289,11 +358,7 @@ get_coverage <- function(method, dist, param, n, rel, model = c("Full", "Linear"
     pull(y)
 }
 
-
-
-
-
-# TYPE I 
+# TYPE I functions and plots
 dat_t1 <- prep_nonlinear(results_study_1, model = "Linear") %>%
   transmute(Distribution, Parameter, Condition, Method,
             y = TypeI_Error)
@@ -327,12 +392,7 @@ get_type <- function(method, dist, param, cond) {
     select(y)
 }
 
-
-
-
-
-
-# POWER 
+# POWER functions and plots
 dat_pow <- prep_nonlinear(results_study_1, model = "Full") %>%
   transmute(Distribution, Parameter, Condition, Method,
             y = Power)
