@@ -43,7 +43,7 @@ eta6 ~ eta5 + eta1 + eta2 + eta3 + eta3:eta5 + eta3:eta3
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 100
+N_REPLICATIONS <- 50
 SAMPLE_SIZES <- c(400, 1000)
 RELIABILITIES <- c(0.4, 0.6, 0.8)
 SEED_START <- 123
@@ -184,14 +184,18 @@ for (cond in 1:nrow(conditions)) {
     
     results <- list(observed_metrics = observed_metrics)
     
-    #----- helper: run a method & capture warnings only -----
-    run_with_warnings <- function(expr) {
+    # run a method and capture warnings only 
+    run_with_warnings <- function(expr, filter_pattern = NULL) {
       warns <- NULL
       t0 <- Sys.time()
       out <- withCallingHandlers(
         try(expr, silent = TRUE),
         warning = function(w) {
-          warns <<- c(warns, conditionMessage(w))
+          msg <- conditionMessage(w)
+          # add warning if it doesn't match the filter pattern (or no filter specified)
+          if (is.null(filter_pattern) || !grepl(filter_pattern, msg, ignore.case = TRUE)) {
+            warns <<- c(warns, msg)
+          }
           invokeRestart("muffleWarning")
         }
       )
@@ -214,8 +218,11 @@ for (cond in 1:nrow(conditions)) {
     results$sam_warnings <- sam_res$warnings
     
     #=============== QML ===============#
+    # filter out the specific QML bias warning about exogenous/endogenous interactions
     qml_res <- run_with_warnings(
-      method_analytic(Data = data_clean, model.fit = analysis.model, method = "qml")
+      method_analytic(Data = data_clean, model.fit = analysis.model, method = "qml"),
+      filter_pattern = "Interactions between exogenous and (endogenous|enodgenous).*QML.*approach.*biased"
+      # enodgenous because there was a typo in the message from modsem
     )
     results$qml_table    <- qml_res$table
     results$qml_timing   <- qml_res$timing
@@ -314,7 +321,7 @@ for (cond in 1:nrow(conditions)) {
 
 stopCluster(cl)
 
-#save(all_results, conditions, file = paste0(results_base, "_final.RData"))
+save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
 
