@@ -53,6 +53,7 @@ header-includes:
   - \usepackage{tikz}
   - \usepackage{amsmath}
   - \setlength{\parskip}{0pt}
+  - \usepackage{tikz}
 
 csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
 documentclass     : "apa7"
@@ -133,6 +134,4 @@ for (N in Ns) for (Rel in Rels) for (Dist in Dists) for (Model in Models) {
 ```
 
 ```{r, child="appendix.Rmd"}
-
-
 ```

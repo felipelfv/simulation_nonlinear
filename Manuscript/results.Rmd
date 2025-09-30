@@ -13,7 +13,7 @@ The results reported are a subset of the findings. For the complete figures and 
 
 ## Result for simulation study 1
 
-```{r results, echo=FALSE, warning=FALSE, message=FALSE}
+```{r results-first-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr); library(tidyr); library(purrr); library(stringr); library(kableExtra); library(glue); library(simhelpers)
 
 load("sim_results/run_20250828_1758_36_1000/final_results.RData")
@@ -581,7 +581,7 @@ results_with_mcse <- CalculateBiasAndCoverage(
 
 ```
 
-```{r tables, echo=FALSE, results='asis', message=FALSE, eval=FALSE}
+```{r tables-first-sim-study, echo=FALSE, results='asis', message=FALSE, eval=FALSE}
 
 # ---- Landscape APA tables | Method-first | ± MCSE | Rej. = Type I if true=0 else Power ----
 # Chunk tip: use results='asis'
@@ -735,7 +735,7 @@ build_condition_table_landscape <- function(df, N, Rel, Dist, model_type, latex_
 
 ```
 
-```{r convergence-outliers-summary, echo=FALSE, results='asis'}
+```{r convergence-outliers-first-sim-study, echo=FALSE, results='asis'}
 # Comprehensive convergence and outlier summary table
 create_summary_table <- function(results_with_mcse,
                                 core_params = c("eta1","eta2","eta1:eta2")) {
@@ -826,7 +826,7 @@ We refer the reader to Table 2 for a detailed summary for convergence and outlie
 
 With respect to outliers, a somewhat similar trend as with convergence rates was observed. The UPI had the highest outlier rate (`r round(get_rate("OutlierRate", "DBLCENT", "Linear", "uniform", 400, 0.4), 2)`%) for the condition with moderate sample size, low reliability, and uniformly distributed latent predictors. Both the LMS and QML also had their highest outlier rates in the same condition, with `r round(get_rate("OutlierRate", "LMS", "Linear", "uniform", 400, 0.4), 2)`% and `r round(get_rate("OutlierRate", "QML", "Linear", "uniform", 400, 0.4), 2)`% respectively. For the LSAM, however, the highest outlier rate was observed in the condition with moderate sample size, low reliability, and nonnormally distributed latent predictors (`r round(get_rate("OutlierRate", "SAM", "Linear", "nonnormal", 400, 0.4), 2)`%).
 
-```{r apa-plots, echo=FALSE}
+```{r apa-plots-first-sim-study, echo=FALSE}
 # ---- Shared setup: helpers, themes, palettes ----
 library(dplyr)
 library(ggplot2)
@@ -879,7 +879,7 @@ prep_nonlinear <- function(df, model = c("Full","Linear")) {
 
 ```
 
-```{r bias, echo=FALSE}
+```{r bias-first-sim-study, echo=FALSE}
 shapes <- c(SAM=16, LMS=17, QML=15, DBLCENT=18)
 ltys   <- c(SAM="solid", LMS="dashed", QML="dotdash", DBLCENT="twodash")
 
@@ -981,7 +981,7 @@ p_biasrel_400_full <- ggplot(
 #p_biasrel_400_full
 ```
 
-```{r rmse, echo=FALSE}
+```{r rmse-first-sim-study, echo=FALSE}
 ## ----- RMSE (no scaling) -----
 dat_rmse <- bind_rows(
   prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
@@ -1086,17 +1086,17 @@ Under uniform distributions, performance patterns slightly shifted. LSAM remaine
 
 The bias results are somewhat similar when the nonlinear effects were present (full model) and not present (linear model), but in overall terms with decreased magnitude. There are two main differences worth nothing. Under normally distributed latent variables, the bias in this case is smaller than in the case of the full model for all approaches. Moreover, for the uniform condition, the UPI, LMS and QML showed little bias in contrast to before. Hence, the approaches are more homogeneous.
 
-```{r plot-bias, echo=FALSE, fig.cap = "Absolute bias.", fig.align='center', fig.height=12, fig.width=9}
+```{r plot-bias-first-sim-study, echo=FALSE, fig.cap = "Absolute bias.", fig.align='center', fig.height=12, fig.width=9}
 #(p_bias_400_full)
 (p_biasrel_400_full)
 ```
 
-```{r plot-rmse, echo=FALSE, fig.cap = "Root Mean Squared Error.", fig.align='center', fig.height=12, fig.width=9}
+```{r plot-rmse-first-sim-study, echo=FALSE, fig.cap = "Root Mean Squared Error.", fig.align='center', fig.height=12, fig.width=9}
 #(p_rmse_400_full)
 (p_rrmse_400_full)
 ```
 
-```{r ratio, echo=FALSE}
+```{r ratio-first-sim-study, echo=FALSE}
 library(dplyr)
 library(ggplot2)
 
@@ -1189,7 +1189,7 @@ In case of the normal condition, only the UPI showed an overestimation in case o
 
 The linear model specification generally showed improved accuracy compared to the full model, particularly for UPI under nonnormal conditions. However, the relative performance ordering remained consistent, with LMS and QML providing the most efficient standard error estimates, followed by LSAM, and UPI.
 
-```{r coverage, echo=FALSE}
+```{r coverage-first-sim-study, echo=FALSE}
 dat_cov <- bind_rows(
   prep_nonlinear(results_with_mcse, model = "Linear") %>% mutate(Model = "Linear"),
   prep_nonlinear(results_with_mcse, model = "Full")   %>% mutate(Model = "Full")
@@ -1267,15 +1267,15 @@ Under uniform distributions, LSAM exhibited overcoverage (`r round(get_coverage(
 
 The linear model specification showed differential effects on coverage performance. Under nonnormal conditions, the linear model often provided better coverage than the full model for UPI, though distribution analytic methods continued to show poor performance. 
 
-```{r plot-ratio, echo=FALSE, fig.cap="SE/SD Ratio.", fig.align='center', fig.height=12, fig.width=8}
+```{r plot-ratio-first-sim-study, echo=FALSE, fig.cap="SE/SD Ratio.", fig.align='center', fig.height=12, fig.width=8}
 (p_slope_full_nonnorm)
 ```
 
-```{r plot-coverage, echo=FALSE, fig.cap="Coverage.", fig.align='center', fig.height=12, fig.width=8}
+```{r plot-coverage-first-sim-study, echo=FALSE, fig.cap="Coverage.", fig.align='center', fig.height=12, fig.width=8}
 (p_cov_full_400_1000)
 ```
 
-```{r type, echo=FALSE, fig.align='center', fig.height=12, fig.width=9}
+```{r type-first-sim-study, echo=FALSE, fig.align='center', fig.height=12, fig.width=9}
 
 # --- TYPE I (grayscale bars, thin dotted line @ 5%, no x-axis labels) ---
 dat_t1 <- prep_nonlinear(results_with_mcse, model = "Linear") %>%
@@ -1325,7 +1325,7 @@ p_t1_1000 <- ggplot(dat_t1_1000, aes(x = Method, y = y, fill = Method)) +
 
 ```
 
-```{r power, echo=FALSE, fig.align='center', fig.height=12, fig.width=9}
+```{r power-first-sim-study, echo=FALSE, fig.align='center', fig.height=12, fig.width=9}
 # --- POWER (grayscale bars, thin dotted line @ 80%, no x-axis labels) ---
 dat_pow <- prep_nonlinear(results_with_mcse, model = "Full") %>%
   transmute(Distribution, Parameter, Condition, Method,
@@ -1359,7 +1359,7 @@ Nonnormal conditions revealed inflated power for quadratic terms in distribution
 
 Under uniform distributions at high reliability, power for interaction effects reached acceptable levels: `r round(get_power("SAM", "Uniform", "beta[3]", "N=1000, Rel=0.8"),1)`% (SAM), `r round(get_power("LMS", "Uniform", "beta[3]", "N=1000, Rel=0.8"),1)`% (LMS), and `r round(get_power("DBLCENT", "Uniform", "beta[3]", "N=1000, Rel=0.8"),1)`% (DBLCENT). However, quadratic term detection remained challenging, with power ranging from `r round(get_power("DBLCENT", "Uniform", "beta[4]", "N=1000, Rel=0.8"),1)`% to `r round(get_power("SAM", "Uniform", "beta[4]", "N=1000, Rel=0.8"),1)`% for $\beta_4$.
 
-```{r plot-type, echo=FALSE, fig.cap="Type I error rate.", fig.align='center', fig.height=12, fig.width=9}
+```{r plot-type-first-sim-study, echo=FALSE, fig.cap="Type I error rate.", fig.align='center', fig.height=12, fig.width=9}
 (p_t1_1000)
 ```
 
