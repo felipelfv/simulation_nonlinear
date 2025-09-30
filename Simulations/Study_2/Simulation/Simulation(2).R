@@ -1,5 +1,4 @@
 ############################ 1. General Information ############################
-
 # See README file for more information concerning this file. 
 
 # This file contains the code necessary to run the simulation study 2. 
@@ -16,7 +15,196 @@
 library(lavaan); library(modsem); library(covsim)
 library(doParallel); library(doRNG); library(copula)
 
-load("Simulations/Study_2/Simulation/Models(2).RData")  # all_models
+# new population models for different reliabilities
+# Reliability 0.8
+model_rel08 <- "
+# Measurement Model 
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural Model
+eta4 ~ 0.1*1 + 0.20*eta1 + 0.20*eta2 + 0.20*eta3 + 0.11*eta1:eta2 + 0.11*eta1:eta3 + 0.08*eta1:eta1 + 0.08*eta2:eta2
+eta5 ~ 0.1*1 + 0.16*eta4 + 0.16*eta1 + 0.16*eta2 + 0.16*eta3 + 0.08*eta1:eta4 + 0.08*eta2:eta4 + 0.06*eta1:eta1 + 0.06*eta3:eta3
+# Variances and Covariances
+# Exogenous variables
+eta1 ~~ 0.3*eta2
+eta2 ~~ 0.3*eta3
+eta1 ~~ 0.2*eta3
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 1*eta3
+# Residual variances
+eta4 ~~ 0.70*eta4
+eta5 ~~ 0.70*eta5
+# Measurement Errors 
+x1 ~~ 0.25*x1; x2 ~~ 0.25*x2; x3 ~~ 0.25*x3
+x4 ~~ 0.25*x4; x5 ~~ 0.25*x5; x6 ~~ 0.25*x6
+x7 ~~ 0.25*x7; x8 ~~ 0.25*x8; x9 ~~ 0.25*x9
+x10 ~~ 0.25*x10; x11 ~~ 0.25*x11; x12 ~~ 0.25*x12
+x13 ~~ 0.25*x13; x14 ~~ 0.25*x14; x15 ~~ 0.25*x15
+"
+
+# Reliability 0.6 - Increase measurement errors
+model_rel06 <- "
+# Measurement Model 
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural Model
+eta4 ~ 0.1*1 + 0.20*eta1 + 0.20*eta2 + 0.20*eta3 + 0.11*eta1:eta2 + 0.11*eta1:eta3 + 0.08*eta1:eta1 + 0.08*eta2:eta2
+eta5 ~ 0.1*1 + 0.16*eta4 + 0.16*eta1 + 0.16*eta2 + 0.16*eta3 + 0.08*eta1:eta4 + 0.08*eta2:eta4 + 0.06*eta1:eta1 + 0.06*eta3:eta3
+# Variances and Covariances
+# Exogenous variables
+eta1 ~~ 0.3*eta2
+eta2 ~~ 0.3*eta3
+eta1 ~~ 0.2*eta3
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 1*eta3
+# Residual variances
+eta4 ~~ 0.70*eta4
+eta5 ~~ 0.70*eta5
+# Measurement Errors (increased for lower reliability)
+x1 ~~ 0.67*x1; x2 ~~ 0.67*x2; x3 ~~ 0.67*x3
+x4 ~~ 0.67*x4; x5 ~~ 0.67*x5; x6 ~~ 0.67*x6
+x7 ~~ 0.67*x7; x8 ~~ 0.67*x8; x9 ~~ 0.67*x9
+x10 ~~ 0.67*x10; x11 ~~ 0.67*x11; x12 ~~ 0.67*x12
+x13 ~~ 0.67*x13; x14 ~~ 0.67*x14; x15 ~~ 0.67*x15
+"
+
+# Reliability 0.4 - Further increase measurement errors
+model_rel04 <- "
+# Measurement Model
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural Model 
+eta4 ~ 0.1*1 + 0.20*eta1 + 0.20*eta2 + 0.20*eta3 + 0.11*eta1:eta2 + 0.11*eta1:eta3 + 0.08*eta1:eta1 + 0.08*eta2:eta2
+eta5 ~ 0.1*1 + 0.16*eta4 + 0.16*eta1 + 0.16*eta2 + 0.16*eta3 + 0.08*eta1:eta4 + 0.08*eta2:eta4 + 0.06*eta1:eta1 + 0.06*eta3:eta3
+# Variances and Covariances 
+eta1 ~~ 0.3*eta2
+eta2 ~~ 0.3*eta3
+eta1 ~~ 0.2*eta3
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 1*eta3
+# Residual variances 
+eta4 ~~ 0.70*eta4
+eta5 ~~ 0.70*eta5
+# Measurement Errors 
+x1 ~~ 1.5*x1; x2 ~~ 1.5*x2; x3 ~~ 1.5*x3
+x4 ~~ 1.5*x4; x5 ~~ 1.5*x5; x6 ~~ 1.5*x6
+x7 ~~ 1.5*x7; x8 ~~ 1.5*x8; x9 ~~ 1.5*x9
+x10 ~~ 1.5*x10; x11 ~~ 1.5*x11; x12 ~~ 1.5*x12
+x13 ~~ 1.5*x13; x14 ~~ 1.5*x14; x15 ~~ 1.5*x15
+"
+
+# Null/Linear models (no interactions/quadratics)
+null_model_rel08 <- "
+# Measurement Model 
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural Model (linear only)
+eta4 ~ 0.1*1 + 0.20*eta1 + 0.20*eta2 + 0.20*eta3
+eta5 ~ 0.1*1 + 0.16*eta4 + 0.16*eta1 + 0.16*eta2 + 0.16*eta3
+# Variances and Covariances
+# Exogenous variables
+eta1 ~~ 0.3*eta2
+eta2 ~~ 0.3*eta3
+eta1 ~~ 0.2*eta3
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 1*eta3
+# Residual variances
+eta4 ~~ 0.70*eta4
+eta5 ~~ 0.70*eta5
+# Measurement Errors 
+x1 ~~ 0.25*x1; x2 ~~ 0.25*x2; x3 ~~ 0.25*x3
+x4 ~~ 0.25*x4; x5 ~~ 0.25*x5; x6 ~~ 0.25*x6
+x7 ~~ 0.25*x7; x8 ~~ 0.25*x8; x9 ~~ 0.25*x9
+x10 ~~ 0.25*x10; x11 ~~ 0.25*x11; x12 ~~ 0.25*x12
+x13 ~~ 0.25*x13; x14 ~~ 0.25*x14; x15 ~~ 0.25*x15
+"
+
+null_model_rel06 <- "
+# Measurement Model 
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural Model (linear only)
+eta4 ~ 0.1*1 + 0.20*eta1 + 0.20*eta2 + 0.20*eta3
+eta5 ~ 0.1*1 + 0.16*eta4 + 0.16*eta1 + 0.16*eta2 + 0.16*eta3
+# Variances and Covariances
+# Exogenous variables
+eta1 ~~ 0.3*eta2
+eta2 ~~ 0.3*eta3
+eta1 ~~ 0.2*eta3
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 1*eta3
+# Residual variances
+eta4 ~~ 0.70*eta4
+eta5 ~~ 0.70*eta5
+# Measurement Errors 
+x1 ~~ 0.67*x1; x2 ~~ 0.67*x2; x3 ~~ 0.67*x3
+x4 ~~ 0.67*x4; x5 ~~ 0.67*x5; x6 ~~ 0.67*x6
+x7 ~~ 0.67*x7; x8 ~~ 0.67*x8; x9 ~~ 0.67*x9
+x10 ~~ 0.67*x10; x11 ~~ 0.67*x11; x12 ~~ 0.67*x12
+x13 ~~ 0.67*x13; x14 ~~ 0.67*x14; x15 ~~ 0.67*x15
+"
+
+null_model_rel04 <- "
+# Measurement Model 
+eta1 =~ 1*x1 + 1*x2 + 1*x3
+eta2 =~ 1*x4 + 1*x5 + 1*x6
+eta3 =~ 1*x7 + 1*x8 + 1*x9
+eta4 =~ 1*x10 + 1*x11 + 1*x12
+eta5 =~ 1*x13 + 1*x14 + 1*x15
+# Structural Model (linear only)
+eta4 ~ 0.1*1 + 0.20*eta1 + 0.20*eta2 + 0.20*eta3
+eta5 ~ 0.1*1 + 0.16*eta4 + 0.16*eta1 + 0.16*eta2 + 0.16*eta3
+# Variances and Covariances
+# Exogenous variables
+eta1 ~~ 0.3*eta2
+eta2 ~~ 0.3*eta3
+eta1 ~~ 0.2*eta3
+eta1 ~~ 1*eta1
+eta2 ~~ 1*eta2
+eta3 ~~ 1*eta3
+# Residual variances
+eta4 ~~ 0.70*eta4
+eta5 ~~ 0.70*eta5
+# Measurement Errors 
+x1 ~~ 1.50*x1; x2 ~~ 1.50*x2; x3 ~~ 1.50*x3
+x4 ~~ 1.50*x4; x5 ~~ 1.50*x5; x6 ~~ 1.50*x6
+x7 ~~ 1.50*x7; x8 ~~ 1.50*x8; x9 ~~ 1.50*x9
+x10 ~~ 1.50*x10; x11 ~~ 1.50*x11; x12 ~~ 1.50*x12
+x13 ~~ 1.50*x13; x14 ~~ 1.50*x14; x15 ~~ 1.50*x15
+"
+
+# Store all models
+all_models <- list(
+  normal_rel08 = model_rel08,
+  normal_rel06 = model_rel06,
+  normal_rel04 = model_rel04,
+  null_model_rel08 = null_model_rel08,
+  null_model_rel06 = null_model_rel06,
+  null_model_rel04 = null_model_rel04
+)
+
+# save(all_models, file = "Simulations/Study_2/Simulation/Models(2).RData")
+
 source("Simulations/Methods.R")  # methods file
 source("Simulations/GenerateData.R") # generate data function
 
@@ -25,7 +213,7 @@ base_dir <- "Simulations/Study_2/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 results_base <- file.path(base_dir, "Results_Study_2")
 
-# analysis model
+# UPDATED analysis model for 5 factors with new interaction structure
 analysis.model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
@@ -33,17 +221,15 @@ eta2 =~ x4 + x5 + x6
 eta3 =~ x7 + x8 + x9
 eta4 =~ x10 + x11 + x12
 eta5 =~ x13 + x14 + x15
-eta6 =~ x16 + x17 + x18
 
 # Structural model
-eta4 ~ eta1 + eta2 + eta3 + eta1:eta2 + eta1:eta1 
-eta5 ~ eta4 + eta1 + eta2 + eta3 + eta2:eta4 + eta2:eta2
-eta6 ~ eta5 + eta1 + eta2 + eta3 + eta3:eta5 + eta3:eta3
+eta4 ~ eta1 + eta2 + eta3 + eta1:eta2 + eta1:eta3 + eta1:eta1 + eta2:eta2
+eta5 ~ eta4 + eta1 + eta2 + eta3 + eta1:eta4 + eta2:eta4 + eta1:eta1 + eta3:eta3
 "
 
 # SIMULATION PARAMETERS
 
-N_REPLICATIONS <- 50
+N_REPLICATIONS <- 200
 SAMPLE_SIZES <- c(400, 1000)
 RELIABILITIES <- c(0.4, 0.6, 0.8)
 SEED_START <- 123
@@ -84,7 +270,7 @@ conditions$model_name <- ifelse(
 )
 
 # SETUP PARALLEL PROCESSING
-n_cores <- detectCores() - 2
+n_cores <- detectCores() - 6
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
@@ -143,8 +329,8 @@ for (cond in 1:nrow(conditions)) {
       dblcent = vector("list", N_REPLICATIONS)
     ),
     
-    observed_r2  = matrix(NA, nrow = N_REPLICATIONS, ncol = 3),  # eta4, eta5, eta6
-    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 6)   # 6 latent variables
+    observed_r2  = matrix(NA, nrow = N_REPLICATIONS, ncol = 2),  # eta4, eta5 only now
+    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 5)   # 5 latent variables now
   )
   
   # replications in parallel
@@ -170,12 +356,11 @@ for (cond in 1:nrow(conditions)) {
     
     if (inherits(Data, "try-error")) return(NULL)
     
-    # observed metrics
+    # observed metrics (adjusted for 5 factors)
     observed_metrics <- list(
       r2  = c(attr(Data, "observed_R2")$eta4,
-              attr(Data, "observed_R2")$eta5,
-              attr(Data, "observed_R2")$eta6),
-      rel = sapply(attr(Data, "observed_reliabilities"), mean)
+              attr(Data, "observed_R2")$eta5),
+      rel = sapply(attr(Data, "observed_reliabilities")[1:5], mean)  # only 5 factors now
     )
     
     # clean data for methods
@@ -273,7 +458,7 @@ for (cond in 1:nrow(conditions)) {
   
   # --- summary (warnings only) ---
   cat("\nObserved metrics across replications:")
-  cat("\n- Mean R² (eta4, eta5, eta6):", round(colMeans(res$observed_r2, na.rm = TRUE), 3))
+  cat("\n- Mean R² (eta4, eta5):", round(colMeans(res$observed_r2, na.rm = TRUE), 3))
   cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
   
   cat("\n\nWarnings encountered:")
@@ -282,31 +467,35 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- DBLCENT:", sum(lengths(res$warnings$dblcent) > 0), "iterations with warnings")
   cat("\n")
   
-  # store condition results
+  # store condition results with updated true parameters
   all_results[[cond]] <- list(
     condition   = conditions[cond, ],
     results     = res,
     true_parameters = if (conditions$Model_Type[cond] == "linear") {
       list(
-        # main effects only (same as full)
-        eta4_eta1 = 0.21, eta4_eta2 = 0.21, eta4_eta3 = 0.21,
-        eta5_eta4 = 0.18, eta5_eta1 = 0.18, eta5_eta2 = 0.18, eta5_eta3 = 0.18,
-        eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
+        # intercepts
+        eta4_intercept = 0.1,
+        eta5_intercept = 0.1,
+        # main effects only
+        eta4_eta1 = 0.20, eta4_eta2 = 0.20, eta4_eta3 = 0.20,
+        eta5_eta4 = 0.16, eta5_eta1 = 0.16, eta5_eta2 = 0.16, eta5_eta3 = 0.16,
         # interactions and quadratics set to 0 for linear model
-        eta4_eta1eta2 = 0, eta4_eta1eta1 = 0, 
-        eta5_eta2eta4 = 0, eta5_eta2eta2 = 0,
-        eta6_eta3eta5 = 0, eta6_eta3eta3 = 0
+        eta4_eta1eta2 = 0, eta4_eta1eta3 = 0, eta4_eta1eta1 = 0, eta4_eta2eta2 = 0,
+        eta5_eta1eta4 = 0, eta5_eta2eta4 = 0, eta5_eta1eta1 = 0, eta5_eta3eta3 = 0
       )
     } else {
       list(
+        # intercepts  
+        eta4_intercept = 0.1,
+        eta5_intercept = 0.1,
         # main effects
-        eta4_eta1 = 0.21, eta4_eta2 = 0.21, eta4_eta3 = 0.21,
-        eta5_eta4 = 0.18, eta5_eta1 = 0.18, eta5_eta2 = 0.18, eta5_eta3 = 0.18,
-        eta6_eta5 = 0.15, eta6_eta1 = 0.15, eta6_eta2 = 0.15, eta6_eta3 = 0.15,
+        eta4_eta1 = 0.20, eta4_eta2 = 0.20, eta4_eta3 = 0.20,
+        eta5_eta4 = 0.16, eta5_eta1 = 0.16, eta5_eta2 = 0.16, eta5_eta3 = 0.16,
         # interactions and quadratics (non-zero for full)
-        eta4_eta1eta2 = 0.13, eta4_eta1eta1 = 0.09, 
-        eta5_eta2eta4 = 0.11, eta5_eta2eta2 = 0.09,
-        eta6_eta3eta5 = 0.10, eta6_eta3eta3 = 0.09
+        eta4_eta1eta2 = 0.11, eta4_eta1eta3 = 0.11, 
+        eta4_eta1eta1 = 0.08, eta4_eta2eta2 = 0.08,
+        eta5_eta1eta4 = 0.08, eta5_eta2eta4 = 0.08, 
+        eta5_eta1eta1 = 0.06, eta5_eta3eta3 = 0.06
       )
     }
   )
@@ -324,6 +513,7 @@ stopCluster(cl)
 save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
+
 
 # POST-SIMULATION ANALYSIS OF ERRORS AND WARNINGS
 

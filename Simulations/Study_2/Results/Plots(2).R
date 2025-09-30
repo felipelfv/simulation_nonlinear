@@ -1,26 +1,27 @@
-############################### Study 2 plots by distribution ########################################
+############################### Study 2 plots by distribution (5-Factor Model) ########################################
 
 library(tidyverse); library(ggplot2)
 
 #load("Simulations/Study_2/Data/Results_Study_2_Performance.RData")
 
-# similar settings as stdy 1
+# similar settings as study 1
 
 METHOD_ORDER <- c("SAM","QML","DBLCENT")
 DIST_LABS <- c(normal="Normal", nonnormal="Nonnormal", uniform="Uniform")
 
-# nonlinear parameters with equation labels
-PARAM_ORDER_ALL <- c("eta1:eta2", "eta1:eta1",  
-                     "eta2:eta4", "eta2:eta2",  
-                     "eta3:eta5", "eta3:eta3")
+# UPDATED: nonlinear parameters with equation labels for 5-factor model
+PARAM_ORDER_ALL <- c("eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2",  
+                     "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
 
+# UPDATED: Parameter labels - note eta1:eta1 appears in both equations
 PARAM_LABS_ALL <- c(
   "eta1:eta2" = "η1:η2→η4",
-  "eta1:eta1" = "η1²→η4",
+  "eta1:eta3" = "η1:η3→η4",
+  "eta1:eta1" = "η1²",  # Appears in both eta4 and eta5
+  "eta2:eta2" = "η2²→η4",
+  "eta1:eta4" = "η1:η4→η5",
   "eta2:eta4" = "η2:η4→η5",
-  "eta2:eta2" = "η2²→η5",
-  "eta3:eta5" = "η3:η5→η6",
-  "eta3:eta3" = "η3²→η6"
+  "eta3:eta3" = "η3²→η5"
 )
 
 shapes <- c(SAM=16, QML=15, DBLCENT=18)
@@ -47,26 +48,44 @@ make_condition <- function(N, Rel) {
                     "N=1000, Rel=0.4","N=1000, Rel=0.6","N=1000, Rel=0.8"))
 }
 
-# data prep function for a specific distribution
+# UPDATED: data prep function for a specific distribution (5-factor model)
 prep_nonlinear_by_dist <- function(df, distribution, model = c("Full","Linear")) {
   model <- match.arg(model)
   
-  eta4_params <- c("eta1:eta2", "eta1:eta1")
-  eta5_params <- c("eta2:eta4", "eta2:eta2")
-  eta6_params <- c("eta3:eta5", "eta3:eta3")
+  # UPDATED parameter sets for 5-factor model
+  eta4_params <- c("eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
+  eta5_params <- c("eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
   
-  df %>%
+  # Create separate labels for eta1:eta1 based on equation
+  df_processed <- df %>%
     filter(Distribution == distribution,
            Model == model,
            (Equation == "eta4" & Parameter %in% eta4_params) |
-             (Equation == "eta5" & Parameter %in% eta5_params) |
-             (Equation == "eta6" & Parameter %in% eta6_params)) %>%
+             (Equation == "eta5" & Parameter %in% eta5_params)) %>%
     mutate(
+      # Create unique parameter labels for plotting
+      Parameter_Label = case_when(
+        Equation == "eta4" & Parameter == "eta1:eta2" ~ "η1:η2→η4",
+        Equation == "eta4" & Parameter == "eta1:eta3" ~ "η1:η3→η4",
+        Equation == "eta4" & Parameter == "eta1:eta1" ~ "η1²→η4",
+        Equation == "eta4" & Parameter == "eta2:eta2" ~ "η2²→η4",
+        Equation == "eta5" & Parameter == "eta1:eta4" ~ "η1:η4→η5",
+        Equation == "eta5" & Parameter == "eta2:eta4" ~ "η2:η4→η5",
+        Equation == "eta5" & Parameter == "eta1:eta1" ~ "η1²→η5",
+        Equation == "eta5" & Parameter == "eta3:eta3" ~ "η3²→η5",
+        TRUE ~ Parameter
+      ),
       Method = factor(Method, levels = METHOD_ORDER),
-      Parameter = factor(Parameter, levels = PARAM_ORDER_ALL, labels = PARAM_LABS_ALL),
       Reliability = factor(Reliability),
       SampleSize = factor(SampleSize)
     )
+  
+  # Order parameters for display
+  param_order <- c("η1:η2→η4", "η1:η3→η4", "η1²→η4", "η2²→η4",
+                   "η1:η4→η5", "η2:η4→η5", "η1²→η5", "η3²→η5")
+  
+  df_processed %>%
+    mutate(Parameter_Label = factor(Parameter_Label, levels = param_order))
 }
 
 # ===================== MAIN PLOTTING FUNCTION =====================
@@ -92,7 +111,7 @@ create_distribution_plots <- function(dist_name) {
     geom_hline(yintercept = 0, linetype = "dotted") +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    facet_grid(Parameter ~ Model + SampleSize,
+    facet_grid(Parameter_Label ~ Model + SampleSize,
                labeller = labeller(SampleSize = label_value)) +
     labs(x = "Reliability", y = "Bias", 
          title = paste("Bias -", DIST_LABS[dist_name], "Distribution")) +
@@ -117,7 +136,7 @@ create_distribution_plots <- function(dist_name) {
     geom_hline(yintercept = 0, linetype = "dotted") +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    facet_grid(Parameter ~ Model + SampleSize,
+    facet_grid(Parameter_Label ~ Model + SampleSize,
                labeller = labeller(SampleSize = label_value)) +
     labs(x = "Reliability", y = "RMSE", 
          title = paste("RMSE -", DIST_LABS[dist_name], "Distribution")) +
@@ -141,14 +160,14 @@ create_distribution_plots <- function(dist_name) {
     geom_point(aes(y = pmax(pmin(SE_SD_Ratio, 1.6), 0.85)),
                color = "black", size = 2, position = position_dodge(width = .4)) +
     geom_text(data = filter(dat_sesd, SE_SD_Ratio > 1.6) %>%
-                group_by(Parameter, Model, SampleSize, Reliability) %>%
+                group_by(Parameter_Label, Model, SampleSize, Reliability) %>%
                 arrange(desc(SE_SD_Ratio)) %>%
                 mutate(label_y = 1.59 - (row_number() - 1) * 0.08), 
               aes(label = sprintf("%s: %.2f", Method, SE_SD_Ratio),
                   y = label_y),
               size = 2, hjust = 0, vjust = 1) +
     geom_text(data = filter(dat_sesd, SE_SD_Ratio < 0.85) %>%
-                group_by(Parameter, Model, SampleSize, Reliability) %>%
+                group_by(Parameter_Label, Model, SampleSize, Reliability) %>%
                 arrange(SE_SD_Ratio) %>%
                 mutate(label_y = 0.86 + (row_number() - 1) * 0.08), 
               aes(label = sprintf("%s: %.2f", Method, SE_SD_Ratio),
@@ -156,7 +175,7 @@ create_distribution_plots <- function(dist_name) {
               size = 2, hjust = 0, vjust = 0) +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    facet_grid(Parameter ~ Model + SampleSize,
+    facet_grid(Parameter_Label ~ Model + SampleSize,
                labeller = labeller(SampleSize = label_value)) +
     coord_cartesian(ylim = c(0.85, 1.6)) + 
     labs(x = "Reliability", y = "SE / SD",
@@ -183,7 +202,7 @@ create_distribution_plots <- function(dist_name) {
     geom_line(aes(y = pmax(CoverageRate, 80)), 
               position = position_dodge(width = .4), color = "black") +
     geom_text(data = filter(dat_cov, CoverageRate < 80) %>%
-                group_by(Parameter, Model, SampleSize, Reliability) %>%
+                group_by(Parameter_Label, Model, SampleSize, Reliability) %>%
                 arrange(Method) %>%
                 mutate(label_y = 81 + (row_number() - 1) * 2.5),
               aes(label = sprintf("%s: %.0f%%", Method, CoverageRate),
@@ -192,25 +211,42 @@ create_distribution_plots <- function(dist_name) {
     geom_hline(yintercept = 95, linetype = "dotted") +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    facet_grid(Parameter ~ Model + SampleSize,
+    facet_grid(Parameter_Label ~ Model + SampleSize,
                labeller = labeller(SampleSize = label_value)) +
     coord_cartesian(ylim = c(80, 100)) +
     labs(x = "Reliability", y = "Coverage (%)", 
          title = paste("Coverage -", DIST_LABS[dist_name], "Distribution")) +
     theme_apa_bw()
   
-  # TYPE I ERROR PLOT 
+  # TYPE I ERROR PLOT (UPDATED for 5-factor model)
   dat_t1 <- results_study_2$results %>%
     filter(Model == "Linear",
            Distribution == dist_name,
-           (Equation == "eta4" & Parameter %in% c("eta1:eta2", "eta1:eta1")) |
-             (Equation == "eta5" & Parameter %in% c("eta2:eta4", "eta2:eta2")) |
-             (Equation == "eta6" & Parameter %in% c("eta3:eta5", "eta3:eta3"))) %>%
+           (Equation == "eta4" & Parameter %in% c("eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")) |
+             (Equation == "eta5" & Parameter %in% c("eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3"))) %>%
     mutate(
+      # Create unique labels for eta1:eta1 based on equation
+      Parameter_Label = case_when(
+        Equation == "eta4" & Parameter == "eta1:eta2" ~ "η1:η2→η4",
+        Equation == "eta4" & Parameter == "eta1:eta3" ~ "η1:η3→η4",
+        Equation == "eta4" & Parameter == "eta1:eta1" ~ "η1²→η4",
+        Equation == "eta4" & Parameter == "eta2:eta2" ~ "η2²→η4",
+        Equation == "eta5" & Parameter == "eta1:eta4" ~ "η1:η4→η5",
+        Equation == "eta5" & Parameter == "eta2:eta4" ~ "η2:η4→η5",
+        Equation == "eta5" & Parameter == "eta1:eta1" ~ "η1²→η5",
+        Equation == "eta5" & Parameter == "eta3:eta3" ~ "η3²→η5",
+        TRUE ~ Parameter
+      ),
       Method = factor(Method, levels = METHOD_ORDER),
-      Parameter = factor(Parameter, levels = PARAM_ORDER_ALL, labels = PARAM_LABS_ALL),
       Condition = make_condition(SampleSize, Reliability)
     )
+  
+  # Set parameter order for Type I error plot
+  param_order_t1 <- c("η1:η2→η4", "η1:η3→η4", "η1²→η4", "η2²→η4",
+                      "η1:η4→η5", "η2:η4→η5", "η1²→η5", "η3²→η5")
+  
+  dat_t1 <- dat_t1 %>%
+    mutate(Parameter_Label = factor(Parameter_Label, levels = param_order_t1))
   
   ymax_t1 <- max(dat_t1$TypeI_Error, na.rm = TRUE) * 1.15
   
@@ -220,7 +256,7 @@ create_distribution_plots <- function(dist_name) {
     geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black") +
     geom_text(aes(label = sprintf("%.1f", TypeI_Error)), vjust = -0.4, size = 2.5) +
     geom_hline(yintercept = 5, linetype = "dotted", linewidth = 0.3) +
-    facet_grid(Parameter ~ Condition) +
+    facet_grid(Parameter_Label ~ Condition) +
     scale_fill_manual(values = GREYS_METHOD) +
     coord_cartesian(ylim = c(0, ymax_t1)) +
     labs(x = NULL, y = "Type I error (%)",
@@ -229,24 +265,41 @@ create_distribution_plots <- function(dist_name) {
     theme(axis.text.x = element_blank(),
           axis.ticks.x = element_blank())
   
-  # POWER PLOT 
+  # POWER PLOT (UPDATED for 5-factor model)
   dat_pow <- results_study_2$results %>%
     filter(Model == "Full",
            Distribution == dist_name,
-           (Equation == "eta4" & Parameter %in% c("eta1:eta2", "eta1:eta1")) |
-             (Equation == "eta5" & Parameter %in% c("eta2:eta4", "eta2:eta2")) |
-             (Equation == "eta6" & Parameter %in% c("eta3:eta5", "eta3:eta3"))) %>%
+           (Equation == "eta4" & Parameter %in% c("eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")) |
+             (Equation == "eta5" & Parameter %in% c("eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3"))) %>%
     mutate(
+      # Create unique labels for eta1:eta1 based on equation
+      Parameter_Label = case_when(
+        Equation == "eta4" & Parameter == "eta1:eta2" ~ "η1:η2→η4",
+        Equation == "eta4" & Parameter == "eta1:eta3" ~ "η1:η3→η4",
+        Equation == "eta4" & Parameter == "eta1:eta1" ~ "η1²→η4",
+        Equation == "eta4" & Parameter == "eta2:eta2" ~ "η2²→η4",
+        Equation == "eta5" & Parameter == "eta1:eta4" ~ "η1:η4→η5",
+        Equation == "eta5" & Parameter == "eta2:eta4" ~ "η2:η4→η5",
+        Equation == "eta5" & Parameter == "eta1:eta1" ~ "η1²→η5",
+        Equation == "eta5" & Parameter == "eta3:eta3" ~ "η3²→η5",
+        TRUE ~ Parameter
+      ),
       Method = factor(Method, levels = METHOD_ORDER),
-      Parameter = factor(Parameter, levels = PARAM_ORDER_ALL, labels = PARAM_LABS_ALL),
       Condition = make_condition(SampleSize, Reliability)
     )
+  
+  # parameter order for Power plot
+  param_order_pow <- c("η1:η2→η4", "η1:η3→η4", "η1²→η4", "η2²→η4",
+                       "η1:η4→η5", "η2:η4→η5", "η1²→η5", "η3²→η5")
+  
+  dat_pow <- dat_pow %>%
+    mutate(Parameter_Label = factor(Parameter_Label, levels = param_order_pow))
   
   p_power <- ggplot(dat_pow, aes(x = Method, y = Power, fill = Method)) +
     geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black") +
     geom_text(aes(label = sprintf("%.0f", Power)), vjust = -0.4, size = 2.5) +
     geom_hline(yintercept = 80, linetype = "dotted", linewidth = 0.3) +
-    facet_grid(Parameter ~ Condition) +
+    facet_grid(Parameter_Label ~ Condition) +
     scale_fill_manual(values = GREYS_METHOD) +
     coord_cartesian(ylim = c(0, 110)) +
     labs(x = NULL, y = "Power (%)",
@@ -265,3 +318,8 @@ create_distribution_plots <- function(dist_name) {
     power = p_power
   )
 }
+
+plots_normal <- create_distribution_plots("normal")
+plots_uniform <- create_distribution_plots("uniform") 
+plots_nonnormal <- create_distribution_plots("nonnormal")
+

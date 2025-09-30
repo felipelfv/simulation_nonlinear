@@ -1,4 +1,4 @@
-############################### Study 2 Results Processing ###############################
+############################### Study 2 Results Processing (5-Factor Model) ###############################
 
 # helper function for Study 2 parameter extraction with QML ordering fix
 extract_study2_parameters <- function(table, method_type, equation) {
@@ -7,24 +7,18 @@ extract_study2_parameters <- function(table, method_type, equation) {
   if(method_type == "dblcent") {
     rows <- table[table$lhs == equation & table$op == "~", ]
     
-    # map parameters based on equation
+    # map parameters based on equation (UPDATED FOR NEW STRUCTURE)
     if(equation == "eta4") {
       params <- if(nrow(rows) == 3) {
         c("eta1", "eta2", "eta3")
       } else {
-        c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta1")
+        c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
       }
     } else if(equation == "eta5") {
       params <- if(nrow(rows) == 4) {
         c("eta4", "eta1", "eta2", "eta3")
       } else {
-        c("eta4", "eta1", "eta2", "eta3", "eta2:eta4", "eta2:eta2")
-      }
-    } else if(equation == "eta6") {
-      params <- if(nrow(rows) == 4) {
-        c("eta5", "eta1", "eta2", "eta3")
-      } else {
-        c("eta5", "eta1", "eta2", "eta3", "eta3:eta5", "eta3:eta3")
+        c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
       }
     }
     
@@ -43,19 +37,13 @@ extract_study2_parameters <- function(table, method_type, equation) {
       params <- if(nrow(coefs) == 3) {
         c("eta1", "eta2", "eta3")
       } else {
-        c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta1")
+        c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
       }
     } else if(equation == "eta5") {
       params <- if(nrow(coefs) == 4) {
         c("eta4", "eta1", "eta2", "eta3")
       } else {
-        c("eta4", "eta1", "eta2", "eta3", "eta2:eta4", "eta2:eta2")
-      }
-    } else if(equation == "eta6") {
-      params <- if(nrow(coefs) == 4) {
-        c("eta5", "eta1", "eta2", "eta3")
-      } else {
-        c("eta5", "eta1", "eta2", "eta3", "eta3:eta5", "eta3:eta3")
+        c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
       }
     }
     
@@ -78,9 +66,10 @@ extract_study2_parameters <- function(table, method_type, equation) {
   } else if(method_type == "qml") {
     rows <- table[table$lhs == equation & table$op == "~", ]
     
-    # QML specific ordering issues
-    if(equation == "eta4" && nrow(rows) == 5) {
-      # eta1:eta2 comes before eta1:eta1 (correct order)
+    # QML specific ordering issues (UPDATED FOR NEW INTERACTIONS)
+    if(equation == "eta4" && nrow(rows) == 7) {
+      # For eta4 with new interactions: eta1:eta2, eta1:eta3, eta1:eta1, eta2:eta2
+      # Check if any ordering issues exist and handle them
       RESULTS <- list(
         "Estimates" = setNames(rows$est, rows$rhs),
         "Standard Errors" = setNames(rows$std.error, rows$rhs),
@@ -88,69 +77,29 @@ extract_study2_parameters <- function(table, method_type, equation) {
         "CI_lower" = setNames(rows$ci.lower, rows$rhs),
         "CI_upper" = setNames(rows$ci.upper, rows$rhs)
       )
-    } else if(equation == "eta5" && nrow(rows) == 6) {
-      # QML has eta2:eta2 (row 28) before eta2:eta4 (row 29) - need to swap
-      # current order in rows: eta4, eta1, eta2, eta3, eta2:eta2, eta2:eta4
-      # desired order: eta4, eta1, eta2, eta3, eta2:eta4, eta2:eta2
+    } else if(equation == "eta5" && nrow(rows) == 8) {
+      # For eta5 with new interactions: eta1:eta4, eta2:eta4, eta1:eta1, eta3:eta3
+      # QML might have ordering issues with quadratics vs interactions
       
-      #  reordering index
+      # Check for potential swaps needed
       idx <- 1:nrow(rows)
-      # Find positions of eta2:eta2 and eta2:eta4
-      eta2eta2_idx <- which(rows$rhs == "eta2:eta2")
+      
+      # Find positions of interactions and quadratics
+      eta1eta4_idx <- which(rows$rhs == "eta1:eta4")
       eta2eta4_idx <- which(rows$rhs == "eta2:eta4")
-      
-      if(length(eta2eta2_idx) > 0 && length(eta2eta4_idx) > 0) {
-        # swap the indices
-        idx[eta2eta2_idx] <- eta2eta4_idx
-        idx[eta2eta4_idx] <- eta2eta2_idx
-        
-        RESULTS <- list(
-          "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
-          "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
-          "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
-          "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
-          "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
-        )
-      } else {
-        # if we can't find both, keep original order
-        RESULTS <- list(
-          "Estimates" = setNames(rows$est, rows$rhs),
-          "Standard Errors" = setNames(rows$std.error, rows$rhs),
-          "P-values" = setNames(rows$p.value, rows$rhs),
-          "CI_lower" = setNames(rows$ci.lower, rows$rhs),
-          "CI_upper" = setNames(rows$ci.upper, rows$rhs)
-        )
-      }
-    } else if(equation == "eta6" && nrow(rows) == 6) {
-      # QML has eta3:eta3 (row 34) before eta3:eta5 (row 35) - need to swap
-      # current order: eta5, eta1, eta2, eta3, eta3:eta3, eta3:eta5
-      # desired order: eta5, eta1, eta2, eta3, eta3:eta5, eta3:eta3
-      
-      idx <- 1:nrow(rows)
+      eta1eta1_idx <- which(rows$rhs == "eta1:eta1")
       eta3eta3_idx <- which(rows$rhs == "eta3:eta3")
-      eta3eta5_idx <- which(rows$rhs == "eta3:eta5")
       
-      if(length(eta3eta3_idx) > 0 && length(eta3eta5_idx) > 0) {
-        
-        idx[eta3eta3_idx] <- eta3eta5_idx
-        idx[eta3eta5_idx] <- eta3eta3_idx
-
-        RESULTS <- list(
-          "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
-          "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
-          "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
-          "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
-          "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
-        )
-      } else {
-        RESULTS <- list(
-          "Estimates" = setNames(rows$est, rows$rhs),
-          "Standard Errors" = setNames(rows$std.error, rows$rhs),
-          "P-values" = setNames(rows$p.value, rows$rhs),
-          "CI_lower" = setNames(rows$ci.lower, rows$rhs),
-          "CI_upper" = setNames(rows$ci.upper, rows$rhs)
-        )
-      }
+      # Apply any necessary reordering here if QML outputs in wrong order
+      # For now, keep original order unless specific issues are identified
+      
+      RESULTS <- list(
+        "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
+        "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
+        "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
+        "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
+        "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
+      )
     } else {
       # cases without interaction/quadratic terms, no reordering needed
       RESULTS <- list(
@@ -169,9 +118,8 @@ extract_study2_parameters <- function(table, method_type, equation) {
 
 ExtractConvergenceOutliers_Study2 <- function(all_results,
                                               parameters_of_interest = list(
-                                                eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta1"),
-                                                eta5 = c("eta4","eta1","eta2","eta3","eta2:eta4","eta2:eta2"),
-                                                eta6 = c("eta5","eta1","eta2","eta3","eta3:eta5","eta3:eta3")
+                                                eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta3","eta1:eta1","eta2:eta2"),
+                                                eta5 = c("eta4","eta1","eta2","eta3","eta1:eta4","eta2:eta4","eta1:eta1","eta3:eta3")
                                               ),
                                               remove_outliers = TRUE,
                                               outlier_threshold = 3,
@@ -218,7 +166,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
       method_convergence[[method]] <- rep(FALSE, max_reps)  
     }
     
-    # check convergence for each method and equation
+    # check convergence for each method and equation (NOW ONLY eta4 and eta5)
     for (method in methods) {
       tbls <- res_list[[paste0(method, "_tables")]]
       if (is.null(tbls)) next
@@ -227,7 +175,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
         if (rep > length(tbls) || is.null(tbls[[rep]])) next
         
         converged <- TRUE
-        # check all three equations
+        # check both equations (eta4 and eta5 only)
         for (eq in names(parameters_of_interest)) {
           extr <- extract_study2_parameters(tbls[[rep]], method, eq)
           if (is.null(extr)) {
@@ -246,7 +194,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
                 converged <- FALSE
                 break
               }
-            } else if (!grepl(":", p)) {  # nain effects should always be present
+            } else if (!grepl(":", p)) {  # main effects should always be present
               converged <- FALSE
               break
             }
@@ -475,7 +423,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
           
           if (length(ests) == 0) next
           
-          # get true value
+          # get true value (UPDATED FOR NEW PARAMETER NAMES)
           param_key <- paste0(eq, "_", gsub(":", "", p_name))
           tv <- if (!is.null(true_params[[param_key]])) {
             true_params[[param_key]]
@@ -550,7 +498,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
   )
 }
 
-# performance Metrics for Study 2
+# performance Metrics for Study 2 (unchanged)
 CalculatePerformanceMetrics_Study2 <- function(filtered_data, 
                                                convergence_outliers_summary,
                                                alpha = 0.05) {
@@ -777,12 +725,11 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
   results_summary
 }
 
-# wrapper function for Study 2 (parallel to Study 1)
+# wrapper function for Study 2 (UPDATED PARAMETERS)
 CalculatePerformance_Study2 <- function(all_results,
                                         parameters_of_interest = list(
-                                          eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta1"),
-                                          eta5 = c("eta4","eta1","eta2","eta3","eta2:eta4","eta2:eta2"),
-                                          eta6 = c("eta5","eta1","eta2","eta3","eta3:eta5","eta3:eta3")
+                                          eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta3","eta1:eta1","eta2:eta2"),
+                                          eta5 = c("eta4","eta1","eta2","eta3","eta1:eta4","eta2:eta4","eta1:eta1","eta3:eta3")
                                         ),
                                         remove_outliers = TRUE,
                                         outlier_threshold = 3,
@@ -818,16 +765,15 @@ CalculatePerformance_Study2 <- function(all_results,
   }
 }
 
-# RUN THE ANALYSIS FOR STUDY 2
+# RUN THE ANALYSIS FOR STUDY 2 (UPDATED PARAMETERS)
 load("Simulations/Study_2/Data/Results_Study_2_final.RData")
 
-# results exactly as in Study 1
+# results with the new 5-factor structure
 results_study_2 <- CalculatePerformance_Study2(
   all_results,
   parameters_of_interest = list(
-    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta1"),
-    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta2:eta4", "eta2:eta2"),
-    eta6 = c("eta5", "eta1", "eta2", "eta3", "eta3:eta5", "eta3:eta3")
+    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
+    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
   ),
   remove_outliers = TRUE,
   outlier_threshold = 3,
