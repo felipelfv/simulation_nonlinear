@@ -114,8 +114,7 @@
 
 ############################### 3. Functions ####################################
 
-## Helper function to extract specific parameters from stored tables
-
+## helper function to extract specific parameters from stored tables
 extract_eta3_parameters <- function(table, method_type) {
   if(is.null(table)) return(NULL)
   
@@ -202,7 +201,7 @@ extract_eta3_parameters <- function(table, method_type) {
   RESULTS
 }
 
-## Function 1: Extract Convergence and Outliers
+## Function 1: Convergence and Outliers
 ExtractConvergenceOutliers <- function(all_results,
                                        parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                        remove_outliers = TRUE,
@@ -211,9 +210,6 @@ ExtractConvergenceOutliers <- function(all_results,
                                        exclude_warnings = FALSE) {
   
   options(scipen = 999)
-  if (is.null(all_results) || length(all_results) == 0) {
-    stop("all_results is NULL or empty. Please load your data first.")
-  }
   
   methods <- c("sam", "lms", "qml", "dblcent")
   convergence_outliers_summary <- dplyr::tibble()
@@ -225,32 +221,25 @@ ExtractConvergenceOutliers <- function(all_results,
     condition <- all_results[[i]]$condition
     res_list  <- all_results[[i]]$results
     
-    # true values (fallbacks)
+    # Get true values
     true_values <- all_results[[i]]$true_parameters
     if (is.null(true_values)) {
-      if (!is.null(condition$Model_Type)) {
-        if (condition$Model_Type == "linear") {
-          true_values <- c(0.316, 0.316, 0, 0, 0)
-        } else if (condition$Model_Type == "full") {
-          true_values <- c(0.316, 0.316, 0.139, 0.101, 0.101)
-        }
-      } else {
+      if (condition$Model_Type == "linear") {
+        true_values <- c(0.316, 0.316, 0, 0, 0)
+      } else {  # Must be "full"
         true_values <- c(0.316, 0.316, 0.139, 0.101, 0.101)
       }
     }
     
-    model_name <- if (!is.null(condition$Model_Type)) {
-      ifelse(condition$Model_Type == "linear", "Linear", "Full")
-    } else "Full"
+    model_name <- ifelse(condition$Model_Type == "linear", "Linear", "Full")
     distribution <- as.character(condition$Distribution)
-    if (is.null(distribution) || distribution == "") distribution <- "normal"
     sample_size <- condition$N
     reliability <- condition$Rel
     
     # TRACK CONVERGENCE FOR EACH METHOD SEPARATELY
-
-    # number of replications
     max_reps <- 0
+    # number of replications
+    # could be a hard coded 1000 but as for testing before we have this 
     for (method in methods) {
       tbls <- res_list[[paste0(method, "_tables")]]
       if (!is.null(tbls)) {
@@ -313,10 +302,10 @@ ExtractConvergenceOutliers <- function(all_results,
       method_warnings[[method]] <- list()
       method_warning_counts[[method]] <- 0
       
-      # Check if warnings exist for this method
+      # if warnings exist for this method
       method_warns <- res_list[["warnings"]][[method]]
       if (!is.null(method_warns)) {
-        # Go through each converged replication
+        # through each converged replication
         for (rep in which(method_convergence[[method]])) {
           if (rep <= length(method_warns) && !is.null(method_warns[[rep]]) && length(method_warns[[rep]]) > 0) {
             method_warnings[[method]][[as.character(rep)]] <- method_warns[[rep]]
@@ -326,7 +315,7 @@ ExtractConvergenceOutliers <- function(all_results,
       }
     }
     
-    # Store non-converged iterations and warnings
+    # store non-converged iterations and warnings
     non_converged_iterations <- list()
     for (method in methods) {
       non_converged_iterations[[method]] <- which(!method_convergence[[method]])
@@ -349,7 +338,6 @@ ExtractConvergenceOutliers <- function(all_results,
     }
     
     # IDENTIFY VALID REPLICATIONS ACROSS ALL METHODS (CONVERGENCE + OPTIONAL WARNINGS)
-    
     valid_reps <- rep(TRUE, max_reps)
     for (method in methods) {
       valid_reps <- valid_reps & method_convergence[[method]]
@@ -383,7 +371,6 @@ ExtractConvergenceOutliers <- function(all_results,
     }
     
     # TRACK OUTLIERS FOR EACH METHOD INDEPENDENTLY (AFTER CONVERGENCE)
-    
     method_outliers <- list()
     method_outlier_counts <- list()
     
@@ -461,7 +448,6 @@ ExtractConvergenceOutliers <- function(all_results,
     
     # GLOBAL OUTLIER SYNCHRONIZATION
     valid_after_outliers <- valid_reps
-    
     if (remove_outliers) {
       for (method in methods) {
         valid_after_outliers <- valid_after_outliers & !method_outliers[[method]]
@@ -479,7 +465,6 @@ ExtractConvergenceOutliers <- function(all_results,
     }
     
     # EXTRACT FILTERED DATA FOR EACH METHOD
-    
     for (method in methods) {
       tbls <- res_list[[paste0(method, "_tables")]]
       if (is.null(tbls)) next
@@ -584,13 +569,13 @@ ExtractConvergenceOutliers <- function(all_results,
   )
 }
 
-## Function 2: Calculate Performance Metrics
+## Function 2: Performance Metrics
 CalculatePerformanceMetrics <- function(filtered_data, 
                                         convergence_outliers_summary,
                                         alpha = 0.05) {
   
   library(simhelpers)
-  results_summary <- dplyr::tibble()
+  results_summary <- tibble::tibble()
   
   for (key in names(filtered_data)) {
     data_item <- filtered_data[[key]]
@@ -632,9 +617,8 @@ CalculatePerformanceMetrics <- function(filtered_data,
     }
     
     # CALCULATE ALL MEAN-BASED METRICS USING SIMHELPERS
-    
     # ABSOLUTE METRICS
-    abs_metrics <- calc_absolute(
+    abs_metrics <- simhelpers::calc_absolute(
       data = df,
       estimates = est, 
       true_param = true_param,
@@ -643,8 +627,9 @@ CalculatePerformanceMetrics <- function(filtered_data,
     )
     
     # RELATIVE METRICS (only if true value is non-zero)
+    # note that pkg::fun here was not working without loading simhelpers
     if (tv != 0) {
-      rel_metrics <- calc_relative(
+      rel_metrics <- simhelpers::calc_relative(
         data = df,
         estimates = est,
         true_param = true_param,
@@ -671,7 +656,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
     }
     
     # COVERAGE AND CI WIDTH
-    cov_metrics <- calc_coverage(
+    cov_metrics <- simhelpers::calc_coverage(
       data = df,
       lower_bound = lower_bound, 
       upper_bound = upper_bound, 
@@ -681,7 +666,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
     )
     
     # REJECTION RATES
-    rej_metrics <- calc_rejection(
+    rej_metrics <- simhelpers::calc_rejection(
       data = df,
       p_values = p_val,
       alpha = alpha
@@ -810,7 +795,9 @@ CalculatePerformanceMetrics <- function(filtered_data,
   results_summary
 }
 
-# Wrapper for manuscript currently 
+load("Simulations/Study_1/Data/Results_Study_1_final.RData")
+
+# wrapper for manuscript currently 
 CalculatePerformance <- function(all_results,
                                  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                  remove_outliers = TRUE,
@@ -848,24 +835,13 @@ CalculatePerformance <- function(all_results,
 }
 
 
-# results_study_1 <- CalculatePerformance(
-#   all_results,
-#   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-#   remove_outliers = TRUE,
-#   outlier_threshold = 3,
-#   alpha = 0.05,
-#   min_reps = 10,
-#   exclude_warnings = FALSE,  # Set to TRUE to exclude iterations with warnings
-#   return_convergence_details = TRUE
-# )
-
-# functions separately
-extraction_with <- ExtractConvergenceOutliers(
-  all_results,
-  exclude_warnings = FALSE
-)
-
-results_study_1 <- CalculatePerformanceMetrics(
-  extraction_with$filtered_data,
-  extraction_with$convergence_outliers_summary
+results_study_1 <- CalculatePerformance(
+   all_results,
+   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+   remove_outliers = TRUE,
+   outlier_threshold = 3,
+   alpha = 0.05,
+   min_reps = 10,
+   exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
+   return_convergence_details = FALSE
 )
