@@ -1,7 +1,6 @@
 ############################### Study 2 Results Processing (5-Factor Model) ###############################
 
-# helper function for Study 2 parameter extraction with QML ordering fix
-# helper function for Study 2 parameter extraction with proper dblcent naming
+# helper function for Study 2 parameter extraction
 extract_study2_parameters <- function(table, method_type, equation) {
   if(is.null(table)) return(NULL)
   
