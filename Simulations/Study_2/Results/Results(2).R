@@ -127,10 +127,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
                                               exclude_warnings = FALSE) {
   
   options(scipen = 999)
-  if (is.null(all_results) || length(all_results) == 0) {
-    stop("all_results is NULL or empty. Please load your data first.")
-  }
-  
+
   methods <- c("sam", "qml", "dblcent") 
   convergence_outliers_summary <- dplyr::tibble()
   convergence_outliers_details <- list()
@@ -145,7 +142,6 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
     
     model_name <- ifelse(condition$Model_Type == "linear", "Linear", "Full")
     distribution <- as.character(condition$Distribution)
-    if (is.null(distribution) || distribution == "") distribution <- "normal"
     sample_size <- condition$N
     reliability <- condition$Rel
     
@@ -766,19 +762,19 @@ CalculatePerformance_Study2 <- function(all_results,
 }
 
 # RUN THE ANALYSIS FOR STUDY 2 (UPDATED PARAMETERS)
-load("Simulations/Study_2/Data/Results_Study_2_final.RData")
+#load("Simulations/Study_2/Data/Results_Study_2_final.RData")
 
 # results with the new 5-factor structure
-results_study_2 <- CalculatePerformance_Study2(
-  all_results,
-  parameters_of_interest = list(
-    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
-    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
-  ),
-  remove_outliers = TRUE,
-  outlier_threshold = 3,
-  alpha = 0.05,
-  min_reps = 10,
-  exclude_warnings = FALSE,
-  return_convergence_details = TRUE
-)
+#results_study_2 <- CalculatePerformance_Study2(
+#  all_results,
+#  parameters_of_interest = list(
+#    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
+#    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
+#  ),
+#  remove_outliers = TRUE,
+#  outlier_threshold = 3,
+#  alpha = 0.05,
+#  min_reps = 10,
+#  exclude_warnings = FALSE,
+#  return_convergence_details = TRUE
+#)
