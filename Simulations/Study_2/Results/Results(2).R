@@ -1,33 +1,42 @@
 ############################### Study 2 Results Processing (5-Factor Model) ###############################
 
 # helper function for Study 2 parameter extraction with QML ordering fix
+# helper function for Study 2 parameter extraction with proper dblcent naming
 extract_study2_parameters <- function(table, method_type, equation) {
   if(is.null(table)) return(NULL)
   
   if(method_type == "dblcent") {
     rows <- table[table$lhs == equation & table$op == "~", ]
     
-    # map parameters based on equation (UPDATED FOR NEW STRUCTURE)
+    # dblcent uses different parameter names (no colons in interactions)
     if(equation == "eta4") {
-      params <- if(nrow(rows) == 3) {
-        c("eta1", "eta2", "eta3")
+      if(nrow(rows) == 3) {
+        params_dblcent <- c("eta1", "eta2", "eta3")
+        params_standard <- c("eta1", "eta2", "eta3")
       } else {
-        c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
+        params_dblcent <- c("eta1", "eta2", "eta3", "eta1eta2", "eta1eta3", "eta1eta1", "eta2eta2")
+        params_standard <- c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
       }
     } else if(equation == "eta5") {
-      params <- if(nrow(rows) == 4) {
-        c("eta4", "eta1", "eta2", "eta3")
+      if(nrow(rows) == 4) {
+        params_dblcent <- c("eta4", "eta1", "eta2", "eta3")
+        params_standard <- c("eta4", "eta1", "eta2", "eta3")
       } else {
-        c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
+        params_dblcent <- c("eta4", "eta1", "eta2", "eta3", "eta1eta4", "eta2eta4", "eta1eta1", "eta3eta3")
+        params_standard <- c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
       }
     }
     
+    # Match using dblcent names, return with standard names
+    matched_rows <- match(params_dblcent, rows$rhs)
+    rows <- rows[matched_rows, ]
+    
     RESULTS <- list(
-      "Estimates" = setNames(rows$est, params),
-      "Standard Errors" = setNames(rows$se, params),
-      "P-values" = setNames(rows$pvalue, params),
-      "CI_lower" = setNames(rows$ci.lower, params),
-      "CI_upper" = setNames(rows$ci.upper, params)
+      "Estimates" = setNames(rows$est, params_standard),
+      "Standard Errors" = setNames(rows$se, params_standard),
+      "P-values" = setNames(rows$pvalue, params_standard),
+      "CI_lower" = setNames(rows$ci.lower, params_standard),
+      "CI_upper" = setNames(rows$ci.upper, params_standard)
     )
     
   } else if(method_type == "sam") {
@@ -66,50 +75,32 @@ extract_study2_parameters <- function(table, method_type, equation) {
   } else if(method_type == "qml") {
     rows <- table[table$lhs == equation & table$op == "~", ]
     
-    # QML specific ordering issues (UPDATED FOR NEW INTERACTIONS)
-    if(equation == "eta4" && nrow(rows) == 7) {
-      # For eta4 with new interactions: eta1:eta2, eta1:eta3, eta1:eta1, eta2:eta2
-      # Check if any ordering issues exist and handle them
-      RESULTS <- list(
-        "Estimates" = setNames(rows$est, rows$rhs),
-        "Standard Errors" = setNames(rows$std.error, rows$rhs),
-        "P-values" = setNames(rows$p.value, rows$rhs),
-        "CI_lower" = setNames(rows$ci.lower, rows$rhs),
-        "CI_upper" = setNames(rows$ci.upper, rows$rhs)
-      )
-    } else if(equation == "eta5" && nrow(rows) == 8) {
-      # For eta5 with new interactions: eta1:eta4, eta2:eta4, eta1:eta1, eta3:eta3
-      # QML might have ordering issues with quadratics vs interactions
-      
-      # Check for potential swaps needed
-      idx <- 1:nrow(rows)
-      
-      # Find positions of interactions and quadratics
-      eta1eta4_idx <- which(rows$rhs == "eta1:eta4")
-      eta2eta4_idx <- which(rows$rhs == "eta2:eta4")
-      eta1eta1_idx <- which(rows$rhs == "eta1:eta1")
-      eta3eta3_idx <- which(rows$rhs == "eta3:eta3")
-      
-      # Apply any necessary reordering here if QML outputs in wrong order
-      # For now, keep original order unless specific issues are identified
-      
-      RESULTS <- list(
-        "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
-        "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
-        "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
-        "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
-        "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
-      )
-    } else {
-      # cases without interaction/quadratic terms, no reordering needed
-      RESULTS <- list(
-        "Estimates" = setNames(rows$est, rows$rhs),
-        "Standard Errors" = setNames(rows$std.error, rows$rhs),
-        "P-values" = setNames(rows$p.value, rows$rhs),
-        "CI_lower" = setNames(rows$ci.lower, rows$rhs),
-        "CI_upper" = setNames(rows$ci.upper, rows$rhs)
-      )
+    # Define standard parameter order
+    if(equation == "eta4") {
+      params <- if(nrow(rows) == 3) {
+        c("eta1", "eta2", "eta3")
+      } else {
+        c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
+      }
+    } else if(equation == "eta5") {
+      params <- if(nrow(rows) == 4) {
+        c("eta4", "eta1", "eta2", "eta3")
+      } else {
+        c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
+      }
     }
+    
+    # Reorder rows to match params
+    matched_rows <- match(params, rows$rhs)
+    rows <- rows[matched_rows, ]
+    
+    RESULTS <- list(
+      "Estimates" = setNames(rows$est, params),
+      "Standard Errors" = setNames(rows$std.error, params),
+      "P-values" = setNames(rows$p.value, params),
+      "CI_lower" = setNames(rows$ci.lower, params),
+      "CI_upper" = setNames(rows$ci.upper, params)
+    )
   }
   
   RESULTS

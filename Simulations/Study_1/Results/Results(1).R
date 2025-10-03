@@ -795,7 +795,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
   results_summary
 }
 
-load("Simulations/Study_1/Data/Results_Study_1_final.RData")
+#load("Simulations/Study_1/Data/Results_Study_1_final.RData")
 
 # wrapper for manuscript currently 
 CalculatePerformance <- function(all_results,
@@ -835,13 +835,13 @@ CalculatePerformance <- function(all_results,
 }
 
 
-results_study_1 <- CalculatePerformance(
-   all_results,
-   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-   remove_outliers = TRUE,
-   outlier_threshold = 3,
-   alpha = 0.05,
-   min_reps = 10,
-   exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
-   return_convergence_details = FALSE
-)
+#results_study_1 <- CalculatePerformance(
+#   all_results,
+#   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+#   remove_outliers = TRUE,
+#   outlier_threshold = 3,
+#   alpha = 0.05,
+#   min_reps = 10,
+#   exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
+#   return_convergence_details = FALSE
+#)
