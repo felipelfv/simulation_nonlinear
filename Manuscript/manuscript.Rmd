@@ -103,6 +103,9 @@ knitr::opts_chunk$set(fig.cap = NULL)
 ```{r, child = "results.Rmd"}
 ```
 
+```{r, child = "discussion.Rmd"}
+```
+
 \newpage
 
 # References
@@ -119,18 +122,6 @@ knitr::opts_chunk$set(fig.cap = NULL)
 \newpage
 
 ```{r, echo=FALSE, results='asis', eval=FALSE}
-# MOVE TO APPENDIX
-# ---------- render all 36 tables ----------
-Ns     <- c(400, 1000)
-Rels   <- c(0.4, 0.6, 0.8)
-Dists  <- c("normal","nonnormal","uniform")
-Models <- c("Linear","Full")
-
-for (N in Ns) for (Rel in Rels) for (Dist in Dists) for (Model in Models) {
-  tab <- build_condition_table_landscape(results_with_mcse, N, Rel, Dist, model_type = Model)
-  if (!is.null(tab)) print(tab)
-  if (knitr::is_latex_output()) cat("\n\\clearpage\n")
-}
 ```
 
 ```{r, child="appendix.Rmd"}
