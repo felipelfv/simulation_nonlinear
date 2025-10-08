@@ -21,244 +21,43 @@ R_version <- getRversion()
 
 # Simulation design and performance evaluation
 
-In this section, we present the simulation design for the simulation study 1 and study 2. This includes the simulation conditions, computational information, and the metrics used to evaluate the performance of the approaches under investigation. The information presented here follows the suggestions from previous articles that investigated the quality of simulation studies [@siepe_etall_2024; @white_etall_2024; @morris_etall_2019].
+In this section, we present the simulation design and performance metrics for the simulation 1 and 2. The information presented here follows the suggestions from previous articles that investigated the quality of simulation studies [@siepe_etall_2024; @white_etall_2024; @morris_etall_2019].
 
 ## Simulation Conditions
 
-Both simulation designs employed a fully crossed factorial design with 2 (sample sizes) × 3 (reliability levels) × 3 (latent predictor distributions), yielding 18 unique experimental conditions. Simulation 1 evaluated the performance of all four approaches: UPI, LMS, QML, and LSAM. Simulation 2 examined UPI, QML, and LSAM, excluding LMS due to computational constraints in preliminary analyses^[]. To assess Type I error rates and power, we implemented two model specifications: (a) data generated under a linear model (no interaction and quadratic terms) but fitted with a full interaction model, and (b) data generated under and fitted with a full interaction model. This resulted in 36 total conditions, with null model conditions allowing assessment of Type I error rates and full model conditions evaluating statistical power. Each condition was replicated 1,000 times.
+Both simulations used a 2 (sample sizes) × 3 (reliability levels) × 3 (latent predictor distributions) factorial design, yielding 18 conditions. Simulation 1 evaluated UPI, LMS, QML, and LSAM; Simulation 2 excluded LMS due to computational constraints. To assess Type I error rates and empirical local power [@irmer_etall_2024], we tested two specifications: (a) linear model data generation with full model estimation (assessing Type I error), and (b) full interaction model for both generation and estimation (assessing power). This yielded 36 total conditions, each replicated 1,000 times.
 
-Sample sizes of 400 and 1000 were selected to represent moderate to large samples. While some simulation studies have examined more extensive ranges of sample sizes [@brandt_etall_2014; @cham_etall_2012; @wall_amemiya_2000; @lonati_etall_2024], we focused on 400 and 1000 for specific reasons. We attempted to examine an intermediate sample size not used in the previous simulations (i.e., 250, 350, 500, or 650). Moreover, it allowed us to explore performance just below the 500 threshold that some studies suggest as a minimum for complex latent interaction models (Wall et al., 2012, as cited in Brandt et al., 2020), while still representing a realistic sample size in applied research. In contrast, a sample size equal to 1000 enabled us to evaluate the asymptotic properties of these estimators, while also aligning with previous simulation studies that commonly employed this sample size. Last, although examining additional sample size conditions would provide more information, computational constraints required a more focused selection.
-
-Three reliability levels (0.4, 0.6, and 0.8) were examined, covering a broad range of measurement quality. These will be referred to as low, medium and high reliability, respectively. While previous simulations have typically focused on high reliability conditions (i.e., 0.8 in Brandt et al., 2014; 0.7 and 0.8 in Lonati et al., 2024) or contrasted high versus low reliability (i.e., 0.8 and 0.5 in Brandt et al., 2020), we extended this range by including 0.4 to examine method performance under poor measurement conditions.
-
-The three distributional conditions investigated were: normal, non-normal, and uniform distributions. These choices were based on previous research that also varied the nonnormality to different degrees [@brandt_etall_2014; brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024].
-
-```{tikz, dev='pdf', fig.ext='pdf', fig.cap="Population model for simulation study 1.", fig.align="center", out.width="\\linewidth"}
-\tikzset{
-  latent/.style  ={circle,draw,minimum size=14mm},
-  ind/.style     ={rectangle,draw,minimum height=6mm,minimum width=8mm,align=center},
-  derived/.style ={circle,draw,minimum size=14mm}, % same as latent
-  every node/.style={font=\small}
-}
-
-\begin{tikzpicture}
-
-\node[ind] (y1)  at (0,  0.8) {y$_1$};
-\node[ind] (y2)  at (0,  0.0) {y$_2$};
-\node[ind] (y3)  at (0, -0.8) {y$_3$};
-\node[latent] (eta1) at (2.4, 0.0) {$\eta_1$};
-
-\draw[->] (eta1.west) -- (y1.east);
-\draw[->] (eta1.west) -- (y2.east);
-\draw[->] (eta1.west) -- (y3.east);
-
-\node[ind] (y4)  at (0, -2.8) {y$_4$};
-\node[ind] (y5)  at (0, -3.6) {y$_5$};
-\node[ind] (y6)  at (0, -4.4) {y$_6$};
-\node[latent] (eta2) at (2.4, -3.6) {$\eta_2$};
-
-\draw[->] (eta2.west) -- (y4.east);
-\draw[->] (eta2.west) -- (y5.east);
-\draw[->] (eta2.west) -- (y6.east);
-
-% middle-right latent eta3
-\node[latent] (eta3) at (6.6, -1.6) {$\eta_3$};
-
-\draw[->] (eta1) -- node[above] {$\beta_1$} (eta3);
-\draw[->] (eta2) -- node[above,sloped] {$\beta_2$} (eta3);
-
-% nonlinear terms (aligned horizontally; same y, spaced x)
-\node[derived] (eta1sq) at (4.3, -4.2) {$\eta_1^{2}$};
-\node[derived] (eta2sq) at (6.6, -4.2) {$\eta_2^{2}$};
-\node[derived] (eta12)  at (8.9, -4.2) {$\eta_1\eta_2$};
-
-\draw[->] (eta1sq) -- node[above] {$\beta_3$} (eta3);
-\draw[->] (eta2sq) -- node[right] {$\beta_4$} (eta3);
-\draw[->] (eta12)  -- node[above] {$\beta_5$} (eta3);
-
-% idicators of eta3 (aligned row above; latent -> indicators; same arrow length ≈ 2.4)
-\node[ind] (y7) at (5.6, 0.8) {y$_7$};
-\node[ind] (y8) at (6.6, 0.8) {y$_8$};
-\node[ind] (y9) at (7.6, 0.8) {y$_9$};
-
-% exactly like eta1/eta2: same start point for all three arrows
-\draw[->] (eta3.north) -- (y7.south);
-\draw[->] (eta3.north) -- (y8.south);
-\draw[->] (eta3.north) -- (y9.south);
-
-\end{tikzpicture}
-```
-
-```{tikz, dev='pdf', fig.ext='pdf', fig.cap="Population model for simulation study 2.", fig.align="center", out.width="\\linewidth"}
-\tikzset{
-  latent/.style  ={circle,draw,minimum size=14mm},
-  ind/.style     ={rectangle,draw,minimum height=6mm,minimum width=8mm,align=center},
-  derived/.style ={circle,draw,minimum size=14mm},
-  every node/.style={font=\small}
-}
-
-\begin{tikzpicture}
-
-% Left column: indicators for eta1
-\node[ind] (y1)  at (0,  1.0) {y$_1$};
-\node[ind] (y2)  at (0,  0.0) {y$_2$};
-\node[ind] (y3)  at (0, -1.0) {y$_3$};
-\node[latent] (eta1) at (2.4, 0.0) {$\eta_1$};
-
-\draw[->] (eta1.west) -- (y1.east);
-\draw[->] (eta1.west) -- (y2.east);
-\draw[->] (eta1.west) -- (y3.east);
-
-% indicators for eta2
-\node[ind] (y4)  at (0, -3.5) {y$_4$};
-\node[ind] (y5)  at (0, -4.5) {y$_5$};
-\node[ind] (y6)  at (0, -5.5) {y$_6$};
-\node[latent] (eta2) at (2.4, -4.5) {$\eta_2$};
-
-\draw[->] (eta2.west) -- (y4.east);
-\draw[->] (eta2.west) -- (y5.east);
-\draw[->] (eta2.west) -- (y6.east);
-
-% indicators for eta3
-\node[ind] (y7)  at (0, -8.0) {y$_7$};
-\node[ind] (y8)  at (0, -9.0) {y$_8$};
-\node[ind] (y9)  at (0, -10.0) {y$_9$};
-\node[latent] (eta3) at (2.4, -9.0) {$\eta_3$};
-
-\draw[->] (eta3.west) -- (y7.east);
-\draw[->] (eta3.west) -- (y8.east);
-\draw[->] (eta3.west) -- (y9.east);
-
-% Middle: endogenous latent eta4
-\node[latent] (eta4) at (5.5, -2.5) {$\eta_4$};
-
-\draw[->] (eta1) -- (eta4);
-\draw[->] (eta2) -- (eta4);
-\draw[->] (eta3) -- (eta4);
-
-% nonlinear terms for eta4 (to the right, well-spaced)
-\node[derived] (eta12)  at (9.0, 0.0) {$\eta_1\eta_2$};
-\node[derived] (eta13)  at (9.0, -1.5) {$\eta_1\eta_3$};
-\node[derived] (eta1sq) at (9.0, -3.0) {$\eta_1^{2}$};
-\node[derived] (eta2sq) at (9.0, -4.5) {$\eta_2^{2}$};
-
-\draw[->] (eta12)  -- (eta4);
-\draw[->] (eta13)  -- (eta4);
-\draw[->] (eta1sq) -- (eta4);
-\draw[->] (eta2sq) -- (eta4);
-
-% indicators for eta4
-\node[ind] (y10) at (4.5, 1.0) {y$_{10}$};
-\node[ind] (y11) at (5.5, 1.0) {y$_{11}$};
-\node[ind] (y12) at (6.5, 1.0) {y$_{12}$};
-
-\draw[->] (eta4.north) -- (y10.south);
-\draw[->] (eta4.north) -- (y11.south);
-\draw[->] (eta4.north) -- (y12.south);
-
-% Middle: endogenous latent eta5
-\node[latent] (eta5) at (5.5, -7.5) {$\eta_5$};
-
-\draw[->] (eta4) -- (eta5);
-\draw[->] (eta1) -- (eta5);
-\draw[->] (eta2) -- (eta5);
-\draw[->] (eta3) -- (eta5);
-
-% nonlinear terms for eta5 (to the right, well-spaced)
-\node[derived] (eta14)   at (9.0, -6.0) {$\eta_1\eta_4$};
-\node[derived] (eta24)   at (9.0, -7.5) {$\eta_2\eta_4$};
-\node[derived] (eta1sq2) at (9.0, -9.0) {$\eta_1^{2}$};
-\node[derived] (eta3sq)  at (9.0, -10.5) {$\eta_3^{2}$};
-
-\draw[->] (eta14)   -- (eta5);
-\draw[->] (eta24)   -- (eta5);
-\draw[->] (eta1sq2) -- (eta5);
-\draw[->] (eta3sq)  -- (eta5);
-
-% indicators for eta5
-\node[ind] (y13) at (4.5, -11.0) {y$_{13}$};
-\node[ind] (y14) at (5.5, -11.0) {y$_{14}$};
-\node[ind] (y15) at (6.5, -11.0) {y$_{15}$};
-
-\draw[->] (eta5.south) -- (y13.north);
-\draw[->] (eta5.south) -- (y14.north);
-\draw[->] (eta5.south) -- (y15.north);
-
-\end{tikzpicture}
-```
+Sample sizes of 400 and 1000 represented moderate to large samples. We selected 400 to examine performance below the suggested 500-threshold minimum for complex latent interaction models (Wall et al., 2012) while remaining realistic for applied research. The 1000 sample size allowed evaluation of asymptotic properties and aligned with previous simulations. Computational constraints prevented examining additional conditions. Three reliability levels (0.4, 0.6, 0.8—termed low, medium, and high) covered a broad range of measurement quality. While previous simulations typically examined high reliability [@brandt_etall_2014; @lonati_etall_2024] or contrasted high versus low [@brandt_etall_2020], we included 0.4 to assess performance under poor measurement conditions. Last, the three distributional conditions—normal, non-normal, and uniform—were based on prior research varying non-normality to different degrees [@brandt_etall_2014; @brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024; @wall_amemiya_2000].
 
 ## Data Generation
 
-All the population models were first specified to achieve target reliability levels ($\rho \approx 0.4, 0.6, 0.8$) and $R^2 \approx 0.30$ under normally distributed predictor latent variables. The variance parameters derived from these normal-based models were then used unchanged across all distributional conditions, allowing us to isolate the impact of distributional violations on model estimation.
+Data generation followed a similar procedure as in previous studies [@ng_chan_2020; @cox_kelcey_2021; @rosseel_etall_2025]. First, structural residual variances and measurement error variances were set to achieve $R^2 \approx 0.30$ and reliability $\rho \in \{0.4, 0.6, 0.8\}$ under normally distributed predictor latent variables. Second, using these fixed variance parameters, data were generated under three distributional conditions (see Appendix A for complete data generation procedures). See Figure 1 for the true population models. 
 
-For the structural model, the residual variance $\psi_{33}$ was set such that under normality: $R^2_{\eta_3} = \frac{\text{Var}(\eta_3^*)}{\text{Var}(\eta_3^*) + \psi_{33}} \approx 0.30$, where $\eta_3^*$ represents the deterministic portion of $\eta_3$. Similarly, measurement error variances $\theta_{jj}$ were determined to achieve: $\rho_{y_j} = \frac{\lambda_{j}^2 \cdot \phi_{kk}}{\lambda_{j}^2 \cdot \phi_{kk} + \theta_{jj}} \approx \rho$, where $\lambda_j = 1$ (unit loadings), $\phi_{kk}$ represents the latent variable variance under normality, and $\rho \in \{0.4, 0.6, 0.8\}$.
+For Simulation 1, the dependent latent variable was generated according to:
+\begin{align*}
+\eta_3 = \beta_0 + \beta_1\eta_1 + \beta_2\eta_2 + \beta_3(\eta_1\eta_2) + \beta_4\eta_1^2 + \beta_5\eta_2^2 + \zeta
+\end{align*}
 
-The fixed variance parameters were then used to generate data under three distributional conditions. The predictor latent variables maintained the covariance structure: $\boldsymbol{\Phi}_1 = \begin{bmatrix} 1 & 0.375 \\ 0.375 & 1 \end{bmatrix}$ for Study 1 and $\boldsymbol{\Phi}_2 = \begin{bmatrix} 1 & 0.3 & 0.2 \\ 0.3 & 1 & 0.3 \\ 0.2 & 0.3 & 1 \end{bmatrix}$ for Study 2 across all conditions. Under normal conditions, $(\eta_1, \eta_2)' \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Phi}_1)$ for Study 1 and $(\eta_1, \eta_2, \eta_3)' \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Phi}_2)$ for Study 2 were generated using the `rIG()` function from the *covsim* package (version `r covsim_version`) [@R-covsim]. For non-normal conditions, the same function generated variables with population skewness $\gamma_1 = 2$ and excess kurtosis $\gamma_2 = 7$, while preserving $\boldsymbol{\Phi}_1$ (Study 1) or $\boldsymbol{\Phi}_2$ (Study 2). The uniform condition employed the *copula* package with a Gumbel–Hougaard copula (dependency parameter $\theta = 2$) to induce dependence between variables with $\mathcal{U}(-2.5, 2.5)$ marginal distributions. Following the approach of @mair_etall_2012 as implemented in @lonati_etall_2024, the copula-generated sample $\mathbf{X}$ was transformed via $\mathbf{Y} = \mathbf{X}\mathbf{S}_x^{-1/2}\boldsymbol{\Sigma}^{1/2}$, where $\mathbf{S}_x$ is the sample covariance matrix of $\mathbf{X}$. We acknowledge this transformation preserves non-normal dependencies while ensuring the exact target covariance, though the marginal distributions and copula structure are altered by the matrix transformation [@gronneberg_foldnes_2022].
+\noindent with parameters $\beta_0 = -0.255$, $\beta_1 = \beta_2 = 0.316$, $\beta_3 = 0.139$, $\beta_4 = \beta_5 = 0.101$, and $\zeta \sim \mathcal{N}(0, \psi_{33})$. For the linear model comparison, nonlinear terms were omitted ($\beta_3 = \beta_4 = \beta_5 = 0$).
 
-### Simulation 1
-
-The dependent latent variable in the case of the full model was generated as:
-
-$$\eta_3 = \beta_0 + \beta_1\eta_1 + \beta_2\eta_2 + \beta_3(\eta_1\eta_2) + \beta_4\eta_1^2 + \beta_5\eta_2^2 + \zeta$$
-
-with parameters $\beta_0 = -0.255$, $\beta_1 = \beta_2 = 0.316$, $\beta_3 = 0.139$, $\beta_4 = \beta_5 = 0.101$. The structural residual $\zeta \sim \mathcal{N}(0, \psi_{33})$ used the same $\psi_{33}$ value derived under normality across all distributional conditions. For the linear model, we simply set $\beta_3 = \beta_4 = \beta_5 = 0$.
-
-For the measurement model, observed indicators were generated through $\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}$, where $\boldsymbol{\Lambda}$ contained unit loadings and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta})$. The diagonal elements of $\boldsymbol{\Theta}$ were the values determined under normality for each reliability condition, applied uniformly across all distributional conditions. For each latent variable we generated three indicators.
-
-### Simulation 2
-
-The dependent latent variables in the case of the full model were generated as:
-
+For Simulation 2, the dependent latent variables followed:
 \begin{align*}
 \eta_4 &= \beta_{10} + \beta_{11}\eta_1 + \beta_{12}\eta_2 + \beta_{13}\eta_3 + \beta_{14}(\eta_1\eta_2) + \beta_{15}(\eta_1\eta_3) + \beta_{16}\eta_1^2 + \beta_{17}\eta_2^2 + \zeta_4 \\
 \eta_5 &= \beta_{20} + \beta_{21}\eta_4 + \beta_{22}\eta_1 + \beta_{23}\eta_2 + \beta_{24}\eta_3 + \beta_{25}(\eta_1\eta_4) + \beta_{26}(\eta_2\eta_4) + \beta_{27}\eta_1^2 + \beta_{28}\eta_3^2 + \zeta_5
 \end{align*}
 
-with parameters $\beta_{10} = \beta_{20} = 0.1$, $\beta_{11} = \beta_{12} = \beta_{13} = 0.20$, $\beta_{14} = \beta_{15} = 0.11$, $\beta_{16} = \beta_{17} = 0.08$; $\beta_{21} = \beta_{22} = \beta_{23} = \beta_{24} = 0.16$, $\beta_{25} = \beta_{26} = 0.08$, $\beta_{27} = \beta_{28} = 0.06$. The structural residuals $\zeta_4 \sim \mathcal{N}(0, \psi_{44})$ and $\zeta_5 \sim \mathcal{N}(0, \psi_{55})$ used the same $\psi_{44}$ and $\psi_{55}$ values derived under normality across all distributional conditions. For the linear model, we simply set $\beta_{14} = \beta_{15} = \beta_{16} = \beta_{17} = 0$ and $\beta_{25} = \beta_{26} = \beta_{27} = \beta_{28} = 0$.
+\noindent with parameters $\beta_{10} = \beta_{20} = 0.1$, $\beta_{11} = \beta_{12} = \beta_{13} = 0.20$, $\beta_{14} = \beta_{15} = 0.11$, $\beta_{16} = \beta_{17} = 0.08$; $\beta_{21} = \beta_{22} = \beta_{23} = \beta_{24} = 0.16$, $\beta_{25} = \beta_{26} = 0.08$, $\beta_{27} = \beta_{28} = 0.06$, and $\zeta_4 \sim \mathcal{N}(0, \psi_{44})$, $\zeta_5 \sim \mathcal{N}(0, \psi_{55})$. For the linear model comparison, all interaction and quadratic terms were omitted.
 
-## Reproducibility and Computational details 
+## Reproducibility and Computational details^[All the materials to reproduce this article available on the following GitHub link: https://github.com/felipelfv/Simulation_First_PhD_Article.git. We included a `README` file that contains the step-by-step information required to reproduce the results reported, a `sessionInfo` file, the *renv* lockfile with the information for the remaining relevant packages used [@R-renv], a Dockerfile for system dependencies, and all the estimates obtained for all iterations. Moreover, this paper was written with *papaja* [@R-papaja] in Rmarkdown.]
 
-The simulation was conducted on a Mac Studio with an Apple M4 Max chip (with 14 cores and 36 GB of RAM), running macOS Sequoia 15.5. All analyses were performed in R [@R-base] (version `r R_version`). Parallel processing was implemented through the *doParalell* package (version `r doparallel_version`) [@R-doParallel], with *doRNG* (version `r dorng_version`) [@R-doRNG] to ensure independent and reproducible random number streams. For the UPI, LMS, and QML approach, the *modsem* package was used [@kjell_etall_2024] (version `r modsem_version`). For the LSAM approach, the *lavaan* package was used [@R-lavaan] (version `r lavaan_version`). Importantly, we used the default settings for the functions provided in the packages^[This is important to acknowledge because there are arguments for the functions used that, in principle, could be tweaked to obtain better results. For instance, one could change the maximum steps for the M-step in the EM algorithm for the LMS. However, this also leads to substantial researcher degrees of freedom and hence were avoided.]. Specific to the LSAM approach, we estimated the latent factors with three different measurement blocks as opposed to a single one [@rosseel_loh_2024].
-
-All the materials to reproduce this article available on the following GitHub link: https://github.com/felipelfv/Simulation_First_PhD_Article.git. We included a `README` file that contains the step-by-step information required to reproduce the results reported, a `sessionInfo` file, the *renv* lockfile with the information for the relevant packages used [@R-renv], a Dockerfile for system dependencies, and all the estimates obtained for all iterations. Moreover, this paper was written with *papaja* [@R-papaja] in Rmarkdown.
+The simulation was conducted on a Mac Studio with an Apple M4 Max chip (with 14 cores and 36 GB of RAM), running macOS Sequoia 15.5. All analyses were performed in R [@R-base] (version `r R_version`). Parallel processing was implemented through the *doParalell* package (version `r doparallel_version`) [@R-doParallel], with *doRNG* (version `r dorng_version`) [@R-doRNG] to ensure independent and reproducible random number streams. For the UPI, LMS, and QML approach, the *modsem* package was used [@kjell_etall_2024] (version `r modsem_version`). For the LSAM approach, the *lavaan* package was used [@R-lavaan] (version `r lavaan_version`). Importantly, we used the default settings for the functions provided in the packages^[This is important to acknowledge because there are arguments for the functions used that, in principle, could be tweaked to obtain better results. For instance, one could change the maximum steps for the M-step in the EM algorithm for the LMS. However, this also leads to substantial researcher degrees of freedom and hence were avoided.]. Specific to the LSAM approach, we estimated the latent factors with three different measurement blocks as opposed to a single one [@rosseel_loh_2024]. Finally, for generating normal and non-normal data we used the `rIG()` function from the *covsim* package (version `r covsim_version`) [@R-covsim] and, following the approach of @mair_etall_2012, we used the copula package for the uniform condition (version `r copula_version`) [@R-copula_b]. We acknowledge this latter procedure preserves non-normal dependencies while ensuring the exact target covariance, though the marginal distributions and copula structure are altered by the matrix transformation [@gronneberg_foldnes_2022].
 
 ## Nonconvergence and Outliers
 
-Before analyzing the simulation data, we inspected solutions where no estimates were produced. After ensuring that these were caused by a nonconvergent estimator, we excluded the entire iteration from the analysis across approaches. As mentioned in @lonati_etall_2024, a nonconvergent solution^[Another aspect is that a convergent solution may not be a plausible one or estimates were obtained for the parameters of interest but for other values in our model we did not obtain. We also tracked these through warnings messages and performed the same analyses. Results were qualitatively identical and available on the github repository.] signals a replication that could also be challenging for the remaining methods. The convergence rate for each method was calculated as $\text{Convergence}_{rate} = N_{\text{complete}}/N_{\text{total}} \times 100\%$, where $N_{\text{complete}}$ represents successfully converged replications with complete output and $N_{\text{total}}$ represents all attempted replications for that method. 
+Before analyzing the data, we inspected solutions where no estimates for the parameters of interest were produced. After ensuring these were caused by a nonconvergent estimator, we excluded the entire iteration from the analysis across estimation approaches. As noted by @lonati_etall_2024, non-convergent solutions signal replications challenging for all methods^[Convergent solutions may still be implausible or incomplete. For instance, where other estimates are not obtained. Thus, we tracked these via warnings and obtained qualitatively identical results if excluding from the analysis (results available on GitHub).]. We calculated convergence rate as $\text{Convergence}_{rate} = N_{\text{complete}}/N_{\text{total}} \times 100\%$, where $N_{\text{complete}}$ represents successfully converged replications with complete output and $N_{\text{total}}$ represents all attempted replications for the individual approach.
 
-Following Boomsma (2013), we used the box-plot method to identify outliers in the parameter estimates. Proceeding with one method-parameter combination at a time, we flagged all estimates that were more than three interquartile ranges below the first quartile or above the third quartile as outliers, formally defined as estimates outside the bounds $[Q_1 - 3 \times \text{IQR}, Q_3 + 3 \times \text{IQR}]$, where $Q_1$ and $Q_3$ represent the first and third quartiles and $\text{IQR} = Q_3 - Q_1$. Importantly, to avoid the arguably arbitrary interquartile range chosen, we also computed median estimates, median bias, and median absolute deviation (MAD) on the full set of converged solutions before outlier removal. Therefore, all metrics were calculated after removing non-converged replications, but with median-based robust measures computed before outlier removal and mean-based measures computed after outlier removal.
+Following @lonati_etall_2024, we identified outliers using the box-plot method. For each method-parameter combination, estimates outside $[Q_1 - 3 \times \text{IQR}, Q_3 + 3 \times \text{IQR}]$ (where $\text{IQR} = Q_3 - Q_1$) were flagged as outliers. To avoid possible arbitrary threshold selection, we also computed median estimates, median bias, and median absolute deviation (MAD) on all converged solutions before outlier removal. Thus, mean-based metrics were computed after outlier removal, whereas median-based measures were computed before (Tables 3 and 4 in the online supplementary materials contain the detailed information).
 
 ## Performance Measures
 
-Method performance was assessed through multiple metrics following the formulas from the *simhelpers* package [@R-simhelpers], with the exception of the median-based metrics that were based on @brandt_etall_2020. The latter measures were used to complement the arbitrary decisions for deleting outliers. Following the *simhelpers* documentation and references therein, we also quantified the Monte Carlo Standard Errors (MCSE) simulation uncertainty for most of the reported performance measures using the jack-knife technique. Generally speaking, the measures are classified in terms of absolute and relative criteria measures, standard error assessment, rejection rate, hypothesis testing and confidence intervals. In the main text, we only report and discuss the metrics reported in Table 1 for the interaction and quadratic effects. For the complete set of measures and main effects, we refer the reader to the online supplementary materials 1. For clarity purposes, let $B$ denote an estimator for parameter $\beta$, with $K$ valid replications producing estimates $B_1, ..., B_K$ for each simulation condition. The sample mean and variance were calculated as $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ and $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$. The standard deviation was calculated as $S_B = \sqrt{S_B^2}$. 
-
-\landscape
-\footnotesize
-
-## Table 1
-
-| Performance Measure | Empirical Calculation | MCSE |
-|---|---|---|
-| **Absolute Criteria** | | |
-| Absolute Bias | $\bar{B} - \beta$ | $\sqrt{S_B^2/K}$ |
-| Mean Squared Error (MSE) | $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ | $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
-| Root Mean Squared Error (RMSE) | $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ |
-| **Relative Criteria** | | |
-| Relative Bias | $(\frac{\bar{B}}{\beta})- 1$ | $\sqrt{S_B^2/(K\beta^2)}$ |
-| Relative MSE | $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ | $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
-| Relative RMSE | $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ |
-| **Standard Error Assessment** | | |
-| Mean SE | $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ | — |
-| SE Ratio | $\overline{SE}/S_B$ | — |
-| **Hypothesis Testing** | | |
-| Rejection Rate | $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ | $\sqrt{r_\alpha(1-r_\alpha)/K}$ |
-| **Confidence Intervals** | | |
-| Coverage | $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ | $\sqrt{c_\beta(1-c_\beta)/K}$ |
-
-*Note.* $B$ = parameter estimator; $\beta$ = true parameter value; $K$ = number of replications; $S_B^2$ = sample variance; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $S_W^2$ = variance of CI widths. MCSE = Monte Carlo Standard Error. Dashes indicate MCSEs not computed for these measures.
-
-\endlandscape
-\normalsize
-
-```{r simulation-script, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
-```
+Method performance was assessed through multiple metrics following the formulas from the *simhelpers* package [@R-simhelpers], with the exception of the median-based metrics that were based on @brandt_etall_2020. The latter measures were used to complement the arbitrary decisions for deleting outliers. Following the *simhelpers* documentation and references therein, we also quantified the Monte Carlo Standard Errors (MCSE) simulation uncertainty for most of the reported performance measures using the jack-knife technique. Generally speaking, the measures are classified in terms of absolute and relative criteria measures, standard error assessment, hypothesis testing, and confidence intervals. In the main text, we only report and discuss the metrics reported in Table 1 for the interaction and quadratic effects. For the complete set of measures and main effects, we refer the reader to the online supplementary materials 1. 

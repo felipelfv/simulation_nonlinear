@@ -9,16 +9,19 @@ output:
 
 ```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr); library(ggplot2)
+
+source("../Simulations/Plots.R")
+source("../Simulations/Study_1/Results/Results(1).R")
+source("../Simulations/Study_2/Results/Results(2).R")
 ```
 
 # Results for simulation studies 
 
-The results reported are a subset of the findings. For the complete figures and results, we refer the reader to the online supplementary materials 1. 
+The results reported are a subset of the findings focused mainly on the cases when the nonlinear effects were present. For the complete figures and results, we refer the reader to the online supplementary materials 1. 
 
 ## Result for simulation 1
 
 ```{r results-first-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
-source("../Simulations/Study_1/Results/Results(1).R")
 
 data_study_1 <- load("../Simulations/Study_1/Data/Results_Study_1_final.RData")
 
@@ -63,43 +66,40 @@ get_convergence_outlier_rate_study_1 <- function(method, dist, n, rel, model = "
 }
 
 # most outliers
-results_study_1 %>%
-  filter(Parameter == "eta1") %>%
-  group_by(Method) %>%
-  arrange(desc(Outlier_Rate_This_Method)) %>%
-  slice_head(n = 2) %>%
-  select(Method, Model, Distribution, SampleSize, Reliability, Outlier_Rate_This_Method)
+#results_study_1 %>%
+#  filter(Parameter == "eta1") %>%
+#  group_by(Method) %>%
+#  arrange(desc(Outlier_Rate_This_Method)) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Model, Distribution, SampleSize, Reliability, Outlier_Rate_This_Method)
 
 # worst convergence rates (lowest values) for each method
-results_study_1 %>%
-  filter(Parameter == "eta1") %>%
-  group_by(Method) %>%
-  arrange(Convergence_Rate_This_Method) %>%
-  slice_head(n = 2) %>%
-  select(Method, Model, Distribution, SampleSize, Reliability, Convergence_Rate_This_Method)
+#results_study_1 %>%
+#  filter(Parameter == "eta1") %>%
+#  group_by(Method) %>%
+#  arrange(Convergence_Rate_This_Method) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Model, Distribution, SampleSize, Reliability, Convergence_Rate_This_Method)
 
 ```
 
 ### Convergence Rate and Outliers
 
-We refer the reader to Table 2 for a detailed summary for convergence and outliers. For most approaches there were a few convergence issues. One notable exception was for the UPI under the condition with moderate sample size, low reliability, and uniform latent predictors. In that case, convergence rates were `r round(get_convergence_outlier_rate_study_1("DBLCENT", "uniform", 400, 0.4, "Full", "convergence"), 2)`% with the full population model and `r round(get_convergence_outlier_rate_study_1("DBLCENT", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% with the linear population model. For the LSAM, convergence rate was `r round(get_convergence_outlier_rate_study_1("SAM", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% across all conditions. The remaining approaches, LMS and QML, also showed decent convergence rates, with the lowest value being respectively `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "convergence"), 2)`% for both cases under the same scenario in which UPI, but now only specifically with the full population model.
+For most approaches there were a few convergence issues. One notable exception was for the UPI under the condition with moderate sample size, low reliability, and uniform latent predictors. In that case, convergence rates were `r round(get_convergence_outlier_rate_study_1("DBLCENT", "uniform", 400, 0.4, "Full", "convergence"), 2)`% with the full population model and `r round(get_convergence_outlier_rate_study_1("DBLCENT", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% with the linear population model. For the LSAM, convergence rate was `r round(get_convergence_outlier_rate_study_1("SAM", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% across all conditions. The remaining approaches, LMS and QML, also showed decent convergence rates, with the lowest value being respectively `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "convergence"), 2)`% for both cases under the same scenario in which UPI, but now only specifically with the full population model.
 
-With respect to outliers, a somewhat similar trend as with convergence rates was observed. The UPI had the highest outlier rate (`r round(get_convergence_outlier_rate_study_1("DBLCENT", "uniform", 400, 0.4, "Linear", "outlier"), 2)`%) for the condition with moderate sample size, low reliability, and uniform latent predictors. Both the LMS and QML also had their highest outlier rates in the same condition, with `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% respectively. For the LSAM, however, the highest outlier rate was observed in the condition with moderate sample size, low reliability, and nonnormal latent predictors (`r round(get_convergence_outlier_rate_study_1("SAM", "nonnormal", 400, 0.4, "Linear", "outlier"), 2)`%).
+With respect to outliers, a somewhat similar trend as with convergence rates was observed. The UPI had the highest outlier rate (`r round(get_convergence_outlier_rate_study_1("DBLCENT", "uniform", 400, 0.4, "Linear", "outlier"), 2)`%) for the condition with moderate sample size, low reliability, and uniform latent predictors. Both the LMS and QML also had their highest outlier rates in the same condition, with `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% respectively. For the LSAM, however, the highest outlier rate was observed in the condition with moderate sample size, low reliability, and non-normal latent predictors (`r round(get_convergence_outlier_rate_study_1("SAM", "nonnormal", 400, 0.4, "Linear", "outlier"), 2)`%).
 
 ```{r plots-first-sim-study, echo=FALSE}
-source("../Simulations/Plots.R")
 
 plot_study_1_data <- prepare_study1_data(results_study_1)
 
-# ========= BIAS =========
+# BIAS 
 study_1_relative_bias <- plot_study_1_data$bias_relative
 
-# bias data for full model and N = 400
 dat_relative_bias_400_full_study_1 <- study_1_relative_bias %>%
    filter(Model == "Full", SampleSize == "400") %>%
    droplevels()
 
-# plot for the above
 p_relative_bias_400_full_study_1 <- plot_bias(
    dat_relative_bias_400_full_study_1, 
    shapes = SHAPES_4, 
@@ -108,15 +108,13 @@ p_relative_bias_400_full_study_1 <- plot_bias(
    y_breaks = seq(-0.5, 1.5, by = 0.5)         # y-axis
 )
 
-# ========= RMSE =========
+# Relative RMSE 
 study_1_relative_rmse <- plot_study_1_data$rmse_relative
 
-# rmse data for full model and N = 400
 dat_relative_rmse_400_full_study_1 <- study_1_relative_rmse %>%
   filter(Model == "Full", SampleSize == "400") %>%
   droplevels()
 
-# filtered RMSE plot
 p_relative_rmse_400_full_study_1 <- plot_rmse(
   dat_relative_rmse_400_full_study_1, 
   shapes = SHAPES_4, 
@@ -126,17 +124,15 @@ p_relative_rmse_400_full_study_1 <- plot_rmse(
   #y_limits = c(0, 0.30)                          # optional: set limits
 )
 
-# ========= SE/SD RATIO (Nonnormal, Full, N=400 & 1000) =========
+# SE/SD RATIO (Nonnormal, Full, N=400 & 1000) =========
 study_1_sesd <- plot_study_1_data$sesd
 
-# nonnormal, full model, N=400=1000
 dat_sesd_full_nonnorm_study_1 <- study_1_sesd %>%
   filter(Model == "Full", 
          SampleSize %in% c("400", "1000"), 
          Distribution == "Nonnormal") %>%
   droplevels()
 
-# plot
 p_slope_full_nonnorm_study_1 <- plot_sesd(
   dat_sesd_full_nonnorm_study_1,
   shapes = SHAPES_4,
@@ -144,7 +140,7 @@ p_slope_full_nonnorm_study_1 <- plot_sesd(
   facet_formula = Distribution + Parameter ~ SampleSize
 )
 
-# ========= COVERAGE (Full, N=400 & 1000, all distributions) =========
+# COVERAGE (Full, N=400 & 1000, all distributions)
 study_1_coverage <- plot_study_1_data$coverage
 dat_cov_full_400_1000_study_1 <- study_1_coverage %>%
   filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
@@ -157,7 +153,7 @@ p_cov_full_400_1000_study_1 <- plot_coverage(
   facet_formula = Distribution + Parameter ~ SampleSize
 )
 
-# ========= TYPE I ERROR (Linear, N=1000 only) =========
+# TYPE I ERROR (Linear, N=1000 only) 
 study_1_type1 <- plot_study_1_data$type1
 dat_t1_1000_study_1 <- study_1_type1 %>%
   filter(grepl("N=1000", Condition)) %>%
@@ -170,137 +166,41 @@ p_t1_1000_study_1 <- plot_type1(
 )
 ```
 
-```{r report-values-first-sim-study, echo=FALSE}
-get_absolute_bias_study_1 <- function(method, dist, param, n, rel, model = "Full") {
-  plot_study_1_data$bias %>%
-    filter(Method == method, Distribution == dist, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
+### Relative Bias and RMSE When Nonlinear Effects Were Present
 
-get_relative_bias_study_1 <- function(method, dist, param, n, rel, model = "Full") {
-  plot_study_1_data$bias_relative %>%
-    filter(Method == method, Distribution == dist, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
+Figure 2 and 3 show respectively relative bias and RMSE values across distributional conditions at moderate sample size (high sample size results were qualitatively similar). Following @brandt_etall_2014, values above 0.10 (e.g., 10% in percentage) indicate bias. Under normality, most methods performed stably across reliability levels, with minor deviations at low reliability. Under non-normality, substantial differences emerged: LSAM and UPI were unbiased for all nonlinear effects except interactions at low reliability, while LMS and QML showed severe negative bias for interactions and positive bias for quadratic effects across all reliabilities. Under uniform distribution, LSAM remained largely unbiased (slight bias for the quadratic effects at low reliability), and UPI showed bias for most nonlinear effects only at low reliability. LMS and QML yielded unbiased interaction estimates but negative bias for quadratic effects across all reliabilities. For relative RMSE, approaches were similar under normality except at low reliability. Under non-normality, LSAM had the lowest values, though all converged at high reliability. Under uniform distribution, LMS and QML were lowest but all performed similarly at high reliability.
 
-get_rmse_study_1 <- function(method, dist, param, n, rel, model = "Full") {
-  plot_study_1_data$rmse %>%
-    filter(Method == method, Distribution == dist, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
-
-get_ratio_study_1 <- function(method, dist, param, n, rel, model = "Full") {
-  plot_study_1_data$sesd %>%
-    filter(Method == method, Distribution == dist, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(ratio) 
-}
-
-get_coverage_study_1 <- function(method, dist, param, n, rel, model = "Full") {
-  plot_study_1_data$coverage %>%
-    filter(Method == method, Distribution == dist, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
-
-get_type1_study_1 <- function(method, dist, param, cond) {
-  plot_study_1_data$type1 %>%
-    filter(Method == method, Distribution == dist, 
-           Parameter == param, Condition == cond) %>%
-    pull(y)
-}
-
-get_power_study_1 <- function(method, dist, param, cond) {
-  plot_study_1_data$power %>%
-    filter(Method == method, Distribution == dist, 
-           Parameter == param, Condition == cond) %>%
-    pull(y)
-}
-```
-
-### Bias When Nonlinear Effects Were Present 
-
-Figure 1 presents a visualization of the reported relative bias values across the distributional conditions given a fixed moderate (N = 400) sample size. The results for a high sample size are qualitatively the same. Exactly as in @brandt_etall_2014, a value above 0.10 (e.g., 10% in percentage) is considered biased. 
-
-Under the normal distribution, most methods yielded a stable performance across reliability levels, apart from a small bias detected for the interaction term ($\beta_3$) for the UPI under low reliability. However, under the nonnormal distribution, substantial differences emerged between approaches. Indeed, the LSAM and the UPI showed unbiased results for the quadratic effects, but not for $\beta_3$ specifically under low reliability (`r round(get_relative_bias_study_1("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)` and `r round(get_relative_bias_study_1("DBLCENT", "Nonnormal", "beta[3]", 400, 0.4, "Full"),3)`, respectively). On the other hand, the LMS and QML exhibited severe negative bias for the interaction effect across all reliability levels (e.g., `r round(get_relative_bias_study_1("LMS", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)` for LMS and `r round(get_relative_bias_study_1("QML", "Nonnormal", "beta[3]", 400, 0.8, "Full"),3)` for QML at high reliability). Interestingly, for the quadratic effects, a positive bias was observed across all reliability levels. Under the uniform distribution, performance patterns slightly shifted. LSAM remained largely unbiased across all conditions, despite a small bias for the quadratic effects under low reliability (e.g., `r round(get_relative_bias_study_1("SAM", "Uniform", "beta[4]", 400, 0.4, "Full"),3)` and `r round(get_relative_bias_study_1("SAM", "Uniform", "beta[5]", 400, 0.4, "Full"),3)` for the $\beta_4$ and $beta_5$, respectively). While the UPI only showed biased results for the $\beta_3$ as well as $\beta_4$ at low reliability. The LMS and QML achieved unbiased interaction estimation but yielded negative bias for quadratic effects across all reliability levels. 
-
-### Bias When Nonlinear Effects Were Not Present
-
-The results are somewhat similar when the nonlinear effects were present and not present, but in overall terms with decreased magnitude. There is one notable difference: for the uniform condition, the LMS and QML showed unbiased results for the quadratic effects, but biased results for the interaction term that was acceptable under high reliability.
-
-```{r plot-bias-first-sim-study, echo=FALSE, fig.cap = "Relative bias.", fig.align='center', fig.height=12, fig.width=9}
-(p_relative_bias_400_full_study_1)
-```
-
-```{r plot-rmse-first-sim-study, echo=FALSE, fig.cap = "Relative RMSE.", fig.align='center', fig.height=12, fig.width=9}
-(p_relative_rmse_400_full_study_1)
-```
+**Bias and RMSE When Nonlinear Effects Were Absent.** With respect to bias results were similar to when effects were present but with reduced magnitude. One notable difference: under uniform distribution, LMS and QML showed unbiased quadratic estimates, but biased interaction estimates that disappeared at high reliability. No relevant differences for the RMSE were observed. 
 
 ### Efficiency and Accuracy of Standard Errors when Nonlinear Effects were present
 
-Figure 3 shows the computed SE/SD ratios under the full models for the nonnormal condition across sample sizes. Similarly to @brandt_etall_2014, we interpret a ratio below 0.85 (underestimation) and above 1.15 (overestimation) as biased.
+Figure 4 shows SE/SD ratios for the non-normal condition across sample sizes. Close to @brandt_etall_2014, ratios below 0.85 (underestimation) or above 1.15 (overestimation) indicate bias. Under normality, LSAM showed unbiased results across all conditions; only UPI overestimated at low reliability with moderate sample size. Non-normal and uniform conditions revealed pronounced differences, with sample size strongly influencing LSAM efficiency. At low reliability and moderate sample size, LSAM overestimated most nonlinear effects, which disappeared at large sample sizes. UPI underestimated multiple effects at low reliability with large samples, and at medium reliability with moderate samples for quadratic effects under uniform distribution. LMS and QML maintained stable, similar performance across all conditions.
 
-In the case of the normal condition, the LSAM showed unbiased results for all reliability and sample size variations. In fact, for that same distribution, only the UPI showed an overestimation in case of low reliability and moderate. However, the nonnormal and uniform conditions revealed the most pronounced differences between approaches, with sample size showing strong influence on the efficiency for the LSAM and UPI. Specifically for low reliability and moderate sample size, LSAM showed a quantitatively similar overestimation for most nonlinear effects. For example, LSAM yielded an overestimation of `r round(get_ratio_study_1("SAM", "Nonnormal", "beta[3]", 400, 0.4, "Full"),2)` for $\beta_3$ under the nonnormal condition. Notably, the UPI showed an underestimation for multiple nonlinear effects under nonnormal and uniform conditions at a low reliability even under a large sample size. The LMS and QML maintained a stable performance for all reliability and sample size variations. 
-
-### Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Not Present
-
-Results were generally similar in this case. The most notable differences where concerning the UPI. Indeed, it showed improved accuracy compared to the full model under the normal condition for low reliability and moderate sample size, but worse under the uniform condition for the same reliability and sample size. Thus, the relative performance ordering remained consistent, with LMS and QML providing the most efficient standard error estimates, followed by LSAM, and UPI.
+**Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Absent.** Results were generally similar. The main difference involved UPI showing improved accuracy under normality at low reliability and moderate sample size, but worse accuracy under uniform distribution at the same conditions.
 
 ### Coverage for When Nonlinear Effects Were Present
 
-Figure 4 contains the visualization of the results reported here. Note that for some approaches, under specific conditions, the exact values are shown due to being outside the y-axis range. Coverage values between 97% and 93% were considered acceptable.
+Figure 5 visualizes these results. For some approaches under specific conditions, exact values are shown due to falling outside the y-axis range. Coverage values between 93% and 97% were considered acceptable. LSAM showed above-range coverage across all distributions only at low reliability with moderate sample size, which was not the case at large samples. Under normality with moderate samples and medium reliability, all approaches achieved near-nominal 95% coverage for interaction and quadratic effects. However, non-normality revealed critical under-coverage for LMS and QML. Large sample sizes provided minimal improvement for LMS and QML, while higher reliability achieved near-nominal coverage for interactions but not quadratic effects. Under uniform distributions, LMS and QML showed under-coverage solely for quadratic effects.
 
-The LSAM showed coverage rates that were slightly above the desirable range for all distributions under only low reliability and moderate sample size. With an increasing sample size, this is not the case. Under normal distributions with moderate sample size and medium reliability, all approaches achieved near-nominal 95% coverage for interaction and quadratic effects. However, the nonnormal condition revealed critical results for the distribution analytic approaches. At moderate sample size and medium reliability, LMS coverage was `r round(get_coverage_study_1("LMS", "Nonnormal", "beta[3]", 400, 0.6, "Full"),1)`% for $\beta_3$ and below 80% for quadratic parameters ($\beta_4$ = `r round(get_coverage_study_1("LMS", "Nonnormal", "beta[4]", 400, 0.6, "Full"),1)`%, $\beta_5$ = `r round(get_coverage_study_1("LMS", "Nonnormal", "beta[5]", 400, 0.6, "Full"),1)`%). QML demonstrated more severe undercoverage, particularly for quadratic effects ($\beta_4$ = `r round(get_coverage_study_1("QML", "Nonnormal", "beta[4]", 400, 0.6, "Full"),1)`%, $\beta_5$ = `r round(get_coverage_study_1("QML", "Nonnormal", "beta[5]", 400, 0.6, "Full"),1)`%). Increasing sample size provided minimal improvement for the LMS and QML, while a higher reliability level lead to mixed results for the nonlinear effects. Under uniform distributions, the LMS and QML again showed stronger undercoverage for the quadratic effects (e.g., for medium reliability and moderate sample size: `r round(get_coverage_study_1("LMS", "Uniform", "beta[4]", 400, 0.6, "Full"),1)`% and `r round(get_coverage_study_1("QML", "Uniform", "beta[4]", 400, 0.6, "Full"),1)`% for $\beta_4$, respectively). 
+**Coverage When Nonlinear Effects Were Absent.** LMS and QML coverage improved under non-normality but remained below the desirable range. Under uniform distribution, coverage for these approaches substantially improved.
 
-### Coverage When Nonlinear Effects Were Not Present
+### Type I Error Rate
 
-In this case, the coverage for the LMS and QML in the nonnormal condition improved, but still remained under the desirable range. However, under the uniform condition, coverage for the same approaches substantially improved.
+Figure 6 shows type I error rates across approaches at large sample size (moderate sample results were qualitatively similar). Rates between 2.5% and 7.5% are considered acceptable. At low reliability, LSAM showed mixed results with some nonlinear effects falling outside acceptable margins; results were ideal at higher reliabilities. UPI showed similar patterns. However, under non-normality, LMS and QML exhibited severe Type I error inflation for quadratic effects across all reliabilities, and for interactions only at low reliability. This inflation persisted even at high reliability for quadratic effects, though with reduced magnitude.
 
-```{r plot-ratio-first-sim-study, echo=FALSE, fig.cap="SE/SD Ratio.", fig.align='center', fig.height=12, fig.width=8}
-(p_slope_full_nonnorm_study_1)
-```
+### Empirical Power
 
-```{r plot-coverage-first-sim-study, echo=FALSE, fig.cap="Coverage.", fig.align='center', fig.height=12, fig.width=8}
-(p_cov_full_400_1000_study_1)
-```
+Given the results for type I error rates, power results should be interpreted cautiously. LSAM yielded power close or above 80% only with medium and high reliability under a large sample size across all distributions. Interestengly, in the uniform condition, the quadratic effects were underpowered even with a high reliability for all approaches. The UPI resulted in a similar performance to the LSAM, while the LMS and QML had power rates above 80% even under low reliability which are to be taken cautisoly 
 
-### Type I Error Control
-
-Figure 5 illustrates the type I error rates across approaches under the case of a large sample size. The results under a moderate sample are qualitatively the same. Rates between 2.5% and 7.5% are considered acceptable. 
-
-In the case of low reliability, the LSAM showed mixed results in which some nonlinear effects had rates outside the acceptable margins. For the remaining reliability levels, results were ideal. Similar results were observed for the UPI. However, under nonnormal condition, severe Type I error inflation for the distribution analytic methods was observed. At low reliability, LMS showed inflation for quadratic parameters (`r round(get_type1_study_1("LMS", "Nonnormal", "beta[4]", "N=1000, Rel=0.4"),1)`% for $\beta_4$, `r round(get_type1_study_1("LMS", "Nonnormal", "beta[5]", "N=1000, Rel=0.4"),1)`% for $\beta_5$), with QML demonstrating similar results (`r round(get_type1_study_1("QML", "Nonnormal", "beta[4]", "N=1000, Rel=0.4"),1)`%, `r round(get_type1_study_1("QML", "Nonnormal", "beta[5]", "N=1000, Rel=0.4"),1)`%). This inflation persisted even at high reliability for LMS (`r round(get_type1_study_1("LMS", "Nonnormal", "beta[4]", "N=1000, Rel=0.8"),1)`%, `r round(get_type1_study_1("LMS", "Nonnormal", "beta[5]", "N=1000, Rel=0.8"),2)`%).
-
-```{r plot-type-first-sim-study, echo=FALSE, fig.cap="Type I error rate.", fig.align='center', fig.height=12, fig.width=9}
-(p_t1_1000_study_1)
-```
-
-### Statistical Power
-
-Given the type I error rates mentioned, results for power should be interpreted with caution [@morris_etall_2019]. For this reason, we focus first only on the LSAM under medium reliability and large sample size. Then, solely for a large sample size and high reliability, as most approaches yielded type I error rates that are better controlled and comparable, we compare between the methods investigated. 
-
-The LSAM yielded power results between `r round(get_power_study_1("SAM", "Normal", "beta[3]", "N=1000, Rel=0.6"),1)`-`r round(get_power_study_1("SAM", "Normal", "beta[4]", "N=1000, Rel=0.4"),1)`% in the normal condition. For the nonnormal condition, power increased for the quadratic terms, but not for the interaction term. Interestingly, the opposite happened under the uniform condition.
-
-In the case of a high reliability, the LSAM showed power above 80% for all nonlinear effects under normal and nonnormal conditions. In the uniform condition, the quadratic effects ranged between `r round(get_power_study_1("SAM", "Uniform", "beta[4]", "N=1000, Rel=0.8"),1)`-`r round(get_power_study_1("SAM", "Uniform", "beta[5]", "N=1000, Rel=0.8"),1)`%. In fact, these results were highly similar for all approaches. 
+Given the inflated type I error rates observed for some approaches, power results should be interpreted with caution [@morris_etall_2019]. Under a large sample, the LSAM achieved power levels close to or exceeding 80% only under conditions of medium or high reliability across all distributional settings for most nonlinear effects. The notable exception was under the uniform distribution, in which the quadratic effects remained underpowered across all methods. The UPI demonstrated a performance pattern similar to that of the LSAM, whereas the LMS and QML approaches exhibited power estimates exceeding 80% even under low reliability—values that should be interpreted cautiously given their elevated type I error rates.
 
 ## Brief discussion of simulation 1
 
-With the exception of a low reliability, the results for LSAM were decent. Indeed, the estimates were unbiased, standard errors were good, coverage was stable, type I error rate within controlled, and power was close to the desirable rate for most effect, with a few exceptions. 
-
-Moreover, the results presented here are aligned to certain extent with previous simulation studies. With respect to bias for the QML and LMS, the same pattern of positive bias and negative bias for the nonlinear effects was observed as in @brandt_etall_2014 for the nonnormal condition, while the UPI showed unbiased results in general. Notably, type I error rates were not inflated as previous studies. For the LSAM, we obtained unbiased results similarly to the 2SMM performance in @brandt_etall_2014. The LMS and QML showed a similar performance as seen before [@kelava_etall_2009; @brandt_etall_2014].
-
-As in @brandt_etall_2020 similar findings were also observed for extremely large biased results in cases of small reliability, despite not manipulating structural misspecifications here. 
-
-We also observed similar patterns as in @lonati_etall_2024 for the interaction term. Importantly, however, is the contrast between the interaction and quadratic terms, which was not investigated in their case. For instance, the interaction term showing unbiased results under non-normal conditions, but biased results for the quadratic terms under the same condition. The SE/SD ratio results also follow the results reported in @brandt_etall_2014. Last, [comment about the insane power for lms and qml under non-normal: check with yves; power, type I error].
-
-Thus, the SAM approach shows good results overall that are comparable and even outperform the more widely used approaches. However, caution is needed for cases where low reliability may be the case.
+With the exception of low reliability conditions, LSAM demonstrated adequate performance across all evaluated metrics. Indeed, the LSAM yielded unbiased estimates, while the QML and LMS exhibited positive and negative bias for nonlinear effects under the non-normal condition, and negative bias for the quadratic effects in the uniform condition. Moreover, the UPI generally produced unbiased results in line with previous studies. For the standard errors, the LMS and QML show superior efficiency, but the LSAM yields similar results under medium and high reliability throughout distributions. Moreover, coverage rates remained stable for the LSAM, but not for the LMS and QML. Type I error rates were within acceptable range under medium and high reliability across distributions for the LSAM and UPI, while this was not the case for the LMS and QML. Last, power was the largest for the LMS and QML, but we note that this conclusion is warranted as type I error was not controlled. When the latter does hold, all approached obtained desirable levels for most effects.
 
 ## Result for simulation 2
 
 ```{r results-second-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
-source("../Simulations/Study_2/Results/Results(2).R")
 
 data_study_2 <- load("../Simulations/Study_2/Data/Results_Study_2_final.RData")
 
@@ -322,7 +222,7 @@ results_study_2 <- CalculatePerformance_Study2(
 ### Convergence Rate and Outliers
 
 ```{r convergence-second-sim-study, echo=FALSE, warning=FALSE, results='hide'}
-# Helper function for Study 2 convergence/outlier rates
+
 get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "Full",
                                                   equation = c("eta4", "eta5"),
                                                   rate_type = c("convergence", "outlier", "final")) {
@@ -337,9 +237,9 @@ get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "
   
   col_name <- col_map[rate_type]
   
-  # Pick a representative parameter for each equation
-  # For eta4: use "eta1" (first predictor)
-  # For eta5: use "eta4" (first predictor)
+  # needs representative parameter for each equation
+  # for eta4: use "eta1" (first predictor)
+  # for eta5: use "eta4" (first predictor)
   param_to_use <- ifelse(equation == "eta4", "eta1", "eta4")
   
   result <- results_study_2$results %>%
@@ -357,468 +257,38 @@ get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "
   if(length(result) > 0) result[1] else NA
 }
 
-# Combined view: worst outlier rates across both equations
-results_study_2$results %>%
-  filter((Equation == "eta4" & Parameter == "eta1") | 
-         (Equation == "eta5" & Parameter == "eta4")) %>%
-  group_by(Method, Equation) %>%
-  arrange(desc(Outlier_Rate_This_Method)) %>%
-  slice_head(n = 2) %>%
-  select(Method, Equation, Model, Distribution, SampleSize, Reliability, Outlier_Rate_This_Method) %>%
-  arrange(Method, Equation, desc(Outlier_Rate_This_Method))
+# worst outlier rates across both equations
+#results_study_2$results %>%
+#  filter((Equation == "eta4" & Parameter == "eta1") | 
+#         (Equation == "eta5" & Parameter == "eta4")) %>%
+#  group_by(Method, Equation) %>%
+#  arrange(desc(Outlier_Rate_This_Method)) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Equation, Model, Distribution, SampleSize, Reliability, Outlier_Rate_This_Method) %>%
+#  arrange(Method, Equation, desc(Outlier_Rate_This_Method))
 
 # Worst convergence rates for each method and equation
-results_study_2$results %>%
-  filter((Equation == "eta4" & Parameter == "eta1") | 
-         (Equation == "eta5" & Parameter == "eta4")) %>%
-  group_by(Method, Equation) %>%
-  arrange(Convergence_Rate_This_Method) %>%
-  slice_head(n = 2) %>%
-  select(Method, Equation, Model, Distribution, SampleSize, Reliability, Convergence_Rate_This_Method) %>%
-  arrange(Method, Equation, Convergence_Rate_This_Method)
-
+#results_study_2$results %>%
+#  filter((Equation == "eta4" & Parameter == "eta1") | 
+#         (Equation == "eta5" & Parameter == "eta4")) %>%
+#  group_by(Method, Equation) %>%
+#  arrange(Convergence_Rate_This_Method) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Equation, Model, Distribution, SampleSize, Reliability, Convergence_Rate_This_Method) %>%
+#  arrange(Method, Equation, Convergence_Rate_This_Method)
 ```
 
-We refer the reader to Table 3 for a detailed summary of convergence rates and outliers across all conditions in Study 2. Convergence issues were more pronounced in this study as expected. The UPI exhibited the poorest convergence performance under conditions with moderate sample size, low reliability, and uniform latent predictors, achieving rates of `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% with the full population model and `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% with the linear population model. These rates were consistent across both structural equations. For the normal and nonnormal conditions, convergence rates were above 95%. The QML showed better but still suboptimal convergence under the same challenging condition, with `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% (full model) and `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% (linear model). In contrast, LSAM maintained perfect convergence (`r round(get_convergence_outlier_rate_study_2("SAM", "normal", 400, 0.4, "Full", "eta4", "convergence"), 2)`%) across all conditions.
+Convergence issues were more pronounced in this study as expected. The UPI exhibited the poorest convergence performance under conditions with moderate sample size, low reliability, and uniform latent predictors, achieving rates of `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% with the full population model and `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% with the linear population model. These rates were consistent across both structural equations. For the normal and nonnormal conditions, convergence rates were above 95%. The QML showed better but still suboptimal convergence under the same challenging condition, with `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% (full model) and `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% (linear model). In contrast, LSAM maintained perfect convergence (`r round(get_convergence_outlier_rate_study_2("SAM", "normal", 400, 0.4, "Full", "eta4", "convergence"), 2)`%) across all conditions.
 
-Outlier patterns revealed substantial differences between methods. The UPI exhibited the highest outlier rates under the same problematic condition as above: `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for the linear model and `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for the full model, with identical rates observed for both $\eta_4$ and $\eta_5$ equations. QML demonstrated considerably lower outlier rates under this condition (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for linear, `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for full model). Notably, LSAM's highest outlier rate (`r round(get_convergence_outlier_rate_study_2("SAM", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`%) occurred with nonnormal rather than uniform distributions, again showing consistent rates across both structural equations.
+Outlier patterns revealed substantial differences between methods. The UPI exhibited the highest outlier rates under the same problematic condition as above: `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for the linear model and `r round(get_convergence_outlier_rate_study_2("DBLCENT", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for the full model, again with identical rates observed for both structural equations. QML demonstrated considerably lower outlier rates under this condition (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for linear, `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for full model). Notably, LSAM's highest outlier rate (`r round(get_convergence_outlier_rate_study_2("SAM", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`%) occurred with non-normal rather than uniform distributions, showing consistent rates across both structural equations.
 
 ```{r plots-second-sim-study, echo=FALSE}
-# ========= STUDY 2 PLOTS (SEPARATE BY DISTRIBUTION) =========
 
-# Prepare data for each distribution
 study_2_normal_data <- prepare_study2_data(results_study_2$results, "normal")
 study_2_nonnormal_data <- prepare_study2_data(results_study_2$results, "nonnormal")
 study_2_uniform_data <- prepare_study2_data(results_study_2$results, "uniform")
 
-# ========= BIAS (Full model, N=400) =========
-# Normal
-dat_bias_400_full_normal_study_2 <- study_2_normal_data$bias %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_bias_400_full_normal_study_2 <- plot_bias(
-  dat_bias_400_full_normal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .,
-  y_breaks = seq(-0.20, 0.20, by = 0.05)
-)
-
-# Nonnormal
-dat_bias_400_full_nonnormal_study_2 <- study_2_nonnormal_data$bias %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_bias_400_full_nonnormal_study_2 <- plot_bias(
-  dat_bias_400_full_nonnormal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .,
-  y_breaks = seq(-0.20, 0.20, by = 0.05)
-)
-
-# Uniform
-dat_bias_400_full_uniform_study_2 <- study_2_uniform_data$bias %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_bias_400_full_uniform_study_2 <- plot_bias(
-  dat_bias_400_full_uniform_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .,
-  y_breaks = seq(-0.20, 0.20, by = 0.05)
-)
-
-# ========= RELATIVE BIAS (Full model, N=400) =========
-# Normal
-dat_relative_bias_400_full_normal_study_2 <- study_2_normal_data$bias_relative %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_relative_bias_400_full_normal_study_2 <- plot_bias(
-  dat_relative_bias_400_full_normal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .,
-  y_breaks = seq(-0.5, 0.5, by = 0.25),
-  y_limits = c(-0.5, 0.5)
-)
-
-# Nonnormal
-dat_relative_bias_400_full_nonnormal_study_2 <- study_2_nonnormal_data$bias_relative %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_relative_bias_400_full_nonnormal_study_2 <- plot_bias(
-  dat_relative_bias_400_full_nonnormal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .,
-  y_breaks = seq(-1, 1.5, by = 0.5),
-  y_limits = c(-1, 1.5)
-)
-
-# Uniform
-dat_relative_bias_400_full_uniform_study_2 <- study_2_uniform_data$bias_relative %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_relative_bias_400_full_uniform_study_2 <- plot_bias(
-  dat_relative_bias_400_full_uniform_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .,
-  y_breaks = seq(-1, 1.5, by = 0.5),
-  y_limits = c(-1, 1.5)
-)
-
-# ========= RMSE (Full model, N=400) =========
-# Normal
-dat_rmse_400_full_normal_study_2 <- study_2_normal_data$rmse %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_rmse_400_full_normal_study_2 <- plot_rmse(
-  dat_rmse_400_full_normal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .
-)
-
-# Nonnormal
-dat_rmse_400_full_nonnormal_study_2 <- study_2_nonnormal_data$rmse %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_rmse_400_full_nonnormal_study_2 <- plot_rmse(
-  dat_rmse_400_full_nonnormal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .
-)
-
-# Uniform
-dat_rmse_400_full_uniform_study_2 <- study_2_uniform_data$rmse %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_rmse_400_full_uniform_study_2 <- plot_rmse(
-  dat_rmse_400_full_uniform_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .
-)
-
-# ========= RELATIVE RMSE (Full model, N=400) =========
-# Normal
-dat_relative_rmse_400_full_normal_study_2 <- study_2_normal_data$rmse_relative %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_relative_rmse_400_full_normal_study_2 <- plot_rmse(
-  dat_relative_rmse_400_full_normal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .
-)
-
-# Nonnormal
-dat_relative_rmse_400_full_nonnormal_study_2 <- study_2_nonnormal_data$rmse_relative %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_relative_rmse_400_full_nonnormal_study_2 <- plot_rmse(
-  dat_relative_rmse_400_full_nonnormal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .
-)
-
-# Uniform
-dat_relative_rmse_400_full_uniform_study_2 <- study_2_uniform_data$rmse_relative %>%
-  filter(Model == "Full", SampleSize == "400") %>%
-  droplevels()
-
-p_relative_rmse_400_full_uniform_study_2 <- plot_rmse(
-  dat_relative_rmse_400_full_uniform_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ .
-)
-
-# ========= SE/SD RATIO (Full, N=400 & 1000) =========
-# Normal
-dat_sesd_full_normal_study_2 <- study_2_normal_data$sesd %>%
-  filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
-  droplevels()
-
-p_sesd_full_normal_study_2 <- plot_sesd(
-  dat_sesd_full_normal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ SampleSize
-)
-
-# Nonnormal
-dat_sesd_full_nonnormal_study_2 <- study_2_nonnormal_data$sesd %>%
-  filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
-  droplevels()
-
-p_sesd_full_nonnormal_study_2 <- plot_sesd(
-  dat_sesd_full_nonnormal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ SampleSize
-)
-
-# Uniform
-dat_sesd_full_uniform_study_2 <- study_2_uniform_data$sesd %>%
-  filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
-  droplevels()
-
-p_sesd_full_uniform_study_2 <- plot_sesd(
-  dat_sesd_full_uniform_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ SampleSize
-)
-
-# ========= COVERAGE (Full, N=400 & 1000) =========
-# Normal
-dat_cov_full_400_1000_normal_study_2 <- study_2_normal_data$coverage %>%
-  filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
-  droplevels()
-
-p_cov_full_400_1000_normal_study_2 <- plot_coverage(
-  dat_cov_full_400_1000_normal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ SampleSize
-)
-
-# Nonnormal
-dat_cov_full_400_1000_nonnormal_study_2 <- study_2_nonnormal_data$coverage %>%
-  filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
-  droplevels()
-
-p_cov_full_400_1000_nonnormal_study_2 <- plot_coverage(
-  dat_cov_full_400_1000_nonnormal_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ SampleSize
-)
-
-# Uniform
-dat_cov_full_400_1000_uniform_study_2 <- study_2_uniform_data$coverage %>%
-  filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
-  droplevels()
-
-p_cov_full_400_1000_uniform_study_2 <- plot_coverage(
-  dat_cov_full_400_1000_uniform_study_2,
-  shapes = SHAPES_3,
-  ltys = LTYS_3,
-  facet_formula = Parameter ~ SampleSize
-)
-
-# ========= TYPE I ERROR (Linear, N=1000 only) =========
-# Normal
-dat_t1_1000_normal_study_2 <- study_2_normal_data$type1 %>%
-  filter(grepl("N=1000", Condition)) %>%
-  droplevels()
-
-p_t1_1000_normal_study_2 <- plot_type1(
-  dat_t1_1000_normal_study_2,
-  greys = GREYS_3,
-  facet_formula = Parameter ~ Condition
-)
-
-# Nonnormal
-dat_t1_1000_nonnormal_study_2 <- study_2_nonnormal_data$type1 %>%
-  filter(grepl("N=1000", Condition)) %>%
-  droplevels()
-
-p_t1_1000_nonnormal_study_2 <- plot_type1(
-  dat_t1_1000_nonnormal_study_2,
-  greys = GREYS_3,
-  facet_formula = Parameter ~ Condition
-)
-
-# Uniform
-dat_t1_1000_uniform_study_2 <- study_2_uniform_data$type1 %>%
-  filter(grepl("N=1000", Condition)) %>%
-  droplevels()
-
-p_t1_1000_uniform_study_2 <- plot_type1(
-  dat_t1_1000_uniform_study_2,
-  greys = GREYS_3,
-  facet_formula = Parameter ~ Condition
-)
-
-# ========= POWER (Full, N=1000 only) =========
-# Normal
-dat_pow_1000_normal_study_2 <- study_2_normal_data$power %>%
-  filter(grepl("N=1000", Condition)) %>%
-  droplevels()
-
-p_pow_1000_normal_study_2 <- plot_power(
-  dat_pow_1000_normal_study_2,
-  greys = GREYS_3,
-  facet_formula = Parameter ~ Condition
-)
-
-# Nonnormal
-dat_pow_1000_nonnormal_study_2 <- study_2_nonnormal_data$power %>%
-  filter(grepl("N=1000", Condition)) %>%
-  droplevels()
-
-p_pow_1000_nonnormal_study_2 <- plot_power(
-  dat_pow_1000_nonnormal_study_2,
-  greys = GREYS_3,
-  facet_formula = Parameter ~ Condition
-)
-
-# Uniform
-dat_pow_1000_uniform_study_2 <- study_2_uniform_data$power %>%
-  filter(grepl("N=1000", Condition)) %>%
-  droplevels()
-
-p_pow_1000_uniform_study_2 <- plot_power(
-  dat_pow_1000_uniform_study_2,
-  greys = GREYS_3,
-  facet_formula = Parameter ~ Condition
-)
-
-```
-
-```{r report-values-second-sim-study, echo=FALSE}
-# ========= GET FUNCTIONS FOR STUDY 2 =========
-
-get_bias_study_2 <- function(method, dist, param, n, rel, model = "Full") {
-  # Select the appropriate dataset based on distribution
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$bias %>%
-    filter(Method == method, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
-
-get_relative_bias_study_2 <- function(method, dist, param, n, rel, model = "Full") {
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$bias_relative %>%
-    filter(Method == method, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
-
-get_rmse_study_2 <- function(method, dist, param, n, rel, model = "Full") {
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$rmse %>%
-    filter(Method == method, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
-
-get_relative_rmse_study_2 <- function(method, dist, param, n, rel, model = "Full") {
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$rmse_relative %>%
-    filter(Method == method, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
-
-get_ratio_study_2 <- function(method, dist, param, n, rel, model = "Full") {
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$sesd %>%
-    filter(Method == method, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(ratio)
-}
-
-get_coverage_study_2 <- function(method, dist, param, n, rel, model = "Full") {
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$coverage %>%
-    filter(Method == method, Parameter == param,
-           SampleSize == n, Reliability == rel, Model == model) %>%
-    pull(y)
-}
-
-get_type1_study_2 <- function(method, dist, param, cond) {
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$type1 %>%
-    filter(Method == method, Parameter == param, Condition == cond) %>%
-    pull(y)
-}
-
-get_power_study_2 <- function(method, dist, param, cond) {
-  data_list <- switch(tolower(dist),
-    "normal" = study_2_normal_data,
-    "nonnormal" = study_2_nonnormal_data,
-    "uniform" = study_2_uniform_data,
-    stop("Distribution must be 'normal', 'nonnormal', or 'uniform'")
-  )
-  
-  data_list$power %>%
-    filter(Method == method, Parameter == param, Condition == cond) %>%
-    pull(y)
-}
-```
-
-### Bias When Nonlinear Effects Were Present 
-
-Figure 6 shows the relative bias for all nonlinear effects under the full population model for the distributions manipulated given a moderate sample size. Again, the results for a high sample size are qualitatively the same, albeit reduced MCSE and bias. The same interpretation as in simulation 1 follows here. 
-
-Under normal distribution, results were less stable than in simulation 1. Indeed, in that case, under low reliability and moderate sample size, the LSAM showed mixed performance depending on the nonlinear effect considered (e.g., with the lowest equal to `r round(get_relative_bias_study_2("SAM", "normal", "beta[26]", "400", "0.4", "Full"), 3)` and highest `r round(get_relative_bias_study_2("SAM", "normal", "beta[26]", "400", "0.4", "Full"), 3)`). Results improved with medium reliability, which lead to unbiasedness for all nonlinear effects, and similarly with high reliability. The UPI shows a similar performance as the LSAM, while the QML differs in certain aspects. Indeed, for the nonlinear effects within the $\eta_4$ structural model, QML yielded unbiased results under low reliability, but for the effects in $\eta_5$ we obtained biased results that diminished with increasing reliability yet remained biased regardless of the sample size. Interestingly, for instance, the interaction term for $\eta_1$ which was not biased for the first equation is biased for the second equation. Under the nonnormal condition, similar patterns emerged, LSAM yielded less biased results, but still for some nonlinear effects under low reliability and moderate sample size. Increasing to medium reliability resulted in no bias for all except $\beta_{27}$. Notably, the bias for the QML increased substantially compared to the normal case for all nonlinear terms (except $\beta_{15}$) under all reliability levels for both structural equations. Last, for the uniform condition, LSAM showed unbiased results for almost all nonlinear effects even at the low reliability scenario (e.g., `r round(get_relative_bias_study_2("SAM", "uniform", "beta[27]", "400", "0.4", "Full"), 3)` for $\beta_{27}$ was an exception). The UPI and QML followed the same pattern, with the exception that the QML exhibited bias for all quadratic terms only. 
-
-### Bias When Nonlinear Effects Were Not Present
-
-In this case, the most noteworthy differences concern less bias under low reliability for the normal condition and unbiased results for the quadratic terms for the QML under the uniform condition.
-
-```{r relative-bias-study-2, echo=FALSE, fig.cap="Relative Bias.", fig.align='center', fig.height=12, fig.width=9}
-# ========= RELATIVE BIAS (Full model, N=400, All Distributions) =========
+# RELATIVE BIAS (full model, N=400, all Distributions) 
 dat_relative_bias_400_full_all_study_2 <- bind_rows(
   study_2_normal_data$bias_relative %>%
     filter(Model == "Full", SampleSize == "400"),
@@ -839,21 +309,29 @@ p_relative_bias_400_full_all_study_2 <- plot_bias(
   bias_type = "relative"
 )
 
-(p_relative_bias_400_full_all_study_2)
-```
+# RELATIVE RMSE (full model, N=400, all Distributions) 
+dat_relative_rmse_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
 
-### Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Present
+p_relative_rmse_400_full_all_study_2 <- plot_bias(
+  dat_relative_rmse_400_full_all_study_2,
+  shapes = SHAPES_3,
+  ltys = LTYS_3,
+  facet_formula = Parameter ~ Distribution,
+  y_breaks = seq(-0.5, 5, by = 1.5),  
+  y_limits = c(-0.5, 5),              
+  bias_type = "relative"
+)
 
-Figure 7 shows the computed SE/SD ratios under the full models for all distributions and a moderate sample size. Again, results further improved with increasing sample size for all approaches. Interpretation follows that of simulation 1.
 
-Under normally distributed latent predictors and moderate sample size, LSAM yielded ratios within the acceptable range for all reliability levels. Indeed, the worst value observed happened with low reliability for $\beta_{14}$ (`r round(get_ratio_study_2("SAM", "normal", "beta[14]", "400", "0.4", "Full"), 2)`). Similarly, the QML yielded the most efficient ratios throughout all nonlinear effects and reliability. The UPI, however, exhibited ratios below 0.85 for all nonlinear effects in the case of low reliability. With a medium reliability, the UPI performance improved. With the nonnormal distribution, under low reliability and moderate sample size, LSAM showed overestimation for one nonlinear term (e.g., $\beta_{14}$) in the first structural equation ($\eta_4$), while QML displayed undercoverage for one nonlinear effect within the first structural equation (e.g., $\beta_{25}$) and one for the second (e.g., $\beta_{27}$). The UPI struggled at low and medium reliability levels yet in the latter case ratios where just slightly below 0.85. Under uniform distributions, LSAM showed one overestimation, which happened under low reliability (`r round(get_ratio_study_2("SAM", "uniform", "beta[28]", "400", "0.4", "Full"), 2)`), while the UPI yielded underestimated ratios under low and medium reliability levels. 
-
-### Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Not Present
-
-In this case, the results were highly similar. One exception is that there is some overestimation for the LSAM in the uniform condition compared to the full model for some nonlinear effects. 
-
-```{r se-ratio-study-2, echo=FALSE, fig.cap="SE/SD Ratio.", fig.align='center', fig.height=12, fig.width=9}
-# ========= SE/SD RATIO (Full model, N=400, All Distributions) =========
+# SE/SD RATIO (Full model, N=400, All Distributions) 
 dat_sesd_400_full_all_study_2 <- bind_rows(
   study_2_normal_data$sesd %>%
     filter(Model == "Full", SampleSize == "400"),
@@ -869,24 +347,10 @@ p_sesd_400_full_all_study_2 <- plot_sesd(
   shapes = SHAPES_3,
   ltys = LTYS_3,
   facet_formula = Parameter ~ Distribution,
-  title = "Study 2: SE/SD Ratio (Full Model, N=400)"
+  title = ""
 )
 
-(p_sesd_400_full_all_study_2 )
-```
-
-### Coverage When Nonlinear Effects Were Present
-
-Figure 8 contains the visualization of the results for a moderate sample size. Note that for some approaches, under specific conditions, the exact values are shown due to being outside the y-axis range. A large sample size yielded qualitatively similar results. 
-
-Under normally distributed conditions, LSAM produced in general coverage rates within acceptable deviations from the nominal rate 95%. As before, some overcoverage is present in the case of low reliability for two nonlinear effects, ranging between `r round(get_coverage_study_2("SAM", "normal", "beta[16]", "400", "0.4", "Full"), 1)`-`r round(get_coverage_study_2("SAM", "normal", "beta[26]", "400", "0.4", "Full"), 1)`. QML produced coverage rates within the desirable range for all nonlinear effects. While the UPI exhibited undercoverage specifically under low reliability conditions for most nonlinear effects. In the case of the nonnormal condition, LSAM showed some fluctuations but in general yielded results within the acceptable range, apart from similar overcoverage for some estimates with low reliability. However, the QML and UPI resulted in inadequate coverage rates that achieved acceptable values only under high reliability for both sample sizes. Last, for the uniform condition, LSAM showed a similar performance as the other distributions, the QML and UPI showed undercoverage mainly for the quadratic terms under low and medium reliability
- 
-### Coverage When Nonlinear Effects Were Not Present
-
-For all approaches coverage improved under the normal and uniform conditions. However, the QML still showed undercoverage in the case of nonnormal. 
-
-```{r coverage-ratio-study-2, echo=FALSE, fig.cap="SE/SD Ratio.", fig.align='center', fig.height=12, fig.width=9}
-# ========= COVERAGE (Full model, N=400, All Distributions) =========
+#  COVERAGE (Full model, N=400, All Distributions)
 dat_coverage_400_full_all_study_2 <- bind_rows(
   study_2_normal_data$coverage %>%
     filter(Model == "Full", SampleSize == "400"),
@@ -902,18 +366,10 @@ p_coverage_400_full_all_study_2 <- plot_coverage(
   shapes = SHAPES_3,
   ltys = LTYS_3,
   facet_formula = Parameter ~ Distribution,
-  title = "Study 2: Coverage (Full Model, N=400)"
+  title = ""
 )
 
-(p_coverage_400_full_all_study_2)
-```
-
-### Type I Error Control
-
-Under normal conditions, all approaches maintained Type I error rates within the nominal 5% level. Under nonnormal conditions, QML produced substantially inflated Type I error rates with low and moderate reliability: `r round(get_type1_study_2("QML", "nonnormal", "beta[14]", "N=1000, Rel=0.4"), 1)`% for $\beta_{14}$ and `r round(get_type1_study_2("QML", "nonnormal", "beta[15]", "N=1000, Rel=0.4"), 1)`% for $\beta_{15}$. Under uniform distributions, all methods demonstrated acceptable Type I error control.
-
-```{r type-study-2, echo=FALSE, fig.cap="SE/SD Ratio.", fig.align='center', fig.height=12, fig.width=9}
-# ========= TYPE I ERROR (Linear, N=1000, Nonnormal & Uniform) =========
+# TYPE I ERROR (Linear, N=1000, Nonnormal & Uniform)
 dat_t1_1000_all_study_2 <- bind_rows(
   study_2_nonnormal_data$type1 %>%
     filter(grepl("N=1000", Condition)),
@@ -926,20 +382,36 @@ p_t1_1000_all_study_2 <- plot_type1(
   dat_t1_1000_all_study_2,
   greys = GREYS_3,
   facet_formula = Parameter ~ Distribution + Condition,
-  title = "Study 2: Type I Error (N=1000, Nonnormal & Uniform)"
+  title = ""
 )
-
-(p_t1_1000_all_study_2)
 ```
 
-### Statistical Power
+### Relative Bias and RMSE When Nonlinear Effects Were Present 
 
-In the normal condition, power was extremely similar for all approaches. In this case, above 80% was only observed in the case of high sample size and reliability. Importantly, the power for the nonlinear effects within the first structural equation were higher than those of the second.
+Figure 7 and 8 show respectively the relative bias and RMSE for all nonlinear effects across distributions with a moderate sample size. As in simulation 1, results under a large sample size were qualitatively similar (e.g., reduced MCSE and bias). Under normality, results were mixed. With low reliability, LSAM showed bias for some nonlinear effects, which improved under a medium reliability. The UPI performed similarly, while QML differed slighly with biased results mainly for the nonlinear effects within the structural model for $\eta_5$ under low reliability. Under non-normality, similar patterns emerged: LSAM showed bias for some effects at low reliability, improving at medium reliability. Notably, QML bias increased substantially compared to normality for most nonlinear effects across all reliabilities. Under uniform distribution, LSAM showed unbiased results for nearly all nonlinear effects even at low reliability. UPI and QML followed this pattern, except QML exhibited bias for all quadratic terms across reliability levels. Relative RMSE was similar across methods under normality and other distributions, with QML generally showing smaller RMSE.
 
-Under nonnormal conditions, power for the LSAM and UPI followed a similar pattern as in the case of normal. The QML showed high power for some effects even with medium reliability and moderate sample size but one needs to look at the valid power as type I error rates in this case were not ideal. Last, under uniform condition, power was low for all approaches throughout reliability and sample sizes. Two notable exceptions were for the first nonlinear effects (interactions) within the first structural equation.
+**Bias and RMSE When Nonlinear Effects Were Absent.** Notable differences included reduced bias under low reliability for normality and unbiased quadratic term results for QML under uniform distribution.
+
+### Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Present
+
+Figure 9 shows SE/SD ratios for all distributions at a moderate sample size. Results improved with increasing sample size for all approaches. Under normality, the LSAM yielded ratios within acceptable range across all reliability levels, while the QML showed the most efficient ratios. The UPI, however, exhibited ratios below 0.85 for all nonlinear effects at low reliability, improving at medium reliability. Under non-normality, LSAM and QML showed ratios within the desirable range with some exceptions for one or two nonlinear effects. The UPI struggled at low and medium reliabilities, though ratios were just slightly below 0.85 in the latter case. Under uniform distribution, LSAM showed one overestimation at low reliability, while UPI yielded underestimated ratios at low and medium reliabilities. The QML resulted in efficient ratios. 
+
+**Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Not Present.** Results were highly similar, except LSAM showed some overestimation under uniform distribution compared to the full model for some nonlinear effects.
+
+### Coverage When Nonlinear Effects Were Present
+
+Figure 10 visualizes results for a moderate sample size. For some approaches under specific conditions, we show again the exact values. Large sample size yielded qualitatively similar results. Under normality, LSAM generally produced coverage rates within acceptable deviations, though over-coverage occurred at low reliability for some effects. The QML produced coverage within the desirable range for all nonlinear effects, while UPI exhibited under-coverage at low reliability for most effects. Under non-normality, LSAM showed some fluctuations but generally yielded results within acceptable range, apart from similar over-coverage at low reliability. However, QML and UPI resulted in inadequate coverage that achieved acceptable values only at high reliability. Under uniform distribution, LSAM showed similar performance as in the other distributions, while QML and UPI showed under-coverage mainly for quadratic terms at low and medium reliabilities.
+
+**Coverage When Nonlinear Effects Were Not Present.** Coverage improved for all approaches under normal and uniform conditions. However, QML still showed undercoverage under non-normality.
+
+### Type I Error Rate
+
+Figure 11 visualizes results for a large sample size. Under normal conditions, all approaches maintained type I error rates within the nominal 5% level. Under nonnormal conditions, QML produced substantially inflated type I error rates with low and moderate reliability. Under uniform distributions, all methods demonstrated acceptable type I error control.
+
+### Empirical Power
+
+Similarly as in simulation 1, results for empirical power are interpreted only when the type I error control rate was within the nominal rate. In that case, for the normal distribution, power was generally larger for the nonlinear effects within $\eta_4$, where only for a large sample size and high reliability surpassed 80%. For the non-normal condition, slightly similar results were obtained. Interestingly, power was larger for the nonlinear effects within the $\eta_5$ equation compared to the normal case. Last, for the uniform distribution, results yielded low power except for the first two interaction effects within the $\eta_4$.
 
 ## Brief discussion of simulation 2
 
-As discussed previously, scalability involves several important components. The first concerns computational time. Although this depends on the specific software implementation, the LMS clearly demands substantial computational resources, which is why it was not included in Study 2. However, one could argue that this computational cost is acceptable given the potentially valuable statistical properties that LMS may offer if assumptions hold. This is not a concern for the remaining approaches. In that case, the second component concerns convergence. We observed that this was problematic for the UPI, with the extent of the problem depending on the distribution and reliability. For the QML and LSAM, convergence was generally not an issue, although the QML showed some increases in nonconvergence under specific conditions compared to simulation 1. Related to this, outlier estimates also increased, though this occurred only for the UPI and LSAM methods. The final aspect concerns performance itself. Contrary to our expectations, the biased results for nonlinear effects in the first equation did not substantially affect the nonlinear effects in the second equation (e.g., no substantial cascade effect was observed). Indeed, the results remained relatively similar to those obtained in simulation 1.
-
-It remains unclear also if there is a specific limit in which a number of high order terms will lead to nonfeasible estimation under the other approaches. 
+As discussed previously, scalability encompasses several components. The first concerns computational time for estimation. Although this depends heavily on software implementation details (e.g., pure R versus C++ implementations), the LMS clearly demands substantial computational resources, which is the reason for not including it, and hence it is aligned with our expectation. However, one could also argue that this computational cost may be acceptable given the potentially valuable statistical properties that LMS offers when assumptions hold. The second component concerns convergence rates. We observed that this was problematic for the UPI, with the severe issues mainly for the uniform and low reliability condition. For the QML and LSAM, convergence was generally not an issue. Related to this, outlier estimates also increased, though this occurred only for the UPI and LSAM methods. The final aspect concerns performance itself. Contrary to our expectations, the biased results for nonlinear effects in the first structural equation did not substantially influence (e.g., cascade affect) the nonlinear effects in the second structural equation. 

@@ -1,5 +1,5 @@
 ---
-title             : "A simulation study comparing structural-after-measurement versus traditional approaches to estimate nonlinear effects in structural equation modeling"
+title             : "A simulation study comparing the local structural-after-measurement (LSAM) versus traditional approaches to estimate nonlinear effects in structural equation modeling with latent variables"
 author: 
   - name          : "Felipe Fontana Vieira"
     affiliation   : "1"
@@ -30,8 +30,8 @@ authornote: |
   \addORCIDlink{Yves Rosseel}{0000-0002-4129-4477}
   
 abstract: |
-  Several methods have been proposed to include quadratic or interaction terms involving latent variables in structural equation models. Some examples are the latent moderated structural equations (LMS) approach and several variants of the product indicator (PI) approach. All of these methods use a system-wide estimation approach and estimate the free parameters of the model simultaneously. They tend to perform effectively in models featuring only a limited number of nonlinear effects. However, as the complexity of the model increases with a higher number of nonlinear terms, the feasibility of joint or one-step methods progressively diminishes. Recently, several so-called structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed in the literature. In a SAM approach, estimation proceeds in two stages. In a first stage, we estimate the parameters related to the measurement part of the model, while in a second stage, we estimate the parameters related to the structural part of the model. In this article, we show with two simulation studies that the recently proposed SAM approach (Rosseel et al., 2025) performs well, in a variety of conditions, including conditions that involve a large number of latent interaction and quadratic terms [..rewrite this last part once completely done..].
-
+  Several methods have been proposed to include quadratic or interaction terms involving latent variables in structural equation models. Most of these methods use a system-wide estimation approach, meaning all the free parameters of the model are estimated simultaneously. Research has investigated their performance in models featuring mainly a limited number of nonlinear effects. Recently, several so-called structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed in the literature. In a SAM approach, estimation proceeds in two stages. In a first stage, we estimate the parameters related to the measurement part of the model, while in a second stage, we estimate the parameters related to the structural part of the model. In this article, we show with two simulation studies that the recently proposed LSAM approach (Rosseel et al., 2025) performs well, in a variety of conditions that include distributional and reliability manipulations. In the first simulation study, we obtained results largely consistent with the expected performance based on theoretical properties as well as simulation results from a similar approach. In a second simulation study, we evaluated the extent to which increasing the number of nonlinear terms affects the LSAM in contrast to otther approaches, as the literature claimed the feasibility of joint methods progressively diminishes when more nonlinear effects are involved. The results for this latter study with eight nonlinear terms shows that this may hold partially, but in general more research is needed to find the limit in which performance effectively breaksdown.
+  
   <!-- https://tinyurl.com/ybremelq -->
 keywords          : "nonlinear effects, structural equation modeling, structural-after-measurement"
 bibliography      : "Phd - Initial Readings.bib"
@@ -90,7 +90,7 @@ options(papaja.na_string = "-")
 options(knitr.kable.NA = "-")
 knitr::opts_chunk$set(fig.cap = NULL)
 ```
-
+and
 ```{r, child = "introduction.Rmd"}
 ```
 
