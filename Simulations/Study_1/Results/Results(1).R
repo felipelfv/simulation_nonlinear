@@ -114,94 +114,36 @@
 
 ############################### 3. Functions ####################################
 
-## helper function to extract specific parameters from stored tables
-extract_eta3_parameters <- function(table, method_type) {
+extract_params <- function(table, method) {
   if(is.null(table)) return(NULL)
   
-  if(method_type == "dblcent") {
-    # for dblcent: use coefParTable structure
-    rows <- table[table$lhs == "eta3" & table$op == "~", ]
-    
-    params <- if(nrow(rows) == 3) {
-      c("eta1", "eta2", "eta1:eta2")
-    } else {
-      c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
-    }
-    
-    RESULTS <- list(
-      "Estimates" = setNames(rows$est, params),
-      "Standard Errors" = setNames(rows$se, params),
-      "P-values" = setNames(rows$pvalue, params),
-      "CI_lower" = setNames(rows$ci.lower, params),
-      "CI_upper" = setNames(rows$ci.upper, params)
-    )
-    
-  } else if(method_type == "sam") {
-    # for SAM: use parameterEstimates structure
-    coefs <- table[table$lhs == "eta3" & table$op == "~", ]
-    
-    params <- if(nrow(coefs) == 3) {
-      c("eta1", "eta2", "eta1:eta2")
-    } else {
-      c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
-    }
-    
-    rows <- table$lhs == "eta3" & table$op == "~" & table$rhs %in% params
-    
-    ests <- setNames(table$est[rows], table$rhs[rows])
-    ses  <- setNames(table$se[rows], table$rhs[rows])
-    pval <- setNames(table$pvalue[rows], table$rhs[rows])
-    ci_lower <- setNames(table$ci.lower[rows], table$rhs[rows])
-    ci_upper <- setNames(table$ci.upper[rows], table$rhs[rows])
-    
-    # order according to `params`
-    RESULTS <- list(
-      "Estimates"        = ests[params],
-      "Standard Errors"  = ses[params],
-      "P-values"         = pval[params],
-      "CI_lower"         = ci_lower[params],
-      "CI_upper"         = ci_upper[params]
-    )
-    
-  } else if(method_type %in% c("lms", "qml")) {
-    # for LMS/QML: use parTable structure
-    rows <- table[table$lhs == "eta3" & table$op == "~", ]
-    
-    # 5 parameters; we need to reorder because eta1:eta1 before eta1:eta2
-    if(nrow(rows) == 5) {
-      # indices of the parameters we want to swap
-      eta1eta1_idx <- which(rows$rhs == "eta1:eta1")
-      eta1eta2_idx <- which(rows$rhs == "eta1:eta2")
-      
-      # reordered index vector
-      idx <- 1:nrow(rows)
-      idx[eta1eta1_idx] <- eta1eta2_idx
-      idx[eta1eta2_idx] <- eta1eta1_idx
-      
-      # swapped parameter order
-      RESULTS <- list(
-        "Estimates" = setNames(rows$est[idx], rows$rhs[idx]),
-        "Standard Errors" = setNames(rows$std.error[idx], rows$rhs[idx]),
-        "P-values" = setNames(rows$p.value[idx], rows$rhs[idx]),
-        "CI_lower" = setNames(rows$ci.lower[idx], rows$rhs[idx]),
-        "CI_upper" = setNames(rows$ci.upper[idx], rows$rhs[idx])
-      )
-    } else {
-      # 3 parameters, keep as it was before
-      RESULTS <- list(
-        "Estimates" = setNames(rows$est, rows$rhs),
-        "Standard Errors" = setNames(rows$std.error, rows$rhs),
-        "P-values" = setNames(rows$p.value, rows$rhs),
-        "CI_lower" = setNames(rows$ci.lower, rows$rhs),
-        "CI_upper" = setNames(rows$ci.upper, rows$rhs)
-      )
-    }
+  rows <- table[table$lhs == "eta3" & table$op == "~", ]
+  params <- if(nrow(rows) == 3) {
+    c("eta1", "eta2", "eta1:eta2")
+  } else {
+    c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
   }
   
-  RESULTS
+  # qml and lms have different names (in contrast to sam/dblcent)
+  se_col <- if(method %in% c("lms", "qml")) "std.error" else "se"
+  pval_col <- if(method %in% c("lms", "qml")) "p.value" else "pvalue"
+  
+  # LMS/QML need reordering (they output eta1:eta1 before eta1:eta2)
+  if(method %in% c("lms", "qml") && nrow(rows) == 5) {
+    idx <- c(1, 2, 4, 3, 5)  # swap positions 3 and 4
+    rows <- rows[idx, ]
+  }
+  
+  list(
+    Estimates = setNames(rows$est, params),
+    "Standard Errors" = setNames(rows[[se_col]], params),
+    "P-values" = setNames(rows[[pval_col]], params),
+    CI_lower = setNames(rows$ci.lower, params),
+    CI_upper = setNames(rows$ci.upper, params)
+  )
 }
 
-## Function 1: Convergence and Outliers
+# Main extraction function
 ExtractConvergenceOutliers <- function(all_results,
                                        parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                        remove_outliers = TRUE,
@@ -210,302 +152,192 @@ ExtractConvergenceOutliers <- function(all_results,
                                        exclude_warnings = FALSE) {
   
   options(scipen = 999)
-  
   methods <- c("sam", "lms", "qml", "dblcent")
+  # mapping from parameter names to true value positions:
+  param_index <- setNames(1:5, parameters_of_interest)
+  
+  # null-coalescing operator:
+  `%||%` <- function(x, y) if(is.null(x)) y else x
+  
   convergence_outliers_summary <- dplyr::tibble()
   convergence_outliers_details <- list()
   filtered_data <- list()
-  param_index <- c("eta1"=1, "eta2"=2, "eta1:eta2"=3, "eta1:eta1"=4, "eta2:eta2"=5)
   
   for (i in seq_along(all_results)) {
     condition <- all_results[[i]]$condition
-    res_list  <- all_results[[i]]$results
+    res_list <- all_results[[i]]$results
     
-    # Get true values
-    true_values <- all_results[[i]]$true_parameters
-    if (is.null(true_values)) {
-      if (condition$Model_Type == "linear") {
-        true_values <- c(0.316, 0.316, 0, 0, 0)
-      } else {  # Must be "full"
-        true_values <- c(0.316, 0.316, 0.139, 0.101, 0.101)
+    # get true values
+    true_values <- all_results[[i]]$true_parameters %||% 
+      if(condition$Model_Type == "linear") c(0.316, 0.316, 0, 0, 0) 
+    else c(0.316, 0.316, 0.139, 0.101, 0.101)
+    
+    # get max replications
+    # in principle should always be 1000 but just a sanity check
+    max_reps <- max(sapply(methods, function(m) 
+      length(res_list[[paste0(m, "_tables")]]) %||% 0))
+    
+    if (max_reps == 0) next
+    
+    # check for convergence
+    # here we create a convergence indicator for each method
+    method_convergence <- setNames(lapply(methods, function(method) {
+      tbls <- res_list[[paste0(method, "_tables")]]
+      if (is.null(tbls)) return(rep(FALSE, max_reps))
+      # then check each replication
+      vapply(seq_len(max_reps), function(rep) {
+        if (rep > length(tbls) || is.null(tbls[[rep]])) return(FALSE)
+        extr <- extract_params(tbls[[rep]], method)
+        if (is.null(extr)) return(FALSE)
+        # note that we check if all parameters exist and are valid 
+        # (e.g.,  no NA, NaN, or infinite values in any statistic)
+        all(sapply(parameters_of_interest, function(p) {
+          p %in% names(extr$Estimates) && 
+            !any(is.na(c(extr$Estimates[p], extr$`Standard Errors`[p], 
+                         extr$`P-values`[p], extr$CI_lower[p], extr$CI_upper[p])) |
+                   is.nan(c(extr$Estimates[p], extr$`Standard Errors`[p], 
+                            extr$`P-values`[p], extr$CI_lower[p], extr$CI_upper[p])) |
+                   is.infinite(c(extr$Estimates[p], extr$`Standard Errors`[p], 
+                                 extr$`P-values`[p], extr$CI_lower[p], extr$CI_upper[p])))
+        }))
+      }, logical(1))
+    }), methods)
+    
+    # warnings processing
+    # we only keep warnings from converged replications
+    method_warnings <- setNames(lapply(methods, function(method) {
+      warns <- res_list$warnings[[method]]
+      if (is.null(warns)) return(list())
+      
+      conv_reps <- which(method_convergence[[method]])
+      warn_list <- list()
+      for(rep in conv_reps) {
+        if(rep <= length(warns) && !is.null(warns[[rep]]) && length(warns[[rep]]) > 0) {
+          warn_list[[as.character(rep)]] <- warns[[rep]]
+        }
+      }
+      warn_list
+    }), methods)
+    
+    method_warning_counts <- sapply(method_warnings, length)
+    
+    convergence_outliers_details[[paste0("Condition_", i)]] <- list(
+      non_converged_iterations = lapply(method_convergence, function(x) which(!x)),
+      warning_iterations = method_warnings,
+      warning_counts = method_warning_counts,
+      outlier_iterations = list()
+    )
+    
+    # convergence stats
+    method_convergence_counts <- sapply(method_convergence, sum)
+    method_convergence_rates <- sapply(method_convergence, function(x) mean(x) * 100)
+    # global valid reps
+    # meaning a logical vector where TRUE means all methods converged
+    valid_reps <- Reduce("&", method_convergence)
+    
+    # if exclude warnings
+    n_excluded_by_warnings <- 0
+    if (exclude_warnings) {
+      warn_reps <- unique(unlist(lapply(method_warnings, function(w) as.numeric(names(w)))))
+      if(length(warn_reps) > 0) {
+        valid_reps[warn_reps] <- FALSE
+        n_excluded_by_warnings <- sum(Reduce("&", method_convergence)) - sum(valid_reps)
       }
     }
     
+    valid_rep_indices <- which(valid_reps)
+    n_after_global_convergence <- length(valid_rep_indices)
+    
+    if (n_after_global_convergence < min_reps) {
+      message(sprintf("Condition %d: Only %d valid replications. Skipping.", 
+                      i, n_after_global_convergence))
+      next
+    }
+    
+    # outlier detection
+    method_outliers <- setNames(lapply(methods, function(method) {
+      outliers <- rep(FALSE, max_reps)
+      if (!remove_outliers) return(outliers)
+      
+      tbls <- res_list[[paste0(method, "_tables")]]
+      if (is.null(tbls)) return(outliers)
+      
+      # collect estimates
+      param_ests <- setNames(lapply(parameters_of_interest, function(p) {
+        unlist(lapply(valid_rep_indices, function(rep) {
+          extr <- extract_params(tbls[[rep]], method)
+          if(!is.null(extr) && p %in% names(extr$Estimates)) extr$Estimates[p]
+        }))
+      }), parameters_of_interest)
+      
+      # bounds used in lonati et al., 2024 
+      # based on boomsma, (2013). "Reporting Monte Carlo studies in SEM (...)"
+      bounds <- lapply(param_ests, function(ests) {
+        if(length(ests) == 0) return(c(-Inf, Inf))
+        q <- quantile(ests, c(0.25, 0.75), na.rm = TRUE)
+        iqr <- diff(q)
+        c(q[1] - outlier_threshold * iqr, q[2] + outlier_threshold * iqr)
+      })
+      
+      # mark as outlier if ANY parameter is outside bounds
+      for(rep in valid_rep_indices) {
+        extr <- extract_params(tbls[[rep]], method)
+        if(!is.null(extr)) {
+          outliers[rep] <- any(sapply(parameters_of_interest, function(p) {
+            p %in% names(extr$Estimates) && 
+              !is.na(extr$Estimates[p]) && !is.nan(extr$Estimates[p]) && !is.infinite(extr$Estimates[p]) &&
+              (extr$Estimates[p] < bounds[[p]][1] || extr$Estimates[p] > bounds[[p]][2])
+          }))
+        }
+      }
+      outliers
+    }), methods)
+    
+    method_outlier_counts <- sapply(method_outliers, function(x) sum(x[valid_rep_indices]))
+    convergence_outliers_details[[paste0("Condition_", i)]]$outlier_iterations <- 
+      lapply(method_outliers, which)
+    
+    # final valid indices
+    # remove replications that are outliers in ANY method (global outlier removal)
+    valid_after_outliers <- valid_reps & !Reduce("|", method_outliers)
+    valid_final_indices <- which(valid_after_outliers)
+    n_after_global_outlier <- length(valid_final_indices)
+    
+    if (n_after_global_outlier < min_reps) {
+      message(sprintf("Condition %d: Only %d replications after outliers. Skipping.", 
+                      i, n_after_global_outlier))
+      next
+    }
+    
+    # extract data and build summary
     model_name <- ifelse(condition$Model_Type == "linear", "Linear", "Full")
     distribution <- as.character(condition$Distribution)
     sample_size <- condition$N
     reliability <- condition$Rel
     
-    # TRACK CONVERGENCE FOR EACH METHOD SEPARATELY
-    max_reps <- 0
-    # number of replications
-    # could be a hard coded 1000 but as for testing before we have this 
-    for (method in methods) {
-      tbls <- res_list[[paste0(method, "_tables")]]
-      if (!is.null(tbls)) {
-        max_reps <- max(max_reps, length(tbls))
-      }
-    }
-    
-    if (max_reps == 0) next
-    
-    # convergence for each method separately
-    method_convergence <- list()
-    for (method in methods) {
-      method_convergence[[method]] <- rep(FALSE, max_reps)  
-    }
-    
-    # each method's convergence independently
-    for (method in methods) {
-      tbls <- res_list[[paste0(method, "_tables")]]
-      if (is.null(tbls)) {
-        next
-      }
-      
-      for (rep in seq_len(max_reps)) {
-        if (rep > length(tbls) || is.null(tbls[[rep]])) {
-          next
-        }
-        
-        # parameters for this replication
-        extr <- extract_eta3_parameters(tbls[[rep]], method)
-        if (is.null(extr)) {
-          next  
-        }
-        
-        # check if all required parameters are present and complete
-        converged <- TRUE
-        for (p in parameters_of_interest) {
-          if (p %in% names(extr$Estimates)) {
-            if (is.na(extr$Estimates[p]) || is.nan(extr$Estimates[p]) || is.infinite(extr$Estimates[p]) ||
-                is.na(extr$`Standard Errors`[p]) || is.nan(extr$`Standard Errors`[p]) || is.infinite(extr$`Standard Errors`[p]) ||
-                is.na(extr$`P-values`[p]) || is.nan(extr$`P-values`[p]) || is.infinite(extr$`P-values`[p]) ||
-                is.na(extr$CI_lower[p]) || is.nan(extr$CI_lower[p]) || is.infinite(extr$CI_lower[p]) ||
-                is.na(extr$CI_upper[p]) || is.nan(extr$CI_upper[p]) || is.infinite(extr$CI_upper[p])) {
-              converged <- FALSE
-              break
-            }
-          } else {
-            converged <- FALSE
-            break
-          }
-        }
-        method_convergence[[method]][rep] <- converged
-      }
-    }
-    
-    # TRACK WARNINGS FOR CONVERGED ITERATIONS
-    method_warnings <- list()
-    method_warning_counts <- list()
-    
-    for (method in methods) {
-      method_warnings[[method]] <- list()
-      method_warning_counts[[method]] <- 0
-      
-      # if warnings exist for this method
-      method_warns <- res_list[["warnings"]][[method]]
-      if (!is.null(method_warns)) {
-        # through each converged replication
-        for (rep in which(method_convergence[[method]])) {
-          if (rep <= length(method_warns) && !is.null(method_warns[[rep]]) && length(method_warns[[rep]]) > 0) {
-            method_warnings[[method]][[as.character(rep)]] <- method_warns[[rep]]
-            method_warning_counts[[method]] <- method_warning_counts[[method]] + 1
-          }
-        }
-      }
-    }
-    
-    # store non-converged iterations and warnings
-    non_converged_iterations <- list()
-    for (method in methods) {
-      non_converged_iterations[[method]] <- which(!method_convergence[[method]])
-    }
-    
-    convergence_outliers_details[[paste0("Condition_", i)]] <- list(
-      non_converged_iterations = non_converged_iterations,
-      warning_iterations = method_warnings,  # which converged iterations have warnings
-      warning_counts = method_warning_counts,  # count of converged iterations with warnings
-      outlier_iterations = list()  # will be populated later
-    )
-    
-    # individual method convergence statistics
-    method_convergence_counts <- list()
-    method_convergence_rates <- list()
-    
-    for (method in methods) {
-      method_convergence_counts[[method]] <- sum(method_convergence[[method]])
-      method_convergence_rates[[method]] <- sum(method_convergence[[method]]) / max_reps * 100
-    }
-    
-    # IDENTIFY VALID REPLICATIONS ACROSS ALL METHODS (CONVERGENCE + OPTIONAL WARNINGS)
-    valid_reps <- rep(TRUE, max_reps)
-    for (method in methods) {
-      valid_reps <- valid_reps & method_convergence[[method]]
-    }
-    
-    # optionally exclude iterations with warnings
-    n_excluded_by_warnings <- 0
-    if (exclude_warnings) {
-      for (method in methods) {
-        for (rep in seq_len(max_reps)) {
-          if (as.character(rep) %in% names(method_warnings[[method]])) {
-            valid_reps[rep] <- FALSE
-          }
-        }
-      }
-      converged_indices <- which(Reduce("&", method_convergence))
-      n_excluded_by_warnings <- length(converged_indices) - sum(valid_reps)
-    }
-    
-    valid_rep_indices <- which(valid_reps)
-    n_total <- max_reps
-    n_after_global_convergence <- length(valid_rep_indices)
-    global_convergence_rate <- n_after_global_convergence / n_total * 100
-    
-    if (n_after_global_convergence < min_reps) {
-      message(paste("Condition", i, ": Only", n_after_global_convergence, 
-                    "valid replications across all methods",
-                    ifelse(exclude_warnings, "(after excluding warnings).", "."),
-                    "Skipping."))
-      next
-    }
-    
-    # TRACK OUTLIERS FOR EACH METHOD INDEPENDENTLY (AFTER CONVERGENCE)
-    method_outliers <- list()
-    method_outlier_counts <- list()
-    
-    for (method in methods) {
-      method_outliers[[method]] <- rep(FALSE, max_reps)
-      method_outlier_counts[[method]] <- 0
-    }
-    
-    if (remove_outliers) {
-      for (method in methods) {
-        tbls <- res_list[[paste0(method, "_tables")]]
-        if (is.null(tbls)) next
-        
-        # collect all estimates from valid (converged) replications
-        all_estimates <- list()
-        for (p in parameters_of_interest) {
-          all_estimates[[p]] <- numeric()
-        }
-        
-        for (rep in valid_rep_indices) {
-          extr <- extract_eta3_parameters(tbls[[rep]], method)
-          if (!is.null(extr)) {
-            for (p in names(extr$Estimates)) {
-              if (p %in% parameters_of_interest) {
-                all_estimates[[p]] <- c(all_estimates[[p]], extr$Estimates[p])
-              }
-            }
-          }
-        }
-        
-        # calculate outlier bounds per parameter
-        outlier_bounds <- list()
-        for (p in parameters_of_interest) {
-          if (length(all_estimates[[p]]) > 0) {
-            q1 <- stats::quantile(all_estimates[[p]], 0.25, na.rm = TRUE)
-            q3 <- stats::quantile(all_estimates[[p]], 0.75, na.rm = TRUE)
-            iqr <- q3 - q1
-            outlier_bounds[[p]] <- list(
-              lower = q1 - outlier_threshold * iqr,
-              upper = q3 + outlier_threshold * iqr
-            )
-          }
-        }
-        
-        # mark outliers for each replication
-        for (rep in valid_rep_indices) {
-          extr <- extract_eta3_parameters(tbls[[rep]], method)
-          if (!is.null(extr)) {
-            is_outlier <- FALSE
-            for (p in parameters_of_interest) {
-              if (p %in% names(extr$Estimates) && p %in% names(outlier_bounds)) {
-                est_val <- extr$Estimates[p]
-                if (!is.na(est_val) && !is.nan(est_val) && !is.infinite(est_val)) {
-                  if (est_val < outlier_bounds[[p]]$lower || est_val > outlier_bounds[[p]]$upper) {
-                    is_outlier <- TRUE
-                    break
-                  }
-                }
-              }
-            }
-            method_outliers[[method]][rep] <- is_outlier
-          }
-        }
-        
-        method_outlier_counts[[method]] <- sum(method_outliers[[method]][valid_rep_indices])
-      }
-    }
-    
-    # store outlier iterations
-    outlier_iterations <- list()
-    for (method in methods) {
-      outlier_iterations[[method]] <- which(method_outliers[[method]])
-    }
-    convergence_outliers_details[[paste0("Condition_", i)]]$outlier_iterations <- outlier_iterations
-    
-    # GLOBAL OUTLIER SYNCHRONIZATION
-    valid_after_outliers <- valid_reps
-    if (remove_outliers) {
-      for (method in methods) {
-        valid_after_outliers <- valid_after_outliers & !method_outliers[[method]]
-      }
-    }
-    
-    valid_final_indices <- which(valid_after_outliers)
-    n_after_global_outlier <- length(valid_final_indices)
-    global_outlier_rate <- n_after_global_outlier / n_total * 100
-    
-    if (n_after_global_outlier < min_reps) {
-      message(paste("Condition", i, ": Only", n_after_global_outlier, 
-                    "valid replications after outlier removal. Skipping."))
-      next
-    }
-    
-    # EXTRACT FILTERED DATA FOR EACH METHOD
-    for (method in methods) {
+    for(method in methods) {
       tbls <- res_list[[paste0(method, "_tables")]]
       if (is.null(tbls)) next
       
-      # store convergence and outlier stats
-      n_converged_this_method <- method_convergence_counts[[method]]
-      convergence_rate_this_method <- method_convergence_rates[[method]]
-      n_outliers_this_method <- method_outlier_counts[[method]]
-      outlier_rate_this_method <- round(n_outliers_this_method / n_after_global_convergence * 100, 2)
-      
-      # extract data for each parameter
-      params <- parameters_of_interest
-      
-      for (p_name in params) {
-        # collect data from globally valid replications
-        ests <- numeric()
-        ses <- numeric()
-        pvs <- numeric()
-        los <- numeric()
-        his <- numeric()
-        
-        for (rep in valid_final_indices) {
-          tab <- tbls[[rep]]
-          if (is.null(tab)) next
-          extr <- extract_eta3_parameters(tab, method)
-          if (is.null(extr)) next
-          
-          if (p_name %in% names(extr$Estimates)) {
-            ests <- c(ests, unname(extr$Estimates[p_name]))
-            ses <- c(ses, unname(extr$`Standard Errors`[p_name]))
-            pvs <- c(pvs, unname(extr$`P-values`[p_name]))
-            los <- c(los, unname(extr$CI_lower[p_name]))
-            his <- c(his, unname(extr$CI_upper[p_name]))
+      for(p_name in parameters_of_interest) {
+        # extract data
+        data_list <- lapply(valid_final_indices, function(rep) {
+          extr <- extract_params(tbls[[rep]], method)
+          if(!is.null(extr) && p_name %in% names(extr$Estimates)) {
+            list(est = unname(extr$Estimates[p_name]),
+                 se = unname(extr$`Standard Errors`[p_name]),
+                 pv = unname(extr$`P-values`[p_name]),
+                 lo = unname(extr$CI_lower[p_name]),
+                 hi = unname(extr$CI_upper[p_name]))
           }
-        }
+        })
+        data_list <- Filter(Negate(is.null), data_list)
         
-        if (length(ests) == 0) next
+        if(length(data_list) == 0) next
         
         tv <- true_values[param_index[p_name]]
         
-        # store summary information
+        # summary row
         convergence_outliers_summary <- dplyr::bind_rows(
           convergence_outliers_summary,
           tibble::tibble(
@@ -517,31 +349,27 @@ ExtractConvergenceOutliers <- function(all_results,
             Reliability = reliability,
             Parameter = p_name,
             TrueValue = tv,
-            
-            # sample size tracking
-            N_Total = n_total,
-            N_Converged_This_Method = n_converged_this_method,
-            N_Warnings_This_Method = method_warning_counts[[method]],  # warnings in converged iterations
-            Convergence_Rate_This_Method = convergence_rate_this_method,
+            N_Total = max_reps,
+            N_Converged_This_Method = method_convergence_counts[method],
+            N_Warnings_This_Method = method_warning_counts[method],
+            Convergence_Rate_This_Method = method_convergence_rates[method],
             N_After_Global_Convergence = n_after_global_convergence,
-            Global_Convergence_Rate = global_convergence_rate,
+            Global_Convergence_Rate = n_after_global_convergence / max_reps * 100,
             N_Excluded_By_Warnings = n_excluded_by_warnings,
-            N_Outliers_This_Method = n_outliers_this_method,
-            Outlier_Rate_This_Method = outlier_rate_this_method,
+            N_Outliers_This_Method = method_outlier_counts[method],
+            Outlier_Rate_This_Method = round(method_outlier_counts[method] / n_after_global_convergence * 100, 2),
             N_After_Global_Outlier = n_after_global_outlier,
-            Global_Outlier_Rate = global_outlier_rate,
-            N_Final = length(ests),
-            
-            # exclusion summary
-            N_Excluded_Convergence = n_total - length(which(Reduce("&", method_convergence))),
+            Global_Outlier_Rate = n_after_global_outlier / max_reps * 100,
+            N_Final = length(data_list),
+            N_Excluded_Convergence = max_reps - sum(Reduce("&", method_convergence)),
             N_Excluded_Warnings = n_excluded_by_warnings,
             N_Excluded_Outliers = n_after_global_convergence - n_after_global_outlier,
-            N_Total_Excluded = n_total - length(ests),
-            Percent_Total_Excluded = round((n_total - length(ests)) / n_total * 100, 2)
+            N_Total_Excluded = max_reps - length(data_list),
+            Percent_Total_Excluded = round((max_reps - length(data_list)) / max_reps * 100, 2)
           )
         )
         
-        # store filtered data for performance calculations
+        # filtered data
         key <- paste(i, toupper(method), p_name, sep = "_")
         filtered_data[[key]] <- list(
           condition = i,
@@ -552,11 +380,11 @@ ExtractConvergenceOutliers <- function(all_results,
           reliability = reliability,
           parameter = p_name,
           true_value = tv,
-          estimates = ests,
-          standard_errors = ses,
-          p_values = pvs,
-          ci_lower = los,
-          ci_upper = his
+          estimates = sapply(data_list, "[[", "est"),
+          standard_errors = sapply(data_list, "[[", "se"),
+          p_values = sapply(data_list, "[[", "pv"),
+          ci_lower = sapply(data_list, "[[", "lo"),
+          ci_upper = sapply(data_list, "[[", "hi")
         )
       }
     }
@@ -569,225 +397,150 @@ ExtractConvergenceOutliers <- function(all_results,
   )
 }
 
-## Function 2: Performance Metrics
+# Performance metrics calculation
 CalculatePerformanceMetrics <- function(filtered_data, 
                                         convergence_outliers_summary,
                                         alpha = 0.05) {
   
   library(simhelpers)
-  results_summary <- tibble::tibble()
+  
+  # %||% if not available
+  `%||%` <- function(x, y) if(is.null(x)) y else x
+  
+  results_summary <- dplyr::tibble()
   
   for (key in names(filtered_data)) {
-    data_item <- filtered_data[[key]]
+    d <- filtered_data[[key]]
+    tv <- d$true_value
     
-    # extract the stored information
-    condition_num <- data_item$condition
-    method_name <- data_item$method
-    model_name <- data_item$model
-    distribution <- data_item$distribution
-    sample_size <- data_item$sample_size
-    reliability <- data_item$reliability
-    p_name <- data_item$parameter
-    tv <- data_item$true_value
-    
-    # create dataframe from filtered data
     df <- tibble::tibble(
-      est = data_item$estimates,
-      se = data_item$standard_errors,
-      p_val = data_item$p_values,
-      lower_bound = data_item$ci_lower,
-      upper_bound = data_item$ci_upper,
+      est = d$estimates,
+      se = d$standard_errors,
+      p_val = d$p_values,
+      lower_bound = d$ci_lower,
+      upper_bound = d$ci_upper,
       true_param = tv
     )
     
     if (nrow(df) == 0) next
     
-    # CALCULATE MEDIAN-BASED METRICS
-    median_est <- stats::median(df$est)
-    bias_median <- median_est - tv
-    mad_est <- stats::mad(df$est, constant = 1)
-    rmse_median <- sqrt(bias_median^2 + mad_est^2)
+    # metrics using simhelpers
+    abs_metrics <- calc_absolute(df, est, true_param, 
+                                 c("bias", "variance", "stddev", "mse", "rmse"), winz = Inf)
+    cov_metrics <- calc_coverage(df, lower_bound, upper_bound, true_param, 
+                                 c("coverage", "width"), winz = Inf)
+    rej_metrics <- calc_rejection(df, p_val, alpha)
     
-    if (tv != 0) {
-      rel_bias_median <- bias_median / tv
-      rel_bias_median_pct <- rel_bias_median * 100
-    } else {
-      rel_bias_median <- NA_real_
-      rel_bias_median_pct <- NA_real_
-    }
-    
-    # CALCULATE ALL MEAN-BASED METRICS USING SIMHELPERS
-    # ABSOLUTE METRICS
-    abs_metrics <- simhelpers::calc_absolute(
-      data = df,
-      estimates = est, 
-      true_param = true_param,
-      criteria = c("bias", "variance", "stddev", "mse", "rmse"),
-      winz = Inf  # no winsorization
-    )
-    
-    # RELATIVE METRICS (only if true value is non-zero)
-    # note that pkg::fun here was not working without loading simhelpers
-    if (tv != 0) {
-      rel_metrics <- simhelpers::calc_relative(
-        data = df,
-        estimates = est,
-        true_param = true_param,
-        criteria = c("relative bias", "relative mse", "relative rmse"),
-        winz = Inf
-      )
-      
+    # relative metrics if true value non-zero
+    if(tv != 0) {
+      rel_metrics <- calc_relative(df, est, true_param, 
+                                   c("relative bias", "relative mse", "relative rmse"), winz = Inf)
       rel_bias_mean <- rel_metrics$rel_bias - 1
       rel_bias_mean_pct <- rel_bias_mean * 100
-      rel_bias_mcse <- rel_metrics$rel_bias_mcse
-      
-      rel_mse <- rel_metrics$rel_mse
-      rel_rmse <- rel_metrics$rel_rmse
-      rel_mse_mcse <- rel_metrics$rel_mse_mcse
-      rel_rmse_mcse <- rel_metrics$rel_rmse_mcse
     } else {
-      rel_bias_mean <- NA_real_
-      rel_bias_mean_pct <- NA_real_
-      rel_mse <- NA_real_
-      rel_rmse <- NA_real_
-      rel_bias_mcse <- NA_real_
-      rel_mse_mcse <- NA_real_
-      rel_rmse_mcse <- NA_real_
+      rel_metrics <- list(rel_mse = NA, rel_rmse = NA, 
+                          rel_bias_mcse = NA, rel_mse_mcse = NA, rel_rmse_mcse = NA)
+      rel_bias_mean <- NA
+      rel_bias_mean_pct <- NA
     }
     
-    # COVERAGE AND CI WIDTH
-    cov_metrics <- simhelpers::calc_coverage(
-      data = df,
-      lower_bound = lower_bound, 
-      upper_bound = upper_bound, 
-      true_param = true_param,
-      criteria = c("coverage", "width"),
-      winz = Inf
-    )
+    # median metrics
+    median_est <- median(df$est)
+    bias_median <- median_est - tv
+    mad_est <- mad(df$est, constant = 1)
     
-    # REJECTION RATES
-    rej_metrics <- simhelpers::calc_rejection(
-      data = df,
-      p_values = p_val,
-      alpha = alpha
-    )
+    # get convergence info
+    conv_row <- convergence_outliers_summary[
+      convergence_outliers_summary$Condition == d$condition &
+        convergence_outliers_summary$Method == d$method &
+        convergence_outliers_summary$Parameter == d$parameter, ]
     
-    rejection_rate <- rej_metrics$rej_rate * 100
-    rej_mcse <- rej_metrics$rej_rate_mcse
-    
-    # Type I Error vs Power
-    if (tv == 0) {
-      type_i <- rejection_rate
-      power <- NA_real_
-      typei_mcse <- rej_mcse
-      power_mcse <- NA_real_
-    } else {
-      type_i <- NA_real_
-      power <- rejection_rate
-      typei_mcse <- NA_real_
-      power_mcse <- rej_mcse
-    }
-    
-    # ADDITIONAL METRICS
-    mean_est <- mean(df$est)
-    mean_se <- mean(df$se)
-    se_sd_ratio <- mean_se / abs_metrics$stddev
-    
-    # convergence/outlier info from summary
-    conv_outlier_row <- convergence_outliers_summary[
-      convergence_outliers_summary$Condition == condition_num &
-        convergence_outliers_summary$Method == method_name &
-        convergence_outliers_summary$Parameter == p_name, ]
-    
-    if (nrow(conv_outlier_row) == 0) {
-      # shouldn't happen, but just in case
-      warning(paste("No convergence/outlier info found for", condition_num, method_name, p_name))
+    if (nrow(conv_row) == 0) {
+      warning(paste("No convergence info for", d$condition, d$method, d$parameter))
       next
     }
     
-    # COMPILE RESULTS
+    # results row
     results_summary <- dplyr::bind_rows(
       results_summary,
       tibble::tibble(
-        Condition = condition_num,
-        Method = method_name,
-        Model = model_name,
-        Distribution = distribution,
-        SampleSize = sample_size,
-        Reliability = reliability,
-        Parameter = p_name,
+        Condition = d$condition,
+        Method = d$method,
+        Model = d$model,
+        Distribution = d$distribution,
+        SampleSize = d$sample_size,
+        Reliability = d$reliability,
+        Parameter = d$parameter,
         TrueValue = tv,
         
-        # Mean-based metrics
-        MeanEstimate = mean_est,
-        Bias_Mean = abs_metrics$bias,
-        RelativeBias_Mean = rel_bias_mean,
-        PercentRelativeBias_Mean = rel_bias_mean_pct,
-        
-        # Median-based metrics
+        # estimates
+        MeanEstimate = mean(df$est),
         MedianEstimate = median_est,
-        Bias_Median = bias_median,
-        RelativeBias_Median = rel_bias_median,
-        PercentRelativeBias_Median = rel_bias_median_pct,
-        MAD = mad_est,
         
-        # Variability and accuracy metrics
+        # bias metrics
+        Bias_Mean = abs_metrics$bias,
+        Bias_Median = bias_median,
+        RelativeBias_Mean = rel_bias_mean,
+        RelativeBias_Median = if(tv != 0) bias_median / tv else NA,
+        PercentRelativeBias_Mean = rel_bias_mean_pct,
+        PercentRelativeBias_Median = if(tv != 0) bias_median / tv * 100 else NA,
+        
+        # variability
+        MAD = mad_est,
         Variance = abs_metrics$var,
         SD = abs_metrics$stddev,
         MSE_Mean = abs_metrics$mse,
         RMSE_Mean = abs_metrics$rmse,
-        RMSE_Median = rmse_median,
+        RMSE_Median = sqrt(bias_median^2 + mad_est^2),
+        Relative_MSE = rel_metrics$rel_mse %||% NA,
+        Relative_RMSE = rel_metrics$rel_rmse %||% NA,
         
-        # Relative metrics
-        Relative_MSE = rel_mse,
-        Relative_RMSE = rel_rmse,
+        # SE metrics
+        MeanSE = mean(df$se),
+        SE_SD_Ratio = mean(df$se) / abs_metrics$stddev,
         
-        # Standard error metrics
-        MeanSE = mean_se,
-        SE_SD_Ratio = se_sd_ratio,
-        
-        # Coverage and CI metrics
+        # coverage
         CoverageRate = cov_metrics$coverage * 100,
         CI_Width = cov_metrics$width,
         
-        # Testing metrics
-        RejectionRate = rejection_rate,
-        TypeI_Error = type_i,
-        Power = power,
+        # testing
+        RejectionRate = rej_metrics$rej_rate * 100,
+        TypeI_Error = if(tv == 0) rej_metrics$rej_rate * 100 else NA,
+        Power = if(tv != 0) rej_metrics$rej_rate * 100 else NA,
         
-        # Monte Carlo standard errors
+        # MCSEs
         Bias_Mean_MCSE = abs_metrics$bias_mcse,
-        RelativeBias_MCSE = rel_bias_mcse,
+        RelativeBias_MCSE = rel_metrics$rel_bias_mcse %||% NA,
         Variance_MCSE = abs_metrics$var_mcse,
         SD_MCSE = abs_metrics$stddev_mcse,
         MSE_Mean_MCSE = abs_metrics$mse_mcse,
         RMSE_Mean_MCSE = abs_metrics$rmse_mcse,
-        Relative_MSE_MCSE = rel_mse_mcse,
-        Relative_RMSE_MCSE = rel_rmse_mcse,
+        Relative_MSE_MCSE = rel_metrics$rel_mse_mcse %||% NA,
+        Relative_RMSE_MCSE = rel_metrics$rel_rmse_mcse %||% NA,
         CoverageRate_MCSE = cov_metrics$coverage_mcse,
         CI_Width_MCSE = cov_metrics$width_mcse,
-        RejectionRate_MCSE = rej_mcse,
-        TypeI_Error_MCSE = typei_mcse,
-        Power_MCSE = power_mcse,
+        RejectionRate_MCSE = rej_metrics$rej_rate_mcse,
+        TypeI_Error_MCSE = if(tv == 0) rej_metrics$rej_rate_mcse else NA,
+        Power_MCSE = if(tv != 0) rej_metrics$rej_rate_mcse else NA,
         
-        # Add convergence/outlier tracking from summary
-        N_Total = conv_outlier_row$N_Total,
-        N_Converged_This_Method = conv_outlier_row$N_Converged_This_Method,
-        N_Warnings_This_Method = conv_outlier_row$N_Warnings_This_Method,
-        Convergence_Rate_This_Method = conv_outlier_row$Convergence_Rate_This_Method,
-        N_After_Global_Convergence = conv_outlier_row$N_After_Global_Convergence,
-        Global_Convergence_Rate = conv_outlier_row$Global_Convergence_Rate,
-        N_Excluded_By_Warnings = conv_outlier_row$N_Excluded_By_Warnings,
-        N_Outliers_This_Method = conv_outlier_row$N_Outliers_This_Method,
-        Outlier_Rate_This_Method = conv_outlier_row$Outlier_Rate_This_Method,
-        N_After_Global_Outlier = conv_outlier_row$N_After_Global_Outlier,
-        Global_Outlier_Rate = conv_outlier_row$Global_Outlier_Rate,
-        N_Final = conv_outlier_row$N_Final,
-        N_Excluded_Convergence = conv_outlier_row$N_Excluded_Convergence,
-        N_Excluded_Warnings = conv_outlier_row$N_Excluded_Warnings,
-        N_Excluded_Outliers = conv_outlier_row$N_Excluded_Outliers,
-        N_Total_Excluded = conv_outlier_row$N_Total_Excluded,
-        Percent_Total_Excluded = conv_outlier_row$Percent_Total_Excluded
+        # convergence and outliers columns
+        N_Total = conv_row$N_Total,
+        N_Converged_This_Method = conv_row$N_Converged_This_Method,
+        N_Warnings_This_Method = conv_row$N_Warnings_This_Method,
+        Convergence_Rate_This_Method = conv_row$Convergence_Rate_This_Method,
+        N_After_Global_Convergence = conv_row$N_After_Global_Convergence,
+        Global_Convergence_Rate = conv_row$Global_Convergence_Rate,
+        N_Excluded_By_Warnings = conv_row$N_Excluded_By_Warnings,
+        N_Outliers_This_Method = conv_row$N_Outliers_This_Method,
+        Outlier_Rate_This_Method = conv_row$Outlier_Rate_This_Method,
+        N_After_Global_Outlier = conv_row$N_After_Global_Outlier,
+        Global_Outlier_Rate = conv_row$Global_Outlier_Rate,
+        N_Final = conv_row$N_Final,
+        N_Excluded_Convergence = conv_row$N_Excluded_Convergence,
+        N_Excluded_Warnings = conv_row$N_Excluded_Warnings,
+        N_Excluded_Outliers = conv_row$N_Excluded_Outliers,
+        N_Total_Excluded = conv_row$N_Total_Excluded,
+        Percent_Total_Excluded = conv_row$Percent_Total_Excluded
       )
     )
   }
@@ -795,19 +548,17 @@ CalculatePerformanceMetrics <- function(filtered_data,
   results_summary
 }
 
-#load("Simulations/Study_1/Data/Results_Study_1_final.RData")
-
-# wrapper for manuscript currently 
+# wrapper function
+# this actually not necessary (personal preference)
 CalculatePerformance <- function(all_results,
                                  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                  remove_outliers = TRUE,
-                                 outlier_threshold = 3, 
+                                 outlier_threshold = 3,
                                  alpha = 0.05,
                                  min_reps = 10,
                                  exclude_warnings = FALSE,
                                  return_convergence_details = TRUE) {
   
-  # convergence and outliers
   extraction_results <- ExtractConvergenceOutliers(
     all_results = all_results,
     parameters_of_interest = parameters_of_interest,
@@ -817,7 +568,6 @@ CalculatePerformance <- function(all_results,
     exclude_warnings = exclude_warnings
   )
   
-  # performance metrics
   performance_results <- CalculatePerformanceMetrics(
     filtered_data = extraction_results$filtered_data,
     convergence_outliers_summary = extraction_results$convergence_outliers_summary,
@@ -834,14 +584,13 @@ CalculatePerformance <- function(all_results,
   }
 }
 
-
-#results_study_1 <- CalculatePerformance(
-#   all_results,
-#   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-#   remove_outliers = TRUE,
-#   outlier_threshold = 3,
-#   alpha = 0.05,
-#   min_reps = 10,
-#   exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
-#   return_convergence_details = FALSE
-#)
+results_study_1 <- CalculatePerformance(
+  all_results,
+  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+  remove_outliers = TRUE,
+  outlier_threshold = 3,
+  alpha = 0.05,
+  min_reps = 10,
+  exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
+  return_convergence_details = TRUE
+)
