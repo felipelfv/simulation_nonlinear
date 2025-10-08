@@ -1,3 +1,17 @@
+############################ 1. General Information ############################
+
+# This file contains the code for replicating exact datasets from completed 
+# SEM simulation studies by restoring the original RNG state used during data 
+# generation. This enables reproducibility and validation of simulation results.
+
+#' @param condition_id Integer. Identifier for the experimental condition to replicate. Must be within range of available conditions in results file.
+#' @param rep_id Integer. Replication number within the condition to reproduce. Must be within range of completed replications for that condition.
+#' @param study Integer. Study identifier (1 or 2). Determines which models and default results file to use. Default is 1.
+#' @param results_file Character. Path to results file containing simulation data. If NULL, uses study-specific default path. Default is NULL.
+#' @return A data.frame containing the replicated dataset with attributes:
+
+############################### 2. Function ####################################
+
 replicate_condition_data <- function(condition_id, rep_id, study = 1, 
                                      results_file = NULL) {
   
@@ -120,8 +134,8 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
 }
 
 # example:
-data_to_replicate <- replicate_condition_data(
-  condition_id = 1, 
-  rep_id = 15,
-  study = 1
-)
+#data_to_replicate <- replicate_condition_data(
+#  condition_id = 1, 
+#  rep_id = 15,
+#  study = 1
+#)
