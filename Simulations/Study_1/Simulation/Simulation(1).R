@@ -17,6 +17,7 @@
 #' @param N_REPLICATIONS    Integer. Number of Monte Carlo replications per condition (default = 1000).
 #' @param SAMPLE_SIZES      Integer vector. Sample sizes to simulate. Default is c(400, 1000).
 #' @param SEED_START        Integer. Starting seed for reproducibility (default = 123)
+#' @param USE_ROBUST_SE     Logical. Whether to use robust standard errors for LMS, QML, and DBLCENT (default = FALSE)
 #' 
 #' @param analysis.model    Character. Lavaan syntax for the analysis model with interaction 
 #'                          and quadratic effects. Used for fitting all methods.
@@ -78,6 +79,7 @@ source("Simulations/GenerateData.R") # generate data function
 N_REPLICATIONS <- 1000
 SAMPLE_SIZES   <- c(400, 1000)
 SEED_START     <- 123
+USE_ROBUST_SE  <- FALSE  # relevant for supplementary materials: TRUE for robust SE
 
 # analysis model (for fitting - no fixed values)
 analysis.model <- "
@@ -98,7 +100,8 @@ distributions <- list(
 # output directory
 base_dir <- "Simulations/Study_1/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
-results_base <- file.path(base_dir, "Results_Study_1")
+file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "") # _robustse suffix to filename only if using robust SE
+results_base <- file.path(base_dir, paste0("Results_Study_1", file_suffix))
 
 # conditions for sim study 1
 conditions <- expand.grid(
@@ -119,13 +122,16 @@ conditions$model_name <- ifelse(
 # track actual distribution used for generation
 conditions$generation_distribution <- conditions$Distribution
 
-# paralle processing setup
+# track robust SE setting in conditions
+conditions$robust_se <- USE_ROBUST_SE
+
+# parallel processing setup
 n_cores <- max(1, detectCores() - 6)
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 clusterExport(cl, c(
   "GenerateData", "method_analytic", "method_dblcent", "method_sam",
-  "analysis.model", "all_models", "distributions"
+  "analysis.model", "all_models", "distributions", "USE_ROBUST_SE"
 ))
 
 # main sim study 1 loop
@@ -140,6 +146,7 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Model type:", conditions$Model_Type[cond])
   cat("\n- Actual distribution:", conditions$Distribution[cond])
   cat("\n- Using model:", conditions$model_name[cond])
+  cat("\n- Robust SE:", USE_ROBUST_SE)  # ADDED: Display robust SE setting
   cat("\n========================================\n")
   
   # get the appropriate population model
@@ -176,7 +183,8 @@ for (cond in 1:nrow(conditions)) {
     ),
     
     observed_r2  = numeric(N_REPLICATIONS),
-    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 9)
+    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 9),
+    robust_se_used = USE_ROBUST_SE  # track robust SE setting in results
   )
   
   # run replications in parallel
@@ -201,7 +209,7 @@ for (cond in 1:nrow(conditions)) {
     ), silent = TRUE)
     
     if (inherits(Data, "try-error")) return(NULL)
-
+    
     observed_metrics <- list(
       r2  = attr(Data, "observed_R2")$eta3,
       rel = unlist(attr(Data, "observed_reliabilities"))
@@ -233,31 +241,35 @@ for (cond in 1:nrow(conditions)) {
       }
     }
     
-    #=============== LMS ===============#
+    # LMS 
     lms_res <- run_with_warnings(
-      method_analytic(Data = data_clean, model.fit = analysis.model, method = "lms")
+      method_analytic(Data = data_clean, model.fit = analysis.model, 
+                      method = "lms", robust.se = USE_ROBUST_SE)
     )
     results$lms_table    <- lms_res$table
     results$lms_timing   <- lms_res$timing
     results$lms_warnings <- lms_res$warnings
     
-    #=============== QML ===============#
+    # QML 
     qml_res <- run_with_warnings(
-      method_analytic(Data = data_clean, model.fit = analysis.model, method = "qml")
+      method_analytic(Data = data_clean, model.fit = analysis.model, 
+                      method = "qml", robust.se = USE_ROBUST_SE)
     )
     results$qml_table    <- qml_res$table
     results$qml_timing   <- qml_res$timing
     results$qml_warnings <- qml_res$warnings
     
-    #=============== UPI/DBLCENT ===============#
+    # UPI/DBLCENT
     dblcent_res <- run_with_warnings(
-      method_dblcent(Data = data_clean, model.fit = analysis.model)
+      method_dblcent(Data = data_clean, model.fit = analysis.model, 
+                     robust.se = USE_ROBUST_SE)
     )
     results$dblcent_table    <- dblcent_res$table
     results$dblcent_timing   <- dblcent_res$timing
     results$dblcent_warnings <- dblcent_res$warnings
     
-    #=============== LSAM ===============#
+    # LSAM 
+    # Note: SAM doesn't have robust.se option in the same way
     sam_res <- run_with_warnings(
       method_sam(Data = data_clean, model.fit = analysis.model)
     )
@@ -337,8 +349,9 @@ for (cond in 1:nrow(conditions)) {
 
 stopCluster(cl)
 
-# save(all_results, conditions, file = paste0(results_base, "_final.RData"))
+# save with appropriate suffix if or no robust SE
+save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
-
+cat(sprintf("\nResults saved with suffix: %s\n", file_suffix))
