@@ -1,4 +1,5 @@
 ############################ 1. General Information ############################
+
 # See README file for more information concerning this file. 
 # This file contains the code used to estimate the different approaches. We use
 # modsem for all except the SAM approach. Thus, we have the DBLCENT, LMS, and 
@@ -8,6 +9,7 @@
 # estimates. In our case, the structural model. 
 
 ############################### 2. Function Documentation #######################
+
 #' method_dblcent: Product Indicator Approach (UPI) with Double Mean Centering
 #' 
 #' @param Data          Data.frame. The dataset containing observed variables.
@@ -35,8 +37,8 @@
 
 ############################### 3. Functions ###################################
 
-#### 3.1. Product Indicator Approach with double mean centering (DBLCENT) ####
-method_dblcent <- function(
+#### 3.1. Extendend Product Indicator Approach with double mean centering (UPI)  ####
+method_upi <- function(
     Data = NULL,
     model.fit = NULL,
     robust.se = FALSE,
@@ -67,8 +69,8 @@ method_dblcent <- function(
   out$coefParTable
 }
 
-#### 3.2 Structural-After-Measurement (SAM) Approach ####
-method_sam <- function(Data = NULL, estimator = "ML",
+#### 3.2 Local Structural-After-Measurement (LSAM) Approach ####
+method_lsam <- function(Data = NULL, estimator = "ML",
                        joint = FALSE, add.attr = FALSE, 
                        model.fit = NULL,
                        mm.list = NULL) {
