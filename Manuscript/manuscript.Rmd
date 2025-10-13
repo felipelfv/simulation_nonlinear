@@ -4,7 +4,7 @@ author:
   - name          : "Felipe Fontana Vieira"
     affiliation   : "1"
     corresponding : yes    # Only one corresponding author
-    address       : "Add departments address"
+    address       : "Department of Data Analysis, Faculty of Psychology and Educational Sciences, Ghent University, Henri Dunantlaan 2, 900, Gent, Belgium"
     email         : "felipe.fontanavieira@ugent.be"
     role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
       - Conceptualization
@@ -21,7 +21,7 @@ author:
       - Writing - Review & Editing
 affiliation:
   - id            : "1"
-    institution   : "Department of Data-Analysis, Faculty of Psychology and Educational Sciences, Ghent University"
+    institution   : "Department of Data Analysis, Faculty of Psychology and Educational Sciences, Ghent University"
     
 authornote: |
 
@@ -90,7 +90,7 @@ options(papaja.na_string = "-")
 options(knitr.kable.NA = "-")
 knitr::opts_chunk$set(fig.cap = NULL)
 ```
-and
+
 ```{r, child = "introduction.Rmd"}
 ```
 
