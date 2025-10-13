@@ -152,7 +152,7 @@ ExtractConvergenceOutliers <- function(all_results,
                                        exclude_warnings = FALSE) {
   
   options(scipen = 999)
-  methods <- c("sam", "lms", "qml", "dblcent")
+  methods <- c("lsam", "lms", "qml", "upi")
   # mapping from parameter names to true value positions:
   param_index <- setNames(1:5, parameters_of_interest)
   
@@ -584,13 +584,13 @@ CalculatePerformance <- function(all_results,
   }
 }
 
-results_study_1 <- CalculatePerformance(
-  all_results,
-  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-  remove_outliers = TRUE,
-  outlier_threshold = 3,
-  alpha = 0.05,
-  min_reps = 10,
-  exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
-  return_convergence_details = TRUE
-)
+#results_study_1 <- CalculatePerformance(
+#  all_results,
+#  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+#  remove_outliers = TRUE,
+#  outlier_threshold = 3,
+#  alpha = 0.05,
+#  min_reps = 10,
+#  exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
+#  return_convergence_details = TRUE
+#)
