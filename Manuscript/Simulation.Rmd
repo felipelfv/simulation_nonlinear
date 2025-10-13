@@ -34,18 +34,17 @@ Data generation followed a similar procedure as in previous studies [@ng_chan_20
 
 For Simulation 1, the dependent latent variable was generated according to:
 \begin{align*}
-\eta_3 = \beta_0 + \beta_1\eta_1 + \beta_2\eta_2 + \beta_3(\eta_1\eta_2) + \beta_4\eta_1^2 + \beta_5\eta_2^2 + \zeta
+\eta_3 = \beta_{30} + \beta_{31}\eta_1 + \beta_{32}\eta_2 + \beta_{33}(\eta_1\eta_2) + \beta_{34}\eta_1^2 + \beta_{35}\eta_2^2 + \zeta
 \end{align*}
-
-\noindent with parameters $\beta_0 = -0.255$, $\beta_1 = \beta_2 = 0.316$, $\beta_3 = 0.139$, $\beta_4 = \beta_5 = 0.101$, and $\zeta \sim \mathcal{N}(0, \psi_{33})$. For the linear model comparison, nonlinear terms were omitted ($\beta_3 = \beta_4 = \beta_5 = 0$).
+\noindent with parameters $\beta_{30} = -0.255$, $\beta_{31} = \beta_{32} = 0.316$, $\beta_{33} = 0.139$, $\beta_{34} = \beta_{35} = 0.101$, and $\zeta \sim \mathcal{N}(0, \psi_{33})$. For the linear model comparison, nonlinear terms were omitted ($\beta_{33} = \beta_{34} = \beta_{35} = 0$).
 
 For Simulation 2, similarly as above, the dependent latent variables was generated as follows:
 \begin{align*}
-\eta_4 &= \beta_{10} + \beta_{11}\eta_1 + \beta_{12}\eta_2 + \beta_{13}\eta_3 + \beta_{14}(\eta_1\eta_2) + \beta_{15}(\eta_1\eta_3) + \beta_{16}\eta_1^2 + \beta_{17}\eta_2^2 + \zeta_4 \\
-\eta_5 &= \beta_{20} + \beta_{21}\eta_4 + \beta_{22}\eta_1 + \beta_{23}\eta_2 + \beta_{24}\eta_3 + \beta_{25}(\eta_1\eta_4) + \beta_{26}(\eta_2\eta_4) + \beta_{27}\eta_1^2 + \beta_{28}\eta_3^2 + \zeta_5
+\eta_4 &= \beta_{40} + \beta_{41}\eta_1 + \beta_{42}\eta_2 + \beta_{43}\eta_3 + \beta_{44}(\eta_1\eta_2) + \beta_{45}(\eta_1\eta_3) + \beta_{46}\eta_1^2 + \beta_{47}\eta_2^2 + \zeta_4 \\
+\eta_5 &= \beta_{50} + \beta_{51}\eta_4 + \beta_{52}\eta_1 + \beta_{53}\eta_2 + \beta_{54}\eta_3 + \beta_{55}(\eta_1\eta_4) + \beta_{56}(\eta_2\eta_4) + \beta_{57}\eta_1^2 + \beta_{58}\eta_3^2 + \zeta_5
 \end{align*}
 
-\noindent with parameters $\beta_{10} = \beta_{20} = 0.1$, $\beta_{11} = \beta_{12} = \beta_{13} = 0.20$, $\beta_{14} = \beta_{15} = 0.11$, $\beta_{16} = \beta_{17} = 0.08$; $\beta_{21} = \beta_{22} = \beta_{23} = \beta_{24} = 0.16$, $\beta_{25} = \beta_{26} = 0.08$, $\beta_{27} = \beta_{28} = 0.06$, and $\zeta_4 \sim \mathcal{N}(0, \psi_{44})$, $\zeta_5 \sim \mathcal{N}(0, \psi_{55})$. For the linear model comparison, all interaction and quadratic terms were omitted.
+\noindent with parameters $\beta_{40} = \beta_{50} = 0.1$, $\beta_{41} = \beta_{42} = \beta_{43} = 0.20$, $\beta_{44} = \beta_{45} = 0.11$, $\beta_{46} = \beta_{47} = 0.08$; $\beta_{51} = \beta_{52} = \beta_{53} = \beta_{54} = 0.16$, $\beta_{55} = \beta_{56} = 0.08$, $\beta_{57} = \beta_{58} = 0.06$, and $\zeta_4 \sim \mathcal{N}(0, \psi_{44})$, $\zeta_5 \sim \mathcal{N}(0, \psi_{55})$. For the linear model comparison, all interaction and quadratic terms were omitted.
 
 ## Reproducibility and Computational Details^[All the materials to reproduce this article available on the following GitHub link: https://github.com/felipelfv/Simulation_First_PhD_Article.git. We included a `README` file that contains the step-by-step information required to reproduce the results reported, a `sessionInfo` file, the *renv* lockfile with the information for the remaining relevant packages used [@R-renv], a Dockerfile for system dependencies, and all the estimates obtained for all iterations. Moreover, this paper was written with *papaja* [@R-papaja] in Rmarkdown.]
 
