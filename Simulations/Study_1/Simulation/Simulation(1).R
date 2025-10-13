@@ -67,12 +67,12 @@
 ############################### 3. Simulation ##################################
 
 library(lavaan); library(modsem); library(doParallel); 
-library(doRNG); library(covsim); library(copula); 
+library(doRNG); library(covsim); library(rvinecopulib); 
 
 # required files
 load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models
 source("Simulations/Methods.R")  # methods file
-source("Simulations/GenerateData.R") # generate data function
+source("Simulations/GenerateData.R") # NEW VITA-only generate data function
 
 # SIMULATION PARAMETERS
 
@@ -90,17 +90,29 @@ eta3 =~ x7 + x8 + x9
 eta3 ~ eta1 + eta2 + eta1:eta2 + eta1:eta1 + eta2:eta2
 "
 
-# distribution parameters
+# UPDATED: distribution parameters for VITA
 distributions <- list(
-  normal    = list(skewness = c(0, 0), excesskurtosis = c(0, 0), distr.exo = "normal.rIG"),
-  nonnormal = list(skewness = c(2, 2), excesskurtosis = c(7, 7), distr.exo = "nonnormal.rIG"),
-  uniform   = list(skewness = c(0, 0), excesskurtosis = c(0, 0), distr.exo = "unif")
+  normal    = list(
+    distr.exo = "normal",
+    nonnormal.shape = NULL,
+    nonnormal.rate = NULL
+  ),
+  nonnormal = list(
+    distr.exo = "nonnormal",
+    nonnormal.shape = c(1, 1),  # shape=1 gives skewness ≈ 2, excess kurtosis ≈ 6
+    nonnormal.rate = c(1, 1)    # rate=1 gives variance = 1
+  ),
+  uniform   = list(
+    distr.exo = "uniform",
+    nonnormal.shape = NULL,
+    nonnormal.rate = NULL
+  )
 )
 
 # output directory
 base_dir <- "Simulations/Study_1/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
-file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "") # _robustse suffix to filename only if using robust SE
+file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "") 
 results_base <- file.path(base_dir, paste0("Results_Study_1", file_suffix))
 
 # conditions for sim study 1
@@ -130,7 +142,7 @@ n_cores <- max(1, detectCores() - 6)
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 clusterExport(cl, c(
-  "GenerateData", "method_analytic", "method_dblcent", "method_sam",
+  "GenerateData", "method_analytic", "method_upi", "method_lsam",
   "analysis.model", "all_models", "distributions", "USE_ROBUST_SE"
 ))
 
@@ -146,7 +158,7 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Model type:", conditions$Model_Type[cond])
   cat("\n- Actual distribution:", conditions$Distribution[cond])
   cat("\n- Using model:", conditions$model_name[cond])
-  cat("\n- Robust SE:", USE_ROBUST_SE)  # ADDED: Display robust SE setting
+  cat("\n- Robust SE:", USE_ROBUST_SE)
   cat("\n========================================\n")
   
   # get the appropriate population model
@@ -163,45 +175,45 @@ for (cond in 1:nrow(conditions)) {
   clusterExport(cl, c("population_model", "dist_params", "conditions", "cond"), envir = environment())
   
   res <- list(
-    lms_tables     = vector("list", N_REPLICATIONS),
-    qml_tables     = vector("list", N_REPLICATIONS),
-    dblcent_tables = vector("list", N_REPLICATIONS),
-    sam_tables     = vector("list", N_REPLICATIONS),
+    lms_tables  = vector("list", N_REPLICATIONS),
+    qml_tables  = vector("list", N_REPLICATIONS),
+    upi_tables  = vector("list", N_REPLICATIONS),
+    lsam_tables = vector("list", N_REPLICATIONS),
     
     timing = data.frame(
-      lms     = numeric(N_REPLICATIONS),
-      qml     = numeric(N_REPLICATIONS),
-      dblcent = numeric(N_REPLICATIONS),
-      sam     = numeric(N_REPLICATIONS)
+      lms  = numeric(N_REPLICATIONS),
+      qml  = numeric(N_REPLICATIONS),
+      upi  = numeric(N_REPLICATIONS),
+      lsam = numeric(N_REPLICATIONS)
     ),
     
     warnings = list(
-      lms     = vector("list", N_REPLICATIONS),
-      qml     = vector("list", N_REPLICATIONS),
-      dblcent = vector("list", N_REPLICATIONS),
-      sam     = vector("list", N_REPLICATIONS)
+      lms  = vector("list", N_REPLICATIONS),
+      qml  = vector("list", N_REPLICATIONS),
+      upi  = vector("list", N_REPLICATIONS),
+      lsam = vector("list", N_REPLICATIONS)
     ),
     
     observed_r2  = numeric(N_REPLICATIONS),
     observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 9),
-    robust_se_used = USE_ROBUST_SE  # track robust SE setting in results
+    robust_se_used = USE_ROBUST_SE
   )
   
   # run replications in parallel
   parallel_results <- foreach(
     i = 1:N_REPLICATIONS,
-    .packages = c("lavaan", "modsem", "covsim", "copula"),
+    .packages = c("lavaan", "modsem", "covsim", "rvinecopulib"),  # UPDATED: rvinecopulib instead of copula
     .errorhandling = "pass",
     .options.RNG = SEED_START + cond * 1000
   ) %dorng% {
     
-    # data generation (skip iteration on hard error)
+    # UPDATED: data generation with new VITA parameters
     Data <- try(GenerateData(
       model           = population_model,
       N               = conditions$N[cond],
-      skewness        = dist_params$skewness,
-      excesskurtosis  = dist_params$excesskurtosis,
       distr.exo       = dist_params$distr.exo,
+      nonnormal.shape = dist_params$nonnormal.shape,
+      nonnormal.rate  = dist_params$nonnormal.rate,
       distr.epsilon   = "normal",
       distr.zeta      = "normal",
       add.eta         = FALSE,
@@ -236,7 +248,6 @@ for (cond in 1:nrow(conditions)) {
              timing = as.numeric(difftime(Sys.time(), t0, units = "secs")),
              warnings = warns)
       } else {
-        # hard error: no table/timing; warnings (if any) already captured
         list(table = NULL, timing = NA_real_, warnings = warns)
       }
     }
@@ -259,23 +270,22 @@ for (cond in 1:nrow(conditions)) {
     results$qml_timing   <- qml_res$timing
     results$qml_warnings <- qml_res$warnings
     
-    # UPI/DBLCENT
-    dblcent_res <- run_with_warnings(
-      method_dblcent(Data = data_clean, model.fit = analysis.model, 
-                     robust.se = USE_ROBUST_SE)
+    # UPI
+    upi_res <- run_with_warnings(
+      method_upi(Data = data_clean, model.fit = analysis.model, 
+                 robust.se = USE_ROBUST_SE)
     )
-    results$dblcent_table    <- dblcent_res$table
-    results$dblcent_timing   <- dblcent_res$timing
-    results$dblcent_warnings <- dblcent_res$warnings
+    results$upi_table    <- upi_res$table
+    results$upi_timing   <- upi_res$timing
+    results$upi_warnings <- upi_res$warnings
     
     # LSAM 
-    # Note: SAM doesn't have robust.se option in the same way
-    sam_res <- run_with_warnings(
-      method_sam(Data = data_clean, model.fit = analysis.model)
+    lsam_res <- run_with_warnings(
+      method_lsam(Data = data_clean, model.fit = analysis.model)
     )
-    results$sam_table    <- sam_res$table
-    results$sam_timing   <- sam_res$timing
-    results$sam_warnings <- sam_res$warnings
+    results$lsam_table    <- lsam_res$table
+    results$lsam_timing   <- lsam_res$timing
+    results$lsam_warnings <- lsam_res$warnings
     
     results
   }
@@ -303,15 +313,15 @@ for (cond in 1:nrow(conditions)) {
     if (!is.null(iter$qml_timing)) res$timing$qml[i]     <- iter$qml_timing
     if (!is.null(iter$qml_warnings)) res$warnings$qml[[i]] <- iter$qml_warnings
     
-    # DBLCENT/UPI
-    if (!is.null(iter$dblcent_table))  res$dblcent_tables[[i]] <- iter$dblcent_table
-    if (!is.null(iter$dblcent_timing)) res$timing$dblcent[i]   <- iter$dblcent_timing
-    if (!is.null(iter$dblcent_warnings)) res$warnings$dblcent[[i]] <- iter$dblcent_warnings
+    # UPI
+    if (!is.null(iter$upi_table))  res$upi_tables[[i]] <- iter$upi_table
+    if (!is.null(iter$upi_timing)) res$timing$upi[i]   <- iter$upi_timing
+    if (!is.null(iter$upi_warnings)) res$warnings$upi[[i]] <- iter$upi_warnings
     
     # LSAM
-    if (!is.null(iter$sam_table))  res$sam_tables[[i]]   <- iter$sam_table
-    if (!is.null(iter$sam_timing)) res$timing$sam[i]     <- iter$sam_timing
-    if (!is.null(iter$sam_warnings)) res$warnings$sam[[i]] <- iter$sam_warnings
+    if (!is.null(iter$lsam_table))  res$lsam_tables[[i]]   <- iter$lsam_table
+    if (!is.null(iter$lsam_timing)) res$timing$lsam[i]     <- iter$lsam_timing
+    if (!is.null(iter$lsam_warnings)) res$warnings$lsam[[i]] <- iter$lsam_warnings
   }
   
   res$rng_states <- rng_states_for_condition
@@ -322,10 +332,10 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
   
   cat("\n\nWarnings encountered:")
-  cat("\n- LMS:",     sum(lengths(res$warnings$lms) > 0),     "iterations with warnings")
-  cat("\n- QML:",     sum(lengths(res$warnings$qml) > 0),     "iterations with warnings")
-  cat("\n- DBLCENT:", sum(lengths(res$warnings$dblcent) > 0), "iterations with warnings")
-  cat("\n- SAM:",     sum(lengths(res$warnings$sam) > 0),     "iterations with warnings")
+  cat("\n- LMS:", sum(lengths(res$warnings$lms) > 0),   "iterations with warnings")
+  cat("\n- QML:", sum(lengths(res$warnings$qml) > 0),   "iterations with warnings")
+  cat("\n- UPI:", sum(lengths(res$warnings$upi) > 0),   "iterations with warnings")
+  cat("\n- LSAM:", sum(lengths(res$warnings$lsam) > 0), "iterations with warnings")
   cat("\n")
   
   # store condition results
