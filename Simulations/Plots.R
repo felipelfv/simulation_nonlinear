@@ -12,24 +12,24 @@
 # METHOD SPECIFICATIONS 
 
 # method orderings and labels (study-specific)
-METHOD_ORDER_3 <- c("SAM","LMS","QML","DBLCENT")  # For 3-factor study (Study 1)
-METHOD_ORDER_5 <- c("SAM","QML","DBLCENT")        # For 5-factor study (Study 2)
+METHOD_ORDER_3 <- c("LSAM","LMS","QML","UPI")  # For 3-factor study (Study 1)
+METHOD_ORDER_5 <- c("LSAM","QML","UPI")        # For 5-factor study (Study 2)
 
 # distribution labels for all studies
 DIST_LABS <- c(normal="Normal", nonnormal="Nonnormal", uniform="Uniform")
 
 # ============================= VISUAL SPECIFICATIONS ===========================
 # shape specifications for point markers
-SHAPES_4 <- c(SAM=16, LMS=17, QML=15, DBLCENT=18)  # 4 methods
-SHAPES_3 <- c(SAM=16, QML=15, DBLCENT=18)          # 3 methods
+SHAPES_4 <- c(LSAM=16, LMS=17, QML=15, UPI=18)  # 4 methods
+SHAPES_3 <- c(LSAM=16, QML=15, UPI=18)          # 3 methods
 
 # line type specifications
-LTYS_4 <- c(SAM="solid", LMS="dashed", QML="dotdash", DBLCENT="twodash")
-LTYS_3 <- c(SAM="solid", QML="dotdash", DBLCENT="twodash")
+LTYS_4 <- c(LSAM="solid", LMS="dashed", QML="dotdash", UPI="twodash")
+LTYS_3 <- c(LSAM="solid", QML="dotdash", UPI="twodash")
 
 # greyscale colors for bar plots
-GREYS_4 <- c(SAM="grey20", LMS="grey45", QML="grey65", DBLCENT="grey85")
-GREYS_3 <- c(SAM="grey20", QML="grey50", DBLCENT="grey80")
+GREYS_4 <- c(LSAM="grey20", LMS="grey45", QML="grey65", UPI="grey85")
+GREYS_3 <- c(LSAM="grey20", QML="grey50", UPI="grey80")
 
 ############################### 3. Shared Components ############################
 
