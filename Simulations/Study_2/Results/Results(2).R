@@ -42,7 +42,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
                                               exclude_warnings = FALSE) {
   
   options(scipen = 999)
-  methods <- c("sam", "qml", "dblcent")
+  methods <- c("lsam", "qml", "upi")
   
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
