@@ -1,15 +1,18 @@
 ############################ 1. General Information ############################
-# See README file for more information concerning this file. 
-
-# This file contains the code for the generation of datasets according to a 
-# specified SEM model in lavaan-based syntax.
+# GenerateData function - VITA only version
+# Supports: normal, non-normal (via distribution types), and uniform
 
 #' @param model A lavaan-based model syntax string specifying the structural equation model.
 #' @param N Integer. Sample size for the generated dataset. Default is 1000L.
-#' @param skewness Numeric. Target skewness for exogenous variables when using rIG. Default is NULL.
-#' @param excesskurtosis Numeric. Target excess kurtosis for exogenous variables when using rIG. Default is NULL.
+#' @param distr.exo Character. Distribution for exogenous variables. 
+#'   Options: "normal" (default), "nonnormal", "uniform"
+#' @param nonnormal.shape Numeric vector. Shape parameters for non-normal distributions.
+#'   For gamma distribution: higher shape = less skewed. Default is c(1, 1, ...).
+#'   Length must match number of exogenous variables.
+#' @param nonnormal.rate Numeric vector. Rate parameters for non-normal distributions.
+#'   For gamma distribution: controls scale. Default is c(1, 1, ...).
+#'   Length must match number of exogenous variables.
 #' @param exo.mean Numeric vector. Mean values for exogenous variables. Default is NULL.
-#' @param distr.exo Character. Distribution for exogenous variables. Options: "normal.rIG" (default), "nonnormal.rIG", and "unif".
 #' @param distr.zeta Character. Distribution for structural residuals. Options: "normal" (default), "exp.rate1"
 #' @param distr.epsilon Character. Distribution for measurement errors. Options: "normal" (default), "exp.rate1"
 #' @param center.exogenous.latent Logical. Whether to center exogenous latent variables. Default is FALSE.
@@ -25,10 +28,10 @@
 
 GenerateData <- function(model, 
                          N = 1000L,
-                         skewness = NULL,
-                         excesskurtosis = NULL,
+                         distr.exo = "normal",
+                         nonnormal.shape = NULL,
+                         nonnormal.rate = NULL,
                          exo.mean = NULL,
-                         distr.exo = "normal.rIG",
                          distr.zeta = "normal",
                          distr.epsilon = "normal",
                          center.exogenous.latent = FALSE,
@@ -41,6 +44,14 @@ GenerateData <- function(model,
                          return.info = TRUE) {
   
   if(!is.null(seed)) set.seed(seed)
+  
+  # Check for required packages
+  if(!requireNamespace("covsim", quietly = TRUE)) {
+    stop("Package 'covsim' is required. Please install it.")
+  }
+  if(!requireNamespace("rvinecopulib", quietly = TRUE)) {
+    stop("Package 'rvinecopulib' is required. Please install it.")
+  }
   
   ##============================================================================
   ## MODEL INFORMATION
@@ -126,30 +137,6 @@ GenerateData <- function(model,
   indicator_residual_vars <- all_residual_vars[names(all_residual_vars) %in% indicator_vars]
   
   ##============================================================================
-  ## COPULA-BASED DATA GENERATION FUNCTION (FROM ORIGINAL AUTHORS)
-  ##============================================================================
-  
-  CopSEM <- function(copmvdc, Sigma, nw = 100000, np = 1000,
-                     shift = rep(0, ncol(Sigma))) {
-    ## copmvdc ... joint density from mvdc()
-    ## Sigma ... model VC-matrix to be approximated
-    ## nw ... sample size for warm-up sample
-    ## np ... sample size for production sample
-    Xw <- rMvdc(nw, copmvdc) ## draw warm-up sample
-    Sw <- cov(Xw) ## warm-up VC matrix
-    Sigma.eigen <- eigen(Sigma) ## EV decomposition Sigma
-    Sigmaroot <- Sigma.eigen$vectors %*% sqrt(diag(Sigma.eigen$values)) %*%
-      t(Sigma.eigen$vectors) ## root Sigma
-    Sx.eigen <- eigen(solve(Sw)) ## EV decomposition S
-    Sxroot <- Sx.eigen$vectors %*% sqrt(diag(Sx.eigen$values)) %*%
-      t(Sx.eigen$vectors) ## root S
-    X <- rMvdc(np, copmvdc) ## draw production sample
-    X <- sweep(X, 2, shift, FUN = "+") # for mean zero (different for Mair et al., 2012)
-    Y <- (X %*% (Sxroot) %*% Sigmaroot) ## linear combination for Y
-    list(Y = Y, covY = (cov(Y))) ## return Y and cov(Y)
-  }
-  
-  ##============================================================================
   ## DATA GENERATION
   ##============================================================================
   
@@ -164,6 +151,8 @@ GenerateData <- function(model,
   
   # GENERATE ALL EXOGENOUS VARIABLES AT ONCE 
   exo_vars <- model_info$structural$exogenous
+  n_exo <- length(exo_vars)
+  
   psi_matrix <- lavaan::lavInspect(fit, "est")$psi
   exo.vcov <- psi_matrix[exo_vars, exo_vars, drop = FALSE]
   
@@ -173,30 +162,101 @@ GenerateData <- function(model,
     }
   }
   
-  # generate exogenous variables
+  # helper to calculate variance from marginal
+  calc_marginal_var <- function(margin) {
+    distr <- margin$distr
+    
+    if(distr == "norm") {
+      return(margin$sd^2)
+    } else if(distr == "gamma") {
+      return(margin$shape / margin$rate^2)
+    } else if(distr == "unif") {
+      return((margin$max - margin$min)^2 / 12)
+    } else {
+      stop(paste("Variance formula not implemented for distribution:", distr))
+    }
+  }
+  
+  # generate exogenous variables using VITA
   generate_exo <- function() {
-    if(distr.exo == "unif") {
-      # copula method similar to lonati et al, 2024
-      coppar <- gumbelCopula(2, dim = length(exo_vars))
+    
+    if(distr.exo == "normal") {
+      # normal distributions with variance matching model
+      margins_list <- lapply(1:n_exo, function(i) {
+        list(
+          distr = "norm",
+          mean = 0,  # adjusted later if exo.mean provided
+          sd = sqrt(exo.vcov[i, i])
+        )
+      })
       
-      # mvdc object with uniform marginals
-      copjoint <- mvdc(coppar, 
-                       margins = rep("unif", length(exo_vars)),
-                       paramMargins = rep(list(list(min = -2.5, max = 2.5)), 
-                                          length(exo_vars)))
+    } else if(distr.exo == "nonnormal") {
+      # gamma distributions (skewed, heavy-tailed)
+      # default: shape=1, rate=1 gives skewness=2, excess kurtosis=6
       
-      # using CopSEM to get correct covariance structure
-      result <- CopSEM(copjoint, exo.vcov, nw = 10000, np = N)
-      EXO <- result$Y
+      if(is.null(nonnormal.shape)) {
+        nonnormal.shape <- rep(1, n_exo)
+      }
+      if(is.null(nonnormal.rate)) {
+        nonnormal.rate <- rep(1, n_exo)
+      }
+      
+      if(length(nonnormal.shape) != n_exo) {
+        stop(paste("nonnormal.shape must have length", n_exo))
+      }
+      if(length(nonnormal.rate) != n_exo) {
+        stop(paste("nonnormal.rate must have length", n_exo))
+      }
+      
+      margins_list <- lapply(1:n_exo, function(i) {
+        list(
+          distr = "gamma",
+          shape = nonnormal.shape[i],
+          rate = nonnormal.rate[i]
+        )
+      })
+      
+    } else if(distr.exo == "uniform") {
+      # uniform distributions with variance matching model
+      # uniform(a, b) variance = (b-a)^2/12
+      # for variance v: b - a = sqrt(12*v)
+      # using symmetric bounds: [-sqrt(3*v), sqrt(3*v)]
+      
+      margins_list <- lapply(1:n_exo, function(i) {
+        var_target <- exo.vcov[i, i]
+        half_range <- sqrt(3 * var_target)
+        list(
+          distr = "unif",
+          min = -half_range,
+          max = half_range
+        )
+      })
       
     } else {
-      EXO <- covsim::rIG(N, sigma = exo.vcov, skewness = skewness, 
-                         excesskurtosis = excesskurtosis)[[1]]
+      stop(paste("Unknown distr.exo option:", distr.exo))
     }
+    
+    # calculate variances from marginals
+    marginal_vars <- sapply(margins_list, calc_marginal_var)
+    
+    # get correlation structure from model covariance
+    D_diag <- diag(exo.vcov)
+    cor_matrix <- exo.vcov / sqrt(outer(D_diag, D_diag))
+    
+    # build covariance matrix with marginal variances
+    D <- diag(sqrt(marginal_vars))
+    adjusted_cov <- D %*% cor_matrix %*% D
+    
+    # create VITA distribution
+    vitadist <- covsim::vita(margins_list, adjusted_cov, verbose = FALSE, Nmax = 10^6)
+    
+    # generate data
+    EXO <- rvinecopulib::rvine(n = N, vine = vitadist)
+    
     EXO
   }
   
-  # generate initial EXO
+  # generate exogenous variables
   EXO <- generate_exo()
   
   # ensure it's a matrix
@@ -368,3 +428,5 @@ GenerateData <- function(model,
   
   result
 }
+
+
