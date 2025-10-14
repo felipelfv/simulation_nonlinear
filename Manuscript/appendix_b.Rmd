@@ -1,0 +1,190 @@
+---
+title: ""
+output: html_document
+---
+
+# Appendix B: Convergence Issues and Outliers
+
+```{r conv-table, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+library(kableExtra)
+# ============================================================================
+# STUDY 1: Convergence & Outliers Summary (APA Style - Landscape with longtable)
+# ============================================================================
+create_apa_convergence_table_study1 <- function(results_df) {
+  results_df %>%
+    filter(Parameter == "eta1") %>%
+    select(
+      Condition,
+      Method, 
+      Model, 
+      Distribution, 
+      SampleSize, 
+      Reliability,
+      N_Converged_This_Method,
+      Convergence_Rate_This_Method,
+      N_After_Global_Convergence,
+      N_Outliers_This_Method,
+      Outlier_Rate_This_Method,
+      N_After_Global_Outlier,
+      N_Final
+    ) %>%
+    mutate(
+      Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
+      Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
+    ) %>%
+    # Sort: Full model first, then Linear
+    arrange(Condition, factor(Model, levels = c("Full", "Linear")), Method)
+}
+
+# Create table
+conv_table_study1 <- create_apa_convergence_table_study1(results_study_1)
+
+tab_caption_study1 <- "Convergence and Outlier Statistics (Simulation 1)"
+tab_note_study1 <- "N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after requiring all methods to converge. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Global Outlier = sample size after global outlier removal across methods. N Final = final sample size after all exclusions."
+
+kableExtra::kbl(
+  conv_table_study1,
+  booktabs = TRUE,
+  longtable = TRUE,
+  align = c("l", "l", "l", "l", "r", "r",
+            "r", "r", "r",
+            "r", "r",
+            "r", "r"),
+  col.names = c("Condition", "Method", "Model", "Distribution", "N", "Reliability",
+                "N Conv.", "Conv. Rate", "N Global Conv.",
+                "N Outliers", "Outlier Rate", "N Global Outlier", "N Final"),
+  caption = tab_caption_study1,
+  linesep = ""
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 6,
+    "Convergence" = 3,
+    "Outliers" = 2,
+    "Final" = 2
+  )) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position", "repeat_header", "scale_down"),
+    font_size = 6
+  ) %>%
+  kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
+  kableExtra::footnote(
+    general = tab_note_study1,
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = TRUE
+  ) %>%
+  kableExtra::landscape()
+
+
+# ============================================================================
+# STUDY 2: Convergence & Outliers Summary (APA Style - Landscape with longtable)
+# ============================================================================
+create_apa_convergence_table_study2 <- function(results_df, equation = "eta4") {
+  param <- ifelse(equation == "eta4", "eta1", "eta4")
+  
+  results_df$results %>%
+    filter(Equation == equation, Parameter == param) %>%
+    select(
+      Condition,
+      Method, 
+      Model, 
+      Distribution, 
+      SampleSize, 
+      Reliability,
+      N_Converged_This_Method,
+      Convergence_Rate_This_Method,
+      N_After_Global_Convergence,
+      N_Outliers_This_Method,
+      Outlier_Rate_This_Method,
+      N_After_Global_Outlier,
+      N_Final
+    ) %>%
+    mutate(
+      Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
+      Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
+    ) %>%
+    # Sort: Full model first, then Linear
+    arrange(Condition, factor(Model, levels = c("Full", "Linear")), Method)
+}
+
+# ============================================================================
+# STUDY 2 - EQUATION ETA4 TABLE
+# ============================================================================
+conv_table_study2_eta4 <- create_apa_convergence_table_study2(results_study_2, "eta4")
+
+tab_caption_study2_eta4 <- "Convergence and Outlier Statistics (Simulation 2)"
+tab_note_study2 <- "N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after requiring all methods to converge. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Global Outlier = sample size after global outlier removal across methods. N Final = final sample size after all exclusions."
+
+kableExtra::kbl(
+  conv_table_study2_eta4,
+  booktabs = TRUE,
+  longtable = TRUE,
+  align = c("l", "l", "l", "l", "r", "r",
+            "r", "r", "r",
+            "r", "r",
+            "r", "r"),
+  col.names = c("Condition", "Method", "Model", "Distribution", "N", "Reliability",
+                "N Conv.", "Conv. Rate", "N Global Conv.",
+                "N Outliers", "Outlier Rate", "N Global Outlier", "N Final"),
+  caption = tab_caption_study2_eta4,
+  linesep = ""
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 6,
+    "Convergence" = 3,
+    "Outliers" = 2,
+    "Final" = 2
+  )) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position", "repeat_header", "scale_down"),
+    font_size = 6
+  ) %>%
+  kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
+  kableExtra::footnote(
+    general = tab_note_study2,
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = TRUE
+  ) %>%
+  kableExtra::landscape()
+
+# ============================================================================
+# STUDY 2 - EQUATION ETA5 TABLE
+# ============================================================================
+conv_table_study2_eta5 <- create_apa_convergence_table_study2(results_study_2, "eta5")
+
+tab_caption_study2_eta5 <- "Convergence and Outlier Statistics for Equation 5 (Study 2)"
+
+kableExtra::kbl(
+  conv_table_study2_eta5,
+  booktabs = TRUE,
+  longtable = TRUE,
+  align = c("l", "l", "l", "l", "r", "r",
+            "r", "r", "r",
+            "r", "r",
+            "r", "r"),
+  col.names = c("Condition", "Method", "Model", "Distribution", "N", "Reliability",
+                "N Conv.", "Conv. Rate", "N Global Conv.",
+                "N Outliers", "Outlier Rate", "N Global Outlier", "N Final"),
+  caption = tab_caption_study2_eta5,
+  linesep = ""
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 6,
+    "Convergence" = 3,
+    "Outliers" = 2,
+    "Final" = 2
+  )) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position", "repeat_header", "scale_down"),
+    font_size = 6
+  ) %>%
+  kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
+  kableExtra::footnote(
+    general = tab_note_study2,
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = TRUE
+  ) %>%
+  kableExtra::landscape()
+```

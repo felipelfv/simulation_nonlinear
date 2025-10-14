@@ -1,0 +1,16 @@
+---
+title: ""
+output: html_document
+---
+
+# Appendix A: Data Generation for simulation studies
+
+Data generation proceeded in three stages: (i) generation of exogenous predictor latent variables, (ii) generation of dependent latent variables through the structural model, and (iii) generation of observed indicators through the measurement model.
+
+**Generation of Exogenous Variables.** The predictor latent variables maintained the covariance structure $\boldsymbol{\Phi}_1 = \begin{bmatrix} 1 & 0.375 \\ 0.375 & 1 \end{bmatrix}$ for Simulation 1 and $\boldsymbol{\Phi}_2 = \begin{bmatrix} 1 & 0.3 & 0.2 \\ 0.3 & 1 & 0.3 \\ 0.2 & 0.3 & 1 \end{bmatrix}$ for Simulation 2 across all distributional conditions. Data were generated using the Variable Independent Transformation Approach (VITA) as implemented in the *covsim* package (version `r covsim_version`) [@R-covsim] and *rvinecopulib* package [@R-rvinecopulib]. Under normal conditions, predictor latent variables were generated with Gaussian marginal distributions while preserving the target covariance structure. For non-normal conditions, gamma-distributed marginals with shape parameter 1 and rate parameter 1 were employed, yielding population skewness $\gamma_1 = 2$ and excess kurtosis $\gamma_2 = 6$. The uniform condition used uniform marginal distributions with bounds $[\pm\sqrt{3\phi_{kk}}]$ to match the target variances, where $\phi_{kk}$ represents the diagonal elements of $\boldsymbol{\Phi}$. For all distributional conditions, VITA constructed a vine copula model to induce the specified dependence structure while respecting the marginal distributions, generating data via the R-vine sampling algorithm.
+
+**Structural Model.** Dependent latent variables were generated according to the structural equations with residual variances $\psi$ yielding $R^2_{\eta} = \frac{\text{Var}(\eta^*)}{\text{Var}(\eta^*) + \psi} \approx 0.30$, where $\eta^*$ represents the deterministic portion of the dependent latent variable. Structural residuals were drawn from a normal distribution with the specified variance.
+
+**Measurement Model.** Observed indicators were generated through $\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}$, where $\boldsymbol{\Lambda}$ contained unit loadings ($\lambda_j = 1$) and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta})$. Measurement error variances $\theta_{jj}$ were set to achieve target reliabilities: $\rho_{y_j} = \frac{\lambda_{j}^2 \cdot \phi_{kk}}{\lambda_{j}^2 \cdot \phi_{kk} + \theta_{jj}} \approx \rho$, where $\rho \in \{0.4, 0.6, 0.8\}$. Three indicators were generated for each latent variable.
+
+**Fixed Variance Parameters.** All population models were first specified to achieve target reliability levels ($\rho \approx 0.4, 0.6, 0.8$) and $R^2 \approx 0.30$ under normally distributed predictor latent variables. The variance parameters (both structural residual variances $\psi$ and measurement error variances $\theta_{jj}$) derived from these normal-based models were then used unchanged across all distributional conditions, allowing us to isolate the impact of distributional violations on model estimation.
