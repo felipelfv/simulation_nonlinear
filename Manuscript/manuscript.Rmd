@@ -1,28 +1,18 @@
 ---
-title             : "A simulation study comparing the local structural-after-measurement (LSAM) versus traditional approaches to estimate nonlinear effects in structural equation modeling with latent variables"
+title             : "Local Structural-After-Measurement (LSAM) and Traditional Approaches for Estimating Nonlinear Effects among Latent Variables: A Simulation Study"
 author: 
   - name          : "Felipe Fontana Vieira"
     affiliation   : "1"
     corresponding : yes    # Only one corresponding author
-    address       : "Department of Data Analysis, Faculty of Psychology and Educational Sciences, Ghent University, Henri Dunantlaan 2, 900, Gent, Belgium"
-    email         : "felipe.fontanavieira@ugent.be"
-    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
-      - Conceptualization
-      - Methodology
-      - Formal Analysis
-      - Visualization
-      - Writing - Original Draft Preparation
-      - Writing - Review & Editing
   - name          : "Yves Rosseel"
     affiliation   : "1"
-    role:
-      - Conceptualization
-      - Methodology
-      - Writing - Review & Editing
 affiliation:
   - id            : "1"
     institution   : "Department of Data Analysis, Faculty of Psychology and Educational Sciences, Ghent University"
-    
+
+appendix:
+  - "appendix_a.Rmd"
+  - "appendix_b.Rmd"   
 authornote: |
 
   \addORCIDlink{Felipe Fontana Vieira}{0009-0006-0949-6569}
@@ -34,6 +24,7 @@ abstract: |
   
   <!-- https://tinyurl.com/ybremelq -->
 keywords          : "nonlinear effects, structural equation modeling, structural-after-measurement"
+wordcount         : "X"
 bibliography      : "Phd - Initial Readings.bib"
 floatsintext      : yes
 figurelist        : no
@@ -44,6 +35,7 @@ mask              : no
 draft             : no
 
 header-includes:
+  - \raggedbottom
   - \usepackage[nodisplayskipstretch]{setspace}
   - \usepackage{pdflscape}
   - \usepackage{longtable} 
@@ -69,9 +61,6 @@ editor_options:
 ```{r setup, include = FALSE}
 library(papaja)
 library(lavaan)
-library(mvtnorm)
-library(semTools)
-library(miceadds)
 library(knitr)
 library(tables)
 library(modsem)
@@ -108,6 +97,11 @@ knitr::opts_chunk$set(fig.cap = NULL)
 
 \newpage
 
+```{r, child = "author_note.Rmd"}
+```
+
+\newpage
+
 # References
 
 ```{=tex}
@@ -121,8 +115,233 @@ knitr::opts_chunk$set(fig.cap = NULL)
 
 \newpage
 
-```{r, echo=FALSE, results='asis', eval=FALSE}
+```{tikz, dev='pdf', fig.ext='pdf', fig.cap="Data Generating Model for the simulation studies. Top: Model for Simulation 1. Bottom: Model for Simulation 2. Residual variances and covariances and intercepts are not shown for clarify.", fig.align="center", out.width="\\linewidth"}
+\tikzset{
+  latent/.style  ={circle,draw,minimum size=14mm},
+  ind/.style     ={rectangle,draw,minimum height=6mm,minimum width=8mm,align=center},
+  derived/.style ={circle,draw,minimum size=14mm},
+  every node/.style={font=\small}
+}
+
+\begin{tikzpicture}
+
+% ============================================================================
+% FIRST DIAGRAM (Simulation 1)
+% ============================================================================
+
+\node[ind] (y1)  at (0,  0.8) {y$_1$};
+\node[ind] (y2)  at (0,  0.0) {y$_2$};
+\node[ind] (y3)  at (0, -0.8) {y$_3$};
+\node[latent] (eta1) at (2.4, 0.0) {$\eta_1$};
+
+\draw[->] (eta1.west) -- (y1.east);
+\draw[->] (eta1.west) -- (y2.east);
+\draw[->] (eta1.west) -- (y3.east);
+
+\node[ind] (y4)  at (0, -2.8) {y$_4$};
+\node[ind] (y5)  at (0, -3.6) {y$_5$};
+\node[ind] (y6)  at (0, -4.4) {y$_6$};
+\node[latent] (eta2) at (2.4, -3.6) {$\eta_2$};
+
+\draw[->] (eta2.west) -- (y4.east);
+\draw[->] (eta2.west) -- (y5.east);
+\draw[->] (eta2.west) -- (y6.east);
+
+% Covariance arrow between eta1 and eta2
+\draw[<->,gray!40,bend right=30] (eta1) to (eta2);
+
+\node[latent] (eta3) at (6.6, -1.6) {$\eta_3$};
+
+\draw[->] (eta1) -- node[above] {} (eta3);
+\draw[->] (eta2) -- node[above,sloped] {} (eta3);
+
+\node[derived] (eta1sq) at (4.3, -4.2) {$\eta_1^{2}$};
+\node[derived] (eta2sq) at (6.6, -4.2) {$\eta_2^{2}$};
+\node[derived] (eta12)  at (8.9, -4.2) {$\eta_1\eta_2$};
+
+\draw[->] (eta1sq) -- node[above] {} (eta3);
+\draw[->] (eta2sq) -- node[right] {} (eta3);
+\draw[->] (eta12)  -- node[above] {} (eta3);
+
+\node[ind] (y7) at (5.6, 0.8) {y$_7$};
+\node[ind] (y8) at (6.6, 0.8) {y$_8$};
+\node[ind] (y9) at (7.6, 0.8) {y$_9$};
+
+\draw[->] (eta3.north) -- (y7.south);
+\draw[->] (eta3.north) -- (y8.south);
+\draw[->] (eta3.north) -- (y9.south);
+
+% ============================================================================
+% SECOND DIAGRAM (Simulation 2) - Shifted down by 7 units instead of 13
+% ============================================================================
+
+\node[ind] (y1b)  at (0,  -6.0) {y$_1$};
+\node[ind] (y2b)  at (0,  -7.0) {y$_2$};
+\node[ind] (y3b)  at (0, -8.0) {y$_3$};
+\node[latent] (eta1b) at (2.4, -7.0) {$\eta_1$};
+
+\draw[->] (eta1b.west) -- (y1b.east);
+\draw[->] (eta1b.west) -- (y2b.east);
+\draw[->] (eta1b.west) -- (y3b.east);
+
+\node[ind] (y4b)  at (0, -10.5) {y$_4$};
+\node[ind] (y5b)  at (0, -11.5) {y$_5$};
+\node[ind] (y6b)  at (0, -12.5) {y$_6$};
+\node[latent] (eta2b) at (2.4, -11.5) {$\eta_2$};
+
+\draw[->] (eta2b.west) -- (y4b.east);
+\draw[->] (eta2b.west) -- (y5b.east);
+\draw[->] (eta2b.west) -- (y6b.east);
+
+\node[ind] (y7b)  at (0, -15.0) {y$_7$};
+\node[ind] (y8b)  at (0, -16.0) {y$_8$};
+\node[ind] (y9b)  at (0, -17.0) {y$_9$};
+\node[latent] (eta3b) at (2.4, -16.0) {$\eta_3$};
+
+\draw[->] (eta3b.west) -- (y7b.east);
+\draw[->] (eta3b.west) -- (y8b.east);
+\draw[->] (eta3b.west) -- (y9b.east);
+
+% Covariance arrows between eta1, eta2, and eta3
+\draw[<->,gray!40,bend right=30] (eta1b) to (eta2b);
+\draw[<->,gray!40,bend right=30] (eta1b) to (eta3b);
+\draw[<->,gray!40,bend right=30] (eta2b) to (eta3b);
+
+\node[latent] (eta4b) at (5.5, -9.5) {$\eta_4$};
+
+\draw[->] (eta1b) -- (eta4b);
+\draw[->] (eta2b) -- (eta4b);
+\draw[->] (eta3b) -- (eta4b);
+
+\node[derived] (eta12b)  at (9.0, -7.0) {$\eta_1\eta_2$};
+\node[derived] (eta13b)  at (9.0, -8.5) {$\eta_1\eta_3$};
+\node[derived] (eta1sqb) at (9.0, -10.0) {$\eta_1^{2}$};
+\node[derived] (eta2sqb) at (9.0, -11.5) {$\eta_2^{2}$};
+
+\draw[->] (eta12b)  -- (eta4b);
+\draw[->] (eta13b)  -- (eta4b);
+\draw[->] (eta1sqb) -- (eta4b);
+\draw[->] (eta2sqb) -- (eta4b);
+
+\node[ind] (y10b) at (4.5, -6.0) {y$_{10}$};
+\node[ind] (y11b) at (5.5, -6.0) {y$_{11}$};
+\node[ind] (y12b) at (6.5, -6.0) {y$_{12}$};
+
+\draw[->] (eta4b.north) -- (y10b.south);
+\draw[->] (eta4b.north) -- (y11b.south);
+\draw[->] (eta4b.north) -- (y12b.south);
+
+\node[latent] (eta5b) at (5.5, -14.5) {$\eta_5$};
+
+\draw[->] (eta4b) -- (eta5b);
+\draw[->] (eta1b) -- (eta5b);
+\draw[->] (eta2b) -- (eta5b);
+\draw[->] (eta3b) -- (eta5b);
+
+\node[derived] (eta14b)   at (9.0, -13.0) {$\eta_1\eta_4$};
+\node[derived] (eta24b)   at (9.0, -14.5) {$\eta_2\eta_4$};
+\node[derived] (eta1sq2b) at (9.0, -16.0) {$\eta_1^{2}$};
+\node[derived] (eta3sqb)  at (9.0, -17.5) {$\eta_3^{2}$};
+
+\draw[->] (eta14b)   -- (eta5b);
+\draw[->] (eta24b)   -- (eta5b);
+\draw[->] (eta1sq2b) -- (eta5b);
+\draw[->] (eta3sqb)  -- (eta5b);
+
+\node[ind] (y13b) at (4.5, -18.0) {y$_{13}$};
+\node[ind] (y14b) at (5.5, -18.0) {y$_{14}$};
+\node[ind] (y15b) at (6.5, -18.0) {y$_{15}$};
+
+\draw[->] (eta5b.south) -- (y13b.north);
+\draw[->] (eta5b.south) -- (y14b.north);
+\draw[->] (eta5b.south) -- (y15b.north);
+
+\end{tikzpicture}
 ```
 
-```{r, child="appendix.Rmd"}
+\landscape
+\footnotesize
+
+\textbf{Table 1}
+
+*Subset of the performance measures for evaluating parameter estimates in the simulation studies*
+
+| Performance Measure | Empirical Calculation | MCSE |
+|---|---|---|
+| **Absolute Criteria** | | |
+| Absolute Bias | $\bar{B} - \beta$ | $\sqrt{S_B^2/K}$ |
+| Mean Squared Error (MSE) | $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ | $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
+| Root Mean Squared Error (RMSE) | $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ |
+| **Relative Criteria** | | |
+| Relative Bias | $(\frac{\bar{B}}{\beta})- 1$ | $\sqrt{S_B^2/(K\beta^2)}$ |
+| Relative MSE | $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ | $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
+| Relative RMSE | $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ |
+| **Standard Error Assessment** | | |
+| Mean SE | $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ | — |
+| SE Ratio | $\overline{SE}/S_B$ | — |
+| **Hypothesis Testing** | | |
+| Rejection Rate | $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ | $\sqrt{r_\alpha(1-r_\alpha)/K}$ |
+| **Confidence Intervals** | | |
+| Coverage | $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ | $\sqrt{c_\beta(1-c_\beta)/K}$ |
+
+*Note.* $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error; dashes indicate MCSEs not computed.
+
+\endlandscape
+\normalsize
+
+```{r plot-bias-first-sim-study, echo=FALSE, fig.cap = "Relative bias for Simulation 1 with varying distributions and reliability levels (N = 400).", fig.align='center', fig.height=12, fig.width=9}
+(p_relative_bias_400_full_study_1)
 ```
+
+```{r plot-rmse-first-sim-study, echo=FALSE, fig.cap = "Relative RMSE for Simulation 1 with varying distributions and reliability levels (N = 400).", fig.align='center', fig.height=12, fig.width=9}
+(p_relative_rmse_400_full_study_1)
+```
+
+```{r plot-ratio-first-sim-study, echo=FALSE, fig.cap="SE/SD Ratio for Simulation 1 with varying sample sizes and reliability levels (Right-skewed and uniform conditions).", fig.align='center', fig.height=12, fig.width=8}
+(p_slope_full_nonnorm_unif_study_1)
+```
+
+```{r plot-coverage-first-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 1 varying distributions, reliability levels, and sample sizes.", fig.align='center', fig.height=12, fig.width=8}
+(p_cov_full_400_1000_study_1)
+```
+
+```{r plot-type-first-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 1 varying distributions and reliability levels (N = 1000)", fig.align='center', fig.height=12, fig.width=9}
+(p_t1_1000_study_1)
+```
+
+\newpage
+
+```{r relative-bias-study-2, echo=FALSE, fig.cap="Relative bias for Simulation 2 with varying distributions and reliability levels (N = 400).", fig.align='center', fig.height=12, fig.width=9}
+(p_relative_bias_400_full_all_study_2)
+```
+
+```{r relative-rmse-study-2, echo=FALSE, fig.cap="Relative RMSE for Simulation 2 with varying distributions and reliability levels (N = 400).", fig.align='center', fig.height=12, fig.width=9}
+(p_relative_rmse_400_full_all_study_2)
+```
+
+```{r se-ratio-study-2, echo=FALSE, fig.cap="SE/SD Ratio for Simulation 2 with varying distributions and reliability levels (N = 400).", fig.align='center', fig.height=12, fig.width=9}
+(p_sesd_400_full_all_study_2)
+```
+
+```{r coverage-ratio-study-2, echo=FALSE, fig.cap="Coverage for Simulation 2 with varying distributions and reliability levels (N = 400).", fig.align='center', fig.height=12, fig.width=9}
+(p_coverage_400_full_all_study_2)
+```
+
+```{r type-study-2, echo=FALSE, fig.cap="Type I error rate for Simulation 2 with varying distributions and reliability levels (N = 1000).", fig.align='center', fig.height=12, fig.width=9}
+(p_t1_1000_all_study_2)
+```
+
+\newpage
+
+
+
+\newpage
+
+# (APPENDIX) Appendix {-}
+
+```{r child = "appendix_a.Rmd"}
+```
+
+```{r child = "appendix_b.Rmd"}
+```
+
