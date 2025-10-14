@@ -147,44 +147,4 @@ kableExtra::kbl(
     escape = TRUE
   ) %>%
   kableExtra::landscape()
-
-# ============================================================================
-# STUDY 2 - EQUATION ETA5 TABLE
-# ============================================================================
-conv_table_study2_eta5 <- create_apa_convergence_table_study2(results_study_2, "eta5")
-
-tab_caption_study2_eta5 <- "Convergence and Outlier Statistics for Equation 5 (Study 2)"
-
-kableExtra::kbl(
-  conv_table_study2_eta5,
-  booktabs = TRUE,
-  longtable = TRUE,
-  align = c("l", "l", "l", "l", "r", "r",
-            "r", "r", "r",
-            "r", "r",
-            "r", "r"),
-  col.names = c("Condition", "Method", "Model", "Distribution", "N", "Reliability",
-                "N Conv.", "Conv. Rate", "N Global Conv.",
-                "N Outliers", "Outlier Rate", "N Global Outlier", "N Final"),
-  caption = tab_caption_study2_eta5,
-  linesep = ""
-) %>%
-  kableExtra::add_header_above(c(
-    " " = 6,
-    "Convergence" = 3,
-    "Outliers" = 2,
-    "Final" = 2
-  )) %>%
-  kableExtra::kable_styling(
-    latex_options = c("hold_position", "repeat_header", "scale_down"),
-    font_size = 6
-  ) %>%
-  kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
-  kableExtra::footnote(
-    general = tab_note_study2,
-    general_title = "Note.",
-    threeparttable = TRUE,
-    escape = TRUE
-  ) %>%
-  kableExtra::landscape()
 ```
