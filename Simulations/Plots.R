@@ -16,7 +16,7 @@ METHOD_ORDER_3 <- c("LSAM","LMS","QML","UPI")  # For 3-factor study (Study 1)
 METHOD_ORDER_5 <- c("LSAM","QML","UPI")        # For 5-factor study (Study 2)
 
 # distribution labels for all studies
-DIST_LABS <- c(normal="Normal", nonnormal="Nonnormal", uniform="Uniform")
+DIST_LABS <- c(normal="Normal", nonnormal="Right-skewed", uniform="Uniform")
 
 # ============================= VISUAL SPECIFICATIONS ===========================
 # shape specifications for point markers
@@ -69,9 +69,9 @@ prep_study1_subset <- function(df, model = c("Full","Linear")) {
   model <- match.arg(model)
   
   PARAM_ORDER <- c("eta1:eta2","eta1:eta1","eta2:eta2")
-  PARAM_LABS <- c("eta1:eta2"="beta[3]",
-                  "eta1:eta1"="beta[4]",
-                  "eta2:eta2"="beta[5]")
+  PARAM_LABS <- c("eta1:eta2"="beta[33]",
+                  "eta1:eta1"="beta[34]",
+                  "eta2:eta2"="beta[35]")
   
   df %>%
     filter(Parameter %in% PARAM_ORDER, Model == model) %>%
@@ -104,14 +104,14 @@ prep_study2_subset <- function(df, distribution, model = c("Full","Linear")) {
              (Equation == "eta5" & Parameter %in% eta5_params)) %>%
     mutate(
       Parameter_Label = case_when(
-        Equation == "eta4" & Parameter == "eta1:eta2" ~ "beta[14]",
-        Equation == "eta4" & Parameter == "eta1:eta3" ~ "beta[15]",
-        Equation == "eta4" & Parameter == "eta1:eta1" ~ "beta[16]",
-        Equation == "eta4" & Parameter == "eta2:eta2" ~ "beta[17]",
-        Equation == "eta5" & Parameter == "eta1:eta4" ~ "beta[25]",
-        Equation == "eta5" & Parameter == "eta2:eta4" ~ "beta[26]",
-        Equation == "eta5" & Parameter == "eta1:eta1" ~ "beta[27]",
-        Equation == "eta5" & Parameter == "eta3:eta3" ~ "beta[28]",
+        Equation == "eta4" & Parameter == "eta1:eta2" ~ "beta[44]",
+        Equation == "eta4" & Parameter == "eta1:eta3" ~ "beta[45]",
+        Equation == "eta4" & Parameter == "eta1:eta1" ~ "beta[46]",
+        Equation == "eta4" & Parameter == "eta2:eta2" ~ "beta[47]",
+        Equation == "eta5" & Parameter == "eta1:eta4" ~ "beta[55]",
+        Equation == "eta5" & Parameter == "eta2:eta4" ~ "beta[56]",
+        Equation == "eta5" & Parameter == "eta1:eta1" ~ "beta[57]",
+        Equation == "eta5" & Parameter == "eta3:eta3" ~ "beta[58]",
         TRUE ~ Parameter
       ),
       Method = factor(Method, levels = METHOD_ORDER_5),
@@ -120,8 +120,8 @@ prep_study2_subset <- function(df, distribution, model = c("Full","Linear")) {
       Condition = make_condition(SampleSize, Reliability)
     ) %>%
     mutate(Parameter_Label = factor(Parameter_Label, 
-                                    levels = c("beta[14]", "beta[15]", "beta[16]", "beta[17]",
-                                               "beta[25]", "beta[26]", "beta[27]", "beta[28]")))
+                                    levels = c("beta[44]", "beta[45]", "beta[46]", "beta[47]",
+                                               "beta[55]", "beta[56]", "beta[57]", "beta[58]")))
 }
 
 # MAIN DATA 
@@ -282,14 +282,14 @@ prepare_study2_data <- function(results_data, dist_name) {
              (Equation == "eta5" & Parameter %in% eta5_params)) %>%
     mutate(
       Parameter = case_when(
-        Equation == "eta4" & Parameter == "eta1:eta2" ~ "beta[14]",
-        Equation == "eta4" & Parameter == "eta1:eta3" ~ "beta[15]",
-        Equation == "eta4" & Parameter == "eta1:eta1" ~ "beta[16]",
-        Equation == "eta4" & Parameter == "eta2:eta2" ~ "beta[17]",
-        Equation == "eta5" & Parameter == "eta1:eta4" ~ "beta[25]",
-        Equation == "eta5" & Parameter == "eta2:eta4" ~ "beta[26]",
-        Equation == "eta5" & Parameter == "eta1:eta1" ~ "beta[27]",
-        Equation == "eta5" & Parameter == "eta3:eta3" ~ "beta[28]"
+        Equation == "eta4" & Parameter == "eta1:eta2" ~ "beta[44]",
+        Equation == "eta4" & Parameter == "eta1:eta3" ~ "beta[45]",
+        Equation == "eta4" & Parameter == "eta1:eta1" ~ "beta[46]",
+        Equation == "eta4" & Parameter == "eta2:eta2" ~ "beta[47]",
+        Equation == "eta5" & Parameter == "eta1:eta4" ~ "beta[55]",
+        Equation == "eta5" & Parameter == "eta2:eta4" ~ "beta[56]",
+        Equation == "eta5" & Parameter == "eta1:eta1" ~ "beta[57]",
+        Equation == "eta5" & Parameter == "eta3:eta3" ~ "beta[58]"
       ),
       Method = factor(Method, levels = METHOD_ORDER_5),
       Condition = make_condition(SampleSize, Reliability),
@@ -305,14 +305,14 @@ prepare_study2_data <- function(results_data, dist_name) {
              (Equation == "eta5" & Parameter %in% eta5_params)) %>%
     mutate(
       Parameter = case_when(
-        Equation == "eta4" & Parameter == "eta1:eta2" ~ "beta[14]",
-        Equation == "eta4" & Parameter == "eta1:eta3" ~ "beta[15]",
-        Equation == "eta4" & Parameter == "eta1:eta1" ~ "beta[16]",
-        Equation == "eta4" & Parameter == "eta2:eta2" ~ "beta[17]",
-        Equation == "eta5" & Parameter == "eta1:eta4" ~ "beta[25]",
-        Equation == "eta5" & Parameter == "eta2:eta4" ~ "beta[26]",
-        Equation == "eta5" & Parameter == "eta1:eta1" ~ "beta[27]",
-        Equation == "eta5" & Parameter == "eta3:eta3" ~ "beta[28]"
+        Equation == "eta4" & Parameter == "eta1:eta2" ~ "beta[44]",
+        Equation == "eta4" & Parameter == "eta1:eta3" ~ "beta[45]",
+        Equation == "eta4" & Parameter == "eta1:eta1" ~ "beta[46]",
+        Equation == "eta4" & Parameter == "eta2:eta2" ~ "beta[47]",
+        Equation == "eta5" & Parameter == "eta1:eta4" ~ "beta[55]",
+        Equation == "eta5" & Parameter == "eta2:eta4" ~ "beta[56]",
+        Equation == "eta5" & Parameter == "eta1:eta1" ~ "beta[57]",
+        Equation == "eta5" & Parameter == "eta3:eta3" ~ "beta[58]"
       ),
       Method = factor(Method, levels = METHOD_ORDER_5),
       Condition = make_condition(SampleSize, Reliability),
