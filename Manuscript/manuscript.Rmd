@@ -1,5 +1,6 @@
 ---
-title             : "Local Structural-After-Measurement (LSAM) and Traditional Approaches for Estimating Nonlinear Effects among Latent Variables: A Simulation Study"
+title             : "Local Structural-After-Measurement (LSAM) and Traditional Approaches for Nonlinear Effects among Latent Variables: A Simulation Study"
+shorttitle        : "Comparing LSAM and Traditional SEM Approaches"
 author: 
   - name          : "Felipe Fontana Vieira"
     affiliation   : "1"
@@ -24,7 +25,7 @@ abstract: |
   
   <!-- https://tinyurl.com/ybremelq -->
 keywords          : "nonlinear effects, structural equation modeling, structural-after-measurement"
-wordcount         : "X"
+#wordcount         : "X"
 bibliography      : "Phd - Initial Readings.bib"
 floatsintext      : yes
 figurelist        : no
@@ -59,16 +60,19 @@ editor_options:
 ---
 
 ```{r setup, include = FALSE}
-library(papaja)
-library(lavaan)
-library(knitr)
-library(tables)
-library(modsem)
+library(papaja) # for manuscript and APA 
+library(lavaan) # for LSAM and data generation based on lavaan-syntax
+library(knitr) # for tables
+#library(tables)
+library(modsem) # for UPI, LMS, and QML
 #library(parallel)
-library(doParallel)
-library(doRNG)
-library(covsim)
-library(copula)
+library(doParallel) # for parallel processing 
+library(doRNG) # for rng streams in parallel processing 
+library(covsim) # for generating normal, right-skewed, and uniform 
+library(rvinecopulib) # for generating normal, right-skewed, and uniform 
+library(ggplot2) # for figures
+library(dplyr) # for data wrangling in results
+library(simhelpers) # for most performance metrics and MCSE
 
 r_refs("Phd - Initial Readings.bib")
 ```
@@ -86,7 +90,7 @@ knitr::opts_chunk$set(fig.cap = NULL)
 ```{r, child = "modelsframework.Rmd"}
 ```
 
-```{r, child = "Simulation.Rmd"}
+```{r, child = "design.Rmd"}
 ```
 
 ```{r, child = "results.Rmd"}
@@ -115,7 +119,7 @@ knitr::opts_chunk$set(fig.cap = NULL)
 
 \newpage
 
-```{tikz, dev='pdf', fig.ext='pdf', fig.cap="Data Generating Model for the simulation studies. Top: Model for Simulation 1. Bottom: Model for Simulation 2. Residual variances and covariances and intercepts are not shown for clarify.", fig.align="center", out.width="\\linewidth"}
+```{tikz, dev='pdf', fig.ext='pdf', fig.cap="Data Generating Model for the simulation studies. Top: Model for Simulation 1. Bottom: Model for Simulation 2. Residual variances and covariances and intercepts are not shown for clarity.", fig.align="center", out.width="\\linewidth"}
 \tikzset{
   latent/.style  ={circle,draw,minimum size=14mm},
   ind/.style     ={rectangle,draw,minimum height=6mm,minimum width=8mm,align=center},
@@ -345,3 +349,7 @@ knitr::opts_chunk$set(fig.cap = NULL)
 ```{r child = "appendix_b.Rmd"}
 ```
 
+\newpage
+
+```{r child = "supplementary.Rmd"}
+```
