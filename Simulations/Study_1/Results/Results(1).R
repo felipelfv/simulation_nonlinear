@@ -73,7 +73,7 @@
 #' @details Mean-based metrics:
 #'   - MeanEstimate:                Average of parameter estimates
 #'   - Bias_Mean:                   Mean estimate - true value
-#'   - RelativeBias_Mean:            Bias / true value - 1
+#'   - RelativeBias_Mean:            (Bias / true value) - 1
 #'   - PercentRelativeBias_Mean:     Relative bias * 100
 #'   - Variance:                     Variance of estimates
 #'   - SD:                          Standard deviation of estimates

@@ -1,3 +1,225 @@
+############################ 1. General Information ############################
+# See README file for more information concerning this file. 
+
+# This file contains the code necessary to calculate the performance results 
+# for Simulation Study 2 reported in the manuscript. It processes raw simulation 
+# results from the more complex two-equation model, handles convergence and 
+# outlier detection, and computes comprehensive performance metrics for all 
+# estimation methods across all conditions.
+
+# The final dataset contains all the necessary metrics for plotting and
+# creating tables reported in the manuscript for Study 2.
+
+############################### 2. Documentation ################################
+
+#' Performance Analysis Functions for Simulation Study 2
+#' 
+#' @description This script provides a complete pipeline for analyzing Monte Carlo
+#'              simulation results from Study 2, which features a more complex
+#'              structural model with two endogenous variables (eta4, eta5) and
+#'              multiple interaction terms across both equations.
+#' 
+#' @section Main Functions:
+#' 
+#' extract_study2_params: Extract Structural Parameters from Method Output for Study 2
+#' 
+#' @param table         Data.frame. Parameter table from estimation method output
+#' @param method        Character. Type of method: "lsam", "upi", or "qml"
+#' @param equation      Character. Equation name: "eta4" or "eta5"
+#' 
+#' @return List containing:
+#'   - Estimates:       Named vector of parameter estimates
+#'   - Standard Errors: Named vector of standard errors
+#'   - P-values:        Named vector of p-values
+#'   - CI_lower:        Named vector of confidence interval lower bounds
+#'   - CI_upper:        Named vector of confidence interval upper bounds
+#' 
+#' @note Equation-specific parameters:
+#'   - eta4: Linear (3 params) or Full (7 params): eta1, eta2, eta3, [eta1:eta2, eta1:eta3, eta1:eta1, eta2:eta2]
+#'   - eta5: Linear (4 params) or Full (8 params): eta4, eta1, eta2, eta3, [eta1:eta4, eta2:eta4, eta1:eta1, eta3:eta3]
+#' 
+#' @note Method-specific handling:
+#'   - QML: Use "std.error" and "p.value" columns; requires parameter matching/reordering
+#'   - LSAM/UPI: Use "se" and "pvalue" columns; maintain LSAM parameter order
+#'   - Automatic detection of model complexity based on row count
+#' 
+#' 
+#' ExtractConvergenceOutliers_Study2: Process Convergence and Identify Outliers for Study 2
+#' 
+#' @param all_results              List. Complete simulation results from all conditions
+#' @param parameters_of_interest   Named list. Parameters to extract by equation:
+#'                                 - eta4: c("eta1","eta2","eta3","eta1:eta2","eta1:eta3","eta1:eta1","eta2:eta2")
+#'                                 - eta5: c("eta4","eta1","eta2","eta3","eta1:eta4","eta2:eta4","eta1:eta1","eta3:eta3")
+#' @param remove_outliers          Logical. Whether to identify and exclude outliers (default = TRUE)
+#' @param outlier_threshold        Numeric. IQR multiplier for outlier detection (default = 3)
+#' @param min_reps                 Integer. Minimum replications required per condition (default = 10)
+#' @param exclude_warnings         Logical. Whether to exclude iterations with warnings (default = FALSE)
+#' 
+#' @return List containing:
+#'   - convergence_outliers_summary: Tibble with convergence/outlier statistics per condition/method/equation/parameter
+#'   - convergence_outliers_details: List with detailed iteration-level information
+#'   - filtered_data:               List with clean data ready for performance calculations
+#' 
+#' @details Processing Pipeline:
+#'   1. Check convergence for each method independently across BOTH equations
+#'   2. Convergence requires valid estimates for all parameters in both eta4 and eta5 equations
+#'   3. Track warnings in converged iterations only
+#'   4. Identify valid replications (converged across all methods AND both equations - global convergence)
+#'   5. Optionally exclude iterations with warnings (if exclude_warnings = TRUE)
+#'   6. Detect outliers using IQR method separately for each equation-parameter combination
+#'   7. Apply global synchronization (exclude if outlier in any equation/parameter/method)
+#'   8. Extract filtered data for performance metrics
+#'   9. Skip conditions with fewer than min_reps valid replications
+#' 
+#' @details Convergence Criteria:
+#'   Per-method convergence requires:
+#'   - All required parameters present in output for BOTH equations
+#'   - Main effects must exist; interactions are "optional" (depend on model type)
+#'   - No NA, NaN, or Inf values in estimates, SEs, p-values, or CIs for any parameter
+#'   - Method-specific convergence tracked independently
+#'   
+#'   Global convergence requires:
+#'   - Convergence across ALL methods simultaneously for a given replication
+#'   - Both equations must be valid
+#'   - Used as baseline for outlier detection
+#' 
+#' @details Outlier Detection Method (Boomsma, 2013):
+#'   - Applied separately to each equation-parameter combination
+#'   - Calculate Q1 (25th percentile) and Q3 (75th percentile)
+#'   - Compute IQR = Q3 - Q1
+#'   - Lower bound = Q1 - threshold * IQR
+#'   - Upper bound = Q3 + threshold * IQR
+#'   - Flag replication as outlier if ANY parameter in ANY equation exceeds bounds
+#'   - Global synchronization: exclude from all methods if outlier in any
+#' 
+#' @details Summary Statistics Tracked (per condition/method/equation/parameter):
+#'   - N_Total:                     Total replications attempted
+#'   - N_Converged_This_Method:     Converged for this specific method (both equations)
+#'   - N_Warnings_This_Method:      Converged iterations with warnings for this method
+#'   - Convergence_Rate_This_Method: Percentage converged for this method
+#'   - N_After_Global_Convergence:  Converged across all methods and both equations
+#'   - Global_Convergence_Rate:     Percentage converged across all methods
+#'   - N_Excluded_By_Warnings:      Number excluded due to warnings (if exclude_warnings = TRUE)
+#'   - N_Outliers_This_Method:      Outliers detected in this method for this equation-parameter
+#'   - Outlier_Rate_This_Method:    Percentage of outliers among converged
+#'   - N_After_Global_Outlier:      Valid after global outlier removal (any equation/parameter)
+#'   - Global_Outlier_Rate:         Percentage valid after outlier removal
+#'   - N_Final:                     Final sample size for analysis
+#'   - N_Excluded_Convergence:      Excluded due to non-convergence
+#'   - N_Excluded_Warnings:         Excluded due to warnings
+#'   - N_Excluded_Outliers:         Excluded due to outlier detection
+#'   - N_Total_Excluded:            Total excluded replications
+#'   - Percent_Total_Excluded:      Percentage of total excluded
+#' 
+#' 
+#' CalculatePerformanceMetrics_Study2: Calculate All Performance Metrics for Study 2
+#' 
+#' @param filtered_data                 List. Filtered data from ExtractConvergenceOutliers_Study2
+#' @param convergence_outliers_summary  Tibble. Summary statistics from ExtractConvergenceOutliers_Study2
+#' @param alpha                         Numeric. Significance level for tests (default = 0.05)
+#' 
+#' @return Tibble containing all performance metrics per condition/method/equation/parameter:
+#' 
+#' @details Mean-based metrics:
+#'   - MeanEstimate:                Average of parameter estimates
+#'   - Bias_Mean:                   Mean estimate - true value
+#'   - RelativeBias_Mean:            (Bias / true value) - 1 (NA if true value = 0)
+#'   - PercentRelativeBias_Mean:     Relative bias * 100
+#'   - Variance:                     Variance of estimates
+#'   - SD:                          Standard deviation of estimates
+#'   - MSE_Mean:                    Mean squared error
+#'   - RMSE_Mean:                   Root mean squared error
+#'   
+#' @details Median-based metrics:
+#'   - MedianEstimate:              Median of parameter estimates
+#'   - Bias_Median:                 Median estimate - true value  
+#'   - RelativeBias_Median:         Median bias / true value (NA if true value = 0)
+#'   - PercentRelativeBias_Median:  Relative median bias * 100
+#'   - MAD:                         Median absolute deviation
+#'   - RMSE_Median:                 sqrt(Bias_Median^2 + MAD^2)
+#'   
+#' @details Standard error metrics:
+#'   - MeanSE:                      Average of standard errors
+#'   - SE_SD_Ratio:                 Mean SE / SD of estimates
+#'   
+#' @details Coverage and confidence interval metrics:
+#'   - CoverageRate:                Percentage of CIs containing true value
+#'   - CI_Width:                    Average width of confidence intervals
+#'   
+#' @details Hypothesis testing metrics:
+#'   - RejectionRate:               Percentage of p-values < alpha
+#'   - TypeI_Error:                 Rejection rate when true value = 0
+#'   - Power:                       Rejection rate when true value ≠ 0
+#'   
+#' @details Monte Carlo standard errors (MCSE):
+#'   - Bias_Mean_MCSE, RelativeBias_MCSE, Variance_MCSE, SD_MCSE
+#'   - MSE_Mean_MCSE, RMSE_Mean_MCSE, Relative_MSE_MCSE, Relative_RMSE_MCSE
+#'   - CoverageRate_MCSE, CI_Width_MCSE, RejectionRate_MCSE
+#'   - TypeI_Error_MCSE, Power_MCSE
+#'   
+#' @details Sample size tracking (from convergence_outliers_summary):
+#'   - All N_* and convergence/outlier statistics
+#'   - N_Excluded_* breakdown by reason
+#'   - Percent_Total_Excluded
+#' 
+#' @note True Value Extraction:
+#'   - True parameters stored in list format: all_results[[i]]$true_parameters
+#'   - Access pattern: true_parameters[[paste0(equation, "_", gsub(":", "", parameter))]]
+#'   - Example: eta4_eta1eta2, eta5_eta1eta4, eta5_eta3eta3
+#'   - Defaults to 0 if not found
+#' 
+#' 
+#' CalculatePerformance_Study2: Wrapper Function for Complete Study 2 Analysis
+#' 
+#' @param all_results                  List. Complete simulation results
+#' @param parameters_of_interest       Named list. Parameters by equation (see ExtractConvergenceOutliers_Study2)
+#' @param remove_outliers              Logical. Whether to remove outliers (default = TRUE)
+#' @param outlier_threshold            Numeric. IQR multiplier (default = 3)
+#' @param alpha                        Numeric. Significance level (default = 0.05)
+#' @param min_reps                     Integer. Minimum replications required (default = 10)
+#' @param exclude_warnings             Logical. Exclude iterations with warnings (default = FALSE)
+#' @param return_convergence_details   Logical. Return detailed convergence info (default = TRUE)
+#' 
+#' @return If return_convergence_details = TRUE:
+#'   - List with:
+#'     * results: Complete performance metrics tibble
+#'     * convergence_outliers_details: Detailed iteration-level information
+#'   
+#'   If return_convergence_details = FALSE:
+#'   - Tibble with performance metrics only
+#' 
+#' @note Study 2-Specific Features:
+#'   - Two structural equations analyzed simultaneously
+#'   - Three methods only: LSAM, QML, UPI (no LMS)
+#'   - Different parameter sets for each equation
+#'   - Global convergence requires both equations valid
+#'   - Global outlier removal applied across both equations
+#'   - Results include "Equation" column to distinguish eta4 vs eta5
+#' 
+#' @note Dependencies:
+#'   Required packages: dplyr, tibble, simhelpers
+#' 
+#' @examples
+#' \dontrun{
+#' results_study_2 <- CalculatePerformance_Study2(
+#'   all_results,
+#'   parameters_of_interest = list(
+#'     eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta3","eta1:eta1","eta2:eta2"),
+#'     eta5 = c("eta4","eta1","eta2","eta3","eta1:eta4","eta2:eta4","eta1:eta1","eta3:eta3")
+#'   ),
+#'   remove_outliers = TRUE,
+#'   outlier_threshold = 3,
+#'   alpha = 0.05,
+#'   min_reps = 10,
+#'   exclude_warnings = FALSE,
+#'   return_convergence_details = TRUE
+#' )
+#' }
+
+# Packages needed for this script:
+# library(dplyr); library(simhelpers)
+
+############################### 3. Functions ####################################
 # parameter extraction 
 extract_study2_params <- function(table, method, equation) {
   if(is.null(table)) return(NULL)
