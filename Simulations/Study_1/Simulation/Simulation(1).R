@@ -12,20 +12,21 @@
 
 ############################### 2. Documentation ################################
 
-#' Simulation Study Parameters and Settings
+#' Simulation 1 Parameters and Settings
 #' 
 #' @param N_REPLICATIONS    Integer. Number of Monte Carlo replications per condition (default = 1000).
 #' @param SAMPLE_SIZES      Integer vector. Sample sizes to simulate. Default is c(400, 1000).
 #' @param SEED_START        Integer. Starting seed for reproducibility (default = 123)
-#' @param USE_ROBUST_SE     Logical. Whether to use robust standard errors for LMS, QML, and DBLCENT (default = FALSE)
+#' @param USE_ROBUST_SE     Logical. Whether to use robust standard errors for LMS, QML, and UPI (default = FALSE)
 #' 
 #' @param analysis.model    Character. Lavaan syntax for the analysis model with interaction 
 #'                          and quadratic effects. Used for fitting all methods.
 #' 
-#' @param distributions     List. Distribution specifications with three types:
-#'   - normal:    skewness = c(0,0), excesskurtosis = c(0,0), distr.exo = "normal.rIG".
-#'   - nonnormal: skewness = c(2,2), excesskurtosis = c(7,7), distr.exo = "nonnormal.rIG".
-#'   - uniform:   skewness = c(0,0), excesskurtosis = c(0,0), distr.exo = "unif".
+#' @param distributions     List. Distribution specifications with three types (VITA-based generation):
+#'   - normal:    distr.exo = "normal", nonnormal.shape = NULL, nonnormal.rate = NULL.
+#'   - nonnormal: distr.exo = "nonnormal", nonnormal.shape = c(1,1), nonnormal.rate = c(1,1).
+#'                (shape=1 gives skewness ≈ 2, excess kurtosis ≈ 6)
+#'   - uniform:   distr.exo = "uniform", nonnormal.shape = NULL, nonnormal.rate = NULL.
 #' 
 #' @param conditions        Data.frame. Full factorial design with:
 #'   - N:             Sample sizes (400, 1000).
@@ -40,8 +41,8 @@
 #'   - results:           List with:
 #'     * lms_tables:      Parameter tables from LMS estimation
 #'     * qml_tables:      Parameter tables from QML estimation  
-#'     * dblcent_tables:  Parameter tables from DBLCENT estimation
-#'     * sam_tables:      Parameter tables from SAM estimation
+#'     * upi_tables:      Parameter tables from UPI estimation
+#'     * lsam_tables:     Parameter tables from LSAM estimation
 #'     * timing:          Data.frame with computation times for each method
 #'     * warnings:        List of warning messages for each method
 #'     * observed_r2:     Observed R² values for eta3
@@ -56,18 +57,20 @@
 #' 
 #' @note Dependencies:
 #'   - Models(1).RData:   Contains all_models with population models.
-#'   - Methods.R:         Contains method_analytic(), method_dblcent(), method_sam().
-#'   - GenerateData.R:    Contains GenerateData() function.
+#'   - Methods.R:         Contains method_analytic(), method_upi(), method_lsam().
+#'   - GenerateData.R:    Contains GenerateData() function (VITA-based generation).
 #' 
 #' @note Error Handling:
 #'   - Data generation errors: Skip iteration and return NULL.
 #'   - Method estimation errors: Store NULL for table, NA for timing, preserve warnings.
 #'   - Warnings tracked separately without stopping execution.
+#'   
+
+# Packages needed for this script:
+#library(lavaan); library(modsem); library(doParallel); 
+#library(doRNG); library(covsim); library(rvinecopulib); 
 
 ############################### 3. Simulation ##################################
-
-library(lavaan); library(modsem); library(doParallel); 
-library(doRNG); library(covsim); library(rvinecopulib); 
 
 # required files
 load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models

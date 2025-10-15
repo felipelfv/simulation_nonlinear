@@ -301,8 +301,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
 CalculatePerformanceMetrics_Study2 <- function(filtered_data, 
                                                convergence_outliers_summary,
                                                alpha = 0.05) {
-  
-  library(simhelpers)
+
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
   results_summary <- dplyr::tibble()

@@ -112,6 +112,9 @@
 #'   - N_Excluded_* breakdown by reason
 #'   - Percent_Total_Excluded
 
+# Packages needed for this script:
+# library(dplyr); library(simhelpers)
+
 ############################### 3. Functions ####################################
 
 extract_params <- function(table, method) {
@@ -401,9 +404,7 @@ ExtractConvergenceOutliers <- function(all_results,
 CalculatePerformanceMetrics <- function(filtered_data, 
                                         convergence_outliers_summary,
                                         alpha = 0.05) {
-  
-  library(simhelpers)
-  
+
   # %||% if not available
   `%||%` <- function(x, y) if(is.null(x)) y else x
   

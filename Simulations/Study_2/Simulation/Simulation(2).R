@@ -2,7 +2,7 @@
 # See README file for more information concerning this file. 
 
 # This file contains the code necessary to run the simulation study 2. 
-# It is dependent on the file "Models.RData" where we store the lavaan-based 
+# It is dependent on the file "Models(2).RData" where we store the lavaan-based 
 # syntax models for generating the data. It is also dependent on the file
 # "Methods.R" where we specify the functions for estimating the different
 # approaches
@@ -10,10 +10,72 @@
 # Relevant to re-start after running this script once to default Mer-Twi.
 # RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
-############################### 2. Simulation ##################################
+############################### 2. Documentation ################################
 
-library(lavaan); library(modsem); library(covsim)
-library(doParallel); library(doRNG); library(rvinecopulib)
+#' Simulation 2 Parameters and Settings
+#' 
+#' @param N_REPLICATIONS    Integer. Number of Monte Carlo replications per condition (default = 1000).
+#' @param SAMPLE_SIZES      Integer vector. Sample sizes to simulate. Default is c(400, 1000).
+#' @param RELIABILITIES     Numeric vector. Reliability levels (0.4, 0.6, 0.8).
+#' @param SEED_START        Integer. Starting seed for reproducibility (default = 123)
+#' 
+#' @param analysis.model    Character. Lavaan syntax for the analysis model with 5 factors.
+
+#' @param distributions     List. Distribution specifications with three types (VITA-based generation):
+#'   - normal:    distr.exo = "normal", nonnormal.shape = NULL, nonnormal.rate = NULL.
+#'   - nonnormal: distr.exo = "nonnormal", nonnormal.shape = c(1,1,1), nonnormal.rate = c(1,1,1).
+#'                (shape=1 gives skewness ≈ 2, excess kurtosis ≈ 6; 3 exogenous variables)
+#'   - uniform:   distr.exo = "uniform", nonnormal.shape = NULL, nonnormal.rate = NULL.
+#' 
+#' @param conditions        Data.frame. Full factorial design with:
+#'   - N:             Sample sizes (400, 1000).
+#'   - Rel:           Reliability levels (0.4, 0.6, 0.8).
+#'   - Distribution:  Distribution types (normal, nonnormal, uniform).
+#'   - Model_Type:    "full" (with interaction/quadratic) or "linear" (without).
+#'   - model_name:    Generated names for population models ("normal_rel[X]" or "null_model_rel[X]").
+#' 
+#' @param n_cores          Integer. Number of parallel cores (default = detectCores() - 6).
+#' 
+#' @return all_results     List. Contains for each condition:
+#'   - condition:         Row from conditions data.frame
+#'   - results:           List with:
+#'     * lsam_tables:     Parameter tables from LSAM estimation
+#'     * qml_tables:      Parameter tables from QML estimation  
+#'     * upi_tables:      Parameter tables from UPI estimation
+#'     * timing:          Data.frame with computation times for each method
+#'     * warnings:        List of warning messages for each method (QML filters bias warnings)
+#'     * observed_r2:     Matrix of observed R² values for eta4 and eta5 (N_REPLICATIONS x 2)
+#'     * observed_rel:    Matrix of observed reliabilities for 5 factors (N_REPLICATIONS x 5)
+#'     * rng_states:      RNG states for reproducibility
+#'   - true_parameters:   List of true population parameters based on Model_Type:
+#'     * Intercepts:      eta4_intercept (0.1), eta5_intercept (0.1)
+#'     * Main effects:    eta4 predictors (0.20 each), eta5 predictors (0.16 each)
+#'     * Interactions:    eta4_eta1eta2 (0.11), eta4_eta1eta3 (0.11), eta5_eta1eta4 (0.08), eta5_eta2eta4 (0.08)
+#'     * Quadratics:      eta4_eta1eta1 (0.08), eta4_eta2eta2 (0.08), eta5_eta1eta1 (0.06), eta5_eta3eta3 (0.06)
+#'     * For linear model: all interactions and quadratics set to 0
+#' 
+#' @note Output Files:
+#'   - Checkpoint files: Results_Study_2_checkpoint_[n].RData (every 5 conditions)
+#'   - Final file:       Results_Study_2_final.RData (all conditions)
+#'   - Directory:        Simulations/Study_2/Data/
+#' 
+#' @note Dependencies:
+#'   - Models(2).RData:   Contains all_models with population models for Study 2.
+#'   - Methods.R:         Contains method_analytic(), method_upi(), method_lsam().
+#'   - GenerateData.R:    Contains GenerateData() function (VITA-based generation).
+#' 
+#' @note Error Handling:
+#'   - Data generation errors: Skip iteration and return NULL.
+#'   - Method estimation errors: Store NULL for table, NA for timing, preserve warnings.
+#'   - QML warnings about exogenous-endogenous interactions are filtered (known bias).
+#'   - Warnings tracked separately without stopping execution.
+#' 
+
+# Packages needed for this script:
+#library(lavaan); library(modsem); library(doParallel); 
+#library(doRNG); library(covsim); library(rvinecopulib); 
+
+############################### 2. Simulation ##################################
 
 load("Simulations/Study_2/Simulation/Models(2).RData")
 source("Simulations/Methods.R")  # methods file
@@ -324,52 +386,3 @@ stopCluster(cl)
 save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
-
-
-# POST-SIMULATION ANALYSIS OF ERRORS AND WARNINGS
-
-# categorize warnings
-categorize_warnings <- function(warnings) {
-  list(
-    quadrature = sum(grepl("adaptive quadrature", warnings, ignore.case = TRUE)),
-    null_values = sum(grepl("is NULL", warnings)),
-    std_errors = sum(grepl("Standard errors.*could not", warnings)),
-    large_variances = sum(grepl("factor 1000", warnings)),
-    vcov_not_pd = sum(grepl("not.*positive definite", warnings)),
-    identification = sum(grepl("not identified", warnings))
-  )
-}
-
-for(cond_idx in seq_along(all_results)) {
-  cond_info <- all_results[[cond_idx]]$condition
-  res <- all_results[[cond_idx]]$results
-  
-  # total warnings by type for each method
-  sam_all_warnings <- unlist(res$warnings$sam)
-  qml_all_warnings <- unlist(res$warnings$qml)
-  dblcent_all_warnings <- unlist(res$warnings$dblcent)
-  
-  if(length(c(sam_all_warnings, qml_all_warnings, dblcent_all_warnings)) > 0) {
-    cat(sprintf("\nCondition %d (N=%d, Rel=%.1f, Dist=%s, Model=%s):\n", 
-                cond_idx, cond_info$N, cond_info$Rel, cond_info$Distribution, 
-                cond_info$Model_Type)) 
-    
-    if(length(sam_all_warnings) > 0) {
-      sam_cats <- categorize_warnings(sam_all_warnings)
-      cat("  SAM warnings:", paste(names(sam_cats)[sam_cats > 0], 
-                                   "=", sam_cats[sam_cats > 0], collapse=", "), "\n")
-    }
-    
-    if(length(qml_all_warnings) > 0) {
-      qml_cats <- categorize_warnings(qml_all_warnings)
-      cat("  QML warnings:", paste(names(qml_cats)[qml_cats > 0], 
-                                   "=", qml_cats[qml_cats > 0], collapse=", "), "\n")
-    }
-    
-    if(length(dblcent_all_warnings) > 0) {
-      dblcent_cats <- categorize_warnings(dblcent_all_warnings)
-      cat("  DBLCENT warnings:", paste(names(dblcent_cats)[dblcent_cats > 0], 
-                                       "=", dblcent_cats[dblcent_cats > 0], collapse=", "), "\n")
-    }
-  }
-}
