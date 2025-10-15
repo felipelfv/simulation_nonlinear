@@ -7,6 +7,9 @@
 # Data preparation functions for different study designs
 # Plotting functions for bias, RMSE, SE/SD ratio, coverage, Type I error, and power
 
+# Packages needed for this script:
+# library(ggplot2); library(dplyr)
+
 ############################### 2. Configuration ################################
 
 # METHOD SPECIFICATIONS 
@@ -600,65 +603,3 @@ plot_power <- function(data, greys = GREYS_4, title = "", facet_formula = NULL) 
   
   p
 }
-
-# ============================= USAGE EXAMPLES =============================
-
-# # STUDY 1 USAGE:
-# # --------------
-# 
-# # Prepare all data for Study 1
-# study1_data <- prepare_study1_data(results_study_1)
-# 
-# # Access raw data frames for custom filtering
-# dat_bias <- study1_data$bias
-# dat_rmse <- study1_data$rmse
-# dat_sesd <- study1_data$sesd
-# dat_coverage <- study1_data$coverage
-# dat_t1 <- study1_data$type1
-# dat_pow <- study1_data$power
-# 
-# # Example: Filter bias data to Full model & N = 400
-# dat_bias_400_full <- dat_bias %>%
-#   filter(Model == "Full", SampleSize == "400") %>%
-#   droplevels()
-# 
-# # Create custom plot with filtered data
-# p_bias_400_full <- plot_bias(
-#   dat_bias_400_full, 
-#   shapes = SHAPES_4, 
-#   ltys = LTYS_4,
-#   facet_formula = Distribution + Parameter ~ .,  # Custom faceting
-#   y_breaks = seq(-0.20, 0.20, by = 0.05)         # Custom y-axis
-# )
-# 
-# # Or create standard plots
-#p_bias_all <- plot_bias(dat_bias, shapes = SHAPES_4, ltys = LTYS_4, 
-#                        title = "Study 1: Bias")
-#p_rmse_all <- plot_rmse(dat_rmse, shapes = SHAPES_4, ltys = LTYS_4, 
-#                         title = "Study 1: RMSE")
-# 
-# # Get specific values
-# sam_bias_normal <- get_value(dat_bias, method = "SAM", dist = "Normal", 
-#                              param = "beta[3]", n = "400", rel = "0.6", 
-#                              model = "Full")
-# 
-# # STUDY 2 USAGE:
-# # --------------
-# 
-# # Prepare data for normal distribution
-#study2_normal_data <- prepare_study2_data(results_study_2$results, "normal")
-# 
-# # Access data frames
-#dat_bias_normal <- study2_normal_data$bias
-#dat_rmse_normal <- study2_normal_data$rmse
-# 
-# # Filter and create custom plots
-#dat_bias_normal_400 <- dat_bias_normal %>%
-#   filter(SampleSize == "400")
-# 
-#p_bias_normal_400 <- plot_bias(
-#   dat_bias_normal_400, 
-#   shapes = SHAPES_3, 
-#   ltys = LTYS_3,
-#   title = "Study 2: Normal Distribution (N=400)"
-#)

@@ -35,6 +35,8 @@
 #' @param method        Character. Distribution analytic method to use: "lms" (default) or "qml".
 #' @param robust.se     Logical. Whether to compute robust standard errors (default = FALSE).
 
+# library(lavaan); library(modsem)
+
 ############################### 3. Functions ###################################
 
 #### 3.1. Extendend Product Indicator Approach with double mean centering (UPI)  ####
