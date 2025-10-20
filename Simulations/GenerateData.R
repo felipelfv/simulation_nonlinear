@@ -256,6 +256,16 @@ GenerateData <- function(model,
     # generate data
     EXO <- rvinecopulib::rvine(n = N, vine = vitadist)
     
+    # SHIFTING HERE FOR RIGHT-SKEWED
+    # population-level shift for nonnormal distributions (like CopSEM method)
+    if(distr.exo == "nonnormal") {
+      for(i in 1:ncol(EXO)) {
+        natural_mean <- nonnormal.shape[i] / nonnormal.rate[i]
+        EXO[, i] <- EXO[, i] - natural_mean
+      }
+    }
+    # normal and uniform already have mean = 0, no shift needed
+  
     EXO
   }
   
@@ -431,5 +441,3 @@ GenerateData <- function(model,
   
   result
 }
-
-
