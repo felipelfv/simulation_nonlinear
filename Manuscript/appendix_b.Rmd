@@ -29,6 +29,10 @@ create_apa_convergence_table_study1 <- function(results_df) {
       N_Final
     ) %>%
     mutate(
+      Distribution = case_when(
+        Distribution == "nonnormal" ~ "right-skewed",
+        TRUE ~ Distribution
+      ),
       Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
       Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
     ) %>%
@@ -40,7 +44,7 @@ create_apa_convergence_table_study1 <- function(results_df) {
 conv_table_study1 <- create_apa_convergence_table_study1(results_study_1)
 
 tab_caption_study1 <- "Convergence and Outlier Statistics (Simulation 1)"
-tab_note_study1 <- "N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after requiring all methods to converge. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Global Outlier = sample size after global outlier removal across methods. N Final = final sample size after all exclusions."
+tab_note_study1 <- "N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after entire non-convergent iterations across approaches excluded. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Global Outlier = sample size after global outlier removal across methods. N Final = final sample size after all exclusions."
 
 kableExtra::kbl(
   conv_table_study1,
@@ -64,7 +68,8 @@ kableExtra::kbl(
   )) %>%
   kableExtra::kable_styling(
     latex_options = c("hold_position", "repeat_header", "scale_down"),
-    font_size = 6
+    font_size = 6,
+    position = "left"
   ) %>%
   kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
   kableExtra::footnote(
@@ -100,6 +105,10 @@ create_apa_convergence_table_study2 <- function(results_df, equation = "eta4") {
       N_Final
     ) %>%
     mutate(
+      Distribution = case_when(
+        Distribution == "nonnormal" ~ "right-skewed",
+        TRUE ~ Distribution
+      ),
       Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
       Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
     ) %>%
@@ -137,7 +146,8 @@ kableExtra::kbl(
   )) %>%
   kableExtra::kable_styling(
     latex_options = c("hold_position", "repeat_header", "scale_down"),
-    font_size = 6
+    font_size = 6,
+    position = "left"
   ) %>%
   kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
   kableExtra::footnote(
