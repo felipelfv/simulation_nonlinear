@@ -447,7 +447,7 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
               aes(x = Reliability, y = ratio, 
                   group = Method, shape = Method, linetype = Method)) +
     # shaded region for acceptable SE/SD ratios (0.85-1.15)
-    annotate("rect", xmin = -Inf, xmax = Inf, ymin = 0.85, ymax = 1.15,
+    annotate("rect", xmin = -Inf, xmax = Inf, ymin = 0.90, ymax = 1.1,
              fill = "grey93", alpha = .9) +
     geom_hline(yintercept = 1, linetype = "dotted") +
     # truncate extreme values for display
@@ -463,13 +463,13 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
   
   # labels for extreme values (upper) - within visible range
   p <- p + 
-    geom_text(data = filter(data, ratio > 1.15) %>%
+    geom_text(data = filter(data, ratio > 1.40) %>%
                 group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
                 arrange(desc(ratio)) %>%
                 mutate(label_y = pmin(1.39 - (row_number() - 1) * 0.05, 1.39)), 
               aes(label = sprintf("%s: %.2f", Method, ratio), y = label_y),
               size = 1.5, hjust = 0, vjust = 1) +
-    geom_text(data = filter(data, ratio < 0.85) %>%
+    geom_text(data = filter(data, ratio < 0.80) %>%
                 group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
                 arrange(ratio) %>%
                 mutate(label_y = pmax(0.81 + (row_number() - 1) * 0.05, 0.81)), 
