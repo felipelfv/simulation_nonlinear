@@ -2,29 +2,20 @@
 title             : "Local Structural-After-Measurement (LSAM) and Traditional Approaches for Nonlinear Effects among Latent Variables: A Simulation Study"
 shorttitle        : "Comparing LSAM and Traditional SEM Approaches"
 author: 
-  - name          : "Felipe Fontana Vieira"
-    affiliation   : "1"
-    corresponding : yes    # Only one corresponding author
-  - name          : "Yves Rosseel"
-    affiliation   : "1"
+  - name          : "Felipe Fontana Vieira and Yves Rosseel"
 affiliation:
-  - id            : "1"
+  - id            : ""
     institution   : "Department of Data Analysis, Faculty of Psychology and Educational Sciences, Ghent University"
 
 appendix:
   - "appendix_a.Rmd"
   - "appendix_b.Rmd"   
-authornote: |
 
-  \addORCIDlink{Felipe Fontana Vieira}{0009-0006-0949-6569}
-  
-  \addORCIDlink{Yves Rosseel}{0000-0002-4129-4477}
-  
 abstract: |
-  Several methods have been proposed to include quadratic or interaction terms involving latent variables in structural equation models. Most of these methods use a system-wide estimation approach, meaning all the free parameters of the model are estimated simultaneously. Research has investigated their performance in models featuring mainly a limited number of nonlinear effects. Recently, several so-called structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed in the literature. In a SAM approach, estimation proceeds in two stages. In a first stage, we estimate the parameters related to the measurement part of the model, while in a second stage, we estimate the parameters related to the structural part of the model. In this article, we show with two simulation studies that the recently proposed LSAM approach (Rosseel et al., 2025) performs well, in a variety of conditions that include distributional and reliability manipulations. In the first simulation study, we obtained results largely consistent with the expected performance based on theoretical properties as well as simulation results from a similar approach. In a second simulation study, we evaluated the extent to which increasing the number of nonlinear terms affects the LSAM in contrast to otther approaches, as the literature claimed the feasibility of joint methods progressively diminishes when more nonlinear effects are involved. The results for this latter study with eight nonlinear terms shows that this may hold partially, but in general more research is needed to find the limit in which performance effectively breaksdown.
+  Several methods have been proposed to include quadratic or interaction terms involving latent variables in structural equation models. Most of these methods use a system-wide estimation approach, meaning all the free parameters of the model are estimated simultaneously. Research has investigated their performance in models featuring mainly a limited number of nonlinear effects. Recently, several so-called structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed in the literature. In a SAM approach, estimation proceeds in two stages. In a first stage, we estimate the parameters related to the measurement part of the model, while in a second stage, we estimate the parameters related to the structural part of the model. In this article, we show with two simulation studies that the recently proposed LSAM approach (Rosseel et al., 2025) performs well, in a variety of conditions that include distributional, reliability, and sample size manipulations. In the first simulation study, we obtained results largely consistent with the expected performance based on theoretical properties as well as simulation results from a similar approach. In a second simulation study, we evaluated the extent to which increasing the number of nonlinear terms affects the LSAM in contrast to otther approaches, as the literature claimed the feasibility of joint methods progressively diminishes when more nonlinear effects are involved. The results for this latter study with eight nonlinear terms shows that this may hold partially, but in general more research is needed to find the limit in which performance effectively breaksdown.
   
   <!-- https://tinyurl.com/ybremelq -->
-keywords          : "nonlinear effects, structural equation modeling, structural-after-measurement"
+keywords          : "nonlinear effects, structural equation modeling, local structural-after-measurement, latent variables"
 #wordcount         : "X"
 bibliography      : "Phd - Initial Readings.bib"
 floatsintext      : yes
@@ -46,7 +37,6 @@ header-includes:
   - \usepackage{tikz}
   - \usepackage{amsmath}
   - \setlength{\parskip}{0pt}
-  - \usepackage{tikz}
 
 csl               : "`r system.file('rmd', 'apa7.csl', package = 'papaja')`"
 documentclass     : "apa7"
@@ -288,7 +278,9 @@ knitr::opts_chunk$set(fig.cap = NULL)
 | **Confidence Intervals** | | |
 | Coverage | $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ | $\sqrt{c_\beta(1-c_\beta)/K}$ |
 
-*Note.* $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error; dashes indicate MCSEs not computed.
+\begin{flushleft}
+\textit{Note}. $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error; dashes indicate MCSEs not computed.
+\end{flushleft}
 
 \endlandscape
 \normalsize
@@ -302,14 +294,14 @@ knitr::opts_chunk$set(fig.cap = NULL)
 ```
 
 ```{r plot-ratio-first-sim-study, echo=FALSE, fig.cap="SE/SD Ratio for Simulation 1 with varying sample sizes and reliability levels (Right-skewed and uniform conditions).", fig.align='center', fig.height=12, fig.width=8}
-(p_slope_full_nonnorm_unif_study_1)
+(p_slope_nonnorm_unif_study_1)
 ```
 
 ```{r plot-coverage-first-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 1 varying distributions, reliability levels, and sample sizes.", fig.align='center', fig.height=12, fig.width=8}
-(p_cov_full_400_1000_study_1)
+(p_cov_nonnorm_unif_study_1)
 ```
 
-```{r plot-type-first-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 1 varying distributions and reliability levels (N = 1000)", fig.align='center', fig.height=12, fig.width=9}
+```{r plot-type-first-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 1 varying distributions and reliability levels (N = 1000). MCSE are not shown due to their small magnitude.", fig.align='center', fig.height=12, fig.width=9}
 (p_t1_1000_study_1)
 ```
 
@@ -331,7 +323,7 @@ knitr::opts_chunk$set(fig.cap = NULL)
 (p_coverage_400_full_all_study_2)
 ```
 
-```{r type-study-2, echo=FALSE, fig.cap="Type I error rate for Simulation 2 with varying distributions and reliability levels (N = 1000).", fig.align='center', fig.height=12, fig.width=9}
+```{r type-study-2, echo=FALSE, fig.cap="Type I error rate for Simulation 2 with varying distributions and reliability levels (N = 1000). MCSE are not shown due to their small magnitude.", fig.align='center', fig.height=12, fig.width=9}
 (p_t1_1000_all_study_2)
 ```
 
@@ -347,9 +339,4 @@ knitr::opts_chunk$set(fig.cap = NULL)
 ```
 
 ```{r child = "appendix_b.Rmd"}
-```
-
-\newpage
-
-```{r child = "supplementary.Rmd"}
 ```
