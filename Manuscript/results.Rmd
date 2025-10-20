@@ -8,22 +8,20 @@ output:
 ---
 
 ```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
-library(dplyr); library(ggplot2)
-
 source("../Simulations/Plots.R")
 source("../Simulations/Study_1/Results/Results(1).R")
 source("../Simulations/Study_2/Results/Results(2).R")
 ```
 
-# Results for simulation studies 
+# Results for Simulation Studies 
 
-The results reported are a subset of the findings focused mainly on the cases when the nonlinear effects were present. For the complete figures and results, we refer the reader to the online supplementary materials 1. 
+The results reported are a subset of the findings which focused mainly on the cases when the nonlinear effects were present. For the complete figures and results, we refer the reader to the online supplemental materials. 
 
-## Results for simulation 1
+## Results for Simulation 1
 
 ```{r results-first-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
 
-data_study_1 <- load("../Simulations/Study_1/Data/Results_Study_1_final.RData")
+data_study_1 <- load("../Simulations/Study_1/Data/Results_Study_1_final_scaling_1000.RData")
 
 results_study_1 <- CalculatePerformance(
    all_results,
@@ -85,17 +83,16 @@ get_convergence_outlier_rate_study_1 <- function(method, dist, n, rel, model = "
 
 ### Convergence Issues and Outliers  
 
-Convergence problems were generally rare. The main exception was UPI, which showed reduced convergence under conditions of moderate sample size, low reliability, and uniform latent predictors. In this scenario, convergence rates were `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Full", "convergence"), 2)`% for the full model and `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% for the linear model. By contrast, LMS and QML converged well, with the lowest rates in the same setting being `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "convergence"), 2)`% (full model), and `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% (linear model). LSAM consistently converged, with rates of `r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% across all conditions.  
+Convergence problems were generally rare. The main exception was UPI, which showed reduced convergence under conditions of moderate sample size, low reliability, and uniform latent predictors. In this scenario, convergence rates were `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Full", "convergence"), 2)`% for the full model and `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% for the linear model. LMS and QML converged well in general, with the lowest rates in the same setting being `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "convergence"), 2)`% (full model), and `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% (linear model), respectively. LSAM consistently converged, with rates of `r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% across all conditions.  
 
-Outlier rates followed a comparable pattern. The most pronounced rates again occurred under moderate sample size, low reliability, and uniform latent predictors. UPI produced the highest outlier frequencies, reaching `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Full", "outlier"), 2)`% in the full model and `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% in the linear model. LSAM also yielded some outliers (`r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% for the linear model and `r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Full", "outlier"), 2)`% for the full model). In contrast, LMS and QML generated virtually none, with their highest rates reaching only `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "outlier"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "outlier"), 2)`% (both full model). Detailed results are provided in Table X (Appendix).  
+Outlier rates followed a comparable pattern. The most pronounced rates again occurred under moderate sample size, low reliability, and uniform latent predictors. UPI produced the highest outlier frequencies, reaching `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Full", "outlier"), 2)`% in the full model and `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% in the linear model. For the same condition, LSAM also yielded the most outliers (`r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% for the linear model and `r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Full", "outlier"), 2)`% for the full model). In contrast, LMS and QML generated virtually none, with their highest rates reaching only `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "outlier"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "outlier"), 2)`% (both full model) in the same scenario as the other approaches. Detailed results are provided in Appendix B.
 
 ```{r plots-first-sim-study, echo=FALSE}
 
 plot_study_1_data <- prepare_study1_data(results_study_1)
 
-# BIAS 
+# RELATIVE BIAS 
 study_1_relative_bias <- plot_study_1_data$bias_relative
-
 dat_relative_bias_400_full_study_1 <- study_1_relative_bias %>%
    filter(Model == "Full", SampleSize == "400") %>%
    droplevels()
@@ -104,8 +101,10 @@ p_relative_bias_400_full_study_1 <- plot_bias(
    dat_relative_bias_400_full_study_1, 
    shapes = SHAPES_4, 
    ltys = LTYS_4,
-   facet_formula = Distribution + Parameter ~ .,  # faceting
-   y_breaks = seq(-1, 2, by = 1)         # y-axis
+   bias_type = "relative",  
+   facet_formula = Distribution + Parameter ~ .,  
+   y_breaks = seq(-1, 1.5, by = 0.5),
+   y_limits = c(-1, 1.5)
 )
 
 # Relative RMSE 
@@ -127,14 +126,14 @@ p_relative_rmse_400_full_study_1 <- plot_rmse(
 # SE/SD RATIO (Nonnormal & Uniform, Full, N=400 & 1000) =========
 study_1_sesd <- plot_study_1_data$sesd
 
-dat_sesd_full_nonnorm_unif_study_1 <- study_1_sesd %>%
+dat_sesd_nonnorm_unif_study_1 <- study_1_sesd %>%
   filter(Model == "Full", 
          SampleSize %in% c("400", "1000"), 
          Distribution %in% c("Right-skewed", "Uniform")) %>%
   droplevels()
 
-p_slope_full_nonnorm_unif_study_1 <- plot_sesd(
-  dat_sesd_full_nonnorm_unif_study_1,
+p_slope_nonnorm_unif_study_1 <- plot_sesd(
+  dat_sesd_nonnorm_unif_study_1,
   shapes = SHAPES_4,
   ltys = LTYS_4,
   facet_formula = Distribution + Parameter ~ SampleSize
@@ -142,12 +141,13 @@ p_slope_full_nonnorm_unif_study_1 <- plot_sesd(
 
 # COVERAGE (Full, N=400 & 1000, all distributions)
 study_1_coverage <- plot_study_1_data$coverage
-dat_cov_full_400_1000_study_1 <- study_1_coverage %>%
-  filter(Model == "Full", SampleSize %in% c("400", "1000")) %>%
+dat_cov_nonnorm_unif_study_1 <- study_1_coverage %>%
+  filter(Model == "Full", 
+         SampleSize %in% c("400", "1000"),
+         Distribution %in% c("Right-skewed", "Uniform")) %>% 
   droplevels()
-
-p_cov_full_400_1000_study_1 <- plot_coverage(
-  dat_cov_full_400_1000_study_1, 
+p_cov_nonnorm_unif_study_1 <- plot_coverage(
+  dat_cov_nonnorm_unif_study_1, 
   shapes = SHAPES_4,
   ltys = LTYS_4,
   facet_formula = Distribution + Parameter ~ SampleSize
@@ -168,44 +168,47 @@ p_t1_1000_study_1 <- plot_type1(
 
 ### Relative Bias and RMSE When Nonlinear Effects Were Present
 
-Figures 2 and 3 present relative bias and RMSE values across distributional conditions at moderate sample size (results at high sample size were qualitatively similar). Following @brandt_etall_2014, values exceeding 0.10 (i.e., 10%) indicate bias.  
+Figures 2 and 3 present relative bias and RMSE across distributional conditions at a moderate sample size (N = 400). Following Brandt et al. (2014), values exceeding 0.10 (10%) were considered biased.
 
-Under normality, most methods performed stably across reliability levels, with bias primarily occurring for the interaction term at low reliability across all approaches. Under right-skewed distributions, clear differences emerged: LSAM and UPI were unbiased for all nonlinear effects except interactions at low reliability, whereas LMS and QML showed severe negative bias for interactions and positive bias for quadratic effects across all reliabilities. Under a uniform distribution, LSAM remained largely unbiased, and UPI displayed bias for most nonlinear effects only at low reliability. In contrast, LMS and QML produced unbiased interaction estimates but consistently negative bias for quadratic effects.  
+Under normality, LSAM showed stable performance across reliability levels. Bias emerged for the interaction term at low reliability for the other approaches, with LMS and QML also biased under medium reliability. At larger sample sizes, LSAM and UPI were unbiased even at low reliability, whereas LMS and QML continued to show bias under low and medium reliability. With a right-skewed distribution, LSAM displayed bias for the interaction term only under low reliability, while UPI showed no bias for nonlinear effects. In contrast, LMS and QML exhibited severe negative bias for interactions and positive bias for quadratic effects across reliability levels. At larger sample sizes, LSAM was unbiased across conditions, but LMS and QML remained biased. With a uniform distribution, LSAM was unbiased at all reliability levels. UPI showed bias for most nonlinear effects at low reliability, whereas LMS and QML produced unbiased interaction estimates but consistent negative bias for quadratic effects. These patterns remained qualitatively unchanged at larger sample sizes.
 
-For relative RMSE, all approaches were comparable under normality, except at low reliability. Under right-skewed distributions, LSAM had the lowest RMSE values, though differences diminished at high reliability. Under a uniform distribution, LMS and QML showed the lowest RMSE, but performance converged across methods at high reliability.  
+For relative RMSE, all methods performed similarly under normality, with minor differences at low reliability where LMS and QML showed the lowest values. Under right-skewed distributions, LSAM yielded the lowest RMSE, although differences diminished at high reliability. For uniform distributions, LMS and QML produced the lowest RMSE, but method performance converged as reliability increased.
 
-### Efficiency and Accuracy of Standard Errors when Nonlinear Effects were present
+### Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Present
 
-Figure 4 presents SE/SD ratios for right-skewed and uniform conditions across sample sizes. Following @brandt_etall_2014, ratios below 0.85 (underestimation) or above 1.15 (overestimation) indicate bias.  
+Figure 4 presents SE/SD ratios for right-skewed and uniform conditions across sample sizes. Following Brandt et al. (2014), ratios below 0.90 (underestimation) or above 1.10 (overestimation) indicate bias.
 
-Under normality, LSAM was unbiased across all conditions, with only UPI overestimating at low reliability under moderate sample size. For right-skewed distributions, UPI alone showed underestimated ratios, whereas LSAM performed comparably to LMS and QML. In uniform conditions, clearer differences emerged: at low reliability, both LSAM and UPI overestimated SEs for all nonlinear effects, though this bias disappeared at large sample sizes. LMS and QML remained stable and similar across all conditions.
+Under normality, LSAM displayed only a negligible overestimation (1.11) for the interaction term at low reliability and moderate sample sizes. In contrast, UPI produced substantial overestimation across all nonlinear effects under the same conditions (see Figure X in supplemental materials). For right-skewed distributions, LSAM showed some overestimation (1.12) at low reliability with moderate sample sizes, and slight underestimation for quadratic terms at high reliability. UPI consistently underestimated across reliability levels and sample sizes for all nonlinear effects. Under uniform distributions, LSAM and UPI overestimated SEs for all nonlinear effects at low reliability, though this bias was not present with larger samples. UPI additionally showed a negligible underestimation at medium reliability and moderate sample sizes. LMS and QML remained stable across all conditions. 
 
 ### Coverage for When Nonlinear Effects Were Present
 
-Figure 5 visualizes coverage results. For some approaches and conditions, exact values are displayed when they fell outside the y-axis range. Coverage between 93% and 97% was considered acceptable.  
+Figure 5 displays coverage results for right-skewed and uniform conditions across sample sizes, with exact values shown when they fall outside the plotted y-axis range. Coverage between 93% and 97% was considered acceptable.
 
-LSAM exceeded this range across all distributions only at low reliability with moderate sample size, but not at large samples. Under normality with moderate samples and medium reliability, all approaches achieved near-nominal 95% coverage for interaction and quadratic effects. Under right-skewness, LMS and QML showed substantial under-coverage, with UPI also affected though to a lesser degree. Larger sample sizes did not improve coverage, whereas higher reliability reduced under-coverage but did not eliminate it. LSAM performed comparatively well, showing only minor under-coverage for one quadratic effect. Under uniform distributions, LMS and QML showed under-coverage only for quadratic effects.  
+LSAM slightly exceeded this range (98%) only at low reliability with moderate sample sizes, but not at larger samples, across all distributions. Under normality, all approaches otherwise performed within the acceptable range across reliability and sample sizes (see Figure X in supplemental materials). For right-skewed distributions, LMS and QML exhibited substantial under-coverage, with UPI also affected, though to a lesser extent. Larger sample sizes did not improve coverage for these methods, while higher reliability reduced—but did not eliminate—the bias. Under uniform distributions, LMS and QML showed under-coverage exclusively for the quadratic effects.
 
 ### Type I Error Rate
 
-Figure 6 shows Type I error rates across approaches at large sample size. Rates between 2.5% and 7.5% were considered acceptable. Results at moderate sample size were qualitatively similar, although under right-skewness LMS and QML showed somewhat less inflation, albeit still above acceptable levels.  
+Figure 6 presents Type I error rates at large sample sizes across distributions, with 2.5–7.5% considered acceptable. Results at moderate sample sizes were qualitatively similar, although under right-skewness LMS and QML showed somewhat less inflation, yet still exceeded acceptable levels at low and medium reliabilities.
 
-Under normality, all approaches remained within the acceptable range even at low reliability, though LSAM tended to yield slightly lower values than the others. At medium and high reliability, all methods showed similarly well-controlled error rates. Under right-skewed distributions, LSAM and UPI stayed within acceptable limits, whereas LMS and QML exhibited severe inflation for quadratic effects across all reliabilities. Under uniform distributions, LSAM and UPI generally performed well, with values falling below the acceptable range only at low reliability.  
+Under normality, LSAM and all other approaches remained within the acceptable range, even at low reliability (see Figure X in supplemental materials). For right-skewed distributions, LSAM and UPI also stayed within acceptable bounds, whereas LMS and QML showed severe inflation for quadratic effects across all reliability levels. Under uniform distributions, LSAM and UPI generally performed well, with values falling below the acceptable range only at low reliability. In contrast, LMS and QML yielded consistently well-controlled error rates.
 
 ### Empirical Power
 
-Given the inflated Type I error rates observed for some approaches, power results should be interpreted with caution [@morris_etall_2019]. At large sample size, LSAM reached power levels near or above 80% under medium and high reliability across all distributions for most nonlinear effects. The main exception was under the uniform distribution, where quadratic effects remained underpowered. The other approaches showed broadly similar patterns. Under right-skewness, however, LMS and QML diverged markedly, with extremely low power for the interaction term but high power for quadratic effects.  
-### Bias, RMSE, Standard Errors, and Coverage When Nonlinear Effects Were Absent.** Bias results were similar to those when effects were present, but with reduced magnitude. One notable difference emerged under uniform distribution: LMS and QML showed unbiased quadratic estimates but biased interaction estimates, which disappeared at high reliability. RMSE showed no relevant differences except for reduced magnitude. Standard error accuracy was generally similar to the presence condition, with one main difference: UPI showed improved accuracy under normality at low reliability and moderate sample size. Regarding coverage, LMS and QML improved under non-normality but remained below the desirable range for quadratic effects. Under uniform distribution, coverage for quadratic effects substantially improved for both LMS and QML approaches.
+Given the inflated Type I error rates observed for some approaches, power results should be interpreted with caution [@morris_etall_2019]. At large sample size, LSAM reached power levels near or above 80% under medium and high reliability across all distributions for most nonlinear effects. The main exception was under the uniform distribution, where quadratic effects remained underpowered. The other approaches showed broadly similar patterns. Under right-skewness, however, LMS and QML diverged markedly, with extremely low power for the interaction term but high power for quadratic effects (see Figure X in supplemental materials).  
 
-## Summary of simulation 1
+### Bias, RMSE, Standard Errors, and Coverage When Nonlinear Effects Were Absent
 
-With the exception of low-reliability conditions, LSAM demonstrated adequate performance across all evaluated metrics. LSAM generally yielded unbiased estimates, whereas QML and LMS showed systematic bias: positive and negative bias for nonlinear effects under right-skewed distributions, and negative bias for quadratic effects under uniform distributions. UPI also produced largely unbiased results, consistent with previous findings. For standard errors, LMS and QML were the most efficient, although LSAM produced comparable results at medium and high reliability across all distributions. Coverage rates remained relatively stable for LSAM, but not for LMS, QML, or UPI. Type I error rates were within the acceptable range for LSAM and UPI under medium and high reliability across distributions, whereas LMS and QML showed marked inflation under right-skewed conditions. Finally, power was generally highest for LMS and QML, though this conclusion should be interpreted cautiously given their inflated Type I error. When Type I error was controlled, all approaches achieved desirable power levels for most effects, with the exception of quadratic effects under the uniform distribution, which remained underpowered.  
+Bias patterns resembled those observed when nonlinear effects were present, though with reduced magnitude. A notable difference emerged under the uniform distribution: LMS and QML produced unbiased quadratic estimates but biased interaction estimates, which disappeared at high reliability. RMSE results showed no substantive differences beyond reduced magnitude. The accuracy of SEs was generally comparable to the presence condition, with one key exception: UPI demonstrated improved accuracy under normality at low reliability and moderate sample sizes, but performed worse under the uniform distribution at low reliability. Coverage improved somewhat when nonlinear effects were absent. Specifically, LMS and QML showed higher coverage under non-normality, though still falling below the desirable range for quadratic effects. Under the uniform distribution, however, coverage for quadratic effects improved substantially for both LMS and QML.
 
-## Result for simulation 2
+## Summary of Simulation 1
+
+With the exception of low-reliability conditions, LSAM demonstrated adequate performance across all evaluated metrics. LSAM generally yielded unbiased estimates, whereas QML and LMS exhibited systematic bias: positive and negative bias for nonlinear effects under right-skewed distributions, and negative bias for quadratic effects under uniform distributions. UPI also produced largely unbiased results. For SEs, LMS and QML were the most efficient, although LSAM achieved comparable accuracy at medium and high reliability across all distributions, particularly with large sample sizes. Coverage rates remained relatively stable for LSAM but not for LMS, QML, or UPI. Type I error rates fell within the acceptable range for LSAM and UPI, except under low reliability and uniform conditions. By contrast, LMS and QML displayed marked inflation under right-skewed distributions. Finally, power was generally highest for LMS and QML, though this finding must be interpreted cautiously given their inflated Type I error. When Type I error was controlled, all approaches achieved desirable power levels for most effects, with the exception of quadratic effects under the uniform distribution, which remained underpowered.
+
+## Result for Simulation 2
 
 ```{r results-second-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
 
-data_study_2 <- load("../Simulations/Study_2/Data/Results_Study_2_final.RData")
+data_study_2 <- load("../Simulations/Study_2/Data/Results_Study_2_final_scaling_1000.RData") # HAS TO BE CHANGED WITH NEW RESULTS
 
 results_study_2 <- CalculatePerformance_Study2(
   all_results,
@@ -281,9 +284,9 @@ get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "
 #  arrange(Method, Equation, Convergence_Rate_This_Method)
 ```
 
-Convergence issues were more pronounced in this study as expected. The UPI exhibited the poorest convergence performance under conditions with moderate sample size, low reliability, and uniform latent predictors, achieving rates of `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% with the full population model and `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% with the linear population model. These rates were consistent across both structural equations. For the normal and nonnormal conditions, convergence rates were above 95%. The QML showed better but still suboptimal convergence under the same challenging condition, with `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% (full model) and `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% (linear model). In contrast, LSAM maintained perfect convergence (`r round(get_convergence_outlier_rate_study_2("LSAM", "normal", 400, 0.4, "Full", "eta4", "convergence"), 2)`%) across all conditions.
+Convergence problems were most severe for UPI, particularly with moderate samples, low reliability, and uniform predictors. Rates fell to `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% for the full model and `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% for the linear model. QML converged more often under these conditions but still at suboptimal levels (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% for the full model; `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% for the linear model). LSAM converged perfectly in all conditions (`r round(get_convergence_outlier_rate_study_2("LSAM", "normal", 400, 0.4, "Full", "eta4", "convergence"), 2)`%). For normal and right-skewed predictors, all approaches converged above 98%, with a few exceptions (see Table B2 in Appendix B).
 
-Outlier patterns revealed substantial differences between methods. The UPI exhibited the highest outlier rates under the same problematic condition as above: `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for the linear model and `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for the full model, again with identical rates observed for both structural equations. QML demonstrated considerably lower outlier rates under this condition (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for linear, `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for full model). Notably, LSAM's highest outlier rate (`r round(get_convergence_outlier_rate_study_2("LSAM", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`%) occurred with non-normal rather than uniform distributions, showing consistent rates across both structural equations.
+Outlier rates also varied substantially across methods. UPI again performed worst under the difficult condition of uniform predictors with moderate sample size and low reliability, reaching `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for the linear model and `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for the full model. QML showed much lower outlier rates overall, with the highest occurring under right-skewed predictors (`r round(get_convergence_outlier_rate_study_2("QML", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% for the linear model), followed by uniform predictors (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% for the full model). LSAM’s highest outlier rates also occurred outside normality, with uniform predictors in the full model (`r round(get_convergence_outlier_rate_study_2("LSAM", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`%) and right-skewed predictors in the linear model (`r round(get_convergence_outlier_rate_study_2("LSAM", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`%).  
 
 ```{r plots-second-sim-study, echo=FALSE}
 
@@ -391,30 +394,38 @@ p_t1_1000_all_study_2 <- plot_type1(
 
 ### Relative Bias and RMSE When Nonlinear Effects Were Present 
 
-Figure 7 and 8 show respectively the relative bias and RMSE for all nonlinear effects across distributions with a moderate sample size. As in simulation 1, results under a large sample size were qualitatively similar (e.g., reduced MCSE and bias). Under normality, results were mixed. With low reliability, LSAM showed bias for some nonlinear effects, which improved under a medium reliability. The UPI performed similarly, while QML differed slighly with biased results mainly for the nonlinear effects within the structural model for $\eta_5$ under low reliability. Under non-normality, similar patterns emerged: LSAM showed bias for some effects at low reliability, improving at medium reliability. Notably, QML bias increased substantially compared to normality for most nonlinear effects across all reliabilities. Under uniform distribution, LSAM showed unbiased results for nearly all nonlinear effects even at low reliability. UPI and QML followed this pattern, except QML exhibited bias for all quadratic terms across reliability levels. Relative RMSE was similar across methods under normality and other distributions, with QML generally showing smaller RMSE.
+Figures 7 and 8 present relative bias and RMSE for all nonlinear effects across distributions with a moderate sample size. At larger sample sizes, Monte Carlo standard errors were reduced, and both LSAM and UPI no longer showed the biases observed under moderate sample sizes.
+
+Under normality, results were mixed. At low reliability, LSAM showed bias for some effects, which disappeared at medium reliability. UPI and QML also showed bias at low reliability, but only QML continued to exhibit bias at medium reliability. With right-skewed distributions, LSAM was biased for several nonlinear effects at low reliability, though performance improved at medium reliability, where only one effect displayed minor bias. UPI produced unbiased estimates even at low reliability. QML, however, showed substantial bias affecting most effects across all reliability levels. Under the uniform distribution, LSAM was nearly unbiased, with only two nonlinear effects biased at low reliability. UPI showed substantial bias for most nonlinear effects at low reliability, which lessened at medium reliability. QML displayed bias for some effects at low reliability, improving with higher reliability, yet all quadratic terms remained biased across reliability levels.
+
+Relative RMSE was comparable across methods under normality. With right-skewed distributions, LSAM and UPI showed the lowest RMSE at low reliability, though all methods converged at medium reliability. Under uniform predictors, QML yielded substantially lower RMSE than LSAM and UPI at low reliability, with convergence again observed at medium reliability.
 
 ### Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Present
 
-Figure 9 shows SE/SD ratios for all distributions at a moderate sample size. Results improved with increasing sample size for all approaches. Under normality, the LSAM yielded ratios within acceptable range across all reliability levels, while the QML showed the most efficient ratios. The UPI, however, exhibited ratios below 0.85 for all nonlinear effects at low reliability, improving at medium reliability. Under non-normality, LSAM and QML showed ratios within the desirable range with some exceptions for one or two nonlinear effects. The UPI struggled at low and medium reliabilities, though ratios were just slightly below 0.85 in the latter case. Under uniform distribution, LSAM showed one overestimation at low reliability, while UPI yielded underestimated ratios at low and medium reliabilities. The QML resulted in efficient ratios. 
+Figure 9 displays SE/SD ratios across distributions at a moderate sample size. Results generally improved with larger samples, except in a few cases for UPI.
+
+Under normal distributions, LSAM and QML produced ratios within the acceptable range across reliability levels, whereas UPI fell below 0.85 for several nonlinear effects at low reliability, improving for most effects at medium reliability (see Figure X in supplemental materials). With right-skewed distributions, LSAM ratios were consistently within the desirable range with only negligible deviations, QML ratios were largely acceptable with a few exceptions, and UPI again showed difficulties at low and medium reliability. Under uniform distributions, LSAM overestimated for some effects at low reliability, UPI underestimated ratios for nearly all nonlinear effects at low reliability and for quadratic effects at both low and medium reliability, while QML maintained efficient ratios across all reliabilities.
 
 ### Coverage When Nonlinear Effects Were Present
 
-Figure 10 visualizes results for a moderate sample size. For some approaches under specific conditions, we show again the exact values. Large sample size yielded qualitatively similar results. Under normality, LSAM generally produced coverage rates within acceptable deviations, though over-coverage occurred at low reliability for some effects. The QML produced coverage within the desirable range for all nonlinear effects, while UPI exhibited under-coverage at low reliability for most effects. Under non-normality, LSAM showed some fluctuations but generally yielded results within acceptable range, apart from similar over-coverage at low reliability. However, QML and UPI resulted in inadequate coverage that achieved acceptable values only at high reliability. Under uniform distribution, LSAM showed similar performance as in the other distributions, while QML and UPI showed under-coverage mainly for quadratic terms at low and medium reliabilities.
+Figure 10 presents coverage results for a moderate sample size, with exact values reported for selected conditions. Patterns were qualitatively similar at larger sample sizes.
+
+Under normality, LSAM generally achieved acceptable coverage, with some over-coverage at low reliability. QML maintained coverage within the desirable range across all nonlinear effects, whereas UPI showed under-coverage for most effects at low reliability. With right-skewed distributions, LSAM again produced acceptable coverage, apart from slight over-coverage at low reliability. In contrast, QML and UPI yielded inadequate coverage, reaching acceptable levels only at high reliability. Under uniform distributions, LSAM showed a similar pattern as in the other conditions, with modest over-coverage at low reliability. For QML and UPI, coverage for interaction terms was inadequate at low reliability but improved at medium reliability, while quadratic terms remained under-covered at both low and medium reliability.
 
 ### Type I Error Rate
 
-Figure 11 visualizes results for a large sample size. Under normal conditions, all approaches maintained type I error rates within the nominal 5% level. Under nonnormal conditions, QML produced substantially inflated type I error rates with low and moderate reliability. Under uniform distributions, all methods demonstrated acceptable type I error control.
+Figure 11 presents Type I error rates for a large sample size under right-skewed and uniform distributions.
+
+Under normality, all approaches maintained rates within the nominal 5% level (see Figure X in the supplemental materials). Under right-skewed conditions, LSAM and UPI demonstrated well-controlled Type I error rates, whereas QML showed substantial inflation for quadratic effects at low and medium reliability. Under uniform distributions, Type I error control was acceptable across methods, with the exception of LSAM, which fell below the nominal level for two quadratic terms at low reliability.
 
 ### Empirical Power
 
-Similarly as in simulation 1, results for empirical power are interpreted only when the type I error control rate was within the nominal rate. In that case, for the normal distribution, power was generally larger for the nonlinear effects within $\eta_4$, where only for a large sample size and high reliability surpassed 80%. For the non-normal condition, slightly similar results were obtained. Interestingly, power was larger for the nonlinear effects within the $\eta_5$ equation compared to the normal case. Last, for the uniform distribution, results yielded low power except for the first two interaction effects within the $\eta_4$.
+Under normal distributions, power exceeded 80% with large samples and high reliability, primarily for the nonlinear effects in the structural equation for $\eta_4$. Results under right-skewed conditions were largely comparable. In contrast, under uniform distributions, power remained substantially lower for all nonlinear effects, even with large samples and high reliability, with the exception of the two interaction terms in $\eta_4$, both of which exceeded 80% (see Figures X, X, X in the supplemental materials).
 
-**Bias and RMSE When Nonlinear Effects Were Absent.** Notable differences included reduced bias under low reliability for normality and unbiased quadratic term results for QML under uniform distribution.
+### Bias, RMSE, Standard Errors, and Coverage When Nonlinear Effects Were Absent
 
-**Efficiency and Accuracy of Standard Errors When Nonlinear Effects Were Not Present.** Results were highly similar, except LSAM showed some overestimation under uniform distribution compared to the full model for some nonlinear effects.
+Notable differences emerged across conditions. Under normality, QML showed reduced bias at low reliability. Under right-skewness, bias for QML was likewise reduced, and under the uniform distribution QML produced unbiased estimates for the quadratic terms. SE/SD ratios were highly similar across approaches, with improvements under right-skewness precisely in the cases where QML had previously struggled. Coverage improved for all approaches under normal and uniform conditions. Under non-normality, however, QML continued to exhibit under-coverage even with large sample sizes. RMSE remained similar. 
 
-**Coverage When Nonlinear Effects Were Not Present.** Coverage improved for all approaches under normal and uniform conditions. However, QML still showed undercoverage under non-normality.
+## Summary of Simulation 2
 
-## Brief discussion of simulation 2
-
-As discussed previously, scalability encompasses several components. The first concerns computational time for estimation. Although this depends heavily on software implementation details (e.g., pure R versus C++ implementations), the LMS clearly demands substantial computational resources, which is the reason for not including it, and hence it is aligned with our expectation. However, one could also argue that this computational cost may be acceptable given the potentially valuable statistical properties that LMS offers when assumptions hold. The second component concerns convergence rates. We observed that this was problematic for the UPI, with the severe issues mainly for the uniform and low reliability condition. For the QML and LSAM, convergence was generally not an issue. Related to this, outlier estimates also increased, though this occurred only for the UPI and LSAM methods. The final aspect concerns performance itself. Contrary to our expectations, the biased results for nonlinear effects in the first structural equation did not substantially influence (e.g., cascade affect) the nonlinear effects in the second structural equation. 
+Across conditions, LSAM generally yielded unbiased estimates, accurate standard errors, and acceptable coverage, with the exception of low reliability, where some bias and over-coverage emerged. UPI struggled primarily with convergence issues, substantial bias, underestimated standard errors, and under-coverage, particularly at low reliability under uniform distributions. QML was efficient and often produced accurate standard errors, but showed persistent bias for quadratic effects, inflated Type I error rates under right-skewed and uniform conditions, and under-coverage for nonlinear effects—especially quadratic terms—at low and medium reliability. Relative RMSE differences across methods were modest: QML was occasionally more efficient under uniform predictors, LSAM and UPI performed well under right-skewness, and all approaches converged at medium reliability. Type I error rates were mostly well controlled, although QML showed inflation under right-skewness and LSAM fell slightly below nominal levels for some quadratic terms under uniform predictors. In terms of power, acceptable levels ($\geq 80$%) were achieved only under normality with large samples and high reliability, primarily for nonlinear effects in the structural equation for $\eta_4$. Under uniform predictors, power remained substantially lower for all nonlinear effects, with the exception of the two interaction terms in $\eta_4$.
