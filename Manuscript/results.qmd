@@ -11,7 +11,7 @@ source("../Simulations/Study_2/Results/Results(2).R")
 
 # Results for Simulation Studies 
 
-The results reported are a subset of the findings which focused mainly on the cases when the nonlinear effects were present. The online supplemental materials include the computation time, all regression effects, complete figures and performance metrics. The same interpretation holds for both results. 
+The results reported are a subset of the findings which focused mainly on the cases when the nonlinear effects were present. The same interpretation holds for both results. 
 
 ## Results for Simulation 1
 
@@ -432,7 +432,7 @@ Under normal distributions, LSAM and QML produced ratios within the acceptable r
 
 Figure 10 presents coverage results for a moderate sample size, with exact values reported for selected conditions. 
 
-Under normality, LSAM generally achieved acceptable coverage, with some over-coverage at low reliability. QML maintained coverage within the desirable range across all nonlinear effects, whereas UPI showed under-coverage for most effects at low reliability. With right-skewed distributions, LSAM again produced acceptable coverage, apart from slight over-coverage at low reliability. In contrast, QML and UPI yielded inadequate coverage, reaching acceptable levels only at high reliability. Under uniform distributions, LSAM showed a similar pattern as in the other conditions, with modest over-coverage at low reliability. For QML and UPI, coverage for interaction terms was inadequate at low reliability but improved at medium reliability, while quadratic terms remained under-covered at both low and medium reliability. Patterns were qualitatively similar at larger sample sizes (see Figures S14, S22, and S30 in supplemental materials).
+Under normality, LSAM generally achieved acceptable coverage, with some over-coverage at low reliability. QML maintained coverage within the desirable range across all nonlinear effects, whereas UPI showed under-coverage for most effects at low reliability. With right-skewed distributions, LSAM again produced acceptable coverage, apart from slight over-coverage at low reliability. In contrast, QML and UPI yielded inadequate coverage, reaching acceptable levels only at high reliability for some effects. Under uniform distributions, LSAM showed a similar pattern as in the other conditions, with modest over-coverage at low reliability. For QML and UPI, coverage for interaction terms was inadequate at low reliability but improved at medium reliability, while quadratic terms remained under-covered at both low and medium reliability. Patterns were qualitatively similar at larger sample sizes (see Figures S14, S22, and S30 in supplemental materials).
 
 ### Type I Error Rate
 

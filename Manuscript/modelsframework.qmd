@@ -9,7 +9,7 @@ $$
 \end{aligned}
 $$ {#eq-structural}
 
-where $\boldsymbol{\eta}\in\mathbb{R}^{m}$ is a latent random vector, $\boldsymbol{\alpha}\in\mathbb{R}^{m}$ the intercepts, and $\mathbf{B}\in\mathbb{R}^{m\times m}$ a matrix with regression coefficients, where $\mathrm{diag}(\mathbf{B})=\mathbf{0}$ and $(\mathbf{I}-\mathbf{B})$ assumed to be invertible by design. For the disturbance $\boldsymbol{\zeta}\in\mathbb{R}^{m}$, we assume $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and write $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}$. Note that no distributional form is assumed here. Thus, we obtain:
+\noindent where $\boldsymbol{\eta}\in\mathbb{R}^{m}$ is a latent random vector, $\boldsymbol{\alpha}\in\mathbb{R}^{m}$ the intercepts, and $\mathbf{B}\in\mathbb{R}^{m\times m}$ a matrix with regression coefficients, where $\mathrm{diag}(\mathbf{B})=\mathbf{0}$ and $(\mathbf{I}-\mathbf{B})$ assumed to be invertible by design. For the disturbance $\boldsymbol{\zeta}\in\mathbb{R}^{m}$, we assume $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and write $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}$. Note that no distributional form is assumed here. Thus, we obtain:
 $$
 \begin{aligned}
 \mathbb{E}(\boldsymbol{\eta}) &= (\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\alpha} \\
@@ -24,7 +24,7 @@ $$
 \end{aligned}
 $$ {#eq-measurement}
 
-where $\mathbf{y}\in\mathbb{R}^{p}$ is the indicator random vector, $\boldsymbol{\nu}\in\mathbb{R}^{p}$ the intercepts, $\boldsymbol{\Lambda}\in\mathbb{R}^{p\times m}$ the loadings, and $\boldsymbol{\epsilon}\in\mathbb{R}^{p}$ the measurement errors with the assumptions that $\mathbb{E}(\boldsymbol{\epsilon})=\mathbf{0}$, 
+\noindent where $\mathbf{y}\in\mathbb{R}^{p}$ is the indicator random vector, $\boldsymbol{\nu}\in\mathbb{R}^{p}$ the intercepts, $\boldsymbol{\Lambda}\in\mathbb{R}^{p\times m}$ the loadings, and $\boldsymbol{\epsilon}\in\mathbb{R}^{p}$ the measurement errors with the assumptions that $\mathbb{E}(\boldsymbol{\epsilon})=\mathbf{0}$, 
 $\mathrm{Cov}(\boldsymbol{\eta},\boldsymbol{\epsilon})=\mathbf{0}$, and $\mathbb{E}(\boldsymbol{\epsilon}\boldsymbol{\zeta}^\top)=\mathbf{0}$. We write $\mathrm{Var}(\boldsymbol{\epsilon})=\boldsymbol{\Theta}$. The model-implied mean vector and covariance matrix of $\mathbf{y}$ are:
 $$
 \begin{aligned}
@@ -40,7 +40,7 @@ $$
 \end{aligned}
 $$
 
-and, consequently $\mathbf{y}\sim\mathcal{N}\left(\boldsymbol{\mu},\boldsymbol{\Sigma}\right)$.
+\noindent and, consequently $\mathbf{y}\sim\mathcal{N}\left(\boldsymbol{\mu},\boldsymbol{\Sigma}\right)$.
 
 ## Approaches for Estimating Latent Interactions and Quadratic Terms
 
@@ -58,7 +58,7 @@ $$
 \end{aligned}
 $$
 
-thus defining $\mathbf{f}=\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})=\boldsymbol{\eta}+\mathbf{r}$ with $\mathbf{r}=\mathbf{M}\boldsymbol{\epsilon}\in\mathbb{R}^{m}$, $\mathbb{E}(\mathbf{r})=\mathbf{0}$, and $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$. Then:
+\noindent thus defining $\mathbf{f}=\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})=\boldsymbol{\eta}+\mathbf{r}$ with $\mathbf{r}=\mathbf{M}\boldsymbol{\epsilon}\in\mathbb{R}^{m}$, $\mathbb{E}(\mathbf{r})=\mathbf{0}$, and $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$. Then:
 $$
 \begin{aligned}
 \mathbb{E}(\boldsymbol{\eta}) &= \mathbf{M}\,[\mathbb{E}(\mathbf{y})-\boldsymbol{\nu}],\\
@@ -78,17 +78,17 @@ $$
 +\boldsymbol{\Gamma}_{22}^{*(NT)}(\mathbf{r}^*)\Big],
 $$
 
-where 
+\noindent where 
 $$
 \mathbf{Q}^* = \mathrm{Var}(\boldsymbol{\eta}^*) \otimes \mathrm{Var}(\mathbf{r}^*) + \mathbb{E}(\boldsymbol{\eta}^*)\mathbb{E}(\boldsymbol{\eta}^*)^T \otimes \mathrm{Var}(\mathbf{r}^*),
 $$
 
-and
+\noindent and
 $$
 \boldsymbol{\Gamma}_{22}^{\star(NT)}(\mathbf{r}^*) = (\mathbf{I}_{(m+1)^2} + \mathbf{K}_{m+1}) (\mathrm{Var}(\mathbf{r}^*) \otimes \mathrm{Var}(\mathbf{r}^*)).
 $$
 
-Here, $\mathbf{K}_{m+1}$ denotes the commutation matrix [@magnus_neudecker_1979], while $\boldsymbol{\Gamma}_{22}^{\star(NT)}(\mathbf{r}^*)$ represents the variance–covariance component of the Gamma matrix (see Appendix B in Rosseel et al., 2025) corresponding to the measurement error $(\mathbf{r}^*)$ under the normality assumption. These estimated augmented summary statistics can then be employed in the structural regression model during the second stage of estimation.
+\noindent Here, $\mathbf{K}_{m+1}$ denotes the commutation matrix [@magnus_neudecker_1979], while $\boldsymbol{\Gamma}_{22}^{\star(NT)}(\mathbf{r}^*)$ represents the variance–covariance component of the Gamma matrix (see Appendix B in Rosseel et al., 2025) corresponding to the measurement error $(\mathbf{r}^*)$ under the normality assumption. These estimated augmented summary statistics can then be employed in the structural regression model during the second stage of estimation.
 
 **Distributional Assumptions and Performance**. Similar to the 2SMM approach, in the first stage, the LSAM inherits the CFA measurement model assumptions. Distributional assumptions in the CFA stage depend on the estimator used [@rosseel_loh_2024]. Concerning the second stage, specifically for the second-order corrections, the LSAM assumes only $\mathbf{r}\sim\mathcal{N}(\mathbf{0},\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^\top)$. No distributional assumptions are imposed on the latent predictors $\boldsymbol{\eta}$. For the local two-step standard errors, a sandwich formula for standard errors is used to account for the uncertainty across both steps. @rosseel_etall_2025 found that the LSAM performed similarly to the 2SMM. Indeed, the results showed that bias for both approaches was small under normal and non-normal conditions. The variance of the point estimates was also closely related between both approaches. Moreover, previous simulation studies investigating the 2SMM approach [@brandt_etall_2014; @wall_amemiya_2003; @wall_amemiya_2000] provide relevant benchmarks. That is, the 2SMM approach produced unbiased and efficient estimates under normal predictors, with only minor underestimation of standard errors under non-normal predictors, consistent with its robustness claims [@brandt_etall_2014; @wall_amemiya_2003]. In fact, it showed less bias than the LMS and QML under the non-normal condition for quadratic terms (see Table 9 in Brandt et al., 2014). With respect to Type I error rate and power, @brandt_etall_2014 reported that the 2SMM produced Type I error rates within the nominal level under normality with slight inflation under non-normality, whereas statistical power was approximately 70% under normality and 80% under non-normality (see Tables 6-9 in Brandt et al., 2014).
 
@@ -104,7 +104,7 @@ $$
 \end{aligned}
 $$
 
-where $\mathbf{B}_{yy}\in\mathbb{R}^{m_y\times m_y}$, $\mathbf{B}_{yx}\in\mathbb{R}^{m_y\times m_x}$.
+\noindent where $\mathbf{B}_{yy}\in\mathbb{R}^{m_y\times m_y}$, $\mathbf{B}_{yx}\in\mathbb{R}^{m_y\times m_x}$.
 
 Following @kjell_etall_2024, we write the endogenous block explicitly,
 $$
@@ -117,7 +117,7 @@ $$
 \end{aligned}
 $$ {#eq-analytical}
 
-with $\mathbf{I}_{m_y}$ the $m_y\times m_y$ identity matrix, $\boldsymbol{\Omega}\in\mathbb{R}^{m_y m_x\times m_x}$ with the coefficients for interaction effects between exogenous variables, and $\boldsymbol{\Xi}\in\mathbb{R}^{m_y m_x\times m_y}$ for interaction
+\noindent with $\mathbf{I}_{m_y}$ the $m_y\times m_y$ identity matrix, $\boldsymbol{\Omega}\in\mathbb{R}^{m_y m_x\times m_x}$ with the coefficients for interaction effects between exogenous variables, and $\boldsymbol{\Xi}\in\mathbb{R}^{m_y m_x\times m_y}$ for interaction
 effects between exogenous and endogenous variables. Equation @eq-analytical can also be expressed in reduced form [@kjell_etall_2024]
 
 Importantly, the distributional assumptions for LMS and QML are that $\boldsymbol{\eta}_x \sim \mathcal{N}(\boldsymbol{\alpha_x},\boldsymbol{\Psi}_{xx})$, $\boldsymbol{\zeta}_y \sim \mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy})$, and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$ with mutual independence between predictors and disturbances. For LMS, these assumptions are required for the exact likelihood. For QML, they serve as working assumptions to derive conditional mean and variance functions. The latter approach can still yield consistent estimates when predictors deviate from normality, as long as the conditional normality approximation is reasonable. Hence, both procedures target the same parameterization, but they differ in estimation strategy [@kelava_etall_2011]. Briefly, for the LMS, let $\boldsymbol{\Psi}_{xx}=\mathbf{A}\mathbf{A}^{\top}$ and write  $\boldsymbol{\eta}_x=\boldsymbol{\alpha_x} + \mathbf{A}\mathbf{z}$ with $\mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I}_{m_x})$. Integrating over $\boldsymbol{\eta}_x$ via Gauss–Hermite quadrature yields a finite normal–mixture approximation to $f(\mathbf{y})$. Parameters are estimated by full-information ML (EM), with standard errors from the fisher information [@klein_moosbrugger_2000]. For the QML, a fixed full-rank linear transformation $\mathbf{T}$ of $\mathbf{y}$ is applied to isolate the nonnormal component while the remaining transformed components are (conditionally) normal. In practice, this means that only one transformed indicator per nonlinear latent criterion retains nonnormality, while the remaining $p-1$ transformed indicators are jointly normal and serve as conditioning variables. A quasi log-likelihood is maximized and in @klein_muthen_2007 robust (sandwich) standard errors were proposed.  
@@ -139,8 +139,8 @@ $$
 \begin{bmatrix}\boldsymbol{\epsilon}\\ \boldsymbol{\epsilon}_p\end{bmatrix}.
 $$
 
-where $f(\boldsymbol{\eta})$ collects the latent nonlinear terms measured by $\mathbf{p}$. 
+\noindent where $f(\boldsymbol{\eta})$ collects the latent nonlinear terms measured by $\mathbf{p}$. 
 
 Under the extended UPI, the product–indicator block is unconstrained: $\boldsymbol{\Lambda}_p$ and $\mathrm{Var}(\boldsymbol{\epsilon}_p)$ are freely estimated. Additionally, residual covariances are freely estimated between product indicators that share a common constituent indicator [@kelava_brandt_2009; @marsh_etall_2004].
 
-**Distributional Assumptions and Performance**. The standard estimation approach relies on maximum likelihood (ML) [@brandt_etall_2020], which requires multivariate normality for valid inference. Yet, product indicators are intrinsically non-normal. The ML estimator itself is consistent under different distributions and achieves asymptotic normality when data follow a multivariate normal distribution [@yuan_etall_2005]. Evidence indicates that such non-normality primarily undermines the accuracy of standard errors and fit statistics (Wall & Amemiya, 2001; see Lonati et al., 2024 and references therein). Simulation studies of nonlinear effects generally show minimal parameter bias under both normal and non-normal conditions [@marsh_etall_2004; @kelava_nonlinear_2014; @lonati_etall_2024; @brandt_etall_2014]. However, standard errors are systematically underestimated [@marsh_etall_2004; @cham_etall_2012; @brandt_etall_2014; @lonati_etall_2024; @kelava_etall_2014]. Previous research has used robust standard errors to alleviate this problem, but because they are based on asymptotic theory, they remain underestimated in smaller samples [@brandt_etall_2014; @brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024]. Findings for Type I error rates are mixed: some studies report inflation [@brandt_etall_2014], while others find control close to nominal levels [@marsh_etall_2004; @cham_etall_2012]. Power has been found to be comparable to LMS and QML across both normal and non-normal conditions [@brandt_etall_2014]. Finally, it is important to note that the UPI with double mean centering has not been systematically examined in prior simulation work [@lin_etall_2010; @foldnes_hagtvet_2014].
+**Distributional Assumptions and Performance**. The standard estimation approach relies on maximum likelihood (ML) [@brandt_etall_2020], which requires multivariate normality for valid inference. Yet, product indicators are intrinsically non-normal. The ML estimator itself is consistent under different distributions and achieves asymptotic normality when data follow a multivariate normal distribution [@yuan_etall_2005]. Evidence indicates that such non-normality primarily undermines the accuracy of standard errors and fit statistics (Wall & Amemiya, 2001; see Lonati et al., 2024 and references therein). Simulation studies of nonlinear effects generally show minimal parameter bias under both normal and non-normal conditions [@marsh_etall_2004; @kelava_etall_2014; @lonati_etall_2024; @brandt_etall_2014]. However, standard errors are systematically underestimated [@marsh_etall_2004; @cham_etall_2012; @brandt_etall_2014; @lonati_etall_2024; @kelava_etall_2014]. Previous research has used robust SEs to alleviate this problem, but because they are based on asymptotic theory, they remain underestimated in smaller samples [@brandt_etall_2014; @brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024]. Findings for Type I error rates are mixed: some studies report inflation [@brandt_etall_2014], while others find control close to nominal levels [@marsh_etall_2004; @cham_etall_2012]. Power was comparable to LMS and QML across both normal and non-normal conditions [@brandt_etall_2014]. Finally, it is important to note that the UPI with double mean centering has not been systematically examined in prior simulation work [@lin_etall_2010; @foldnes_hagtvet_2014].
