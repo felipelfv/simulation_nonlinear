@@ -1,42 +1,53 @@
-#### 1. General Information ####
+############################ 1. General Information ############################
+# Debug version of GenerateData function - VITA only version
+# This version includes extensive debugging output to trace the data generation process
+# Supports: normal, non-normal (via gamma distribution), and uniform
 
-# This file contains the function for generating the datasets based on the 
-# lavaan-syntax based models. It is literally the same as the original function
-# used in the simulations. The only difference is that here I have some debug 
-# and checks throughout the lines to ensure that I did things correctly, as the 
-# function got incrementally more complex (personal statement), and I added much 
-# more information that actually needed for understanding the function. This 
-# amout of visual information could hinder understanding from others. Hence,
-# this is the reason for creating and adding this to a separate script. 
+#' @param model A lavaan-based model syntax string specifying the structural equation model.
+#' @param N Integer. Sample size for the generated dataset. Default is 1000L.
+#' @param distr.exo Character. Distribution for exogenous variables. 
+#'   Options: "normal" (default), "nonnormal", "uniform"
+#' @param nonnormal.shape Numeric vector. Shape parameters for non-normal distributions.
+#'   For gamma distribution: higher shape = less skewed. Default is c(1, 1, ...).
+#'   Length must match number of exogenous variables.
+#' @param nonnormal.rate Numeric vector. Rate parameters for non-normal distributions.
+#'   For gamma distribution: controls scale. Default is c(1, 1, ...).
+#'   Length must match number of exogenous variables.
+#' @param exo.mean Numeric vector. Mean values for exogenous variables. Default is NULL.
+#' @param distr.zeta Character. Distribution for structural residuals. Options: "normal" (default), "exp.rate1"
+#' @param distr.epsilon Character. Distribution for measurement errors. Options: "normal" (default), "exp.rate1"
+#' @param center.exogenous.latent Logical. Whether to center exogenous latent variables. Default is FALSE.
+#' @param center.exogenous.manifest Logical. Whether to center exogenous manifest variables. Default is FALSE.
+#' @param center.lv.dependent Logical. Whether to center dependent latent variables. Default is FALSE.
+#' @param center.lv.prod Logical. Whether to center latent variable products/interactions. Default is FALSE.
+#' @param center.indicators Logical. Whether to center indicator variables. Default is FALSE.
+#' @param seed Integer. Random seed for reproducibility. Default is NULL.
+#' @param add.eta Logical. Whether to include latent variables (eta) in the output dataset. Default is FALSE.
+#' @param return.info Logical. Whether to return additional model information as attributes. Default is TRUE.
+#' @param verbose Logical. Whether to print detailed debugging information. Default is FALSE.
 
-# In 2, we have the debug versio for our function. In 3, we have a chunk for
-# generating a single time data to check the debug messages. The parameters 
-# can be varied. It is just for testing purposes. In 4, I generate data for all
-# conditions and store the information concerning target.var. This was initially 
-# done because I wanted to check how many conditions would imply a dataset in 
-# which the variance for eta3 was above the specified value (i.e., 1).
+# Packages needed for this script:
+# library(lavaan); library(covsim); library(rvinecopulib)
 
-#### 2. Debug version for GenerateData() ####
+############################### 2. Debug Function ##############################
 
 GenerateData <- function(model, 
                          N = 1000L,
-                         skewness = NULL,
-                         excesskurtosis = NULL,
+                         distr.exo = "normal",
+                         nonnormal.shape = NULL,
+                         nonnormal.rate = NULL,
                          exo.mean = NULL,
-                         distr.exo = "rIG",
                          distr.zeta = "normal",
                          distr.epsilon = "normal",
-                         center.exogenous.latent = TRUE,
-                         center.exogenous.manifest = TRUE,
+                         center.exogenous.latent = FALSE,
+                         center.exogenous.manifest = FALSE,
                          center.lv.dependent = FALSE,
                          center.lv.prod = FALSE,
                          center.indicators = FALSE,
-                         target.var = NULL,
-                         R2 = NULL,
-                         rel = 0.64,
                          seed = NULL,
                          add.eta = FALSE,
-                         verbose = FALSE) {  # Added verbose parameter
+                         return.info = TRUE,
+                         verbose = FALSE) {
   
   if(!is.null(seed)) set.seed(seed)
   
@@ -47,681 +58,1105 @@ GenerateData <- function(model,
     }
   }
   
-  print_debug("\n=== Starting Data Generation Process ===")
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Starting VITA-Based Data Generation Process ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  print_debug(sprintf("Sample size: %d", N))
+  print_debug(sprintf("Distribution for exogenous: %s", distr.exo))
+  print_debug(sprintf("Distribution for zeta: %s", distr.zeta))
+  print_debug(sprintf("Distribution for epsilon: %s", distr.epsilon))
+  print_debug(sprintf("Seed: %s", ifelse(is.null(seed), "NULL", as.character(seed))))
   
-  ###################################
-  ######## Model Information ########
-  ###################################
+  # Check for required packages
+  if(!requireNamespace("covsim", quietly = TRUE)) {
+    stop("Package 'covsim' is required. Please install it.")
+  }
+  if(!requireNamespace("rvinecopulib", quietly = TRUE)) {
+    stop("Package 'rvinecopulib' is required. Please install it.")
+  }
   
-  print_debug("\n=== Step 1: Parsing Model Information ===")
+  ##============================================================================
+  ## MODEL INFORMATION
+  ##============================================================================
   
-  # Lavaan's parsed model information
-  fit <- lavaan::sam(model) # Fit the model without any data
-  pt <- lavaan::parTable(fit) # Parameters table of the fitted model
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 1: Parsing Model Information ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
   
-  # Structural model information
+  # lavaan's parsed model information
+  fit <- lavaan::sam(model)
+  pt <- lavaan::parTable(fit)
+  
+  print_debug("Model fitted successfully with sam()")
+  print_debug(sprintf("Number of parameters in parTable: %d", nrow(pt)))
+  
+  # structural model information
   model_info <- list(structural = list(
     dependent = character(), 
-    exogenous = character(), # "Pure" independent
+    exogenous = character(),
     equations = list(),
     coefficients = list(),
     interactions = list(),
-    generation_order = NULL # Important for tracing the path of each variable
+    generation_order = NULL
   ))
   
-  # Process structural model
-  model_info$structural$dependent <- unique(pt$lhs[pt$op == "~"]) # Store all dependent variables
-  print_debug("Dependent variables identified:")
-  print_debug(paste("- ", model_info$structural$dependent, collapse = "\n"))
+  # process structural model
+  model_info$structural$dependent <- unique(pt$lhs[pt$op == "~"])
+  print_debug("\nDependent variables identified:")
+  print_debug(paste("  ", model_info$structural$dependent, collapse = "\n"))
   
-  # Process equations, coefficients, and interactions 
-  for(dv in model_info$structural$dependent) { # For each dependent variable
+  # process equations, coefficients, and interactions 
+  for(dv in model_info$structural$dependent) {
     print_debug(sprintf("\nProcessing equations for: %s", dv))
-    eq_rows <- pt$op == "~" & pt$lhs == dv # Select the predictors
-    # Store equations and coefficients for each dependent 
+    eq_rows <- pt$op == "~" & pt$lhs == dv
     model_info$structural$equations[[dv]] <- pt$rhs[eq_rows]
-    model_info$structural$coefficients[[dv]] <- pt$est[eq_rows] # Coefficients associated with each predictor
+    model_info$structural$coefficients[[dv]] <- pt$est[eq_rows]
     
-    print_debug("Predictors:")
+    print_debug("  Predictors:")
     for(i in seq_along(model_info$structural$equations[[dv]])) {
-      print_debug(sprintf("- %s: %.4f", 
+      print_debug(sprintf("    %s: coefficient = %.4f", 
                           model_info$structural$equations[[dv]][i], 
                           model_info$structural$coefficients[[dv]][i]))
     }
     
-    # Interactions 
-    dv_interactions <- intersect( # Rows in both x and y 
+    # interactions 
+    dv_interactions <- intersect(
       pt$rhs[eq_rows],
       c(fit@pta$vnames$lv.interaction[[1]], fit@pta$vnames$ov.interaction[[1]])
     )
-    if (length(dv_interactions) > 0) { # Just to keep the output clean from the parsed model
-      model_info$structural$interactions[[dv]] <- dv_interactions # So, if no interaction, nothing instead of character(0) showing
-      print_debug("Interactions:")
-      print_debug(paste("- ", dv_interactions, collapse = "\n"))
+    if (length(dv_interactions) > 0) {
+      model_info$structural$interactions[[dv]] <- dv_interactions
+      print_debug("  Interactions:")
+      print_debug(paste("    ", dv_interactions, collapse = "\n"))
     }
   }
   
-  # All base variables (main and involved in interactions) - this is relevant for the "B" matrix(!)
-  # Reasoning: there could be interaction among observed and latent, there could be interaction among latents that are not single predictors for any dependent
+  # all base variables
   base_vars <- c(
-    fit@pta$vnames$lv.regular[[1]], # Latent variables
-    setdiff(fit@pta$vnames$ov[[1]], fit@pta$vnames$ov.ind[[1]]) # Observed variables
+    fit@pta$vnames$lv.regular[[1]],
+    setdiff(fit@pta$vnames$ov[[1]], fit@pta$vnames$ov.ind[[1]])
   )
   
   print_debug("\nBase variables identified:")
-  print_debug(paste("- ", base_vars, collapse = "\n"))
+  print_debug(paste("  ", base_vars, collapse = "\n"))
   
-  # "B" matrix instead of lavaan::lavInspect(fit, "est")$beta
-  # Reason: Im not interested in the coefficients. Im just interested about which variables are "connected". The "1" will show me that
-  B <- matrix(NA, nrow = length(base_vars), ncol = length(base_vars)) # NA´s better than 0´s
+  # "B" matrix
+  B <- matrix(NA, nrow = length(base_vars), ncol = length(base_vars))
   rownames(B) <- colnames(B) <- base_vars
   
-  # Process each regression equation to get dependencies
-  for(dv in model_info$structural$dependent) { # obtained from above with unique(pt$lhs[pt$op == "~"])
-    rhs_terms <- pt$rhs[pt$op == "~" & pt$lhs == dv] # Predictors for each dependent
+  # process each regression equation to get dependencies
+  for(dv in model_info$structural$dependent) {
+    rhs_terms <- pt$rhs[pt$op == "~" & pt$lhs == dv]
     
-    for(i in rhs_terms) { # For all predictors for each dependent 
-      # Split the term if interaction (very important!)
-      components <- unlist(strsplit(rhs_terms, ":"))
-      for(comp in components) { # And add the dependency information with 1
-        if(comp %in% base_vars) { # So we get main effects and any variables involved in interactions
-          B[dv, comp] <- 1 # Those will have 1
+    for(term in rhs_terms) {
+      components <- unlist(strsplit(term, ":"))
+      for(comp in components) {
+        if(comp %in% base_vars) {
+          B[dv, comp] <- 1
         }
       }
     }
   }
   
   print_debug("\nDependency matrix B created")
-  if(verbose) print(B)
+  if(verbose) {
+    print_debug("B matrix (1 = dependency, NA = no dependency):")
+    print(B)
+  }
   
-  # Ancestors 
-  ancestors <- lavaan:::lav_utils_get_ancestors(B) # List for each variable in the "B" matrix
+  # ancestors 
+  ancestors <- lavaan:::lav_utils_get_ancestors(B)
   names(ancestors) <- rownames(B)
-  ancestor_lengths <- sapply(ancestors, length) # This is the crucial part that works perfectly with lav_utils_get_ancestors 
-  # Exogenous variables
-  model_info$structural$exogenous <- names(ancestor_lengths)[ancestor_lengths == 0] # 0 ancestors
-  # Generation order
-  model_info$structural$generation_order <- names(ancestor_lengths)[order(ancestor_lengths)] # based on ancestors order given by the length
+  ancestor_lengths <- sapply(ancestors, length)
   
-  print_debug("\nExogenous variables identified:")
-  print_debug(paste("- ", model_info$structural$exogenous, collapse = "\n"))
-  
-  print_debug("\nGeneration order determined:")
-  print_debug(paste("- ", model_info$structural$generation_order, collapse = "\n"))
-  
-  #################################
-  ######## Data Generation ########
-  #################################
-  
-  print_debug("\n=== Step 2: Preparing Data Generation ===")
-  
-  # Matrix for all variables
-  # Maybe just $eqs.y[[1]] and $eqs.x[[1]] is enough?
-  # Also add indicators already?
-  all_vars <- c(fit@pta$vnames$lv.regular[[1]], # Regular latent variables
-                fit@pta$vnames$lv.interaction[[1]], # Interaction terms
-                setdiff(fit@pta$vnames$ov[[1]], 
-                        fit@pta$vnames$ov.ind[[1]])) # Observed variables
-  
-  print_debug("All variables to be generated:")
-  print_debug(paste("- ", all_vars, collapse = "\n"))
-  
-  # Also, matrix instead of data frame: to be confirmed with Yves
-  Values <- matrix(NA, nrow = N, ncol = length(all_vars))
-  colnames(Values) <- all_vars
-  # Could also just skip the matrix initialization here actually..
-  
-  print_debug("\n=== Step 3: Generating Exogenous Variables ===")
-  
-  # GENERATE ALL EXOGENOUS VARIABLES AT ONCE WITH rIG
-  # Important: Add check related to variance as Yves has (comment in 06/12/24)
-  exo_vars <- model_info$structural$exogenous
-  psi_matrix <- lavaan::lavInspect(fit, "est")$psi # For (co)variances among exogenous
-  # Extract the exogenous variables in PSI
-  exo.vcov <- psi_matrix[exo_vars, exo_vars, drop = FALSE]
-  
-  print_debug("Exogenous variables covariance matrix:")
-  if(verbose) print(exo.vcov)
-  
-  for(i in 1:nrow(exo.vcov)) { 
-    if(is.na(exo.vcov[i,i])) { # If variance left unspecified
-      print_debug(sprintf("Setting unspecified variance for %s to 1", rownames(exo.vcov)[i]))
-      exo.vcov[i,i] <- 1 # We set to 1. Otherwise, the value given in the model is retained
+  print_debug("\nAncestor analysis:")
+  for(var in names(ancestors)) {
+    if(length(ancestors[[var]]) > 0) {
+      print_debug(sprintf("  %s has %d ancestor(s): %s", 
+                          var, length(ancestors[[var]]), 
+                          paste(ancestors[[var]], collapse = ", ")))
+    } else {
+      print_debug(sprintf("  %s has 0 ancestors (exogenous)", var))
     }
   }
   
-  print_debug(sprintf("\nGenerating exogenous variables using '%s' distribution", distr.exo))
+  # exogenous variables
+  model_info$structural$exogenous <- names(ancestor_lengths)[ancestor_lengths == 0]
+  # generation order
+  model_info$structural$generation_order <- names(ancestor_lengths)[order(ancestor_lengths)]
   
-  # Function to generate exogenous variables
-  generate_exo <- function() {
-    if(distr.exo == "unif") {
-      # "NAIVE" approach; ignoring copulas
-      # For uniform distribution as in GAPI article
-      print_debug("Generating with uniform distribution")
-      Z <- MASS::mvrnorm(N, mu = rep(0, ncol(exo.vcov)), Sigma = exo.vcov)
-      EXO <- pnorm(Z) # Transform into an uniform distribution
-      sd_desired <- sqrt(diag(exo.vcov)) # sd (from diag of cov matrix)
-      scaling <- sqrt(12) * sd_desired
-      EXO <- EXO - 0.5 # Center all variables by subtracting 0.5
-      # Scale by multiplying each column by its scaling factor:
-      EXO <- sweep(EXO, MARGIN = 2, STATS = scaling, FUN = "*")
-    } else {
-      print_debug("Generating with rIG")
-      EXO <- covsim::rIG(N, sigma = exo.vcov, skewness = skewness, 
-                         excesskurtosis = excesskurtosis)[[1]] # Correlations are as given now!
+  print_debug("\nExogenous variables identified:")
+  print_debug(paste("  ", model_info$structural$exogenous, collapse = "\n"))
+  
+  print_debug("\nGeneration order determined:")
+  for(i in seq_along(model_info$structural$generation_order)) {
+    var <- model_info$structural$generation_order[i]
+    print_debug(sprintf("  %d. %s (%d ancestor%s)", 
+                        i, var, ancestor_lengths[var],
+                        ifelse(ancestor_lengths[var] == 1, "", "s")))
+  }
+  
+  ##============================================================================
+  ## EXTRACT ALL RESIDUAL VARIANCES FROM MODEL
+  ##============================================================================
+  
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 2: Extracting Fixed Residual Variances ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
+  # residual variances specified in the model
+  residual_rows <- pt[pt$op == "~~" & pt$lhs == pt$rhs, ]
+  all_residual_vars <- setNames(residual_rows$est, residual_rows$lhs)
+  
+  print_debug(sprintf("Total residual variances found: %d", length(all_residual_vars)))
+  
+  # distinguish structural and indicator residual variances
+  indicator_vars <- fit@pta$vnames$ov.ind[[1]]
+  structural_residual_vars <- all_residual_vars[!names(all_residual_vars) %in% indicator_vars]
+  indicator_residual_vars <- all_residual_vars[names(all_residual_vars) %in% indicator_vars]
+  
+  print_debug("\nStructural residual variances:")
+  if(length(structural_residual_vars) > 0) {
+    for(var in names(structural_residual_vars)) {
+      print_debug(sprintf("  %s: %.4f", var, structural_residual_vars[var]))
     }
+  } else {
+    print_debug("  None specified")
+  }
+  
+  print_debug("\nIndicator residual variances:")
+  if(length(indicator_residual_vars) > 0) {
+    for(var in names(indicator_residual_vars)) {
+      print_debug(sprintf("  %s: %.4f", var, indicator_residual_vars[var]))
+    }
+  } else {
+    print_debug("  None specified")
+  }
+  
+  ##============================================================================
+  ## DATA GENERATION
+  ##============================================================================
+  
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 3: Initializing Data Structures ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
+  # matrix for all variables
+  all_vars <- c(fit@pta$vnames$lv.regular[[1]],
+                fit@pta$vnames$lv.interaction[[1]],
+                setdiff(fit@pta$vnames$ov[[1]], 
+                        fit@pta$vnames$ov.ind[[1]]))
+  
+  Values <- matrix(NA, nrow = N, ncol = length(all_vars))
+  colnames(Values) <- all_vars
+  
+  print_debug(sprintf("Values matrix initialized: %d x %d", nrow(Values), ncol(Values)))
+  print_debug(sprintf("Variables: %s", paste(all_vars, collapse = ", ")))
+  
+  ##============================================================================
+  ## GENERATE EXOGENOUS VARIABLES USING VITA
+  ##============================================================================
+  
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 4: Generating Exogenous Variables (VITA) ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
+  exo_vars <- model_info$structural$exogenous
+  n_exo <- length(exo_vars)
+  
+  print_debug(sprintf("Number of exogenous variables: %d", n_exo))
+  print_debug(sprintf("Exogenous variables: %s", paste(exo_vars, collapse = ", ")))
+  
+  # get covariance matrix from model
+  psi_matrix <- lavaan::lavInspect(fit, "est")$psi
+  exo.vcov <- psi_matrix[exo_vars, exo_vars, drop = FALSE]
+  
+  print_debug("\nModel-specified covariance matrix for exogenous variables:")
+  if(verbose) {
+    print(round(exo.vcov, 4))
+  }
+  
+  # fill in missing diagonal elements
+  for(i in 1:nrow(exo.vcov)) { 
+    if(is.na(exo.vcov[i,i])) {
+      exo.vcov[i,i] <- 1
+      print_debug(sprintf("  WARNING: Missing variance for %s - set to 1", exo_vars[i]))
+    }
+  }
+  
+  # helper to calculate variance from marginal
+  calc_marginal_var <- function(margin) {
+    distr <- margin$distr
+    
+    if(distr == "norm") {
+      return(margin$sd^2)
+    } else if(distr == "gamma") {
+      return(margin$shape / margin$rate^2)
+    } else if(distr == "unif") {
+      return((margin$max - margin$min)^2 / 12)
+    } else {
+      stop(paste("Variance formula not implemented for distribution:", distr))
+    }
+  }
+  
+  # generate exogenous variables using VITA
+  generate_exo <- function() {
+    
+    print_debug(sprintf("\nGenerating exogenous variables with distribution: %s", distr.exo))
+    
+    if(distr.exo == "normal") {
+      # normal distributions with variance matching model
+      print_debug("  Setting up normal marginals...")
+      margins_list <- lapply(1:n_exo, function(i) {
+        margin <- list(
+          distr = "norm",
+          mean = 0,  # adjusted later if exo.mean provided
+          sd = sqrt(exo.vcov[i, i])
+        )
+        print_debug(sprintf("    %s: mean=%.4f, sd=%.4f, var=%.4f", 
+                            exo_vars[i], margin$mean, margin$sd, exo.vcov[i, i]))
+        margin
+      })
+      
+    } else if(distr.exo == "nonnormal") {
+      # gamma distributions (skewed, heavy-tailed)
+      print_debug("  Setting up gamma (non-normal) marginals...")
+      
+      if(is.null(nonnormal.shape)) {
+        nonnormal.shape <- rep(1, n_exo)
+        print_debug("    Using default shape parameters: all set to 1")
+      }
+      if(is.null(nonnormal.rate)) {
+        nonnormal.rate <- rep(1, n_exo)
+        print_debug("    Using default rate parameters: all set to 1")
+      }
+      
+      if(length(nonnormal.shape) != n_exo) {
+        stop(paste("nonnormal.shape must have length", n_exo))
+      }
+      if(length(nonnormal.rate) != n_exo) {
+        stop(paste("nonnormal.rate must have length", n_exo))
+      }
+      
+      print_debug("  Gamma distribution parameters:")
+      margins_list <- lapply(1:n_exo, function(i) {
+        margin <- list(
+          distr = "gamma",
+          shape = nonnormal.shape[i],
+          rate = nonnormal.rate[i]
+        )
+        
+        # theoretical moments
+        gamma_mean <- margin$shape / margin$rate
+        gamma_var <- margin$shape / margin$rate^2
+        gamma_skew <- 2 / sqrt(margin$shape)
+        gamma_kurt <- 6 / margin$shape
+        
+        print_debug(sprintf("    %s: shape=%.2f, rate=%.2f", exo_vars[i], margin$shape, margin$rate))
+        print_debug(sprintf("      Natural mean=%.4f, var=%.4f", gamma_mean, gamma_var))
+        print_debug(sprintf("      Skewness=%.4f, Excess kurtosis=%.4f", gamma_skew, gamma_kurt))
+        
+        margin
+      })
+      
+    } else if(distr.exo == "uniform") {
+      # uniform distributions with variance matching model
+      print_debug("  Setting up uniform marginals...")
+      print_debug("  Using symmetric bounds: [-sqrt(3*v), sqrt(3*v)] for variance v")
+      
+      margins_list <- lapply(1:n_exo, function(i) {
+        var_target <- exo.vcov[i, i]
+        half_range <- sqrt(3 * var_target)
+        margin <- list(
+          distr = "unif",
+          min = -half_range,
+          max = half_range
+        )
+        
+        unif_var <- (margin$max - margin$min)^2 / 12
+        
+        print_debug(sprintf("    %s: min=%.4f, max=%.4f, range=%.4f", 
+                            exo_vars[i], margin$min, margin$max, margin$max - margin$min))
+        print_debug(sprintf("      Target var=%.4f, Actual var=%.4f", var_target, unif_var))
+        
+        margin
+      })
+      
+    } else {
+      stop(paste("Unknown distr.exo option:", distr.exo))
+    }
+    
+    # calculate variances from marginals
+    marginal_vars <- sapply(margins_list, calc_marginal_var)
+    
+    print_debug("\nMarginal variances from distribution specifications:")
+    for(i in 1:n_exo) {
+      print_debug(sprintf("  %s: %.4f", exo_vars[i], marginal_vars[i]))
+    }
+    
+    # get correlation structure from model covariance
+    D_diag <- diag(exo.vcov)
+    cor_matrix <- exo.vcov / sqrt(outer(D_diag, D_diag))
+    
+    print_debug("\nCorrelation structure from model:")
+    if(verbose) {
+      print(round(cor_matrix, 4))
+    }
+    
+    # build covariance matrix with marginal variances
+    D <- diag(sqrt(marginal_vars))
+    adjusted_cov <- D %*% cor_matrix %*% D
+    
+    print_debug("\nAdjusted covariance matrix for VITA:")
+    if(verbose) {
+      print(round(adjusted_cov, 4))
+    }
+    
+    # create VITA distribution
+    print_debug("\nCreating VITA distribution...")
+    vitadist <- covsim::vita(margins_list, adjusted_cov, verbose = FALSE, Nmax = 10^6)
+    print_debug("  VITA distribution created successfully")
+    
+    # generate data
+    print_debug(sprintf("  Generating %d observations...", N))
+    EXO <- rvinecopulib::rvine(n = N, vine = vitadist)
+    print_debug("  Data generation complete")
+    
+    # check generated data before shifting
+    print_debug("\nGenerated data (before shifting):")
+    for(i in 1:ncol(EXO)) {
+      print_debug(sprintf("  Variable %d: mean=%.4f, var=%.4f, min=%.4f, max=%.4f", 
+                          i, mean(EXO[,i]), var(EXO[,i]), min(EXO[,i]), max(EXO[,i])))
+    }
+    
+    # SHIFTING FOR NON-NORMAL DISTRIBUTIONS
+    if(distr.exo == "nonnormal") {
+      print_debug("\nShifting non-normal distributions to center at 0...")
+      for(i in 1:ncol(EXO)) {
+        natural_mean <- nonnormal.shape[i] / nonnormal.rate[i]
+        mean_before <- mean(EXO[, i])
+        EXO[, i] <- EXO[, i] - natural_mean
+        mean_after <- mean(EXO[, i])
+        
+        print_debug(sprintf("  %s: natural mean=%.4f, shifted %.4f -> %.6f", 
+                            exo_vars[i], natural_mean, mean_before, mean_after))
+      }
+    } else {
+      print_debug("\nNo shifting needed (normal/uniform already centered at 0)")
+    }
+    
+    # check generated data after shifting
+    print_debug("\nGenerated data (after shifting):")
+    for(i in 1:ncol(EXO)) {
+      gen_skew <- moments::skewness(EXO[,i])
+      gen_kurt <- moments::kurtosis(EXO[,i]) - 3  # excess kurtosis
+      
+      print_debug(sprintf("  %s: mean=%.6f, var=%.4f, sd=%.4f", 
+                          exo_vars[i], mean(EXO[,i]), var(EXO[,i]), sd(EXO[,i])))
+      print_debug(sprintf("         skewness=%.4f, excess kurtosis=%.4f", 
+                          gen_skew, gen_kurt))
+    }
+    
     EXO
   }
   
-  # Generate initial EXO
+  # generate exogenous variables
   EXO <- generate_exo()
   
-  # Check variances: if they are too large (>2times the intended value)
-  if(any(apply(EXO, 2, var) > 2 * diag(exo.vcov))) {
-    # Identify which variables have large variances
-    var_ratios <- apply(EXO, 2, var) / diag(exo.vcov)
-    problem_vars <- exo_vars[var_ratios > 2]
-    
-    for(var in problem_vars) {
-      idx <- which(exo_vars == var)
-      print_debug(sprintf("Variable %s has variance %.4f which is %.2f times the intended variance %.4f", 
-                          var, var(EXO[,idx]), var_ratios[idx], diag(exo.vcov)[idx]))
-    }
-    
-    print_debug("Regenerating exogenous variables")
-    EXO <- generate_exo()
-    
-    # Obtained covariance matrix after regeneration
-    obtained_cov <- cov(EXO)
-    print_debug("Obtained covariance matrix after regeneration:")
-    print_debug(round(obtained_cov, 4))
+  # ensure it's a matrix
+  if(!is.matrix(EXO)) {
+    EXO <- as.matrix(EXO)
   }
   
   colnames(EXO) <- exo_vars
   
-  print_debug("\n=== Step 4: Centering Exogenous Variables ===")
+  print_debug("\nExogenous variable matrix created:")
+  print_debug(sprintf("  Dimensions: %d x %d", nrow(EXO), ncol(EXO)))
+  print_debug(sprintf("  Variables: %s", paste(colnames(EXO), collapse = ", ")))
   
-  # Would we ever center one and not the other? I believe rarely but I have both options 
+  ##============================================================================
+  ## CENTER EXOGENOUS VARIABLES (IF REQUESTED)
+  ##============================================================================
+  
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 5: Centering/Adjusting Exogenous Variables ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
+  # center exogenous variables
   eta_cols <- grep("eta", exo_vars, value = TRUE)
-  if(center.exogenous.latent) {
-    print_debug("Centering latent exogenous variables:")
+  manifest_cols <- setdiff(exo_vars, eta_cols)
+  
+  print_debug(sprintf("Latent exogenous variables (eta): %s", 
+                      ifelse(length(eta_cols) > 0, paste(eta_cols, collapse = ", "), "none")))
+  print_debug(sprintf("Manifest exogenous variables: %s", 
+                      ifelse(length(manifest_cols) > 0, paste(manifest_cols, collapse = ", "), "none")))
+  
+  if(center.exogenous.latent && length(eta_cols) > 0) {
+    print_debug("\nCentering latent exogenous variables:")
     for(col in eta_cols) {
-      print_debug(sprintf("\nProcessing %s:", col))
+      mean_before <- mean(EXO[, col])
       first_val_before <- EXO[1, col]
-      current_mean <- mean(EXO[, col])
-      EXO[, col] <- EXO[, col] - current_mean
+      
+      EXO[, col] <- EXO[, col] - mean_before
+      
+      mean_after <- mean(EXO[, col])
       first_val_after <- EXO[1, col]
       
-      print_debug(sprintf("- First value before centering: %.6f", first_val_before))
-      print_debug(sprintf("- Mean used for centering: %.6f", current_mean))
-      print_debug(sprintf("- First value after centering: %.6f", first_val_after))
-      print_debug(sprintf("- Verification: %.6f - %.6f = %.6f", 
-                          first_val_before, current_mean, first_val_after))
-      print_debug(sprintf("- New mean (should be ~0): %.10f", mean(EXO[, col])))
+      print_debug(sprintf("  %s:", col))
+      print_debug(sprintf("    Mean before: %.6f", mean_before))
+      print_debug(sprintf("    Mean after: %.10f", mean_after))
+      print_debug(sprintf("    First value: %.6f -> %.6f (diff: %.6f)", 
+                          first_val_before, first_val_after, first_val_after - first_val_before))
     }
-  } else if(!is.null(exo.mean)) {
-    print_debug("Adding means to latent exogenous variables:")
+  } else if(!is.null(exo.mean) && length(eta_cols) > 0) {
+    print_debug("\nAdjusting latent exogenous means:")
     for(i in seq_along(eta_cols)) {
-      print_debug(sprintf("\nProcessing %s:", eta_cols[i]))
-      first_val_before <- EXO[1, eta_cols[i]]
-      mean_val <- exo.mean[i]
-      EXO[, eta_cols[i]] <- EXO[, eta_cols[i]] + mean_val
-      first_val_after <- EXO[1, eta_cols[i]]
-      
-      print_debug(sprintf("- First value before adding mean: %.6f", first_val_before))
-      print_debug(sprintf("- Mean value added: %.6f", mean_val))
-      print_debug(sprintf("- First value after adding mean: %.6f", first_val_after))
-      print_debug(sprintf("- Verification: %.6f + %.6f = %.6f", 
-                          first_val_before, mean_val, first_val_after))
-    }
-  }
-  
-  manifest_cols <- setdiff(exo_vars, eta_cols) # All rows in x not in y
-  if(center.exogenous.manifest) {
-    print_debug("Centering manifest exogenous variables:")
-    for(col in manifest_cols) {
-      print_debug(sprintf("\nProcessing %s:", col))
+      col <- eta_cols[i]
+      mean_before <- mean(EXO[, col])
       first_val_before <- EXO[1, col]
-      current_mean <- mean(EXO[, col])
-      EXO[, col] <- EXO[, col] - current_mean
+      
+      EXO[, col] <- EXO[, col] + exo.mean[i]
+      
+      mean_after <- mean(EXO[, col])
       first_val_after <- EXO[1, col]
       
-      print_debug(sprintf("- First value before centering: %.6f", first_val_before))
-      print_debug(sprintf("- Mean used for centering: %.6f", current_mean))
-      print_debug(sprintf("- First value after centering: %.6f", first_val_after))
-      print_debug(sprintf("- Verification: %.6f - %.6f = %.6f", 
-                          first_val_before, current_mean, first_val_after))
-      print_debug(sprintf("- New mean (should be ~0): %.10f", mean(EXO[, col])))
+      print_debug(sprintf("  %s:", col))
+      print_debug(sprintf("    Added mean: %.6f", exo.mean[i]))
+      print_debug(sprintf("    Mean before: %.6f", mean_before))
+      print_debug(sprintf("    Mean after: %.6f", mean_after))
+      print_debug(sprintf("    First value: %.6f -> %.6f", first_val_before, first_val_after))
     }
-  } else if(!is.null(exo.mean)) {
-    print_debug("Adding means to manifest exogenous variables:")
-    offset = length(eta_cols)
-    for(i in seq_along(manifest_cols)) {
-      print_debug(sprintf("\nProcessing %s:", manifest_cols[i]))
-      first_val_before <- EXO[1, manifest_cols[i]]
-      mean_val <- exo.mean[i + offset]
-      EXO[, manifest_cols[i]] <- EXO[, manifest_cols[i]] + mean_val
-      first_val_after <- EXO[1, manifest_cols[i]]
-      
-      print_debug(sprintf("- First value before adding mean: %.6f", first_val_before))
-      print_debug(sprintf("- Mean value added: %.6f", mean_val))
-      print_debug(sprintf("- First value after adding mean: %.6f", first_val_after))
-      print_debug(sprintf("- Verification: %.6f + %.6f = %.6f", 
-                          first_val_before, mean_val, first_val_after))
-    }
+  } else {
+    print_debug("\nNo centering/adjustment for latent exogenous variables")
   }
   
+  if(center.exogenous.manifest && length(manifest_cols) > 0) {
+    print_debug("\nCentering manifest exogenous variables:")
+    for(col in manifest_cols) {
+      mean_before <- mean(EXO[, col])
+      first_val_before <- EXO[1, col]
+      
+      EXO[, col] <- EXO[, col] - mean_before
+      
+      mean_after <- mean(EXO[, col])
+      first_val_after <- EXO[1, col]
+      
+      print_debug(sprintf("  %s:", col))
+      print_debug(sprintf("    Mean before: %.6f", mean_before))
+      print_debug(sprintf("    Mean after: %.10f", mean_after))
+      print_debug(sprintf("    First value: %.6f -> %.6f", first_val_before, first_val_after))
+    }
+  } else if(!is.null(exo.mean) && length(manifest_cols) > 0) {
+    print_debug("\nAdjusting manifest exogenous means:")
+    offset <- length(eta_cols)
+    for(i in seq_along(manifest_cols)) {
+      col <- manifest_cols[i]
+      mean_before <- mean(EXO[, col])
+      first_val_before <- EXO[1, col]
+      
+      EXO[, col] <- EXO[, col] + exo.mean[offset + i]
+      
+      mean_after <- mean(EXO[, col])
+      first_val_after <- EXO[1, col]
+      
+      print_debug(sprintf("  %s:", col))
+      print_debug(sprintf("    Added mean: %.6f", exo.mean[offset + i]))
+      print_debug(sprintf("    Mean before: %.6f", mean_before))
+      print_debug(sprintf("    Mean after: %.6f", mean_after))
+      print_debug(sprintf("    First value: %.6f -> %.6f", first_val_before, first_val_after))
+    }
+  } else {
+    print_debug("\nNo centering/adjustment for manifest exogenous variables")
+  }
+  
+  # store in Values matrix
   Values[, exo_vars] <- EXO
   
-  print_debug("\n=== Step 5: Generating Dependent Variables ===")
+  print_debug("\nFinal exogenous variable statistics:")
+  for(var in exo_vars) {
+    print_debug(sprintf("  %s: mean=%.6f, var=%.4f, sd=%.4f", 
+                        var, mean(Values[, var]), var(Values[, var]), sd(Values[, var])))
+  }
   
-  # Store zetas for potential covariance checking
-  stored_zetas <- list()
+  ##============================================================================
+  ## GENERATE DEPENDENT VARIABLES WITH FIXED RESIDUAL VARIANCES
+  ##============================================================================
   
-  # GENERATE DEPENDENT VARIABLES ACCORDING TO THE DEPENDENCIES 
-  intercepts <- lavaan::lavInspect(fit, "est")$alpha # Intercepts for the dependent variables equations
-  # Remember [[var]] read as string [["var"]]
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 6: Generating Dependent Variables ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
+  observed_R2 <- list()
+  deterministic_vars <- list()
+  stored_zetas <- list()  # For checking zeta independence
+  
+  intercepts <- lavaan::lavInspect(fit, "est")$alpha
+  
+  if(!is.null(intercepts)) {
+    print_debug("Intercepts from model:")
+    for(var in rownames(intercepts)) {
+      if(!is.na(intercepts[var, 1])) {
+        print_debug(sprintf("  %s: %.4f", var, intercepts[var, 1]))
+      }
+    }
+  } else {
+    print_debug("No intercepts specified in model")
+  }
+  
   for(var in model_info$structural$generation_order) { 
-    if(var %in% model_info$structural$dependent) { # Checks if current variable is a dependent variable
-      print_debug(sprintf("\nProcessing dependent variable: %s", var))
+    if(var %in% model_info$structural$dependent) {
       
-      terms <- model_info$structural$equations[[var]] # Equation terms for current variable
-      # Handle interactions first
-      if(!is.null(model_info$structural$interactions[[var]])) { # Checks if variable has interaction terms
-        print_debug("Creating interaction terms:")
+      print_debug(sprintf("\n--- Generating: %s ---", var))
+      
+      terms <- model_info$structural$equations[[var]]
+      
+      # handle interactions first
+      if(!is.null(model_info$structural$interactions[[var]])) {
+        print_debug("  Creating interaction terms:")
         for(inter in model_info$structural$interactions[[var]]) {
-          if(all(is.na(Values[, inter]))) {  # Checks if interaction term values are missing in the dataset
-            components <- unlist(strsplit(inter, ":")) # Split the interaction into their individual variables
-            print_debug(sprintf("- Creating %s = %s * %s", 
-                                inter, components[1], components[2]))
+          if(all(is.na(Values[, inter]))) {
+            components <- unlist(strsplit(inter, ":"))
             
-            # Multiplication for interactions
-            # Check this if correctly applied; maybe should be the transpose * X? I dont think so; hence, just element-wise.
+            print_debug(sprintf("\n    --- Creating %s = %s * %s ---", inter, components[1], components[2]))
+            
+            # Check components exist and have values
+            for(comp in components) {
+              if(all(is.na(Values[, comp]))) {
+                stop(sprintf("ERROR: Component %s has no values for interaction %s", comp, inter))
+              }
+              print_debug(sprintf("      Component %s:", comp))
+              print_debug(sprintf("        Mean = %.6f", mean(Values[, comp])))
+              print_debug(sprintf("        Var  = %.6f", var(Values[, comp])))
+              print_debug(sprintf("        First 3 values: %.6f, %.6f, %.6f", 
+                                  Values[1, comp], Values[2, comp], Values[3, comp]))
+            }
+            
+            # Show the actual multiplication for first 3 observations
+            print_debug(sprintf("\n      Multiplication verification (first 3 rows):"))
+            for(i in 1:3) {
+              val1 <- Values[i, components[1]]
+              val2 <- Values[i, components[2]]
+              product <- val1 * val2
+              print_debug(sprintf("        Row %d: %.6f * %.6f = %.6f", i, val1, val2, product))
+            }
+            
             Values[, inter] <- Values[, components[1]] * Values[, components[2]]
             
-            print_debug(sprintf("- First few values of %s: %.6f, %.6f, %.6f", 
-                                inter, Values[1, inter], Values[2, inter], Values[3, inter]))
-            print_debug(sprintf("- First few values of %s: %.6f, %.6f, %.6f", 
-                                components[1], Values[1, components[1]], Values[2, components[1]], Values[3, components[1]]))
-            print_debug(sprintf("- First few values of %s: %.6f, %.6f, %.6f", 
-                                components[2], Values[1, components[2]], Values[2, components[2]], Values[3, components[2]]))
-            print_debug(sprintf("- Verification: %.6f * %.6f = %.6f", 
-                                Values[1, components[1]], Values[1, components[2]], Values[1, inter]))
-            # Check this:
+            print_debug(sprintf("\n      Interaction %s created:", inter))
+            print_debug(sprintf("        Mean = %.6f", mean(Values[, inter])))
+            print_debug(sprintf("        Var  = %.6f", var(Values[, inter])))
+            print_debug(sprintf("        First 3 values: %.6f, %.6f, %.6f", 
+                                Values[1, inter], Values[2, inter], Values[3, inter]))
+            
             if(center.lv.prod) {
-              print_debug(sprintf("Centering interaction term: %s", inter))
-              first_val_before <- Values[1, inter]
-              current_mean <- mean(Values[, inter])
-              Values[, inter] <- Values[, inter] - mean(Values[, inter]) # colMeans wont work with 1 column
-              first_val_after <- Values[1, inter]
-              
-              print_debug(sprintf("- First value before centering: %.6f", first_val_before))
-              print_debug(sprintf("- Mean used for centering: %.6f", current_mean))
-              print_debug(sprintf("- First value after centering: %.6f", first_val_after))
-              print_debug(sprintf("- Verification: %.6f - %.6f = %.6f", 
-                                  first_val_before, current_mean, first_val_after))
-              print_debug(sprintf("- New mean (should be ~0): %.10f", mean(Values[, inter])))
+              mean_before <- mean(Values[, inter])
+              Values[, inter] <- Values[, inter] - mean_before
+              mean_after <- mean(Values[, inter])
+              print_debug(sprintf("\n      Centered interaction term:"))
+              print_debug(sprintf("        Mean before centering: %.6f", mean_before))
+              print_debug(sprintf("        Mean after centering:  %.10f", mean_after))
+              print_debug(sprintf("        First 3 values after:  %.6f, %.6f, %.6f", 
+                                  Values[1, inter], Values[2, inter], Values[3, inter]))
             }
           }
         }
       }
       
-      # Check coefficients
-      if(!is.null(model_info$structural$coefficients[[var]])) { 
-        equation_coefs <- model_info$structural$coefficients[[var]] # Coefficients for current variable
-        if(length(equation_coefs) != length(terms)) {
-          stop(sprintf("Error for %s: Number of coefficients (%d) does not match number of terms (%d)", 
-                       var, length(equation_coefs), length(terms)))
-        }
-        
-        print_debug("Using coefficients:")
-        for(i in seq_along(terms)) {
-          print_debug(sprintf("- %s: %.4f", terms[i], equation_coefs[i]))
-        }
-      } else {
-        stop(sprintf("No coefficients provided for %s. Coefficients must be specified.", var))
+      # coefficients
+      equation_coefs <- model_info$structural$coefficients[[var]]
+      
+      print_debug("\n  === Structural Equation ===")
+      print_debug(sprintf("  %s = ", var))
+      for(i in seq_along(terms)) {
+        print_debug(sprintf("    + %.6f * %s", equation_coefs[i], terms[i]))
       }
       
-      # Check if all terms exist in the matrix
+      # Check all predictors exist
       missing_terms <- terms[!terms %in% colnames(Values)]
       if(length(missing_terms) > 0) {
-        stop(sprintf("Terms not found in data for variable '%s': %s", 
+        stop(sprintf("ERROR: Terms not found for %s: %s", 
                      var, paste(missing_terms, collapse = ", ")))
       }
       
-      # Matrix algebra for the deterministic part as opposed to before (element-wise):
-      print_debug("Calculating deterministic part")
+      # Show predictor values for first 3 observations
+      print_debug("\n  Predictor values (first 3 rows):")
+      for(term in terms) {
+        print_debug(sprintf("    %s: %.6f, %.6f, %.6f", 
+                            term, Values[1, term], Values[2, term], Values[3, term]))
+      }
+      
+      # deterministic part
       deterministic_part <- Values[, terms, drop = FALSE] %*% equation_coefs
       
-      print_debug("First few deterministic values (before intercept):")
-      print_debug(sprintf("- Row 1: %.6f (= %s)", deterministic_part[1], 
-                          paste(sprintf("%.6f*%.6f", Values[1, terms], equation_coefs), collapse=" + ")))
-      print_debug(sprintf("- Row 2: %.6f", deterministic_part[2]))
-      print_debug(sprintf("- Row 3: %.6f", deterministic_part[3]))
+      print_debug("\n  === Deterministic Part Calculation (BEFORE Intercept) ===")
       
+      # Manual calculation verification for first 3 rows
+      print_debug("  Manual calculation verification (first 3 rows):")
+      for(i in 1:3) {
+        calc_parts <- sprintf("%.6f*%.6f", equation_coefs, Values[i, terms])
+        calc_string <- paste(calc_parts, collapse = " + ")
+        calc_result <- sum(equation_coefs * Values[i, terms])
+        print_debug(sprintf("    Row %d: %s = %.6f", i, calc_string, calc_result))
+        print_debug(sprintf("           Matrix result: %.6f (diff: %.10f)", 
+                            deterministic_part[i], deterministic_part[i] - calc_result))
+      }
+      
+      print_debug("\n  Statistics (before intercept):")
+      print_debug(sprintf("    Mean:     %.6f", mean(deterministic_part)))
+      print_debug(sprintf("    Variance: %.6f", var(deterministic_part)))
+      print_debug(sprintf("    SD:       %.6f", sd(deterministic_part)))
+      print_debug(sprintf("    Min:      %.6f", min(deterministic_part)))
+      print_debug(sprintf("    Max:      %.6f", max(deterministic_part)))
+      
+      # Add intercept if present
       if (!is.null(intercepts) && !is.na(intercepts[var,1])) {
-        print_debug(sprintf("Adding intercept: %.6f", intercepts[var,1]))
-        deterministic_part_before <- deterministic_part[1:3]
-        deterministic_part <- intercepts[var,1] + deterministic_part
+        intercept_val <- intercepts[var,1]
+        print_debug(sprintf("\n  === Adding Intercept: %.6f ===", intercept_val))
         
-        print_debug("First few deterministic values (after adding intercept):")
-        print_debug(sprintf("- Row 1: %.6f = %.6f + %.6f", 
-                            deterministic_part[1], intercepts[var,1], deterministic_part_before[1]))
-        print_debug(sprintf("- Row 2: %.6f = %.6f + %.6f", 
-                            deterministic_part[2], intercepts[var,1], deterministic_part_before[2]))
-        print_debug(sprintf("- Row 3: %.6f = %.6f + %.6f", 
-                            deterministic_part[3], intercepts[var,1], deterministic_part_before[3]))
-      }
-      
-      # Calculate variance without the residual/error
-      var.nozeta <- var(deterministic_part)
-      print_debug(sprintf("Deterministic part variance (var.nozeta): %.6f", var.nozeta))
-      
-      # Calculate target variance (this is given by the user)
-      if(!is.null(target.var) && !is.null(target.var[[var]])) {
-        print_debug(sprintf("Specified target variance for %s: %.6f", 
-                            var, target.var[[var]]))
-        
-        if(var.nozeta < target.var[[var]]) {
-          current_target_var <- target.var[[var]] - var.nozeta
-          print_debug("var.nozeta is smaller than target.var - using difference for error variance")
-        } else {
-          warning(sprintf(
-            "var.nozeta [%f] is larger than target.var [%f] for %s -- using R2 instead",
-            var.nozeta, target.var[[var]], var
-          ))
-          if(is.null(R2) || is.null(R2[[var]])) {
-            stop(sprintf("No R2 value provided for %s. R2 must be specified.", var))
-          }
-          current_target_var <- var.nozeta * ((1-R2[[var]])/R2[[var]])
+        print_debug("  First 3 values before intercept:")
+        for(i in 1:3) {
+          print_debug(sprintf("    Row %d: %.6f", i, deterministic_part[i]))
         }
+        
+        deterministic_part <- intercept_val + deterministic_part
+        
+        print_debug("\n  First 3 values AFTER adding intercept:")
+        for(i in 1:3) {
+          print_debug(sprintf("    Row %d: %.6f + %.6f = %.6f", 
+                              i, intercept_val, deterministic_part[i] - intercept_val, deterministic_part[i]))
+        }
+        
+        print_debug("\n  Statistics (after intercept):")
+        print_debug(sprintf("    Mean:     %.6f (should be ≈ %.6f)", 
+                            mean(deterministic_part), mean(deterministic_part - intercept_val) + intercept_val))
+        print_debug(sprintf("    Variance: %.6f (should be unchanged)", var(deterministic_part)))
+        print_debug(sprintf("    SD:       %.6f", sd(deterministic_part)))
+        print_debug(sprintf("    Min:      %.6f", min(deterministic_part)))
+        print_debug(sprintf("    Max:      %.6f", max(deterministic_part)))
       } else {
-        print_debug("No target variance specified - using R² to determine error variance")
-        if(var.nozeta < 0.0001) {
-          current_target_var <- 1
-          print_debug("Near-zero deterministic variance, setting target.var = 1")
-        } else {
-          if(is.null(R2) || is.null(R2[[var]])) {
-            stop(sprintf("No R2 value provided for %s. R2 must be specified.", var))
-          }
-          current_target_var <- var.nozeta * ((1-R2[[var]])/R2[[var]])
-        }
+        print_debug("\n  No intercept to add")
       }
-      print_debug(sprintf("Target variance for error: %.6f", current_target_var))
       
-      # Generate and standardize zeta 
-      print_debug(sprintf("Generating %s error term", distr.zeta))
+      # variance of deterministic part
+      var_det <- var(as.vector(deterministic_part)) * (N-1)/N
+      deterministic_vars[[var]] <- var_det
+      
+      print_debug(sprintf("\n  Deterministic variance (population): %.6f", var_det))
+      
+      # fixed residual variance from model
+      resid_var <- structural_residual_vars[var]
+      if(is.na(resid_var)) {
+        resid_var <- 1
+        warning(paste("No residual variance found for", var, "- using 1"))
+        print_debug(sprintf("  WARNING: No residual variance found for %s - using 1", var))
+      } else {
+        print_debug(sprintf("  Fixed residual variance from model: %.6f", resid_var))
+      }
+      
+      # Expected R² with fixed variance
+      expected_r2 <- var_det / (var_det + resid_var)
+      print_debug(sprintf("  Expected R² = %.6f / (%.6f + %.6f) = %.6f", 
+                          var_det, var_det, resid_var, expected_r2))
+      
+      # generate residual with fixed variance
+      print_debug(sprintf("\n  === Generating %s Residual (Zeta) ===", distr.zeta))
+      print_debug(sprintf("  Target variance: %.6f", resid_var))
+      print_debug(sprintf("  Target SD:       %.6f", sqrt(resid_var)))
+      
       zeta <- switch(distr.zeta,
-                     "normal" = rnorm(N, 0, sqrt(current_target_var)),
-                     "exp.rate1" = rexp(N, rate = 1/sqrt(current_target_var)) - 1,
+                     "normal" = rnorm(N, 0, sqrt(resid_var)),
+                     "exp.rate1" = rexp(N, rate = 1/sqrt(resid_var)) - sqrt(resid_var),
                      stop(paste("wrong option for distr.zeta:", distr.zeta)))
       
-      zeta <- zeta - mean(zeta)
-      zeta <- (zeta - mean(zeta)) * sqrt(c(current_target_var) / c(var(zeta - mean(zeta))))
-      
-      print_debug("Error term diagnostics:")
-      print_debug(sprintf("- Mean: %.6f", mean(zeta)))
-      print_debug(sprintf("- Variance: %.6f", var(zeta)))
-      
-      # Store zeta for checking covariances
-      stored_zetas[[var]] <- zeta
-      
-      # Entries for the variables with the residual
-      Values[, var] <- deterministic_part + zeta # Add on top of the deterministic part
-      
-      print_debug("Combined deterministic + error examples:")
-      print_debug(sprintf("- Row 1: %.6f = %.6f + %.6f", 
-                          deterministic_part[1] + zeta[1], deterministic_part[1], zeta[1]))
-      print_debug(sprintf("- Row 2: %.6f = %.6f + %.6f", 
-                          deterministic_part[2] + zeta[2], deterministic_part[2], zeta[2]))
-      print_debug(sprintf("- Row 3: %.6f = %.6f + %.6f", 
-                          deterministic_part[3] + zeta[3], deterministic_part[3], zeta[3]))
-      
-      if(center.lv.dependent) {
-        print_debug(sprintf("Centering dependent variable: %s", var))
-        first_val_before <- Values[1, var]
-        current_mean <- mean(Values[, var])
-        Values[, var] <- t(t(Values[, var]) - mean(Values[, var])) # Same remark as with lv.prod:
-        first_val_after <- Values[1, var]
-        
-        print_debug(sprintf("- First value before centering: %.6f", first_val_before))
-        print_debug(sprintf("- Mean used for centering: %.6f", current_mean))
-        print_debug(sprintf("- First value after centering: %.6f", first_val_after))
-        print_debug(sprintf("- Verification: %.6f - %.6f = %.6f", 
-                            first_val_before, current_mean, first_val_after))
-        print_debug(sprintf("- New mean (should be ~0): %.10f", mean(Values[, var])))
+      # Check zeta properties (using e1071 or moments if available)
+      if(requireNamespace("e1071", quietly = TRUE)) {
+        zeta_skew <- e1071::skewness(zeta)
+        zeta_kurt <- e1071::kurtosis(zeta)
+      } else if(requireNamespace("moments", quietly = TRUE)) {
+        zeta_skew <- moments::skewness(zeta)
+        zeta_kurt <- moments::kurtosis(zeta) - 3  # excess kurtosis
+      } else {
+        zeta_skew <- NA
+        zeta_kurt <- NA
       }
       
-      print_debug(sprintf("Final diagnostics for %s:", var))
-      print_debug(sprintf("- Mean: %.6f", mean(Values[, var])))
-      print_debug(sprintf("- Total variance: %.6f", var(Values[, var])))
-      print_debug(sprintf("- Achieved R²: %.6f", 
-                          cor(deterministic_part, Values[, var])^2))
+      print_debug("  Residual (zeta) diagnostics:")
+      print_debug(sprintf("    Mean:     %.6f (target: 0.000000)", mean(zeta)))
+      print_debug(sprintf("    Variance: %.6f (target: %.6f, diff: %.6f)", 
+                          var(zeta), resid_var, var(zeta) - resid_var))
+      print_debug(sprintf("    SD:       %.6f (target: %.6f)", sd(zeta), sqrt(resid_var)))
+      if(!is.na(zeta_skew)) {
+        print_debug(sprintf("    Skewness:       %.6f", zeta_skew))
+        print_debug(sprintf("    Excess kurtosis: %.6f", zeta_kurt))
+      }
+      print_debug(sprintf("    First 3 values: %.6f, %.6f, %.6f", zeta[1], zeta[2], zeta[3]))
+      
+      # Store for independence check
+      stored_zetas[[var]] <- zeta
+      
+      # Combine deterministic and stochastic parts
+      print_debug("\n  === Combining Deterministic and Stochastic Parts ===")
+      print_debug(sprintf("  Formula: %s = deterministic_part + zeta", var))
+      
+      print_debug("\n  Verification (first 5 rows):")
+      print_debug("  Row | Deterministic |    Zeta    |   Combined  | Check")
+      print_debug("  ----|---------------|------------|-------------|-------")
+      for(i in 1:5) {
+        det_val <- deterministic_part[i]
+        zeta_val <- zeta[i]
+        combined <- det_val + zeta_val
+        print_debug(sprintf("  %3d | %13.6f | %10.6f | %11.6f | %.10f", 
+                            i, det_val, zeta_val, combined, combined - (det_val + zeta_val)))
+      }
+      
+      Values[, var] <- deterministic_part + zeta
+      
+      print_debug("\n  Combined variable statistics (before any centering):")
+      print_debug(sprintf("    Mean:     %.6f", mean(Values[, var])))
+      print_debug(sprintf("    Variance: %.6f", var(Values[, var])))
+      print_debug(sprintf("    SD:       %.6f", sd(Values[, var])))
+      
+      # Verify the combination
+      manual_check <- deterministic_part + zeta
+      max_diff <- max(abs(Values[, var] - manual_check))
+      print_debug(sprintf("    Max difference from manual calculation: %.15f", max_diff))
+      if(max_diff > 1e-10) {
+        print_debug("    WARNING: Difference exceeds numerical precision threshold!")
+      }
+      
+      if(center.lv.dependent) {
+        mean_before <- mean(Values[, var])
+        first_val_before <- Values[1, var]
+        
+        Values[, var] <- Values[, var] - mean_before
+        
+        mean_after <- mean(Values[, var])
+        first_val_after <- Values[1, var]
+        
+        print_debug(sprintf("\n  Centered dependent variable %s:", var))
+        print_debug(sprintf("    Mean before: %.6f", mean_before))
+        print_debug(sprintf("    Mean after: %.10f", mean_after))
+        print_debug(sprintf("    First value: %.6f -> %.6f", first_val_before, first_val_after))
+      }
+      
+      # observed R^2
+      total_var <- var(Values[, var]) * (N-1)/N
+      observed_R2[[var]] <- var_det / total_var
+      
+      print_debug(sprintf("\n  Final diagnostics for %s:", var))
+      print_debug(sprintf("    Mean: %.6f", mean(Values[, var])))
+      print_debug(sprintf("    Total variance: %.6f", total_var))
+      print_debug(sprintf("    Deterministic variance: %.6f", var_det))
+      print_debug(sprintf("    Residual variance: %.6f", total_var - var_det))
+      print_debug(sprintf("    Observed R²: %.6f (expected: %.6f, diff: %.6f)", 
+                          observed_R2[[var]], expected_r2, observed_R2[[var]] - expected_r2))
     }
   }
   
-  # Check zeta covariances
+  # Check zeta independence
   if(verbose && length(stored_zetas) > 1) {
+    print_debug("\n", paste(rep("=", 80), collapse = ""))
+    print_debug("=== Checking Residual (Zeta) Independence ===")
+    print_debug(paste(rep("=", 80), collapse = ""))
+    
     zeta_matrix <- do.call(cbind, stored_zetas)
     colnames(zeta_matrix) <- names(stored_zetas)
     
-    print_debug("\nZeta correlations:")
-    print_debug(cor(zeta_matrix))
-    print_debug("\nZeta covariances:")
-    print_debug(cov(zeta_matrix))
+    zeta_cor <- cor(zeta_matrix)
+    print_debug("Zeta correlations (should be near 0):")
+    print(round(zeta_cor, 4))
+    
+    # Flag large correlations
+    for(i in 1:(ncol(zeta_cor)-1)) {
+      for(j in (i+1):ncol(zeta_cor)) {
+        if(abs(zeta_cor[i,j]) > 0.1) {
+          print_debug(sprintf("  WARNING: Large correlation between residuals of %s and %s: %.4f",
+                              colnames(zeta_cor)[i], colnames(zeta_cor)[j], zeta_cor[i,j]))
+        }
+      }
+    }
+    
+    if(all(abs(zeta_cor[lower.tri(zeta_cor)]) < 0.1)) {
+      print_debug("  ✓ All residual correlations are acceptably small")
+    }
   }
   
-  print_debug("\n=== Step 6: Generating Measurement Model ===")
+  ##============================================================================
+  ## MEASUREMENT PART - WITH FIXED VARIANCES FROM MODEL
+  ##============================================================================
   
-  # GENERATE THE MEASUREMENT PART
-  # Get LAMBDA and calculate values for each pure eta
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 7: Generating Indicators (Measurement Model) ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
   lambda <- lavaan::lavInspect(fit, "est")$lambda
-  #pure_etas <- fit@pta$vnames$lv.regular[[1]]
   LAMBDA <- lambda[startsWith(rownames(lambda), "x"), fit@pta$vnames$lv.regular[[1]], 
-                   drop = FALSE] # Limitation: assumes indicators as x only
-  # The above to drop the manifest variables from rows
+                   drop = FALSE]
   
-  print_debug("Lambda matrix:")
-  if(verbose) print(LAMBDA)
+  print_debug("Lambda matrix (factor loadings):")
+  if(verbose) {
+    print(round(LAMBDA, 4))
+  }
   
-  # Calculates target variances for the indicators
-  # Could also use values from above for loop but for now just making sure things work as expected
-  # We first get the variance of the latent variables
-  print_debug("Calculating target variances for indicators")
-  eta_vars <- sapply(fit@pta$vnames$lv.regular[[1]], 
-                     function(eta) var(Values[, eta])) # Correct to use N-1 as default in `var()`
-  target_var_indicators <- eta_vars * (1/rel - 1)
-  
-  print_debug("Indicator target variance calculations:")
+  # Analyze loading structure
+  print_debug("\nLoading structure:")
   for(i in seq_along(fit@pta$vnames$lv.regular[[1]])) {
     eta <- fit@pta$vnames$lv.regular[[1]][i]
-    print_debug(sprintf("- For %s: var(eta) = %.6f, (1/rel - 1) = %.6f, target_var = %.6f", 
-                        eta, eta_vars[i], (1/rel - 1), target_var_indicators[i]))
+    indicators <- rownames(LAMBDA)[LAMBDA[, i] != 0]
+    loadings <- LAMBDA[LAMBDA[, i] != 0, i]
+    
+    print_debug(sprintf("  %s has %d indicator(s):", eta, length(indicators)))
+    for(j in seq_along(indicators)) {
+      print_debug(sprintf("    %s: loading = %.4f", indicators[j], loadings[j]))
+    }
   }
   
-  # Generate errors in theta 
+  # measurement errors with fixed variances from model
   n_indicators <- nrow(LAMBDA)
-  # For the different factor models below: 
-  indicator_groups <- lapply(seq_along(fit@pta$vnames$lv.regular[[1]]),
-                             function(i) which(LAMBDA[, i] == 1)) # Position of elements (logical vector)
-  
   THETA <- matrix(NA, nrow = N, ncol = n_indicators)
   colnames(THETA) <- rownames(LAMBDA)
   
-  print_debug("Generating indicator errors")
+  print_debug("\nGenerating measurement errors:")
+  print_debug(sprintf("Distribution: %s", distr.epsilon))
   
-  # Get THETA matrix by the indicators
-  # This part is the only part I am not 100% if mathematically correct (in accordance to SEM)
-  # Reasoning: All indicators measuring the same latent variable get errors drawn from the same distribution (with the same variance)
-  for(i in seq_along(indicator_groups)) { # For each latent variable,
-    inds <- indicator_groups[[i]] # We get the indicators for it
-    t_var_ind <- target_var_indicators[i] # We get the target variance from above calculation
-    
-    print_debug(sprintf("\nGenerating errors for indicators of %s:", 
-                        fit@pta$vnames$lv.regular[[1]][i]))
-    print_debug(sprintf("- Target error variance: %.6f", t_var_ind))
-    print_debug(sprintf("- Indicators: %s", paste(rownames(LAMBDA)[inds], collapse=", ")))
+  for(i in seq_len(n_indicators)) {
+    ind_name <- rownames(LAMBDA)[i]
+    # variance specified in the model
+    ind_var <- indicator_residual_vars[ind_name]
+    if(is.na(ind_var)) {
+      ind_var <- 1
+      warning(paste("No residual variance found for", ind_name, "- using 1"))
+      print_debug(sprintf("  WARNING: No residual variance for %s - using 1", ind_name))
+    } else {
+      print_debug(sprintf("  %s: model-specified error variance = %.4f", ind_name, ind_var))
+    }
     
     if(distr.epsilon == "normal") {
-      print_debug("- Using normal distribution for errors")
-      THETA[, inds] <- matrix(rnorm(N * length(inds), 0, sqrt(t_var_ind)), N, length(inds))
+      THETA[, i] <- rnorm(N, 0, sqrt(ind_var))
     } else {
-      print_debug("- Using exponential distribution for errors")
-      THETA[, inds] <- matrix(rexp(N * length(inds), rate = 1/sqrt(t_var_ind)) - sqrt(t_var_ind), N, length(inds))
+      THETA[, i] <- rexp(N, rate = 1/sqrt(ind_var)) - sqrt(ind_var)
     }
     
-    # Check error properties for the first indicator in the group
-    if(length(inds) > 0) {
-      first_ind <- inds[1]
-      print_debug("Error term diagnostics (first indicator):")
-      print_debug(sprintf("- Mean: %.6f", mean(THETA[, first_ind])))
-      print_debug(sprintf("- Variance: %.6f", var(THETA[, first_ind])))
-    }
+    # Check error properties
+    print_debug(sprintf("    Generated error: mean=%.6f, var=%.6f", 
+                        mean(THETA[, i]), var(THETA[, i])))
   }
   
-  # To get the actual values for indicators: Y = eta %*% t(LAMBDA) + THETA
-  print_debug("\nCalculating indicator values: Y = eta %*% t(LAMBDA) + THETA")
+  # indicators: Y = Lambda * Eta + Theta
+  print_debug("\nCalculating indicator values: Y = Lambda * Eta + Theta")
+  
   Y <- as.matrix(Values[, fit@pta$vnames$lv.regular[[1]]]) %*% t(LAMBDA) + THETA 
   colnames(Y) <- rownames(LAMBDA)
   
-  # Center indicators 
-  if(center.indicators) {
-    print_debug("Centering indicators")
-    for(ind in colnames(Y)) {
-      print_debug(sprintf("\nCentering indicator: %s", ind))
-      first_val_before <- Y[1, ind]
-      current_mean <- mean(Y[, ind])
-      Y[, ind] <- Y[, ind] - current_mean
-      first_val_after <- Y[1, ind]
-      
-      print_debug(sprintf("- First value before centering: %.6f", first_val_before))
-      print_debug(sprintf("- Mean used for centering: %.6f", current_mean))
-      print_debug(sprintf("- First value after centering: %.6f", first_val_after))
-      print_debug(sprintf("- Verification: %.6f - %.6f = %.6f", 
-                          first_val_before, current_mean, first_val_after))
-      print_debug(sprintf("- New mean (should be ~0): %.10f", mean(Y[, ind])))
-    }
+  # Diagnostics before centering
+  print_debug("\nIndicator diagnostics (before centering):")
+  for(ind in colnames(Y)) {
+    print_debug(sprintf("  %s: mean=%.6f, var=%.4f, sd=%.4f", 
+                        ind, mean(Y[, ind]), var(Y[, ind]), sd(Y[, ind])))
   }
   
-  # Check reliabilities
-  print_debug("\nVerifying indicator reliabilities:")
+  # center indicators 
+  if(center.indicators) {
+    print_debug("\nCentering indicators:")
+    for(ind in colnames(Y)) {
+      mean_before <- mean(Y[, ind])
+      Y[, ind] <- Y[, ind] - mean_before
+      mean_after <- mean(Y[, ind])
+      
+      print_debug(sprintf("  %s: %.6f -> %.10f", ind, mean_before, mean_after))
+    }
+  } else {
+    print_debug("\nNo centering applied to indicators")
+  }
+  
+  ##============================================================================
+  ## VERIFY RELIABILITIES
+  ##============================================================================
+  
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 8: Verifying Indicator Reliabilities ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
+  # Calculate observed reliabilities
+  observed_reliabilities <- list()
+  
   for(i in seq_along(fit@pta$vnames$lv.regular[[1]])) {
     eta <- fit@pta$vnames$lv.regular[[1]][i]
-    inds <- rownames(LAMBDA)[LAMBDA[, i] == 1]
+    eta_var <- var(Values[, eta]) * (N-1)/N
     
-    for(ind in inds) {
-      cor_with_lv <- cor(Y[, ind], Values[, eta])
-      achieved_rel <- cor_with_lv^2
-      print_debug(sprintf("- %s with %s: target=%.4f, achieved=%.4f, diff=%.4f", 
-                          ind, eta, rel, achieved_rel, achieved_rel - rel))
+    print_debug(sprintf("\nReliabilities for indicators of %s:", eta))
+    print_debug(sprintf("  Latent variable variance: %.4f", eta_var))
+    
+    ind_idx <- which(LAMBDA[, i] != 0)
+    if(length(ind_idx) > 0) {
+      reliabilities <- numeric(length(ind_idx))
+      for(j in seq_along(ind_idx)) {
+        ind_name <- rownames(LAMBDA)[ind_idx[j]]
+        loading <- LAMBDA[ind_idx[j], i]
+        error_var <- indicator_residual_vars[ind_name]
+        
+        # theoretical reliability from model specification
+        theoretical_rel <- (loading^2 * eta_var) / (loading^2 * eta_var + error_var)
+        
+        # observed reliability
+        cor_with_lv <- cor(Y[, ind_name], Values[, eta])
+        observed_rel <- cor_with_lv^2
+        
+        reliabilities[j] <- theoretical_rel
+        
+        print_debug(sprintf("  %s:", ind_name))
+        print_debug(sprintf("    Loading: %.4f", loading))
+        print_debug(sprintf("    Error variance: %.4f", error_var))
+        print_debug(sprintf("    True score variance: %.4f", loading^2 * eta_var))
+        print_debug(sprintf("    Observed variance: %.4f", var(Y[, ind_name])))
+        print_debug(sprintf("    Theoretical reliability: %.4f", theoretical_rel))
+        print_debug(sprintf("    Observed reliability (r²): %.4f", observed_rel))
+        print_debug(sprintf("    Difference: %.4f", observed_rel - theoretical_rel))
+        
+        if(abs(observed_rel - theoretical_rel) > 0.05) {
+          print_debug("    WARNING: Large discrepancy between theoretical and observed reliability!")
+        }
+      }
+      names(reliabilities) <- rownames(LAMBDA)[ind_idx]
+      observed_reliabilities[[eta]] <- reliabilities
     }
   }
   
-  print_debug("\n=== Step 7: Finalizing Dataset ===")
+  ##============================================================================
+  ## FINALIZE DATASET
+  ##============================================================================
   
-  # Keep etas or not in the final dataset; relevant for fitting model in lavaan
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Step 9: Finalizing Dataset ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
   if(add.eta) {
     print_debug("Including latent variables in final dataset")
     Results <- cbind(Values, Y)
   } else {
     print_debug("Excluding latent variables from final dataset")
-    # Get manifest variables from the model excluding indicators
     manifest_vars <- setdiff(fit@pta$vnames$ov[[1]], fit@pta$vnames$ov.ind[[1]])
-    # Remove interaction terms and variables latent variables (as in eta..)
     manifest_vars <- manifest_vars[!grepl("eta", manifest_vars)]
-    Values_indicators <- Values[, manifest_vars, drop = FALSE]
-    Results <- cbind(Values_indicators, Y)
-  }
-  
-  print_debug("\n=== Data Generation Complete ===")
-  
-  as.data.frame(Results)
-}
-
-#### 3. Generate Data for a single run ####
-
-# Source required functions
-source("Models.R")
-source("Design.R") # Check here for most of the parameters 
-
-# Remaining that were used in the simulation loop
-#kewness <- rep(0, 2)
-#excesskurtosis <- rep(0, 2)
-# If nonnormal:
-skewness <- rep(2, 2)
-excesskurtosis <- rep(7, 2)
-
-# To check for a single run if the sample size is large, then values should be
-# close to the population values:
-N <- 20L
-Rel <- 0.6
-exo.mean <- rep(0, 2)
-target.var <- list("eta3" = 1.0) # target variance for eta3
-R2 <- list("eta3" = 0.20)
-  
-Data <- GenerateData(
-  model = population.full.model,
-  N = N,
-  skewness = skewness,
-  excesskurtosis = excesskurtosis,
-  exo.mean = exo.mean,
-  center.exogenous.latent = TRUE,
-  center.exogenous.manifest = FALSE,
-  center.lv.dependent = FALSE,
-  center.lv.prod = FALSE,
-  center.indicators = FALSE,
-  distr.exo = "rIG", # Remember to pick skewness and kurtosis accordingly
-  distr.zeta = "normal",
-  distr.epsilon = "normal",
-  rel = Rel,
-  target.var = target.var,
-  R2 = R2,
-  add.eta = FALSE, 
-  verbose = TRUE)
-
-#### 4. Generate Data for all conditions and store target.var information ####
-
-# Here I am not concerned with the amount of times it happens. I just wanted to 
-# get an overview when it happens. As the results show, it does not happen a lot.
-# Anyway, the conclusion is that we should use the R2 and just avoid having 
-# certain conditions use the difference for error variance, while others use R2
-
-r2_warning_occurred <- logical(nrow(conditions))
-repetitions <- 1000
-
-for(current_cond in 1:nrow(conditions)) {
-  for(rep in 1:repetitions) {
-    skewness <- rep(ifelse(conditions$Distribution[current_cond] == "normal", 0, 2), 2)
-    excesskurtosis <- rep(ifelse(conditions$Distribution[current_cond] == "normal", 0, 7), 2)
     
-    tryCatch({
-      Data <- GenerateData(
-        model = get(conditions$Population[current_cond]),
-        N = conditions$N[current_cond],
-        skewness = skewness,
-        excesskurtosis = excesskurtosis,
-        exo.mean = exo.mean,
-        distr.exo = conditions$Exo_method[current_cond],
-        distr.zeta = "normal",
-        distr.epsilon = conditions$Epsilon[current_cond],
-        rel = conditions$Rel[current_cond],
-        target.var = target.var,
-        R2 = R2,
-        add.eta = FALSE)
-    }, warning = function(w) {
-      if(grepl("var.nozeta .* is larger than target.var", conditionMessage(w))) {
-        r2_warning_occurred[current_cond] <<- TRUE
-      }
-      
-      warning(w)
-    }, error = function(e) { # continue on error
-    })
+    print_debug(sprintf("Manifest variables to include: %s", 
+                        ifelse(length(manifest_vars) > 0, 
+                               paste(manifest_vars, collapse = ", "), 
+                               "none")))
+    
+    if(length(manifest_vars) > 0) {
+      Values_indicators <- Values[, manifest_vars, drop = FALSE]
+      Results <- cbind(Values_indicators, Y)
+    } else {
+      Results <- Y
+    }
   }
+  
+  # Final validation
+  print_debug("\nFinal dataset validation:")
+  print_debug(sprintf("  Dimensions: %d x %d", nrow(Results), ncol(Results)))
+  print_debug(sprintf("  Variables: %s", paste(colnames(Results), collapse = ", ")))
+  
+  # Check for NAs
+  na_count <- colSums(is.na(Results))
+  if(any(na_count > 0)) {
+    print_debug("  WARNING: NA values detected in final dataset:")
+    for(var in names(na_count)[na_count > 0]) {
+      print_debug(sprintf("    %s: %d NAs (%.2f%%)", var, na_count[var], 100*na_count[var]/nrow(Results)))
+    }
+  } else {
+    print_debug("  ✓ No NA values detected")
+  }
+  
+  # Check for infinite values
+  inf_count <- colSums(is.infinite(as.matrix(Results)))
+  if(any(inf_count > 0)) {
+    print_debug("  WARNING: Infinite values detected in final dataset:")
+    for(var in names(inf_count)[inf_count > 0]) {
+      print_debug(sprintf("    %s: %d Inf values", var, inf_count[var]))
+    }
+  } else {
+    print_debug("  ✓ No infinite values detected")
+  }
+  
+  # Summary statistics
+  print_debug("\nFinal variable summary statistics:")
+  for(var in colnames(Results)) {
+    var_mean <- mean(Results[, var])
+    var_sd <- sd(Results[, var])
+    var_min <- min(Results[, var])
+    var_max <- max(Results[, var])
+    
+    print_debug(sprintf("  %s: mean=%.6f, sd=%.4f, range=[%.4f, %.4f]", 
+                        var, var_mean, var_sd, var_min, var_max))
+  }
+  
+  result <- as.data.frame(Results)
+  
+  if(return.info) {
+    print_debug("\nAdding attributes to result:")
+    attr(result, "observed_R2") <- observed_R2
+    attr(result, "observed_reliabilities") <- observed_reliabilities
+    attr(result, "fixed_residual_variances") <- all_residual_vars
+    attr(result, "model_info") <- model_info
+    
+    print_debug("  ✓ observed_R2")
+    print_debug("  ✓ observed_reliabilities")
+    print_debug("  ✓ fixed_residual_variances")
+    print_debug("  ✓ model_info")
+  }
+  
+  ##============================================================================
+  ## SUMMARY
+  ##============================================================================
+  
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== GENERATION SUMMARY ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  print_debug(sprintf("Dataset dimensions: %d x %d", nrow(result), ncol(result)))
+  print_debug("\nVariable types generated:")
+  print_debug(sprintf("  - Exogenous: %d", length(model_info$structural$exogenous)))
+  print_debug(sprintf("  - Dependent: %d", length(model_info$structural$dependent)))
+  print_debug(sprintf("  - Indicators: %d", ncol(Y)))
+  
+  n_interactions <- sum(sapply(model_info$structural$interactions, length))
+  if(n_interactions > 0) {
+    print_debug(sprintf("  - Interactions: %d", n_interactions))
+  }
+  
+  if(length(observed_R2) > 0) {
+    print_debug("\nR² values achieved:")
+    for(var in names(observed_R2)) {
+      print_debug(sprintf("  %s: %.4f", var, observed_R2[[var]]))
+    }
+  }
+  
+  if(length(observed_reliabilities) > 0) {
+    print_debug("\nAverage reliabilities by factor:")
+    for(eta in names(observed_reliabilities)) {
+      avg_rel <- mean(observed_reliabilities[[eta]])
+      print_debug(sprintf("  %s: %.4f", eta, avg_rel))
+    }
+  }
+  
+  print_debug("\n", paste(rep("=", 80), collapse = ""))
+  print_debug("=== Data Generation Complete ===")
+  print_debug(paste(rep("=", 80), collapse = ""))
+  
+  result
 }
 
-results <- data.frame(
-  Condition = 1:nrow(conditions),
-  R2_Warning = r2_warning_occurred
-)
-cbind(results, conditions)
 
+# example call:
+# 
+# 
+#data <- GenerateData(
+#   model = all_models[["normal_rel08"]],
+#   N = 10000,
+#   distr.exo = "nonnormal",
+#   nonnormal.shape = c(1, 1),
+#   nonnormal.rate = c(1, 1),
+#   verbose = TRUE  
+#)
+# 
+# attr(data, "observed_R2")
+# attr(data, "observed_reliabilities")
