@@ -804,9 +804,7 @@ create_apa_results_table_study2_by_condition <- function(results_df, condition_f
   return(df)
 }
 
-# Process Study 2 - Combined tables (no longer separating by equation)
-cat("\n\\section{Simulation 2 Results}\n\n")
-
+# Process Study 2 
 conditions_study2 <- results_study_2$results %>%
   select(Condition, Model, Distribution, SampleSize, Reliability) %>%
   distinct() %>%
