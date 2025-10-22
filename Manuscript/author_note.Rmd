@@ -8,15 +8,17 @@ title: ""
   
 \noindent \addORCIDlink{Yves Rosseel}{0000-0002-4129-4477}
 
+\noindent \addORCIDlink{Kjell Solem Slupphaugh}{0009-0005-8324-2834}
+
 \noindent \textbf{Funding} This project funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144).
 
 \noindent \textbf{Availability of data and materials} This study was not preregistered. The materials for this study are available in the osf repository: [ ]. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025. 
 
-\noindent \textbf{Author's contributions} The authors made the following contributions. Felipe Fontana Vieira: Conceptualization, Methodology, Software, Formal Analysis, Visualization, Data curation, Writing - Original Draft Preparation, Writing - Review & Editing; Yves Rosseel: Conceptualization, Methodology, Software, Writing - Review & Editing, Funding acquisition. 
+\noindent \textbf{Author's contributions} The authors made the following contributions. Felipe Fontana Vieira: Conceptualization, Methodology, Software, Formal Analysis, Visualization, Data curation, Writing - Original Draft Preparation, Writing - Review & Editing; Yves Rosseel: Conceptualization, Methodology, Software, Writing - Review & Editing, Funding acquisition; Kjell Solem Slupphaugh: Software, Writing - Review & Editing.
 
 \noindent \textbf{Correspondence} Correspondence concerning this article should be addressed to Felipe Fontana Vieira, Department of Data Analysis, Faculty of Psychology and Educational Sciences, Ghent University, Henri Dunantlaan 2, 9000 Gent, Belgium. E-mail: felipe.fontanavieira@ugent.be
 
-\noindent \textbf{Acknowledgements} The first author would like to thank Kjell S. Slupphaug for the feedback on part of the code. 
+\noindent \textbf{Acknowledgements} [...]
 
 \newpage
 
