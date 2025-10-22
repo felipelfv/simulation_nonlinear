@@ -668,7 +668,7 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
   results_summary
 }
 
-# Wrapper function for Study 2
+# wrapper function for Study 2
 CalculatePerformance_Study2 <- function(all_results,
                                         parameters_of_interest = list(
                                           eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta3","eta1:eta1","eta2:eta2"),

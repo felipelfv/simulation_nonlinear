@@ -79,14 +79,14 @@
 
 load("Simulations/Study_2/Simulation/Models(2).RData")
 source("Simulations/Methods.R")  # methods file
-source("Simulations/GenerateData.R") # NEW VITA-only generate data function
+source("Simulations/GenerateData.R") 
 
 # output directory
 base_dir <- "Simulations/Study_2/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 results_base <- file.path(base_dir, "Results_Study_2")
 
-# UPDATED analysis model for 5 factors with new interaction structure
+# analysis model for 5 factors with new interaction structure
 analysis.model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
@@ -107,7 +107,7 @@ SAMPLE_SIZES <- c(400, 1000)
 RELIABILITIES <- c(0.4, 0.6, 0.8)
 SEED_START <- 123
 
-# UPDATED: distribution parameters for VITA (3 exogenous variables now)
+# distribution parameters for VITA (3 exogenous variables now)
 distributions <- list(
   normal = list(
     distr.exo = "normal",
@@ -209,12 +209,12 @@ for (cond in 1:nrow(conditions)) {
   # replications in parallel
   parallel_results <- foreach(
     i = 1:N_REPLICATIONS,
-    .packages = c("lavaan", "modsem", "covsim", "rvinecopulib"),  # UPDATED: rvinecopulib instead of copula
+    .packages = c("lavaan", "modsem", "covsim", "rvinecopulib"),  
     .errorhandling = "pass",
     .options.RNG = SEED_START + cond * 10000
   ) %dorng% {
     
-    #----- UPDATED: data generation with new VITA parameters -----
+    # data generation 
     Data <- try(GenerateData(
       model          = population_model,
       N              = conditions$N[cond],

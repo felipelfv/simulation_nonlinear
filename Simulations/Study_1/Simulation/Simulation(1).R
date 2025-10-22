@@ -75,14 +75,14 @@
 # required files
 load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models
 source("Simulations/Methods.R")  # methods file
-source("Simulations/GenerateData.R") # NEW VITA-only generate data function
+source("Simulations/GenerateData.R") 
 
 # SIMULATION PARAMETERS
 
 N_REPLICATIONS <- 1000
 SAMPLE_SIZES   <- c(400, 1000)
 SEED_START     <- 123
-USE_ROBUST_SE  <- FALSE  # relevant for supplementary materials: TRUE for robust SE
+USE_ROBUST_SE  <- FALSE  # relevant for supplemental materials: TRUE for robust SE
 
 # analysis model (for fitting - no fixed values)
 analysis.model <- "
@@ -205,12 +205,12 @@ for (cond in 1:nrow(conditions)) {
   # run replications in parallel
   parallel_results <- foreach(
     i = 1:N_REPLICATIONS,
-    .packages = c("lavaan", "modsem", "covsim", "rvinecopulib"),  # UPDATED: rvinecopulib instead of copula
+    .packages = c("lavaan", "modsem", "covsim", "rvinecopulib"),  
     .errorhandling = "pass",
     .options.RNG = SEED_START + cond * 1000
   ) %dorng% {
     
-    # UPDATED: data generation with new VITA parameters
+    # data generation 
     Data <- try(GenerateData(
       model           = population_model,
       N               = conditions$N[cond],

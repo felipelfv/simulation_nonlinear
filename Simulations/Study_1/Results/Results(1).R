@@ -146,7 +146,7 @@ extract_params <- function(table, method) {
   )
 }
 
-# Main extraction function
+# main extraction function
 ExtractConvergenceOutliers <- function(all_results,
                                        parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                        remove_outliers = TRUE,
@@ -400,7 +400,7 @@ ExtractConvergenceOutliers <- function(all_results,
   )
 }
 
-# Performance metrics calculation
+# performance metrics calculation
 CalculatePerformanceMetrics <- function(filtered_data, 
                                         convergence_outliers_summary,
                                         alpha = 0.05) {
