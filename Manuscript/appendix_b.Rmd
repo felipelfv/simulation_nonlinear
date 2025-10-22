@@ -3,7 +3,7 @@ title: ""
 output: html_document
 ---
 
-# Appendix B: Convergence Issues and Outliers
+# Convergence Issues and Outliers
 
 ```{r conv-table, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
 library(kableExtra)
