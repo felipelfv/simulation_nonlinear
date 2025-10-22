@@ -1,12 +1,14 @@
----
-title: ""
-output: html_document
----
-
 # Convergence Issues and Outliers
 
-```{r conv-table, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
+```{r}
+#| label: conv-table
+#| echo: false
+#| output: asis
+#| message: false
+#| warning: false
+
 library(kableExtra)
+library(dplyr)
 # ============================================================================
 # STUDY 1: Convergence & Outliers Summary (APA Style - Landscape with longtable)
 # ============================================================================

@@ -1,13 +1,9 @@
----
-title: ''
-author: ''
-date: ''
-output:
-  pdf_document: default
-  html_document: default
----
+```{r}
+#| label: packages
+#| echo: false
+#| warning: false
+#| message: false
 
-```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
 source("../Simulations/Plots.R")
 source("../Simulations/Study_1/Results/Results(1).R")
 source("../Simulations/Study_2/Results/Results(2).R")
@@ -19,7 +15,11 @@ The results reported are a subset of the findings which focused mainly on the ca
 
 ## Results for Simulation 1
 
-```{r results-first-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
+```{r}
+#| label: results-first-sim-study
+#| echo: false
+#| warning: false
+#| message: false
 
 data_study_1 <- load("../Simulations/Study_1/Data/Results_Study_1_final.RData")
 
@@ -38,7 +38,11 @@ results_study_1 <- CalculatePerformance(
 )
 ```
 
-```{r convergence-outliers-first-sim-study, echo=FALSE, results='hide'}
+```{r}
+#| label: convergence-outliers-first-sim-study
+#| echo: false
+#| output: false
+
 get_convergence_outlier_rate_study_1 <- function(method, dist, n, rel, model = "Full", 
                                                   rate_type = c("convergence", "outlier", "final")) {
   rate_type <- match.arg(rate_type)
@@ -81,7 +85,6 @@ get_convergence_outlier_rate_study_1 <- function(method, dist, n, rel, model = "
 #  arrange(Convergence_Rate_This_Method) %>%
 #  slice_head(n = 2) %>%
 #  select(Method, Model, Distribution, SampleSize, Reliability, Convergence_Rate_This_Method)
-
 ```
 
 ### Convergence Issues and Outliers  
@@ -90,7 +93,9 @@ Convergence problems were generally rare. The main exception was UPI, which show
 
 Outlier rates followed a comparable pattern. The most pronounced rates again occurred under moderate sample size, low reliability, and uniform latent predictors. UPI produced the highest outlier frequencies, reaching `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Full", "outlier"), 2)`% with the full model and `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% with the linear model. For the same condition, LSAM also yielded the most outliers (`r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% with the linear model and `r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Full", "outlier"), 2)`% with the full model). In contrast, LMS and QML generated virtually none, with their highest rates reaching only `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "outlier"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "outlier"), 2)`% (both full model) in the same scenario as the other approaches. Detailed results for convergence and outliers are provided in Appendix B (see Table B1).
 
-```{r plots-first-sim-study, echo=FALSE}
+```{r}
+#| label: plots-first-sim-study
+#| echo: false
 
 plot_study_1_data <- prepare_study1_data(results_study_1)
 
@@ -144,11 +149,13 @@ p_slope_nonnorm_unif_study_1 <- plot_sesd(
 
 # COVERAGE (Full, N=400 & 1000, all distributions)
 study_1_coverage <- plot_study_1_data$coverage
+
 dat_cov_nonnorm_unif_study_1 <- study_1_coverage %>%
   filter(Model == "Full", 
          SampleSize %in% c("400", "1000"),
          Distribution %in% c("Right-skewed", "Uniform")) %>% 
   droplevels()
+
 p_cov_nonnorm_unif_study_1 <- plot_coverage(
   dat_cov_nonnorm_unif_study_1, 
   shapes = SHAPES_4,
@@ -158,6 +165,7 @@ p_cov_nonnorm_unif_study_1 <- plot_coverage(
 
 # TYPE I ERROR (Linear, N=1000 only) 
 study_1_type1 <- plot_study_1_data$type1
+
 dat_t1_1000_study_1 <- study_1_type1 %>%
   filter(grepl("N=1000", Condition)) %>%
   droplevels()
@@ -209,9 +217,13 @@ With the exception of low reliability conditions, LSAM demonstrated adequate per
 
 ## Result for Simulation 2
 
-```{r results-second-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
+```{r}
+#| label: results-second-sim-study
+#| echo: false
+#| warning: false
+#| message: false
 
-data_study_2 <- load("../Simulations/Study_2/Data/Results_Study_2_final.RData") # HAS TO BE CHANGED WITH NEW RESULTS
+data_study_2 <- load("../Simulations/Study_2/Data/Results_Study_2_final.RData") 
 
 study2_all_results_raw <- all_results  
 study2_conditions_raw <- conditions    
@@ -233,7 +245,10 @@ results_study_2 <- CalculatePerformance_Study2(
 
 ### Convergence Issues and Outliers
 
-```{r convergence-second-sim-study, echo=FALSE, warning=FALSE, results='hide'}
+```{r}
+#| label: convergence-outliers-second-sim-study
+#| echo: false
+#| output: false
 
 get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "Full",
                                                   equation = c("eta4", "eta5"),
@@ -294,7 +309,9 @@ Convergence problems were most severe for UPI, particularly with a moderate samp
 
 Outlier rates also varied substantially across methods. UPI again performed worst under the condition of uniform predictors with moderate sample size and low reliability, reaching `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% with the linear model and `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% with the full model. QML showed much lower outlier rates overall, with the highest occurring under right-skewed predictors (`r round(get_convergence_outlier_rate_study_2("QML", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% with the linear model), followed by uniform predictors (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% with the full model). LSAM’s highest outlier rates also occurred outside normality, with uniform predictors in the full model (`r round(get_convergence_outlier_rate_study_2("LSAM", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`%) and right-skewed predictors in the linear model (`r round(get_convergence_outlier_rate_study_2("LSAM", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`%) (see Table B2 in Appendix B for more information).  
 
-```{r plots-second-sim-study, echo=FALSE}
+```{r}
+#| label: plots-second-sim-study
+#| echo: false
 
 study_2_normal_data <- prepare_study2_data(results_study_2$results, "normal")
 study_2_nonnormal_data <- prepare_study2_data(results_study_2$results, "nonnormal")

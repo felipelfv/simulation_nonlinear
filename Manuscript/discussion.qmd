@@ -1,19 +1,10 @@
----
-title: ''
-author: ''
-date: ''
-output:
-  html_document: default
-  pdf_document: default
----
-
 # Discussion
 
 The analysis of nonlinear effects with latent variables requires estimation procedures that yield reliable results for inference and hypothesis testing. Most existing approaches rely on distributional assumptions that are frequently violated in applied research [@cain_etall_2017]. In this study, we compared the recently proposed LSAM with established methods across two simulation studies, evaluating their performance under different distributional, sample size, reliability conditions, and levels of model complexity. Thus, because SAM approaches for nonlinear effects have long been underrepresented in the literature [@rosseel_loh_2024] and until recently were not implemented in widely accessible software, demonstrating that a SAM procedure can provide reliable results is important for both methodological development and applied practice.
 
 ## Performance of LSAM 
 
-The LSAM performed well across most evaluation metrics, offering a balance of accuracy and computational feasibility. Under medium and high reliability, LSAM produced unbiased estimates, adequate SEs, controlled Type I error rates, and maintained stable coverage even under non-normal conditions. It also achieved acceptable power ($\geq 80\%$) in large samples with adequate reliability in case of normal and right-skewed distributions for all nonlinear effects, while under uniform distributions quadratic terms were underpowered. Moreover, the results further underscore the practical advantages when it comes to model complexity. Convergence rates were generally high and few outlier estimates. Taken together, these findings position LSAM as a promising estimator that combines reasonable statistical performance with improved usability and software support. At the same time, limitations under low reliability highlight the need for cautious application and further methodological refinement. Although this latter point is common for all approaches. 
+The LSAM performed well across most evaluation metrics, offering a balance of accuracy and computational feasibility. Under medium and high reliability, LSAM produced unbiased estimates, adequate SEs, controlled Type I error rates, and maintained stable coverage even under non-normal conditions. It also achieved acceptable power ($\geq 80\%$) in large samples with adequate reliability in case of normal and right-skewed distributions for all nonlinear effects, while under uniform distributions quadratic terms were underpowered. Moreover, the results further underscore the practical advantages when it comes to model complexity. Convergence rates were high, but with relatively larger outlier estimates. Taken together, these findings position LSAM as a promising estimator that combines reasonable statistical performance with improved usability and software support. At the same time, limitations under low reliability highlight the need for cautious application and further methodological refinement. Although this latter point is common for all approaches. 
 
 ## Relation to Previous Findings 
 

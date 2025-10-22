@@ -1,11 +1,3 @@
----
-title: ""
-author: ''
-date: ''
-output:
-  html_document: default
----
-
 The estimation of interaction and quadratic effects in regression models with observed variables is a well-known procedure in behavioral and social sciences [@aiken_west_1991; @rimpler_etall_2025; @olvera_astivia_etall_2025]. In that case, an interaction is commonly calculated by the product of certain predictors, whereas a quadratic term involves the product of a predictor with itself. This allows researchers to study, for example, the dependency that one variable may have on the level of another variable, given the functional form at hand [@mize_2019]. However, when we move to structural equation models (SEM) with latent variables in the regression function (i.e., latent variable model or structural part) [@bollen_1989], this straightforward estimation procedure becomes considerably more complex. The triviality of estimating interaction and quadratic effects disappears because the scores (i.e., the subject-specific values) on the latent variables are, at the time of measurement, unobserved [@bollen_hoyle_2012].
 
 Despite this complication, estimating latent interaction and quadratic terms remains important for several reasons. First, observed product terms are often less reliable than their components [@fisicaro_lautenschlager_1992; @bohrnstedt_marwell_1978], making measurement error a critical concern. SEM addresses this issue by partitioning observed variance into latent factors and residual error, thus offering a possible advantage in estimating nonlinear effects. Second, previous research has shown that quadratic and interaction effects may "mask" or distort one another when predictors are correlated, potentially leading to biased conclusions if not modeled simultaneously [@belzak_interaction_2019; @ganzach_misleading_1997]. Third, theoretical models should not be constrained by technical limitations: if theory predicts nonlinear effects, suitable methods for estimating them must be available [@oberauer_lewandowsky_2019]. Finally, some authors argued that latent variable models might improve statistical power [@marsh_etall_2012], but this does not hold in general [@Fuller1987; @cham_etall_2012].

@@ -1,14 +1,7 @@
----
-title: ''
-author: ''
-date: ''
-output:
-  html_document: default
-  pdf_document: default
-  word_document: default
----
+```{r}
+#| label: package-versions
+#| echo: false
 
-```{r package versions, echo=FALSE}
 modsem_version <- packageVersion("modsem")
 lavaan_version <- packageVersion("lavaan")
 covsim_version <- packageVersion("covsim")
@@ -24,8 +17,11 @@ R_version <- getRversion()
 In this section, we present the simulation design and performance metrics for the two simulation studies. The information presented here follows the suggestions from previous articles that investigated the quality of simulation studies [@siepe_etall_2024; @white_etall_2024; @morris_etall_2019].
 
 ## Simulation Conditions
+```{r}
+#| label: benchmark-lms
+#| echo: false
+#| eval: false
 
-```{r benchmark-lms, echo=FALSE, eval=FALSE}
 #library(microbenchmark)
 
 # using the data obtained from data retrieval script that replicates the dataset exactly for condition 1 iteration 1
@@ -35,30 +31,33 @@ bench <- microbenchmark(
   times = 1
 )
 print(bench); summary(bench, unit = "s")
-
 ```
 
 Both simulations used a 2 (sample sizes) × 3 (reliability levels) × 3 (latent predictor distributions) factorial design, yielding 18 conditions. Simulation 1 evaluated UPI, LMS, QML, and LSAM; Simulation 2 excluded LMS due to computational constraints^[For illustration purposes, on the same operating system as below, using the dataset for the first iteration within the first condition for Simulation 2, it took approximately 29 minutes (1729.536 seconds) to fit a single model with LMS with 32 nodes (see *modsem* documentation for more information about nodes).]. To assess Type I error rates and empirical local power [@irmer_etall_2024], we tested two specifications: (a) linear model data generation with full model estimation (assessing Type I error), and (b) full nonlinear model for both generation and estimation (assessing power). This yielded 36 total conditions, each replicated 1,000 times.
 
-Sample sizes of 400 and 1000 represented moderate to large samples. We selected 400 to examine performance below the suggested 500-threshold minimum for complex latent interaction models [@wall_etall_2012] while remaining realistic for applied research. The 1000 sample size allowed evaluation of asymptotic properties and aligned with previous simulations. Three reliability levels (0.4, 0.6, 0.8—termed low, medium, and high) covered a broad range of measurement quality. While previous simulations typically examined reliability above 0.7 [@brandt_etall_2014; @lonati_etall_2024; @wall_amemiya_2003] or contrasted high versus low (e.g., 0.8 and 0.5 in Brandt et all., 2020), we included 0.4 to assess performance under poor measurement conditions. Last, the three distributional conditions—normal, right-skewed, and uniform—were based on prior research varying non-normality to different degrees [@brandt_etall_2014; @brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024; @wall_amemiya_2003]. 
-
+Sample sizes of 400 and 1000 represented moderate to large samples. We selected 400 to examine performance below the suggested 500-threshold minimum for complex latent interaction models [@wall_etall_2012] while remaining realistic for applied research. The 1000 sample size allowed evaluation of asymptotic properties and aligned with previous simulations. Three reliability levels (0.4, 0.6, 0.8—termed low, medium, and high) covered a broad range of measurement quality. While previous simulations typically examined reliability above 0.7 [@brandt_etall_2014; @lonati_etall_2024; @wall_amemiya_2003] or contrasted high versus low (e.g., 0.8 and 0.5 in Brandt et all., 2020), we included 0.4 to assess performance under poor measurement conditions. Last, the three distributional conditions—normal, right-skewed (i.e., skewness = 2, excess kurtosis = 6), and uniform—were based on prior research varying non-normality to different degrees [@brandt_etall_2014; @brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024; @wall_amemiya_2003]. 
 ## Data Generation
 
-Appendix A contains the complete data generation steps. We followed a similar procedure as in previous studies [@ng_chan_2020; @cox_kelcey_2021; @rosseel_etall_2025]. First, under full normality, structural residual variances and measurement error variances were set to achieve $R^2 \approx 0.30$ and reliability $\rho \in \{0.4, 0.6, 0.8\}$. Second, using these fixed variance parameters, data were generated under the three distributional conditions (see Figure 1 for the population models). Correlated predictor latent variables were generated using the Vine-To-Anything (VITA) simulation method with regular vine copulas and specified covariance matrices. This approach improves upon the copula method of @mair_etall_2012 and circumvents the issues associated with other data generation approaches used in previous simulation studies [@gronneberg_foldnes_2022; @foldnes_gronneberg_2015]. Dependent latent variables and observed indicators were then generated with normally distributed disturbances and errors, respectively, isolating non-normality to the predictors.
+Appendix A contains the complete data generation steps. We followed a similar procedure as in previous studies [@ng_chan_2020; @cox_kelcey_2021; @rosseel_etall_2025]. First, under full normality, structural residual variances and measurement error variances were set to achieve $R^2 \approx 0.30$ and reliability $\rho \approx \{0.4, 0.6, 0.8\}$. Second, using these fixed variance parameters, data were generated under the three distributional conditions (see Figure 1 for the population models). Correlated predictor latent variables were generated using the Vine-To-Anything (VITA) simulation method with regular vine copulas and specified covariance matrices. This approach improves upon the copula method of @mair_etall_2012 and circumvents the issues associated with other data generation approaches used in previous simulation studies [@gronneberg_foldnes_2022; @foldnes_gronneberg_2015]. Dependent latent variables and observed indicators were then generated with normally distributed disturbances and errors, respectively, isolating non-normality to the predictors.
 
 For Simulation 1, the dependent latent variable was generated according to the same structural model as in @brandt_etall_2014:
-\begin{align*}
+$$
+\begin{aligned}
 \eta_3 = \beta_{30} + \beta_{31}\eta_1 + \beta_{32}\eta_2 + \beta_{33}(\eta_1\eta_2) + \beta_{34}\eta_1^2 + \beta_{35}\eta_2^2 + \zeta
-\end{align*}
-\noindent with parameters $\beta_{30} = -0.255$, $\beta_{31} = \beta_{32} = 0.316$, $\beta_{33} = 0.139$, $\beta_{34} = \beta_{35} = 0.101$, and $\zeta \sim \mathcal{N}(0, \psi_{33})$. For the linear model comparison, nonlinear terms were omitted (i.e., $\beta_{33} = \beta_{34} = \beta_{35} = 0$).
+\end{aligned}
+$$
+
+with parameters $\beta_{30} = -0.255$, $\beta_{31} = \beta_{32} = 0.316$, $\beta_{33} = 0.139$, $\beta_{34} = \beta_{35} = 0.101$, and $\zeta \sim \mathcal{N}(0, \psi_{33})$. For the linear model comparison, nonlinear terms were omitted (i.e., $\beta_{33} = \beta_{34} = \beta_{35} = 0$).
 
 For Simulation 2, the dependent latent variables was generated as follows:
-\begin{align*}
+$$
+\begin{aligned}
 \eta_4 &= \beta_{40} + \beta_{41}\eta_1 + \beta_{42}\eta_2 + \beta_{43}\eta_3 + \beta_{44}(\eta_1\eta_2) + \beta_{45}(\eta_1\eta_3) + \beta_{46}\eta_1^2 + \beta_{47}\eta_2^2 + \zeta_4 \\
 \eta_5 &= \beta_{50} + \beta_{51}\eta_4 + \beta_{52}\eta_1 + \beta_{53}\eta_2 + \beta_{54}\eta_3 + \beta_{55}(\eta_1\eta_4) + \beta_{56}(\eta_2\eta_4) + \beta_{57}\eta_1^2 + \beta_{58}\eta_3^2 + \zeta_5
-\end{align*}
+\end{aligned}
+$$
 
-\noindent with parameters $\beta_{40} = \beta_{50} = 0.1$, $\beta_{41} = \beta_{42} = \beta_{43} = 0.20$, $\beta_{44} = \beta_{45} = 0.11$, $\beta_{46} = \beta_{47} = 0.08$; $\beta_{51} = \beta_{52} = \beta_{53} = \beta_{54} = 0.16$, $\beta_{55} = \beta_{56} = 0.08$, $\beta_{57} = \beta_{58} = 0.06$, and $\zeta_4 \sim \mathcal{N}(0, \psi_{44})$, $\zeta_5 \sim \mathcal{N}(0, \psi_{55})$. For the linear model comparison, all interaction and quadratic terms were omitted.
+with parameters $\beta_{40} = \beta_{50} = 0.1$, $\beta_{41} = \beta_{42} = \beta_{43} = 0.20$, $\beta_{44} = \beta_{45} = 0.11$, $\beta_{46} = \beta_{47} = 0.08$; $\beta_{51} = \beta_{52} = \beta_{53} = \beta_{54} = 0.16$, $\beta_{55} = \beta_{56} = 0.08$, $\beta_{57} = \beta_{58} = 0.06$, and $\zeta_4 \sim \mathcal{N}(0, \psi_{44})$, $\zeta_5 \sim \mathcal{N}(0, \psi_{55})$. For the linear model comparison, all interaction and quadratic terms were omitted.
 
 ## Nonconvergence and Outliers
 
@@ -72,4 +71,4 @@ Method performance was assessed through multiple metrics following the formulas 
 
 ## Reproducibility and Computational Details
 
-The simulation was conducted on a Mac Studio with an Apple M4 Max chip (with 14 cores and 36 GB of RAM), running macOS Sequoia 15.5. All analyses were performed in R [@R-base] (version `r R_version`). Parallel processing was implemented through the *doParalell* package (version `r doparallel_version`) [@R-doParallel], with *doRNG* (version `r dorng_version`) [@R-doRNG] to ensure independent and reproducible random number streams. For the UPI with double mean centering, LMS, and QML approach, the *modsem* package was used [@kjell_etall_2024] (version `r modsem_version`) without robust SEs. For the LSAM approach, the *lavaan* package was used [@R-lavaan] (version `r lavaan_version`). In this case, we estimated the latent factors with a single measurement block as opposed to separately to maintain some similarity with the other approaches [@rosseel_loh_2024]. Importantly, apart from the aforementioned, we used the default settings for the functions provided in the packages^[This is important to acknowledge because there are arguments for the functions used that, in principle, could be manipulated to obtain better results. For instance, one could change the maximum steps for the M-step in the EM algorithm for the LMS. However, this also leads to substantial researcher degrees of freedom and hence were avoided.]. For generating normal, right-skewed, and uniform data we used the packages *covsim*  (version `r covsim_version`) [@gronneberg_foldnes_2022] and *rvinecopulib* (version `r vinecop`) [@R-rvinecopulib]. Figures were produced with *ggplot2* (version `r ggplot_version`) [@R-ggplot2]. Finally, this paper was written with *papaja* [@R-papaja] in Rmarkdown (see link for more information on reproducing the manuscript and analyses).
+The simulation was conducted on a Mac Studio with an Apple M4 Max chip (with 14 cores and 36 GB of RAM), running macOS Sequoia 15.5. All analyses were performed in R [@R-base] (version `r R_version`). Parallel processing was implemented through the *doParalell* package (version `r doparallel_version`) [@R-doParallel], with *doRNG* (version `r dorng_version`) [@R-doRNG] to ensure independent and reproducible random number streams. For the UPI with double mean centering, LMS, and QML approach, the *modsem* package was used [@kjell_etall_2024] (version `r modsem_version`) without robust SEs. For the LSAM approach, the *lavaan* package was used [@R-lavaan] (version `r lavaan_version`). In this case, we estimated the latent factors with a single measurement block as opposed to separately to maintain some similarity with the other approaches [@rosseel_loh_2024]. Importantly, apart from the aforementioned, we used the default settings for the functions provided in the packages^[This is important to acknowledge because there are arguments for the functions used that, in principle, could be manipulated to obtain better results. For instance, one could change the maximum steps for the M-step in the EM algorithm for the LMS. However, this also leads to substantial researcher degrees of freedom and hence were avoided.]. For generating normal, right-skewed, and uniform data we used the packages *covsim*  (version `r covsim_version`) [@gronneberg_foldnes_2022] and *rvinecopulib* (version `r vinecop`) [@R-rvinecopulib]. Figures were produced with *ggplot2* (version `r ggplot_version`) [@R-ggplot2]. Finally, this paper was written with *apaquarto* [@R-apaquarto] (see link for more information on reproducing the manuscript and analyses).
