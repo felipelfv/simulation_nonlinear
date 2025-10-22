@@ -76,6 +76,6 @@ Hence, the interested reader may find these functions helpful. However, they are
 1. `Data_Retrieval(debug).R` contains the R code and information needed to reproduce the datasets generated for any particular iterations across conditions for both simulation studies.
 2. `GenerateData(debug).R` contains the R code and information needed to generate data given specific parameters. This is useful to check if the data is generated correctly (i.e., according to our expectation).
 
-4. renv
+## 4. renv
 
 Manages R package dependencies and ensures consistent package versions across environments. Configured via renv.lock file
