@@ -18,6 +18,7 @@
 #' @param SAMPLE_SIZES      Integer vector. Sample sizes to simulate. Default is c(400, 1000).
 #' @param RELIABILITIES     Numeric vector. Reliability levels (0.4, 0.6, 0.8).
 #' @param SEED_START        Integer. Starting seed for reproducibility (default = 123)
+#' @param USE_ROBUST_SE     Logical. Whether to use robust standard errors for QML and UPI (default = FALSE)
 #' 
 #' @param analysis.model    Character. Lavaan syntax for the analysis model with 5 factors.
 
@@ -33,6 +34,7 @@
 #'   - Distribution:  Distribution types (normal, nonnormal, uniform).
 #'   - Model_Type:    "full" (with interaction/quadratic) or "linear" (without).
 #'   - model_name:    Generated names for population models ("normal_rel[X]" or "null_model_rel[X]").
+#'   - robust_se:     Logical indicator of robust SE setting for this run.
 #' 
 #' @param n_cores          Integer. Number of parallel cores (default = detectCores() - 6).
 #' 
@@ -46,6 +48,7 @@
 #'     * warnings:        List of warning messages for each method (QML filters bias warnings)
 #'     * observed_r2:     Matrix of observed R² values for eta4 and eta5 (N_REPLICATIONS x 2)
 #'     * observed_rel:    Matrix of observed reliabilities for 5 factors (N_REPLICATIONS x 5)
+#'     * robust_se_used:  Logical indicator of robust SE setting
 #'     * rng_states:      RNG states for reproducibility
 #'   - true_parameters:   List of true population parameters based on Model_Type:
 #'     * Intercepts:      eta4_intercept (0.1), eta5_intercept (0.1)
@@ -55,8 +58,8 @@
 #'     * For linear model: all interactions and quadratics set to 0
 #' 
 #' @note Output Files:
-#'   - Checkpoint files: Results_Study_2_checkpoint_[n].RData (every 5 conditions)
-#'   - Final file:       Results_Study_2_final.RData (all conditions)
+#'   - Checkpoint files: Results_Study_2[_robustse]_checkpoint_[n].RData (every 5 conditions)
+#'   - Final file:       Results_Study_2[_robustse]_final.RData (all conditions)
 #'   - Directory:        Simulations/Study_2/Data/
 #' 
 #' @note Dependencies:
@@ -75,16 +78,25 @@
 #library(lavaan); library(modsem); library(doParallel); 
 #library(doRNG); library(covsim); library(rvinecopulib); 
 
-############################### 2. Simulation ##################################
+############################### 3. Simulation ##################################
 
 load("Simulations/Study_2/Simulation/Models(2).RData")
 source("Simulations/Methods.R")  # methods file
 source("Simulations/GenerateData.R") 
 
+# SIMULATION PARAMETERS
+
+N_REPLICATIONS <- 1000
+SAMPLE_SIZES <- c(400, 1000)
+RELIABILITIES <- c(0.4, 0.6, 0.8)
+SEED_START <- 123
+USE_ROBUST_SE  <- FALSE  # relevant for supplemental materials: TRUE for robust SE
+
 # output directory
 base_dir <- "Simulations/Study_2/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
-results_base <- file.path(base_dir, "Results_Study_2")
+file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "") 
+results_base <- file.path(base_dir, paste0("Results_Study_2", file_suffix))
 
 # analysis model for 5 factors with new interaction structure
 analysis.model <- "
@@ -99,13 +111,6 @@ eta5 =~ x13 + x14 + x15
 eta4 ~ eta1 + eta2 + eta3 + eta1:eta2 + eta1:eta3 + eta1:eta1 + eta2:eta2
 eta5 ~ eta4 + eta1 + eta2 + eta3 + eta1:eta4 + eta2:eta4 + eta1:eta1 + eta3:eta3
 "
-
-# SIMULATION PARAMETERS
-
-N_REPLICATIONS <- 1000
-SAMPLE_SIZES <- c(400, 1000)
-RELIABILITIES <- c(0.4, 0.6, 0.8)
-SEED_START <- 123
 
 # distribution parameters for VITA (3 exogenous variables now)
 distributions <- list(
@@ -142,14 +147,17 @@ conditions$model_name <- ifelse(
   paste0("normal_rel", gsub("\\.", "", as.character(conditions$Rel)))
 )
 
+# track robust SE setting in conditions
+conditions$robust_se <- USE_ROBUST_SE
+
 # SETUP PARALLEL PROCESSING
-n_cores <- detectCores() - 6
+n_cores <- max(1, detectCores() - 6)
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 
 # cluster export to include all models
 clusterExport(cl, c("GenerateData", "method_lsam", "method_analytic", "method_upi",
-                    "analysis.model", "all_models", "distributions"))
+                    "analysis.model", "all_models", "distributions", "USE_ROBUST_SE"))
 
 # MAIN SIMULATION 
 
@@ -163,7 +171,8 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Reliability:", conditions$Rel[cond])
   cat("\n- Distribution:", conditions$Distribution[cond])
   cat("\n- Model type:", conditions$Model_Type[cond])  
-  cat("\n- Using model:", conditions$model_name[cond]) 
+  cat("\n- Using model:", conditions$model_name[cond])
+  cat("\n- Robust SE:", USE_ROBUST_SE)
   cat("\n", paste(rep("=", 60), collapse = ""), "\n")
   
   # population model from all_models based on model_name
@@ -203,7 +212,8 @@ for (cond in 1:nrow(conditions)) {
     ),
     
     observed_r2  = matrix(NA, nrow = N_REPLICATIONS, ncol = 2),  # eta4, eta5 only now
-    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 5)   # 5 latent variables now
+    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 5),  # 5 latent variables now
+    robust_se_used = USE_ROBUST_SE
   )
   
   # replications in parallel
@@ -278,7 +288,8 @@ for (cond in 1:nrow(conditions)) {
     # QML 
     # filter out the specific QML bias warning about exogenous/endogenous interactions
     qml_res <- run_with_warnings(
-      method_analytic(Data = data_clean, model.fit = analysis.model, method = "qml"),
+      method_analytic(Data = data_clean, model.fit = analysis.model, 
+                      method = "qml", robust.se = USE_ROBUST_SE),
       filter_pattern = "Interactions between exogenous and (endogenous|enodgenous).*QML.*approach.*biased"
       # enodgenous because there was a typo in the message from modsem
     )
@@ -288,7 +299,8 @@ for (cond in 1:nrow(conditions)) {
     
     # UPI 
     upi_res <- run_with_warnings(
-      method_upi(Data = data_clean, model.fit = analysis.model)
+      method_upi(Data = data_clean, model.fit = analysis.model, 
+                 robust.se = USE_ROBUST_SE)
     )
     results$upi_table    <- upi_res$table
     results$upi_timing   <- upi_res$timing
@@ -384,5 +396,8 @@ for (cond in 1:nrow(conditions)) {
 stopCluster(cl)
 
 save(all_results, conditions, file = paste0(results_base, "_final.RData"))
+
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
+cat(sprintf("Results saved with suffix: %s\n", file_suffix))
+cat(sprintf("Robust SE used: %s\n", USE_ROBUST_SE))
