@@ -21,7 +21,7 @@ METHOD_ORDER_5 <- c("LSAM","QML","UPI")        # For 5-factor study (Study 2)
 # distribution labels for all studies
 DIST_LABS <- c(normal="Normal", nonnormal="Right-skewed", uniform="Uniform")
 
-# ============================= VISUAL SPECIFICATIONS ===========================
+# VISUAL SPECIFICATIONS 
 # shape specifications for point markers
 SHAPES_4 <- c(LSAM=16, LMS=17, QML=15, UPI=18)  # 4 methods
 SHAPES_3 <- c(LSAM=16, QML=15, UPI=18)          # 3 methods
@@ -134,7 +134,7 @@ prep_study2_subset <- function(df, distribution, model = c("Full","Linear")) {
 #' @return List containing formatted data frames for each metric type
 prepare_study1_data <- function(results_data) {
   
-  # Bias data (absolute)
+  # bias data (absolute)
   dat_bias <- bind_rows(
     prep_study1_subset(results_data, "Linear") %>% mutate(Model = "Linear"),
     prep_study1_subset(results_data, "Full") %>% mutate(Model = "Full")
@@ -143,7 +143,7 @@ prepare_study1_data <- function(results_data) {
     transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
               y = Bias_Mean, yerr = Bias_Mean_MCSE)
   
-  # Relative bias data
+  # relative bias data
   dat_bias_relative <- bind_rows(
     prep_study1_subset(results_data, "Linear") %>% mutate(Model = "Linear"),
     prep_study1_subset(results_data, "Full") %>% mutate(Model = "Full")
@@ -161,7 +161,7 @@ prepare_study1_data <- function(results_data) {
     transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
               y = RMSE_Mean, yerr = RMSE_Mean_MCSE)
   
-  # Relative RMSE data
+  # relative RMSE data
   dat_rmse_relative <- bind_rows(
     prep_study1_subset(results_data, "Linear") %>% mutate(Model = "Linear"),
     prep_study1_subset(results_data, "Full") %>% mutate(Model = "Full")
@@ -170,7 +170,7 @@ prepare_study1_data <- function(results_data) {
     transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
               y = Relative_RMSE, yerr = Relative_RMSE_MCSE)
   
-  # SE/SD ratio data
+  # se/sd ratio data
   dat_sesd <- bind_rows(
     prep_study1_subset(results_data, "Linear") %>% mutate(Model = "Linear"),
     prep_study1_subset(results_data, "Full") %>% mutate(Model = "Full")
@@ -179,7 +179,7 @@ prepare_study1_data <- function(results_data) {
     transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
               ratio = SE_SD_Ratio)
   
-  # Coverage rate data
+  # coverage rate data
   dat_cov <- bind_rows(
     prep_study1_subset(results_data, "Linear") %>% mutate(Model = "Linear"),
     prep_study1_subset(results_data, "Full") %>% mutate(Model = "Full")
@@ -188,11 +188,11 @@ prepare_study1_data <- function(results_data) {
     transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
               y = CoverageRate, yerr = 100 * CoverageRate_MCSE)
   
-  # Type I error data (Linear model only)
+  # Type I error data (linear model only)
   dat_t1 <- prep_study1_subset(results_data, "Linear") %>%
     transmute(Distribution, Parameter, Condition, Method, y = TypeI_Error)
   
-  # Statistical power data (Full model only)
+  # statistical power data (full model only)
   dat_pow <- prep_study1_subset(results_data, "Full") %>%
     transmute(Distribution, Parameter, Condition, Method, y = Power)
   
@@ -214,7 +214,7 @@ prepare_study1_data <- function(results_data) {
 #' @return List containing formatted data frames for each metric type
 prepare_study2_data <- function(results_data, dist_name) {
   
-  # Bias data (absolute)
+  # bias data (absolute)
   dat_bias <- bind_rows(
     prep_study2_subset(results_data, dist_name, "Linear") %>% mutate(Model = "Linear"),
     prep_study2_subset(results_data, dist_name, "Full") %>% mutate(Model = "Full")
@@ -224,7 +224,7 @@ prepare_study2_data <- function(results_data, dist_name) {
     transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability, 
               Method, Model, y = Bias_Mean, yerr = Bias_Mean_MCSE)
   
-  # Relative bias data
+  # relative bias data
   dat_bias_relative <- bind_rows(
     prep_study2_subset(results_data, dist_name, "Linear") %>% mutate(Model = "Linear"),
     prep_study2_subset(results_data, dist_name, "Full") %>% mutate(Model = "Full")
@@ -244,7 +244,7 @@ prepare_study2_data <- function(results_data, dist_name) {
     transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
               Method, Model, y = RMSE_Mean, yerr = RMSE_Mean_MCSE)
   
-  # Relative RMSE data
+  # relative RMSE data
   dat_rmse_relative <- bind_rows(
     prep_study2_subset(results_data, dist_name, "Linear") %>% mutate(Model = "Linear"),
     prep_study2_subset(results_data, dist_name, "Full") %>% mutate(Model = "Full")
@@ -254,7 +254,7 @@ prepare_study2_data <- function(results_data, dist_name) {
     transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
               Method, Model, y = Relative_RMSE, yerr = Relative_RMSE_MCSE)
   
-  # SE/SD ratio data
+  # se/sd ratio data
   dat_sesd <- bind_rows(
     prep_study2_subset(results_data, dist_name, "Linear") %>% mutate(Model = "Linear"),
     prep_study2_subset(results_data, dist_name, "Full") %>% mutate(Model = "Full")
@@ -264,7 +264,7 @@ prepare_study2_data <- function(results_data, dist_name) {
     transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
               Method, Model, ratio = SE_SD_Ratio)
   
-  # Coverage rate data
+  # coverage rate data
   dat_cov <- bind_rows(
     prep_study2_subset(results_data, dist_name, "Linear") %>% mutate(Model = "Linear"),
     prep_study2_subset(results_data, dist_name, "Full") %>% mutate(Model = "Full")
@@ -274,11 +274,11 @@ prepare_study2_data <- function(results_data, dist_name) {
     transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
               Method, Model, y = CoverageRate, yerr = 100 * CoverageRate_MCSE)
   
-  # Type I error and Power data (special handling for eta4/eta5 parameters)
+  # Type I error and power data (special handling for eta4/eta5 parameters)
   eta4_params <- c("eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
   eta5_params <- c("eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
   
-  # Type I error (Linear model only)
+  # Type I error (linear model only)
   dat_t1 <- results_data %>%
     filter(Model == "Linear", Distribution == dist_name,
            (Equation == "eta4" & Parameter %in% eta4_params) |
@@ -301,7 +301,7 @@ prepare_study2_data <- function(results_data, dist_name) {
     ) %>%
     select(Distribution, Parameter, Condition, Method, y)
   
-  # Statistical power (Full model only)
+  # statistical power (full model only)
   dat_pow <- results_data %>%
     filter(Model == "Full", Distribution == dist_name,
            (Equation == "eta4" & Parameter %in% eta4_params) |
@@ -446,33 +446,33 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
   p <- ggplot(data,
               aes(x = Reliability, y = ratio, 
                   group = Method, shape = Method, linetype = Method)) +
-    # shaded region for acceptable SE/SD ratios (0.85-1.15)
-    annotate("rect", xmin = -Inf, xmax = Inf, ymin = 0.90, ymax = 1.1,
+    # shaded region for acceptable SE/SD ratios (0.90-1.10)
+    annotate("rect", xmin = -Inf, xmax = Inf, ymin = 0.90, ymax = 1.10,
              fill = "grey93", alpha = .9) +
     geom_hline(yintercept = 1, linetype = "dotted") +
-    # truncate extreme values for display
-    geom_line(aes(y = pmax(pmin(ratio, 1.6), 0.85)), 
-              color = "black", position = position_dodge(width = 0.0)) +
-    geom_point(aes(y = pmax(pmin(ratio, 1.6), 0.85)),
-               color = "black", size = 2, position = position_dodge(width = 0.0)) +
+    # Plot actual values, not truncated - let coord_cartesian handle the limits
+    geom_line(color = "black", position = position_dodge(width = 0.6)) +
+    geom_point(color = "black", size = 2, position = position_dodge(width = 0.6)) +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    coord_cartesian(ylim = c(0.80, 1.4)) + 
+    coord_cartesian(ylim = c(0.80, 1.40)) +  # This clips the view without changing data
     labs(x = "Reliability", y = "SE / SD", title = title) +
     theme_apa_bw()
   
-  # labels for extreme values (upper) - within visible range
+  # Labels for values outside the visible range
   p <- p + 
+    # Upper extreme values (above 1.40)
     geom_text(data = filter(data, ratio > 1.40) %>%
                 group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
                 arrange(desc(ratio)) %>%
-                mutate(label_y = pmin(1.39 - (row_number() - 1) * 0.05, 1.39)), 
+                mutate(label_y = 1.39 - (row_number() - 1) * 0.03),  # Stack labels
               aes(label = sprintf("%s: %.2f", Method, ratio), y = label_y),
               size = 1.5, hjust = 0, vjust = 1) +
+    # Lower extreme values (below 0.80)
     geom_text(data = filter(data, ratio < 0.80) %>%
                 group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
                 arrange(ratio) %>%
-                mutate(label_y = pmax(0.81 + (row_number() - 1) * 0.05, 0.81)), 
+                mutate(label_y = 0.81 + (row_number() - 1) * 0.03),  # Stack labels
               aes(label = sprintf("%s: %.2f", Method, ratio), y = label_y),
               size = 1.5, hjust = 0, vjust = 0)
   
