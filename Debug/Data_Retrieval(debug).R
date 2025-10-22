@@ -1,35 +1,61 @@
 ############################ 1. General Information ############################
 
-# This file contains the code for replicating exact datasets from completed 
+# This file contains the updated code for replicating exact datasets from completed 
 # SEM simulation studies by restoring the original RNG state used during data 
-# generation. This enables reproducibility and validation of simulation results.
-# Note the checks to ensure the interested reader has everything loaded 
+# generation. Updated to reflect new methods (upi, lsam) and VITA-based generation.
 
 #' @param condition_id Integer. Identifier for the experimental condition to replicate. Must be within range of available conditions in results file.
 #' @param rep_id Integer. Replication number within the condition to reproduce. Must be within range of completed replications for that condition.
 #' @param study Integer. Study identifier (1 or 2). Determines which models and default results file to use. Default is 1.
 #' @param results_file Character. Path to results file containing simulation data. If NULL, uses study-specific default path. Default is NULL.
+#' @param base_path Character. Base directory path for simulation files. Default is ".".
 #' @return A data.frame containing the replicated dataset with attributes:
+#'   - condition: The experimental condition parameters
+#'   - condition_id: Integer identifier for the condition
+#'   - rep_id: Replication number within the condition
+#'   - study: Study identifier (1 or 2)
+#'   - observed_R2: Observed R-squared values for endogenous variables
+#'   - observed_reliabilities: Observed reliability values for latent variables
 
 ############################### 2. Function ####################################
 
 replicate_condition_data <- function(condition_id, rep_id, study = 1, 
-                                     results_file = NULL) {
+                                     results_file = NULL, base_path = ".") {
   
-  library(lavaan); library(covsim); library(copula)
+  # required packages
+  required_packages <- c("lavaan", "covsim", "rvinecopulib")
+  missing_packages <- required_packages[!sapply(required_packages, requireNamespace, quietly = TRUE)]
+  if (length(missing_packages) > 0) {
+    stop("Required packages not installed: ", paste(missing_packages, collapse = ", "))
+  }
   
-  # appropriate models based on study
+  library(lavaan)
+  library(covsim) 
+  library(rvinecopulib)
+  
+  # load appropriate models based on study
   if (study == 1) {
-    load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models
-    default_file <- "Simulations/Study_1/Data/Results_Study_1_final.RData"
+    models_path <- file.path(base_path, "Simulations/Study_1/Simulation/Models(1).RData")
+    default_file <- file.path(base_path, "Simulations/Study_1/Data/Results_Study_1_final.RData")
   } else if (study == 2) {
-    load("Simulations/Study_2/Simulation/Models(2).RData")  # all_models
-    default_file <- "Simulations/Study_2/Data/Results_Study_2_final.RData"
+    models_path <- file.path(base_path, "Simulations/Study_2/Simulation/Models(2).RData")
+    default_file <- file.path(base_path, "Simulations/Study_2/Data/Results_Study_2_final.RData")
   } else {
     stop("Study must be 1 or 2")
   }
   
-  source("Simulations/GenerateData.R")  
+  # check if models file exists
+  if (!file.exists(models_path)) {
+    stop("Models file not found: ", models_path)
+  }
+  load(models_path) 
+  
+  # load GenerateData function
+  generate_data_path <- file.path(base_path, "Simulations/GenerateData.R")
+  if (!file.exists(generate_data_path)) {
+    stop("GenerateData.R not found: ", generate_data_path)
+  }
+  source(generate_data_path)
   
   # load results file
   if (is.null(results_file)) {
@@ -40,35 +66,44 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
     stop("Results file not found: ", results_file)
   }
   
-  load(results_file)
+  load(results_file) 
   
+  # validate condition_id
   if (length(all_results) < condition_id) {
     stop("Condition ", condition_id, " not found in results (max: ", 
          length(all_results), ")")
   }
   
-  # condition data
+  # extract condition data
   cond_data <- all_results[[condition_id]]
   condition <- cond_data$condition
   results <- cond_data$results
   
-  # if rep_id exists
-  max_reps <- if (study == 1) {
-    max(length(results$lms_tables), 
-        length(results$qml_tables),
-        length(results$dblcent_tables),
-        length(results$sam_tables))
+  # check if rep_id exists based on available methods
+  if (study == 1) {
+    # study 1: lms, qml, upi, lsam
+    max_reps <- max(
+      length(results$lms_tables),
+      length(results$qml_tables),
+      length(results$upi_tables),
+      length(results$lsam_tables),
+      na.rm = TRUE
+    )
   } else {
-    max(length(results$qml_tables),
-        length(results$dblcent_tables),
-        length(results$sam_tables))
+    # study 2: lsam, qml, upi
+    max_reps <- max(
+      length(results$lsam_tables),
+      length(results$qml_tables),
+      length(results$upi_tables),
+      na.rm = TRUE
+    )
   }
   
   if (rep_id > max_reps) {
     stop("Replication ", rep_id, " not found (max: ", max_reps, ")")
   }
   
-  # RNG state as this is essential for replication
+  # RNG state - this is essential for replication
   if (is.null(results$rng_states)) {
     stop("RNG states not found in results. Cannot replicate exact data.")
   }
@@ -78,9 +113,10 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
     stop("RNG state for replication ", rep_id, " not found. Cannot replicate exact data.")
   }
   
+  # restore RNG state
   assign(".Random.seed", rng_state, envir = .GlobalEnv)
   
-  # population model
+  # get population model
   model_name <- condition$model_name
   population_model <- all_models[[model_name]]
   
@@ -88,58 +124,78 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
     stop("Model ", model_name, " not found")
   }
   
-  # distribution parameters
+  # distribution parameters for VITA-based generation
   distributions <- list(
-    normal    = list(skewness = c(0, 0, 0), 
-                     excesskurtosis = c(0, 0, 0), 
-                     distr.exo = "normal.rIG"),
-    nonnormal = list(skewness = c(2, 2, 2), 
-                     excesskurtosis = c(7, 7, 7), 
-                     distr.exo = "nonnormal.rIG"),
-    uniform   = list(skewness = c(0, 0, 0), 
-                     excesskurtosis = c(0, 0, 0), 
-                     distr.exo = "unif")
+    normal = list(
+      distr.exo = "normal",
+      nonnormal.shape = NULL,
+      nonnormal.rate = NULL
+    ),
+    nonnormal = list(
+      distr.exo = "nonnormal",
+      nonnormal.shape = if (study == 1) c(1, 1) else c(1, 1, 1),  # 2 exog for Study 1, 3 for Study 2
+      nonnormal.rate = if (study == 1) c(1, 1) else c(1, 1, 1)
+    ),
+    uniform = list(
+      distr.exo = "uniform", 
+      nonnormal.shape = NULL,
+      nonnormal.rate = NULL
+    )
   )
   
-  # study 1, use 2-element vectors; for Study 2, use 3-element vectors
-  if (study == 1) {
-    distributions$normal$skewness <- c(0, 0)
-    distributions$normal$excesskurtosis <- c(0, 0)
-    distributions$nonnormal$skewness <- c(2, 2)
-    distributions$nonnormal$excesskurtosis <- c(7, 7)
-    distributions$uniform$skewness <- c(0, 0)
-    distributions$uniform$excesskurtosis <- c(0, 0)
+  # distribution name from condition
+  # handle both old naming (Distribution) and potential new naming (generation_distribution)
+  dist_name <- if (!is.null(condition$generation_distribution)) {
+    tolower(condition$generation_distribution)
+  } else if (!is.null(condition$Distribution)) {
+    tolower(condition$Distribution)
+  } else {
+    stop("Distribution information not found in condition")
   }
   
-  dist_params <- distributions[[tolower(condition$Distribution)]]
+  dist_params <- distributions[[dist_name]]
   
-  Data <- GenerateData(
-    model          = population_model,
-    N              = condition$N,
-    skewness       = dist_params$skewness,
-    excesskurtosis = dist_params$excesskurtosis,
-    distr.exo      = dist_params$distr.exo,
-    distr.epsilon  = "normal",
-    distr.zeta     = "normal",
-    add.eta        = FALSE,
-    return.info    = TRUE
-  )
+  if (is.null(dist_params)) {
+    stop("Unknown distribution: ", dist_name)
+  }
   
-  # data with condition info as attributes
+  # generate data using VITA-based approach
+  tryCatch({
+    Data <- GenerateData(
+      model           = population_model,
+      N               = condition$N,
+      distr.exo       = dist_params$distr.exo,
+      nonnormal.shape = dist_params$nonnormal.shape,
+      nonnormal.rate  = dist_params$nonnormal.rate,
+      distr.epsilon   = "normal",
+      distr.zeta      = "normal",
+      add.eta         = FALSE,
+      return.info     = TRUE
+    )
+  }, error = function(e) {
+    stop("Failed to generate data for condition ", condition_id, 
+         ", rep ", rep_id, ": ", e$message)
+  })
+  
+  # add attributes with condition info
   attr(Data, "condition") <- condition
   attr(Data, "condition_id") <- condition_id
   attr(Data, "rep_id") <- rep_id
   attr(Data, "study") <- study
+  attr(Data, "model_name") <- model_name
+  attr(Data, "distribution") <- dist_name
   
+  # return the data with all attributes preserved
   Data
 }
 
 # example:
-data_to_replicate <- replicate_condition_data(
+data_replicate <- replicate_condition_data(
   condition_id = 1, 
-  rep_id = 50,
+  rep_id = 1,
   study = 1
 )
 
 # following this one now may proceed to load the analysis model and fit with whatever the estimation desired
+# you should obtain the same results as reported in the specific .RData file
 
