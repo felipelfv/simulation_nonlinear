@@ -47,23 +47,27 @@ Contains all simulation studies and supporting scripts.
 
 ```{r}
 Simulations/
-├── Study_1/                       # First simulation study
-│   ├── Results/                   # Study 1 results
-│   │   └── Results(1).R           # Results analysis script
-│   └── Simulation/                # Study 1 simulation code
-│       ├── Models(1).RData        # Saved model objects
-│       └── Simulation(1).R        # Main simulation script
+├── Study_1/                             # First simulation study
+│   ├── Data/                            # Study 1 simulation results (Git LFS)
+│   │   └── Results_Study_1_final.RData  # Final results obtained from sim 1
+│   ├── Results/                         # Study 1 results analysis
+│   │   └── Results(1).R                 # Results analysis script
+│   └── Simulation/                      # Study 1 simulation code
+│       ├── Models(1).RData              # Saved model objects
+│       └── Simulation(1).R              # Main simulation script
 │
-├── Study_2/                       # Second simulation study
-│   ├── Results/                   # Study 2 results
-│   │   └── Results(2).R           # Results analysis script
-│   └── Simulation/                # Study 2 simulation code
-│       ├── Models(2).RData        # Saved model objects
-│       └── Simulation(2).R        # Main simulation script
+├── Study_2/                             # Second simulation study
+│   ├── Data/                            # Study 2 simulation results (Git LFS)
+│   │   └── Results_Study_2_final.RData  # Final results obtained from sim 2
+│   ├── Results/                         # Study 2 results analysis
+│   │   └── Results(2).R                 # Results analysis script
+│   └── Simulation/                      # Study 2 simulation code
+│       ├── Models(2).RData              # Saved model objects
+│       └── Simulation(2).R              # Main simulation script
 │
-├── GenerateData.R                 # Data generation function used for both studies
-├── Methods.R                      # Common methods/approaches for both studies
-└── Plots.R                        # Plotting functions for both results
+├── GenerateData.R                       # Data generation function used for both studies
+├── Methods.R                            # Common methods/approaches for both studies
+└── Plots.R                              # Plotting functions for both results
 ```
 
 ### 3. Debug
