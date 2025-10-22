@@ -192,7 +192,7 @@ for (cond in 1:nrow(conditions)) {
     envir = environment()
   )
   
-  # --- initialize results (warnings only, no error storage) ---
+  # initialize results (warnings only, no error storage) 
   res <- list(
     lsam_tables = vector("list", N_REPLICATIONS),
     qml_tables  = vector("list", N_REPLICATIONS),
@@ -400,4 +400,3 @@ save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 total_time <- difftime(Sys.time(), start_time, units = "hours")
 cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
 cat(sprintf("Results saved with suffix: %s\n", file_suffix))
-cat(sprintf("Robust SE used: %s\n", USE_ROBUST_SE))
