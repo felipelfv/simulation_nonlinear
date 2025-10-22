@@ -406,80 +406,40 @@ BY
 comparing structural-after-measurement versus traditional approaches to
 estimate nonlinear effects in structural equation modeling</p>
 </div>
-<div id="reproducing-the-results" class="section level2">
-<h2>Reproducing the results</h2>
-<ul>
-<li>To reproduce the simulation study and the obtained estimates (across
-all conditions and iterations), we refer to the files in the folder
-<code>/Simulation/</code>:</li>
-</ul>
+<div id="root-directory-structure" class="section level2">
+<h2>Root Directory Structure</h2>
+<p><code>{r} Simulation_First_PhD_Article/ ├── Debug/                          # Debugging scripts ├── Manuscript/                     # All manuscript and supplementary materials ├── Simulations/                    # Simulation code and studies ├── renv/                           # R environment management ├── .gitignore                      # Git ignore rules ├── README.html                     # HTML version of README ├── README.md                       # Repository documentation ├── SimulationStudy_Nonlinear.Rproj # RStudio project file └── renv.lock                       # R dependency lock file</code></p>
+</div>
+<div id="manuscript" class="section level2">
+<h2>1. Manuscript</h2>
+<p>Contains all manuscript materials converted to Quarto format.</p>
+<p><code>{r} Manuscript/ ├── _extensions/wjschne/apaquarto/  # APA Quarto extension ├── appendix_files/figure-html/     # (Some) Appendix figure files ├── design_files/libs/              # Design support files ├── figure/                         # Main manuscript figures ├── Phd - Initial Readings.bib      # Bibliography file ├── appendix_a.qmd                  # Appendix A (Quarto markdown) ├── appendix_b.qmd                  # Appendix B (Quarto markdown) ├── design.qmd                      # Design section ├── discussion.qmd                  # Discussion section ├── introduction.qmd                # Introduction section ├── manuscript.qmd                  # Main manuscript file ├── modelsframework.qmd             # Models and framework section ├── results.qmd                     # Results section └── supplemental.Rmd                # Supplemental materials (R markdown)</code></p>
+</div>
+<div id="simulations" class="section level2">
+<h2>2. Simulations</h2>
+<p>Contains all simulation studies and supporting scripts.</p>
+<p><code>{r} Simulations/ ├── Study_1/                       # First simulation study │   ├── Results/                   # Study 1 results │   │   └── Results(1).R           # Results analysis script │   └── Simulation/                # Study 1 simulation code │       ├── Models(1).RData        # Saved model objects │       └── Simulation(1).R        # Main simulation script │ ├── Study_2/                       # Second simulation study │   ├── Results/                   # Study 2 results │   │   └── Results(2).R           # Results analysis script │   └── Simulation/                # Study 2 simulation code │       ├── Models(2).RData        # Saved model objects │       └── Simulation(2).R        # Main simulation script │ ├── GenerateData.R                 # Data generation function used for both studies ├── Methods.R                      # Common methods/approaches for both studies └── Plots.R                        # Plotting functions for both results</code></p>
+</div>
+<div id="debug" class="section level2">
+<h2>3. Debug</h2>
+<p>This folder contains two scripts which I have used to check the data
+generation mechanism as well as retrieve a dataset generated under the
+simulation. Hence, the interested reader may find these functions
+helpful. However, they are not relevant for the manuscript and results
+reported.</p>
 <ol style="list-style-type: decimal">
-<li><code>GenerateData.R</code> contains the R code for the
-self-costumed function [<code>GenerateData()</code>] that was used to
-simulate data according to the specified parameters.</li>
-<li><code>Methods.R</code> contains the R code necessary for estimating
-the methods (i.e., LMS, QML, UCA, and SAM) compared in the
-simulation(s).</li>
-<li><code>Models.R</code> contains the lavaan-based syntax models that
-were used to generate data, according to a population model, and the
-models used for the estimation.</li>
-<li><code>Design.R</code> contains the R code that creates the multiple
-conditions.</li>
-<li><code>Simulation.R</code> is the script used for running the Monte
-Carlo simulations. Note that this “sources” all the files above
-(1-4).</li>
+<li><p><code>Data_Retrieval(debug).R</code> contains the R code and
+information needed to reproduce the datasets generated for any
+particular iterations across conditions for both simulation
+studies.</p></li>
+<li><p><code>GenerateData(debug).R</code> contains the R code and
+information needed to generate data given specific parameters. This is
+useful to check if the data is generated correctly (i.e., according to
+our expectation).</p></li>
+<li><p>renv</p></li>
 </ol>
-<p>For more information concerning the actual functions in each
-aforementioned script, see below.</p>
-<ul>
-<li>To reproduce the results (i.e., bias, variability, type I error,
-etc.), we refer to the files in the folder <code>/Results/</code>:</li>
-</ul>
-<ol style="list-style-type: decimal">
-<li></li>
-</ol>
-<ul>
-<li>To reproduce the plots, we refer to the files in the folder
-<code>/Plots/</code>:</li>
-</ul>
-<ol style="list-style-type: decimal">
-<li></li>
-</ol>
-</div>
-<div id="details-on-the-functions" class="section level2">
-<h2>Details on the functions</h2>
-</div>
-<div id="generatedata.r" class="section level2">
-<h2>GenerateData.R</h2>
-<p>This script contains the function that will parse the model
-information (in lavaan syntax) and generate data based on some
-user-specified arguments.</p>
-<p><code>{r} GenerateData &lt;- function(model,                          N = 1000L,                          skewness = NULL,                          excesskurtosis = NULL,                          exo.mean = NULL,                          distr.exo = &quot;rIG&quot;,                          distr.zeta = &quot;normal&quot;,                          distr.epsilon = &quot;normal&quot;,                          center.exogenous.latent = TRUE,                          center.exogenous.manifest = TRUE,                          center.lv.dependent = FALSE,                          center.lv.prod = FALSE,                          center.indicators = FALSE,                          target.var = NULL,                          R2 = NULL,                          rel = 0.64,                          seed = NULL,                          add.eta = FALSE)</code></p>
-</div>
-<div id="methods.r" class="section level2">
-<h2>Methods.R</h2>
-<p>This file contains the functions dedicated for the estimation based
-on the different approaches.</p>
-<p>```{r} method_uca &lt;- function(Data = NULL, model.fit = NULL)</p>
-<p>method_sam &lt;- function(Data = NULL, estimator = “ML”, joint =
-FALSE, add.attr = FALSE, model.fit = NULL)</p>
-<p>method_analytic &lt;- function(Data = NULL, model.fit = NULL,
-standardized = FALSE, method = “lms”) ```</p>
-</div>
-<div id="models.r" class="section level2">
-<h2>Models.R</h2>
-<p>This file contains all the models specified in lavaan syntax that are
-passed to GenerateData() in GenerateData.R</p>
-</div>
-<div id="design.r" class="section level2">
-<h2>Design.R</h2>
-<p>This file contains the parameters that we vary in the simulation
-study.</p>
-</div>
-<div id="simulation.r" class="section level2">
-<h2>Simulation.R</h2>
-<p>This file contains the actual script for running the simulation.
-Importantly, this script is dependent on the abovementioned.</p>
+<p>Manages R package dependencies and ensures consistent package
+versions across environments. Configured via renv.lock file</p>
 </div>
 
 

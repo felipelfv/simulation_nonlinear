@@ -6,74 +6,76 @@ Repository for the first article of my PhD: A simulation study comparing
 structural-after-measurement versus traditional approaches 
 to estimate nonlinear effects in structural equation modeling
 
-## Reproducing the results 
-
-* To reproduce the simulation study and the obtained estimates (across all conditions and iterations), we refer to the files in the folder `/Simulation/`:
-1. `GenerateData.R` contains the R code for the self-costumed function [`GenerateData()`] that was used to simulate data according to the specified parameters.
-2. `Methods.R` contains the R code necessary for estimating the methods (i.e., LMS, QML, UCA, and SAM) compared in the simulation(s).
-3. `Models.R` contains the lavaan-based syntax models that were used to generate data, according to a population model, and the models used for the estimation. 
-4. `Design.R` contains the R code that creates the multiple conditions. 
-5. `Simulation.R` is the script used for running the Monte Carlo simulations. Note that this "sources" all the files above (1-4). 
-
-For more information concerning the actual functions in each aforementioned script, see section Details below. 
-
-* To reproduce the results (i.e., bias, variability, type I error, etc.), we refer to the files in the folder `/Results/`:
-1. 
-
-* To reproduce the plots, we refer to the files in the folder `/Plots/`:
-1. `Plots.R` contains all the R code needed to reproduce the plots displayed in the manuscript and more. 
-
-## Details
-
-### GenerateData.R
-
-This script contains the function that will parse the model information (in lavaan syntax) 
-and generate data based on some user-specified arguments.
+## Root Directory Structure
 
 ```{r}
-GenerateData <- function(model,
-                         N = 1000L,
-                         skewness = NULL,
-                         excesskurtosis = NULL,
-                         exo.mean = NULL,
-                         distr.exo = "rIG",
-                         distr.zeta = "normal",
-                         distr.epsilon = "normal",
-                         center.exogenous.latent = TRUE,
-                         center.exogenous.manifest = TRUE,
-                         center.lv.dependent = FALSE,
-                         center.lv.prod = FALSE,
-                         center.indicators = FALSE,
-                         target.var = NULL,
-                         R2 = NULL,
-                         rel = 0.64,
-                         seed = NULL,
-                         add.eta = FALSE)
+Simulation_First_PhD_Article/
+├── Debug/                          # Debugging scripts
+├── Manuscript/                     # All manuscript and supplementary materials
+├── Simulations/                    # Simulation code and studies
+├── renv/                           # R environment management
+├── .gitignore                      # Git ignore rules
+├── README.html                     # HTML version of README
+├── README.md                       # Repository documentation
+├── SimulationStudy_Nonlinear.Rproj # RStudio project file
+└── renv.lock                       # R dependency lock file
 ```
 
-### Methods.R
+## 1. Manuscript 
 
-This file contains the functions dedicated for the estimation based on the different approaches. 
+Contains all manuscript materials converted to Quarto format.
 
 ```{r}
-method_uca <- function(Data = NULL, model.fit = NULL)
-
-method_sam <- function(Data = NULL, estimator = "ML",
-                       joint = FALSE, add.attr = FALSE, 
-                       model.fit = NULL)
-                       
-method_analytic <- function(Data = NULL, model.fit = NULL, 
-                            standardized = FALSE, method = "lms")
+Manuscript/
+├── _extensions/wjschne/apaquarto/  # APA Quarto extension
+├── appendix_files/figure-html/     # (Some) Appendix figure files
+├── design_files/libs/              # Design support files
+├── figure/                         # Main manuscript figures
+├── Phd - Initial Readings.bib      # Bibliography file
+├── appendix_a.qmd                  # Appendix A (Quarto markdown)
+├── appendix_b.qmd                  # Appendix B (Quarto markdown)
+├── design.qmd                      # Design section
+├── discussion.qmd                  # Discussion section
+├── introduction.qmd                # Introduction section
+├── manuscript.qmd                  # Main manuscript file
+├── modelsframework.qmd             # Models and framework section
+├── results.qmd                     # Results section
+└── supplemental.Rmd                # Supplemental materials (R markdown)
 ```
 
-### Models.R
+## 2. Simulations
 
-This file contains all the models specified in lavaan syntax that are passed to GenerateData() in GenerateData.R
+Contains all simulation studies and supporting scripts.
 
-### Design.R
+```{r}
+Simulations/
+├── Study_1/                       # First simulation study
+│   ├── Results/                   # Study 1 results
+│   │   └── Results(1).R           # Results analysis script
+│   └── Simulation/                # Study 1 simulation code
+│       ├── Models(1).RData        # Saved model objects
+│       └── Simulation(1).R        # Main simulation script
+│
+├── Study_2/                       # Second simulation study
+│   ├── Results/                   # Study 2 results
+│   │   └── Results(2).R           # Results analysis script
+│   └── Simulation/                # Study 2 simulation code
+│       ├── Models(2).RData        # Saved model objects
+│       └── Simulation(2).R        # Main simulation script
+│
+├── GenerateData.R                 # Data generation function used for both studies
+├── Methods.R                      # Common methods/approaches for both studies
+└── Plots.R                        # Plotting functions for both results
+```
 
-This file contains the parameters that we vary in the simulation study.
+## 3. Debug
 
-### Simulation.R
+This folder contains two scripts which I have used to check the data generation mechanism as well as retrieve a dataset generated under the simulation.
+Hence, the interested reader may find these functions helpful. However, they are not relevant for the manuscript and results reported. 
 
-This file contains the actual script for running the simulation. Importantly, this script is dependent on the abovementioned. 
+1. `Data_Retrieval(debug).R` contains the R code and information needed to reproduce the datasets generated for any particular iterations across conditions for both simulation studies.
+2. `GenerateData(debug).R` contains the R code and information needed to generate data given specific parameters. This is useful to check if the data is generated correctly (i.e., according to our expectation).
+
+4. renv
+
+Manages R package dependencies and ensures consistent package versions across environments. Configured via renv.lock file
