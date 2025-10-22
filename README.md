@@ -21,7 +21,7 @@ Simulation_First_PhD_Article/
 └── renv.lock                       # R dependency lock file
 ```
 
-## 1. Manuscript 
+### 1. Manuscript 
 
 Contains all manuscript materials converted to Quarto format.
 
@@ -43,7 +43,7 @@ Manuscript/
 └── supplemental.Rmd                # Supplemental materials (R markdown)
 ```
 
-## 2. Simulations
+### 2. Simulations
 
 Contains all simulation studies and supporting scripts.
 
@@ -68,7 +68,7 @@ Simulations/
 └── Plots.R                        # Plotting functions for both results
 ```
 
-## 3. Debug
+### 3. Debug
 
 This folder contains two scripts which I have used to check the data generation mechanism as well as retrieve a dataset generated under the simulation.
 Hence, the interested reader may find these functions helpful. However, they are not relevant for the manuscript and results reported. 
@@ -76,6 +76,12 @@ Hence, the interested reader may find these functions helpful. However, they are
 1. `Data_Retrieval(debug).R` contains the R code and information needed to reproduce the datasets generated for any particular iterations across conditions for both simulation studies.
 2. `GenerateData(debug).R` contains the R code and information needed to generate data given specific parameters. This is useful to check if the data is generated correctly (i.e., according to our expectation).
 
-## 4. renv
+### 4. renv
 
 Manages R package dependencies and ensures consistent package versions across environments. Configured via renv.lock file
+
+## Reproducing the simulation 
+
+
+
+## Reproducing the results (i.e., performance metrics and visualization)

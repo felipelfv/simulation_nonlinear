@@ -409,19 +409,18 @@ estimate nonlinear effects in structural equation modeling</p>
 <div id="root-directory-structure" class="section level2">
 <h2>Root Directory Structure</h2>
 <p><code>{r} Simulation_First_PhD_Article/ ├── Debug/                          # Debugging scripts ├── Manuscript/                     # All manuscript and supplementary materials ├── Simulations/                    # Simulation code and studies ├── renv/                           # R environment management ├── .gitignore                      # Git ignore rules ├── README.html                     # HTML version of README ├── README.md                       # Repository documentation ├── SimulationStudy_Nonlinear.Rproj # RStudio project file └── renv.lock                       # R dependency lock file</code></p>
-</div>
-<div id="manuscript" class="section level2">
-<h2>1. Manuscript</h2>
+<div id="manuscript" class="section level3">
+<h3>1. Manuscript</h3>
 <p>Contains all manuscript materials converted to Quarto format.</p>
 <p><code>{r} Manuscript/ ├── _extensions/wjschne/apaquarto/  # APA Quarto extension ├── appendix_files/figure-html/     # (Some) Appendix figure files ├── design_files/libs/              # Design support files ├── figure/                         # Main manuscript figures ├── Phd - Initial Readings.bib      # Bibliography file ├── appendix_a.qmd                  # Appendix A (Quarto markdown) ├── appendix_b.qmd                  # Appendix B (Quarto markdown) ├── design.qmd                      # Design section ├── discussion.qmd                  # Discussion section ├── introduction.qmd                # Introduction section ├── manuscript.qmd                  # Main manuscript file ├── modelsframework.qmd             # Models and framework section ├── results.qmd                     # Results section └── supplemental.Rmd                # Supplemental materials (R markdown)</code></p>
 </div>
-<div id="simulations" class="section level2">
-<h2>2. Simulations</h2>
+<div id="simulations" class="section level3">
+<h3>2. Simulations</h3>
 <p>Contains all simulation studies and supporting scripts.</p>
 <p><code>{r} Simulations/ ├── Study_1/                       # First simulation study │   ├── Results/                   # Study 1 results │   │   └── Results(1).R           # Results analysis script │   └── Simulation/                # Study 1 simulation code │       ├── Models(1).RData        # Saved model objects │       └── Simulation(1).R        # Main simulation script │ ├── Study_2/                       # Second simulation study │   ├── Results/                   # Study 2 results │   │   └── Results(2).R           # Results analysis script │   └── Simulation/                # Study 2 simulation code │       ├── Models(2).RData        # Saved model objects │       └── Simulation(2).R        # Main simulation script │ ├── GenerateData.R                 # Data generation function used for both studies ├── Methods.R                      # Common methods/approaches for both studies └── Plots.R                        # Plotting functions for both results</code></p>
 </div>
-<div id="debug" class="section level2">
-<h2>3. Debug</h2>
+<div id="debug" class="section level3">
+<h3>3. Debug</h3>
 <p>This folder contains two scripts which I have used to check the data
 generation mechanism as well as retrieve a dataset generated under the
 simulation. Hence, the interested reader may find these functions
@@ -438,10 +437,18 @@ useful to check if the data is generated correctly (i.e., according to
 our expectation).</li>
 </ol>
 </div>
-<div id="renv" class="section level2">
-<h2>4. renv</h2>
+<div id="renv" class="section level3">
+<h3>4. renv</h3>
 <p>Manages R package dependencies and ensures consistent package
 versions across environments. Configured via renv.lock file</p>
+</div>
+</div>
+<div id="reproducing-the-simulation" class="section level2">
+<h2>Reproducing the simulation</h2>
+</div>
+<div id="reproducing-the-results-i.e.-performance-metrics-and-visualization" class="section level2">
+<h2>Reproducing the results (i.e., performance metrics and
+visualization)</h2>
 </div>
 
 
