@@ -558,7 +558,7 @@ CalculatePerformance <- function(all_results,
                                  alpha = 0.05,
                                  min_reps = 10,
                                  exclude_warnings = FALSE,
-                                 return_convergence_details = TRUE) {
+                                 return_convergence_details = FALSE) {
   
   extraction_results <- ExtractConvergenceOutliers(
     all_results = all_results,
@@ -593,5 +593,5 @@ CalculatePerformance <- function(all_results,
 #  alpha = 0.05,
 #  min_reps = 10,
 #  exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
-#  return_convergence_details = TRUE
+#  return_convergence_details = FALSE
 #)
