@@ -422,14 +422,13 @@ A Simulation Study</p>
 <h3>3. Debug</h3>
 <p>This folder contains two scripts which I have used to check the data
 generation mechanism as well as retrieve a dataset generated under the
-simulation. Hence, the interested reader may find these functions
-helpful. However, they are not relevant for the manuscript and results
-reported.</p>
+simulation conditions. Hence, the interested reader may find these
+functions helpful. However, they are not relevant for the manuscript and
+results reported.</p>
 <ol style="list-style-type: decimal">
 <li><code>Data_Retrieval(debug).R</code> contains the R code and
 information needed to reproduce the datasets generated for any
-particular iterations across conditions for both simulation
-studies.</li>
+particular iteration across conditions for both simulation studies.</li>
 <li><code>GenerateData(debug).R</code> contains the R code and
 information needed to generate data given specific parameters. This is
 useful to check if the data is generated correctly (i.e., according to
@@ -444,6 +443,62 @@ versions across environments. Configured via renv.lock file</p>
 </div>
 <div id="reproducing-the-simulation" class="section level2">
 <h2>Reproducing the simulation</h2>
+<p>To reproduce the .RData files included in the folders
+../Simulations/Study_1/Data and ../Simulations/Study_2/Data you just
+need to run (given the correctly specified folder structure) the
+Simulation(1).R and Simulation(2).R, respectively.</p>
+<p>Those latter mentioned files are dependent on three files:
+GenerateData.R, Methods.R and Models(X).R, where X = 1,2 for simulation
+1 and simulation 2.</p>
+<div id="packages-needed-for-this" class="section level3">
+<h3>Packages needed for this</h3>
+<table>
+<colgroup>
+<col width="12%" />
+<col width="10%" />
+<col width="76%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Version</th>
+<th>Citation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>lavaan</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>modsem</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>doParallel</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>doRNG</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>covsim</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>rvinecopulib</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div id="reproducing-the-results-i.e.-performance-metrics-and-visualization" class="section level2">
 <h2>Reproducing the results (i.e., performance metrics and

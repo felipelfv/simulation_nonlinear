@@ -72,10 +72,10 @@ Simulations/
 
 ### 3. Debug
 
-This folder contains two scripts which I have used to check the data generation mechanism as well as retrieve a dataset generated under the simulation.
+This folder contains two scripts which I have used to check the data generation mechanism as well as retrieve a dataset generated under the simulation conditions.
 Hence, the interested reader may find these functions helpful. However, they are not relevant for the manuscript and results reported. 
 
-1. `Data_Retrieval(debug).R` contains the R code and information needed to reproduce the datasets generated for any particular iterations across conditions for both simulation studies.
+1. `Data_Retrieval(debug).R` contains the R code and information needed to reproduce the datasets generated for any particular iteration across conditions for both simulation studies.
 2. `GenerateData(debug).R` contains the R code and information needed to generate data given specific parameters. This is useful to check if the data is generated correctly (i.e., according to our expectation).
 
 ### 4. renv
@@ -84,6 +84,20 @@ Manages R package dependencies and ensures consistent package versions across en
 
 ## Reproducing the simulation 
 
+To reproduce the .RData files included in the folders ../Simulations/Study_1/Data and ../Simulations/Study_2/Data you just need to run (given the correctly specified folder structure) the Simulation(1).R and Simulation(2).R, respectively.
 
+Those latter mentioned files are dependent on three files: GenerateData.R, Methods.R and Models(X).R, where X = 1,2 for simulation 1 and simulation 2.
+
+### Packages needed for this
+
+| Package        | Version     | Citation                                                                                      |
+|----------------|-------------|-----------------------------------------------------------------------------------------------|
+| lavaan         |             |                                                                                               |
+| modsem         |             |                                                                                               |
+| doParallel     |             |                                                                                               |
+| doRNG          |             |                                                                                               |
+| covsim         |             |                                                                                               |
+| rvinecopulib   |             |                                                                                               |
 
 ## Reproducing the results (i.e., performance metrics and visualization)
+
