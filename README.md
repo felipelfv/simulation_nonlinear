@@ -49,27 +49,39 @@ Inside the folder "Data", results refer to the simulation runs, meaning estimate
 ```{r}
 Simulations/
 ├── Study_1/                             # First simulation study
-│   ├── Data/                            # Study 1 simulation results (Git LFS)
-│   │   └── Results_Study_1_final.RData  # Final results obtained from sim 1
-│   ├── Results/                         # Study 1 results analysis
-│   │   └── Results(1).R                 # Results analysis script
+│   ├── Data/                            # Study 1 raw simulation output (Git LFS)
+│   │   └── Results_Study_1_final.RData  # All iterations from Simulation(1).R
+│   ├── Results/                         # Study 1 processed results (Git LFS)
+│   │   ├── Results(1).R                 # Calculates performance metrics from Data/
+│   │   ├── results_study_1.rds          # Output: CalculatePerformance() with warnings
+│   │   └── results_study_1_excluding_warnings.rds  # Output: CalculatePerformance() excluding warnings
 │   └── Simulation/                      # Study 1 simulation code
-│       ├── Models(1).RData              # Saved model objects
-│       └── Simulation(1).R              # Main simulation script
+│       ├── Models(1).RData              # Model specifications
+│       └── Simulation(1).R              # Runs simulation → saves to Data/
 │
 ├── Study_2/                             # Second simulation study
-│   ├── Data/                            # Study 2 simulation results (Git LFS)
-│   │   └── Results_Study_2_final.RData  # Final results obtained from sim 2
-│   ├── Results/                         # Study 2 results analysis
-│   │   └── Results(2).R                 # Results analysis script
+│   ├── Data/                            # Study 2 raw simulation output (Git LFS)
+│   │   └── Results_Study_2_final.RData  # All iterations from Simulation(2).R
+│   ├── Results/                         # Study 2 processed results (Git LFS)
+│   │   ├── Results(2).R                 # Calculates performance metrics from Data/
+│   │   ├── results_study_2.rds          # Output: CalculatePerformance() with warnings
+│   │   └── results_study_2_excluding_warnings.rds  # Output: CalculatePerformance() excluding warnings
 │   └── Simulation/                      # Study 2 simulation code
-│       ├── Models(2).RData              # Saved model objects
-│       └── Simulation(2).R              # Main simulation script
+│       ├── Models(2).RData              # Model specifications
+│       └── Simulation(2).R              # Runs simulation → saves to Data/
 │
 ├── GenerateData.R                       # Data generation function used for both studies
 ├── Methods.R                            # Common methods/approaches for both studies
 └── Plots.R                              # Plotting functions for both results
 ```
+
+Workflow:
+
+1. Simulation(X).R → Results_Study_X_final.RData (raw iterations)
+
+2. Results(X).R → results_study_x.rds (processed metrics)
+
+3. Manuscript loads results_study_x.rds for tables/figures
 
 ### 3. Debug
 
