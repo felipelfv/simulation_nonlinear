@@ -21,21 +21,7 @@ The results reported are a subset of the findings which focused mainly on the ca
 #| warning: false
 #| message: false
 
-data_study_1 <- load("../Simulations/Study_1/Data/Results_Study_1_final.RData")
-
-study1_all_results_raw <- all_results 
-study1_conditions_raw <- conditions    
-
-results_study_1 <- CalculatePerformance(
-   all_results,
-   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-   remove_outliers = TRUE,
-   outlier_threshold = 3,
-   alpha = 0.05,
-   min_reps = 10,
-   exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
-   return_convergence_details = FALSE
-)
+results_study_1 <- readRDS("../Simulations/Study_1/Results/results_study_1.rds")
 ```
 
 ```{r}
@@ -223,24 +209,7 @@ With the exception of low reliability conditions, LSAM demonstrated adequate per
 #| warning: false
 #| message: false
 
-data_study_2 <- load("../Simulations/Study_2/Data/Results_Study_2_final.RData") 
-
-study2_all_results_raw <- all_results  
-study2_conditions_raw <- conditions    
-
-results_study_2 <- CalculatePerformance_Study2(
-  all_results,
-  parameters_of_interest = list(
-    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
-    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
-  ),
-  remove_outliers = TRUE,
-  outlier_threshold = 3,
-  alpha = 0.05,
-  min_reps = 10,
-  exclude_warnings = FALSE,
-  return_convergence_details = TRUE
-)
+results_study_2 <- readRDS("../Simulations/Study_2/Results/results_study_2.rds")
 ```
 
 ### Convergence Issues and Outliers
