@@ -55,7 +55,7 @@ author-note:
     # Example: This study was registered at X (Identifier Y).
     study-registration: "This study was not preregistered."
     # Acknowledge and cite data/materials to be shared.
-    data-sharing: "Data, code, and materials for this manuscript can be found at link. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025." 
+    data-sharing: "Data, code, and materials for this manuscript can be found at https://github.com/felipelfv/simulation_nonlinear.git. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025." 
     financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
     
 abstract: |
