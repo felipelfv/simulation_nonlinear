@@ -126,12 +126,12 @@ p_relative_rmse_400_full_study_1 <- plot_rmse(
   dat_relative_rmse_400_full_study_1, 
   shapes = SHAPES_4, 
   ltys = LTYS_4,
-  facet_formula = Distribution + Parameter ~ .,  # faceting as bias
-  #y_breaks = seq(0, 0.30, by = 0.05),            # y-axis for RMSE scale
-  #y_limits = c(0, 0.30)                          # optional: set limits
+  facet_formula = Distribution + Parameter ~ ., 
+  #y_breaks = seq(0, 0.30, by = 0.05),           
+  #y_limits = c(0, 0.30)                        
 )
 
-# SE/SD RATIO (Nonnormal & Uniform, Full, N=400 & 1000) =========
+# SE/SD RATIO (Right-skewed & Uniform, Full, N=400 & 1000)
 study_1_sesd <- plot_study_1_data$sesd
 
 dat_sesd_nonnorm_unif_study_1 <- study_1_sesd %>%

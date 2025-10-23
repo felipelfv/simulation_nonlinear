@@ -52,9 +52,7 @@ author-note:
     affiliation-change: ~
     deceased: ~
   disclosures:
-    # Example: This study was registered at X (Identifier Y).
     study-registration: "This study was not preregistered."
-    # Acknowledge and cite data/materials to be shared.
     data-sharing: "Data, code, and materials for this manuscript can be found at https://github.com/felipelfv/simulation_nonlinear.git. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025." 
     financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
     
@@ -63,17 +61,14 @@ abstract: |
 
 keywords: [nonlinear effects, structural equation modeling, local structural-after-measurement, latent variables]
 
-# Document formatting
 floatsintext: true
 numbered-lines: false
 link-citations: false
 mask: false
 word-count: true
 
-# Bibliography
 bibliography: "references.bib"
 
-# Format specification for apaquarto
 format:
   apaquarto-pdf:
     documentmode: man
@@ -83,7 +78,6 @@ format:
         \usepackage{pdflscape}
         \raggedbottom
         
-# Execution options
 execute:
   echo: false
   warning: false
@@ -94,9 +88,10 @@ execute:
 #| label: setup
 #| include: false
 
-library(simhelpers)
-library(dplyr)
-library(ggplot2)
+library(simhelpers) # performance metrics
+library(dplyr) # data wrangling for performance metrics and plots
+library(ggplot2) # visualization
+library(kableExtra) # appendices
 ```
 
 {{< include introduction.qmd >}}
@@ -174,10 +169,7 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\s
 
 \begin{tikzpicture}
 
-% ============================================================================
 % FIRST DIAGRAM (Simulation 1)
-% ============================================================================
-
 \node[ind] (y1)  at (0,  0.8) {y$_1$};
 \node[ind] (y2)  at (0,  0.0) {y$_2$};
 \node[ind] (y3)  at (0, -0.8) {y$_3$};
@@ -196,7 +188,6 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\s
 \draw[->] (eta2.west) -- (y5.east);
 \draw[->] (eta2.west) -- (y6.east);
 
-% Covariance arrow between eta1 and eta2
 \draw[<->,gray!40,bend right=30] (eta1) to (eta2);
 
 \node[latent] (eta3) at (6.6, -1.6) {$\eta_3$};
@@ -220,10 +211,7 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\s
 \draw[->] (eta3.north) -- (y8.south);
 \draw[->] (eta3.north) -- (y9.south);
 
-% ============================================================================
-% SECOND DIAGRAM (Simulation 2) - Shifted down by 7 units instead of 13
-% ============================================================================
-
+% SECOND DIAGRAM (Simulation 2) 
 \node[ind] (y1b)  at (0,  -6.0) {y$_1$};
 \node[ind] (y2b)  at (0,  -7.0) {y$_2$};
 \node[ind] (y3b)  at (0, -8.0) {y$_3$};
@@ -251,7 +239,6 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\s
 \draw[->] (eta3b.west) -- (y8b.east);
 \draw[->] (eta3b.west) -- (y9b.east);
 
-% Covariance arrows between eta1, eta2, and eta3
 \draw[<->,gray!40,bend right=30] (eta1b) to (eta2b);
 \draw[<->,gray!40,bend right=30] (eta1b) to (eta3b);
 \draw[<->,gray!40,bend right=30] (eta2b) to (eta3b);

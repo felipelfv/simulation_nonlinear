@@ -9,9 +9,8 @@
 
 library(kableExtra)
 library(dplyr)
-# ============================================================================
-# STUDY 1: Convergence & Outliers Summary (APA Style - Landscape with longtable)
-# ============================================================================
+
+# STUDY 1: convergence & outliers summary (APA Style - landscape with longtable)
 create_apa_convergence_table_study1 <- function(results_df) {
   results_df %>%
     filter(Parameter == "eta1") %>%
@@ -38,11 +37,10 @@ create_apa_convergence_table_study1 <- function(results_df) {
       Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
       Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
     ) %>%
-    # Sort: Full model first, then Linear
     arrange(Condition, factor(Model, levels = c("Full", "Linear")), Method)
 }
 
-# Create table
+# table
 conv_table_study1 <- create_apa_convergence_table_study1(results_study_1)
 
 tab_caption_study1 <- "Convergence and Outlier Statistics (Simulation 1)"
@@ -83,9 +81,7 @@ kableExtra::kbl(
   kableExtra::landscape()
 
 
-# ============================================================================
-# STUDY 2: Convergence & Outliers Summary (APA Style - Landscape with longtable)
-# ============================================================================
+# STUDY 2: convergence & outliers summary (APA Style - landscape with longtable)
 create_apa_convergence_table_study2 <- function(results_df, equation = "eta4") {
   param <- ifelse(equation == "eta4", "eta1", "eta4")
   
@@ -114,13 +110,11 @@ create_apa_convergence_table_study2 <- function(results_df, equation = "eta4") {
       Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
       Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
     ) %>%
-    # Sort: Full model first, then Linear
     arrange(Condition, factor(Model, levels = c("Full", "Linear")), Method)
 }
 
-# ============================================================================
-# STUDY 2 - EQUATION ETA4 TABLE
-# ============================================================================
+
+# STUDY 2 - EQUATION ETA4 TABLE (because it is general; eta5 would be the same)
 conv_table_study2_eta4 <- create_apa_convergence_table_study2(results_study_2, "eta4")
 
 tab_caption_study2_eta4 <- "Convergence and Outlier Statistics (Simulation 2)"
