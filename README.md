@@ -43,7 +43,8 @@ Manuscript/
 
 ### 2. Simulations
 
-Contains all simulation studies and supporting scripts.
+Contains all simulation studies and supporting scripts. Note that the usage of "results" may sound confusing. I realized this after all the simulations were done.
+Inside the folder "Data", results refer to the simulation runs, meaning estimates obtained for each iteration throughout conditions. Inside the folder "Results", results in this case refer to the performance metrics (i.e., bias, rmse, coverage, se/sd, etc).
 
 ```{r}
 Simulations/
@@ -100,4 +101,6 @@ Those latter mentioned files are dependent on three files: GenerateData.R, Metho
 | rvinecopulib   |             |                                                                                               |
 
 ## Reproducing the results (i.e., performance metrics and visualization)
+
+
 
