@@ -113,43 +113,94 @@ library(kableExtra) # appendices
 
 {{< pagebreak >}}
 
-\begin{landscape}
-\small
+```{r}
+#| label: tbl-performance-measures
+#| echo: false
+#| output: asis
+#| message: false
+#| warning: false
 
-\begin{flushleft}
-\textbf{Table 1}
+perf_measures <- data.frame(
+  Performance_Measure = c(
+    "\\textbf{Absolute Criteria}",
+    "Absolute Bias",
+    "Mean Squared Error (MSE)",
+    "Root Mean Squared Error (RMSE)",
+    "\\textbf{Relative Criteria}",
+    "Relative Bias",
+    "Relative MSE",
+    "Relative RMSE",
+    "\\textbf{Standard Error Assessment}",
+    "Mean SE",
+    "SE Ratio",
+    "\\textbf{Hypothesis Testing}",
+    "Rejection Rate",
+    "\\textbf{Confidence Intervals}",
+    "Coverage"
+  ),
+  Empirical_Calculation = c(
+    "",
+    "$\\bar{B} - \\beta$",
+    "$\\frac{1}{K}\\sum_{k=1}^{K}(B_k - \\beta)^2$",
+    "$\\sqrt{\\frac{1}{K}\\sum_{k=1}^{K}(B_k - \\beta)^2}$",
+    "",
+    "$(\\frac{\\bar{B}}{\\beta})- 1$",
+    "$\\frac{(\\bar{B} - \\beta)^2 + S_B^2}{\\beta^2}$",
+    "$\\sqrt{\\frac{(\\bar{B} - \\beta)^2 + S_B^2}{\\beta^2}}$",
+    "",
+    "$\\overline{SE} = \\frac{1}{K}\\sum_{k=1}^{K}\\widehat{SE}_k$",
+    "$\\overline{SE}/S_B$",
+    "",
+    "$r_\\alpha = \\frac{1}{K}\\sum_{k=1}^{K}I(P_k < \\alpha)$",
+    "",
+    "$c_\\beta = \\frac{1}{K}\\sum_{k=1}^{K}I(A_k \\leq \\beta \\leq B_k)$"
+  ),
+  MCSE = c(
+    "",
+    "$\\sqrt{S_B^2/K}$",
+    "$\\sqrt{\\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\\bar{B} - \\beta) + 4S_B^2(\\bar{B} - \\beta)^2]}$",
+    "$\\sqrt{\\frac{K-1}{K}\\sum_{j=1}^{K}(\\text{RMSE}_{(j)} - \\text{RMSE})^2}$",
+    "",
+    "$\\sqrt{S_B^2/(K\\beta^2)}$",
+    "$\\sqrt{\\frac{1}{K\\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\\bar{B} - \\beta) + 4S_B^2(\\bar{B} - \\beta)^2]}$",
+    "$\\sqrt{\\frac{K-1}{K}\\sum_{j=1}^{K}(\\text{rRMSE}_{(j)} - \\text{rRMSE})^2}$",
+    "",
+    "---",
+    "---",
+    "",
+    "$\\sqrt{r_\\alpha(1-r_\\alpha)/K}$",
+    "",
+    "$\\sqrt{c_\\beta(1-c_\\beta)/K}$"
+  ),
+  stringsAsFactors = FALSE
+)
 
-\textit{Subset of the performance measures for evaluating parameter estimates in the simulation studies}
-\end{flushleft}
+tab_caption <- "Subset of the Performance Measures for Evaluating Parameter Estimates in the Simulation Studies"
 
-\begin{longtable}{lll}
-\toprule
-Performance Measure & Empirical Calculation & MCSE \\
-\midrule
-\textbf{Absolute Criteria} & & \\
-Absolute Bias & $\bar{B} - \beta$ & $\sqrt{S_B^2/K}$ \\
-Mean Squared Error (MSE) & $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ & $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
-Root Mean Squared Error (RMSE) & $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ & $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ \\
-\textbf{Relative Criteria} & & \\
-Relative Bias & $(\frac{\bar{B}}{\beta})- 1$ & $\sqrt{S_B^2/(K\beta^2)}$ \\
-Relative MSE & $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ & $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
-Relative RMSE & $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ & $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ \\
-\textbf{Standard Error Assessment} & & \\
-Mean SE & $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ & --- \\
-SE Ratio & $\overline{SE}/S_B$ & --- \\
-\textbf{Hypothesis Testing} & & \\
-Rejection Rate & $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ & $\sqrt{r_\alpha(1-r_\alpha)/K}$ \\
-\textbf{Confidence Intervals} & & \\
-Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\sqrt{c_\beta(1-c_\beta)/K}$ \\
-\bottomrule
-\end{longtable}
+tab_note <- "$B$ = estimator for parameter $\\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\\bar{B} = (1/K)\\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\\sum_{k=1}^{K}(B_k - \\bar{B})^2$ = sample variance; $S_B = \\sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $r_\\alpha$ and $c_\\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error; dashes indicate MCSEs not computed."
 
-\begin{flushleft}
-\textit{Note}. $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error; dashes indicate MCSEs not computed.
-\end{flushleft}
-
-\normalsize
-\end{landscape}
+kableExtra::kbl(
+  perf_measures,
+  format = "latex",
+  booktabs = TRUE,
+  align = c("l", "l", "l"),
+  col.names = c("Performance Measure", "Empirical Calculation", "MCSE"),
+  caption = tab_caption,
+  linesep = "",
+  escape = FALSE
+) %>%
+  kableExtra::kable_styling(
+    latex_options = c("scale_down"),
+    font_size = 8,
+    position = "left"
+  ) %>%
+  kableExtra::footnote(
+    general = tab_note,
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
 
 {{< pagebreak >}}
 

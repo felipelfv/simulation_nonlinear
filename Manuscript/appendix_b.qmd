@@ -1,4 +1,4 @@
-# Convergence Issues and Outliers
+# Convergence Issues and Outliers Statistics 
 
 ```{r}
 #| label: conv-table
@@ -6,9 +6,6 @@
 #| output: asis
 #| message: false
 #| warning: false
-
-library(kableExtra)
-library(dplyr)
 
 # STUDY 1: convergence & outliers summary (APA Style - landscape with longtable)
 create_apa_convergence_table_study1 <- function(results_df) {
@@ -76,9 +73,9 @@ kableExtra::kbl(
     general = tab_note_study1,
     general_title = "Note.",
     threeparttable = TRUE,
-    escape = TRUE
-  ) %>%
-  kableExtra::landscape()
+    escape = TRUE)
+  #) %>%
+  #kableExtra::landscape()
 
 
 # STUDY 2: convergence & outliers summary (APA Style - landscape with longtable)
@@ -150,7 +147,7 @@ kableExtra::kbl(
     general = tab_note_study2,
     general_title = "Note.",
     threeparttable = TRUE,
-    escape = TRUE
-  ) %>%
-  kableExtra::landscape()
+    escape = TRUE)
+  #) %>%
+  #kableExtra::landscape()
 ```
