@@ -112,7 +112,9 @@ Those latter mentioned files are dependent on three files: GenerateData.R, Metho
 | covsim         |             |                                                                                               |
 | rvinecopulib   |             |                                                                                               |
 
-## Reproducing the results (i.e., performance metrics and visualization)
+## Reproducing the results (i.e., convergence/outliers information, performance metrics and visualization)
+
+
 
 
 

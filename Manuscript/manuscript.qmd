@@ -71,7 +71,7 @@ mask: false
 word-count: true
 
 # Bibliography
-bibliography: "Phd - Initial Readings.bib"
+bibliography: "references.bib"
 
 # Format specification for apaquarto
 format:
