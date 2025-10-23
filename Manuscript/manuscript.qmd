@@ -24,17 +24,6 @@ author:
       - Visualization
       - Writing - original draft
       - Writing - review & editing
-  - name: Yves Rosseel
-    corresponding: false
-    orcid: 0000-0002-4129-4477
-    affiliations:
-      - ref: UGent
-    roles:
-      - Conceptualization
-      - Methodology
-      - Software
-      - Writing - review & editing
-      - Funding acquisition
   - name: Kjell Solem Slupphaug
     corresponding: false
     orcid: 0009-0005-8324-2834
@@ -46,6 +35,17 @@ author:
     roles:
       - Writing - review & editing
       - Software
+  - name: Yves Rosseel
+    corresponding: false
+    orcid: 0000-0002-4129-4477
+    affiliations:
+      - ref: UGent
+    roles:
+      - Conceptualization
+      - Methodology
+      - Software
+      - Writing - review & editing
+      - Funding acquisition
 
 author-note:
   status-changes:
