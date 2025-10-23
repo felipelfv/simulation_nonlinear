@@ -705,3 +705,18 @@ CalculatePerformance_Study2 <- function(all_results,
     performance_results
   }
 }
+
+
+#results_study_2 <- CalculatePerformance_Study2(
+#  all_results,
+#  parameters_of_interest = list(
+#    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
+#    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
+#  ),
+#  remove_outliers = TRUE,
+#  outlier_threshold = 3,
+#  alpha = 0.05,
+#  min_reps = 10,
+#  exclude_warnings = FALSE,
+#  return_convergence_details = TRUE
+#)
