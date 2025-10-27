@@ -114,13 +114,14 @@
 #' 
 #' CalculatePerformanceMetrics_Study2: Calculate All Performance Metrics for Study 2
 #' 
-#' @param filtered_data                 List. Filtered data from ExtractConvergenceOutliers_Study2
+#' @param filtered_data                 List. Filtered data from ExtractConvergenceOutliers_Study2 (after outlier removal)
+#' @param converged_data                List. Converged data from ExtractConvergenceOutliers_Study2 (before outlier removal)
 #' @param convergence_outliers_summary  Tibble. Summary statistics from ExtractConvergenceOutliers_Study2
 #' @param alpha                         Numeric. Significance level for tests (default = 0.05)
 #' 
 #' @return Tibble containing all performance metrics per condition/method/equation/parameter:
 #' 
-#' @details Mean-based metrics:
+#' @details Mean-based metrics (calculated on filtered data after outlier removal):
 #'   - MeanEstimate:                Average of parameter estimates
 #'   - Bias_Mean:                   Mean estimate - true value
 #'   - RelativeBias_Mean:            (Bias / true value) - 1 (NA if true value = 0)
@@ -130,17 +131,24 @@
 #'   - MSE_Mean:                    Mean squared error
 #'   - RMSE_Mean:                   Root mean squared error
 #'   
-#' @details Median-based metrics:
+#' @details Median-based metrics (calculated on converged data before outlier removal):
 #'   - MedianEstimate:              Median of parameter estimates
 #'   - Bias_Median:                 Median estimate - true value  
 #'   - RelativeBias_Median:         Median bias / true value (NA if true value = 0)
 #'   - PercentRelativeBias_Median:  Relative median bias * 100
-#'   - MAD:                         Median absolute deviation
+#'   - MAD:                         Median absolute deviation (standardized with factor 1.4826)
 #'   - RMSE_Median:                 sqrt(Bias_Median^2 + MAD^2)
 #'   
+#' @details Trimmed mean-based metrics (calculated on converged data before outlier removal, 20% trimmed mean per Wilcox, 2016):
+#'   - TrimmedEstimate:             20% trimmed mean of parameter estimates
+#'   - Bias_Trimmed:                Trimmed mean estimate - true value
+#'   - RMSE_Trimmed:                sqrt(Bias_Trimmed^2 + MAD^2)
+#'   
 #' @details Standard error metrics:
-#'   - MeanSE:                      Average of standard errors
+#'   - MeanSE:                      Average of standard errors (from filtered data)
+#'   - TrimmedSE:                   20% trimmed mean of standard errors (from converged data)
 #'   - SE_SD_Ratio:                 Mean SE / SD of estimates
+#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1 (Hoogland & Boomsma, 1998)
 #'   
 #' @details Coverage and confidence interval metrics:
 #'   - CoverageRate:                Percentage of CIs containing true value
@@ -270,7 +278,8 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
   
   convergence_outliers_summary <- dplyr::tibble()
   convergence_outliers_details <- list()
-  filtered_data <- list()
+  filtered_data <- list()  # After outlier removal (for mean-based metrics)
+  converged_data <- list()  # After convergence only (for robust metrics)
   
   for (i in seq_along(all_results)) {
     condition <- all_results[[i]]$condition
@@ -356,6 +365,55 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
       message(sprintf("Condition %d: Only %d valid replications. Skipping.", 
                       i, n_after_global_convergence))
       next
+    }
+    
+    # Store converged data (BEFORE outlier removal) for robust metrics
+    model_name <- ifelse(condition$Model_Type == "linear", "Linear", "Full")
+    distribution <- as.character(condition$Distribution)
+    sample_size <- condition$N
+    reliability <- condition$Rel
+    
+    for(method in methods) {
+      tbls <- res_list[[paste0(method, "_tables")]]
+      if (is.null(tbls)) next
+      
+      for(eq in names(parameters_of_interest)) {
+        for(p_name in parameters_of_interest[[eq]]) {
+          # extract converged data (no outlier removal yet)
+          converged_list <- lapply(valid_rep_indices, function(rep) {
+            extr <- extract_study2_params(tbls[[rep]], method, eq)
+            if(!is.null(extr) && p_name %in% names(extr$Estimates)) {
+              list(est = unname(extr$Estimates[p_name]),
+                   se = unname(extr$`Standard Errors`[p_name]),
+                   pv = unname(extr$`P-values`[p_name]),
+                   lo = unname(extr$CI_lower[p_name]),
+                   hi = unname(extr$CI_upper[p_name]))
+            }
+          })
+          converged_list <- Filter(Negate(is.null), converged_list)
+          
+          if(length(converged_list) > 0) {
+            tv <- true_params[[eq]][p_name]
+            key <- paste(i, toupper(method), eq, p_name, sep = "_")
+            converged_data[[key]] <- list(
+              condition = i,
+              method = toupper(method),
+              model = model_name,
+              distribution = distribution,
+              sample_size = sample_size,
+              reliability = reliability,
+              equation = eq,
+              parameter = p_name,
+              true_value = tv,
+              estimates = sapply(converged_list, "[[", "est"),
+              standard_errors = sapply(converged_list, "[[", "se"),
+              p_values = sapply(converged_list, "[[", "pv"),
+              ci_lower = sapply(converged_list, "[[", "lo"),
+              ci_upper = sapply(converged_list, "[[", "hi")
+            )
+          }
+        }
+      }
     }
     
     # outlier 
@@ -515,15 +573,17 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
   list(
     convergence_outliers_summary = convergence_outliers_summary,
     convergence_outliers_details = convergence_outliers_details,
-    filtered_data = filtered_data
+    filtered_data = filtered_data,
+    converged_data = converged_data
   )
 }
 
 # performance metrics calculation for Study 2
-CalculatePerformanceMetrics_Study2 <- function(filtered_data, 
+CalculatePerformanceMetrics_Study2 <- function(filtered_data,
+                                               converged_data,
                                                convergence_outliers_summary,
                                                alpha = 0.05) {
-
+  
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
   results_summary <- dplyr::tibble()
@@ -563,10 +623,33 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
       rel_bias_mean_pct <- NA
     }
     
-    # nedian metrics
-    median_est <- median(df$est)
+    # ROBUST METRICS: Use converged data (BEFORE outlier removal)
+    d_conv <- converged_data[[key]]
+    if (is.null(d_conv)) {
+      # Fallback to filtered if converged not available
+      d_conv <- d
+      warning(paste("Converged data not found for", key, "- using filtered data"))
+    }
+    
+    df_conv <- tibble::tibble(
+      est = d_conv$estimates,
+      se = d_conv$standard_errors
+    )
+    
+    # median metrics (from converged data)
+    median_est <- median(df_conv$est)
     bias_median <- median_est - tv
-    mad_est <- mad(df$est, constant = 1)
+    mad_est <- mad(df_conv$est)  # Uses default constant = 1.4826 to scale to SD
+    
+    # trimmed mean metrics (20% trimmed mean as per Wilcox, 2016, from converged data)
+    trimmed_est <- mean(df_conv$est, trim = 0.20)
+    bias_trimmed <- trimmed_est - tv
+    rmse_trimmed <- sqrt(bias_trimmed^2 + mad_est^2)
+    
+    # robust relative SE bias (RSB, from converged data)
+    # 20% trimmed mean of SEs divided by MAD minus 1
+    trimmed_se <- mean(df_conv$se, trim = 0.20)
+    rsb <- trimmed_se / mad_est - 1
     
     # convergence info
     conv_row <- convergence_outliers_summary[
@@ -596,10 +679,12 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
         # Estimates
         MeanEstimate = mean(df$est),
         MedianEstimate = median_est,
+        TrimmedEstimate = trimmed_est,
         
         # Bias metrics
         Bias_Mean = abs_metrics$bias,
         Bias_Median = bias_median,
+        Bias_Trimmed = bias_trimmed,
         RelativeBias_Mean = rel_bias_mean,
         RelativeBias_Median = if(tv != 0) bias_median / tv else NA,
         PercentRelativeBias_Mean = rel_bias_mean_pct,
@@ -612,12 +697,15 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
         MSE_Mean = abs_metrics$mse,
         RMSE_Mean = abs_metrics$rmse,
         RMSE_Median = sqrt(bias_median^2 + mad_est^2),
+        RMSE_Trimmed = rmse_trimmed,
         Relative_MSE = rel_metrics$rel_mse %||% NA,
         Relative_RMSE = rel_metrics$rel_rmse %||% NA,
         
         # SE metrics
         MeanSE = mean(df$se),
+        TrimmedSE = trimmed_se,
         SE_SD_Ratio = mean(df$se) / abs_metrics$stddev,
+        RSB = rsb,
         
         # Coverage
         CoverageRate = cov_metrics$coverage * 100,
@@ -692,6 +780,7 @@ CalculatePerformance_Study2 <- function(all_results,
   
   performance_results <- CalculatePerformanceMetrics_Study2(
     filtered_data = extraction_results$filtered_data,
+    converged_data = extraction_results$converged_data,
     convergence_outliers_summary = extraction_results$convergence_outliers_summary,
     alpha = alpha
   )
