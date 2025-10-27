@@ -1,6 +1,6 @@
 ---
-title: "Local Structural-After-Measurement (LSAM) and Traditional Approaches for Nonlinear Effects among Latent Variables: A Simulation Study"
-shorttitle: "Comparing LSAM and Traditional SEM Approaches"
+title: "Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables"
+shorttitle: "Evaluating LSAM and Traditional SEM Approaches"
 
 author:
   - name: Felipe Fontana Vieira

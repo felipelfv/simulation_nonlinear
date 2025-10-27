@@ -179,7 +179,7 @@ Under normality, LSAM displayed only a negligible overestimation (1.11) for the 
 
 ### Coverage for When Nonlinear Effects Were Present
 
-Figure 5 displays coverage results for right-skewed and uniform conditions across sample sizes, with exact values shown when they fall outside the plotted y-axis range. Coverage between 93% and 97% was considered acceptable.
+Figure 5 displays coverage results for right-skewed and uniform conditions across sample sizes, with exact values shown when they fall outside the plotted y-axis range. Coverage between 93% and 97% was considered acceptable. Previous literature simply considered above 90% as an acceptable performance [@cham_etall_2012; @ayturk_etall_2020].
 
 LSAM slightly exceeded this range (98%) only at low reliability with moderate sample sizes, but not at larger samples, across all distributions. Under normality, all approaches otherwise performed within the acceptable range across reliability and sample sizes (see Figure S6 in supplemental materials). For right-skewed distributions, LMS and QML exhibited substantial under-coverage, with UPI also affected, though to a lesser extent. Larger sample sizes did not improve coverage for these methods, while higher reliability reduced—but did not eliminate—the bias. Under uniform distributions, LMS and QML showed under-coverage exclusively for the quadratic effects.
 
