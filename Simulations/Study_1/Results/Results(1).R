@@ -88,9 +88,16 @@
 #'   - MAD:                         Median absolute deviation
 #'   - RMSE_Median:                 sqrt(Bias_Median^2 + MAD^2)
 #'   
+#' @details Trimmed mean-based metrics (20% trimmed mean per Wilcox, 2016):
+#'   - TrimmedEstimate:             20% trimmed mean of parameter estimates
+#'   - Bias_Trimmed:                Trimmed mean estimate - true value
+#'   - RMSE_Trimmed:                sqrt(Bias_Trimmed^2 + MAD^2)
+#'   
 #' @details Standard error metrics:
 #'   - MeanSE:                      Average of standard errors
+#'   - TrimmedSE:                   20% trimmed mean of standard errors
 #'   - SE_SD_Ratio:                 Mean SE / SD of estimates
+#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1
 #'   
 #' @details Coverage and confidence interval metrics:
 #'   - CoverageRate:                Percentage of CIs containing true value
@@ -404,7 +411,7 @@ ExtractConvergenceOutliers <- function(all_results,
 CalculatePerformanceMetrics <- function(filtered_data, 
                                         convergence_outliers_summary,
                                         alpha = 0.05) {
-
+  
   # %||% if not available
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
@@ -448,7 +455,17 @@ CalculatePerformanceMetrics <- function(filtered_data,
     # median metrics
     median_est <- median(df$est)
     bias_median <- median_est - tv
-    mad_est <- mad(df$est, constant = 1)
+    mad_est <- mad(df$est)  # default constant = 1.4826 to scale to SD !
+    
+    # trimmed mean metrics (20% trimmed mean as per Wilcox, 2016)
+    trimmed_est <- mean(df$est, trim = 0.20)
+    bias_trimmed <- trimmed_est - tv
+    rmse_trimmed <- sqrt(bias_trimmed^2 + mad_est^2)
+    
+    # robust relative SE bias (RSB)
+    # 20% trimmed mean of SEs divided by MAD minus 1
+    trimmed_se <- mean(df$se, trim = 0.20)
+    rsb <- trimmed_se / mad_est - 1
     
     # get convergence info
     conv_row <- convergence_outliers_summary[
@@ -477,10 +494,12 @@ CalculatePerformanceMetrics <- function(filtered_data,
         # estimates
         MeanEstimate = mean(df$est),
         MedianEstimate = median_est,
+        TrimmedEstimate = trimmed_est,
         
         # bias metrics
         Bias_Mean = abs_metrics$bias,
         Bias_Median = bias_median,
+        Bias_Trimmed = bias_trimmed,
         RelativeBias_Mean = rel_bias_mean,
         RelativeBias_Median = if(tv != 0) bias_median / tv else NA,
         PercentRelativeBias_Mean = rel_bias_mean_pct,
@@ -493,12 +512,15 @@ CalculatePerformanceMetrics <- function(filtered_data,
         MSE_Mean = abs_metrics$mse,
         RMSE_Mean = abs_metrics$rmse,
         RMSE_Median = sqrt(bias_median^2 + mad_est^2),
+        RMSE_Trimmed = rmse_trimmed,
         Relative_MSE = rel_metrics$rel_mse %||% NA,
         Relative_RMSE = rel_metrics$rel_rmse %||% NA,
         
         # SE metrics
         MeanSE = mean(df$se),
+        TrimmedSE = trimmed_se,
         SE_SD_Ratio = mean(df$se) / abs_metrics$stddev,
+        RSB = rsb,
         
         # coverage
         CoverageRate = cov_metrics$coverage * 100,
