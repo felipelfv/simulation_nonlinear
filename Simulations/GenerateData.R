@@ -118,7 +118,7 @@ GenerateData <- function(model,
   }
   
   # ancestors 
-  ancestors <- lavaan:::lav_utils_get_ancestors(B)
+  ancestors <- lavaan:::lav_graph_get_ancestors(B)
   names(ancestors) <- rownames(B)
   ancestor_lengths <- sapply(ancestors, length)
   # exogenous variables
