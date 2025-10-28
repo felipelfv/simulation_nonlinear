@@ -1,42 +1,33 @@
-# Data Generation for Simulation Studies
+# Local Standard Errors for LSAM 
 
-Population models were first calibrated under full normality to achieve the desired reliabilities ($\rho \approx 0.4, 0.6, 0.8$) and $R^2 \approx 0.30$. The resulting structural residual variances ($\psi$) and measurement error variances ($\theta_{jj}$) were then held fixed across all distributional conditions. Using the fixed variance parameters from calibration, data were generated in three stages: (i) correlated exogenous latent predictors, (ii) dependent latent variables through the structural model, and (iii) observed indicators through the measurement model.
-
-**Stage 1: Exogenous Predictors.** Correlated predictor latent variables were generated using the Vine-To-Anything (VITA) method as implemented in the *covsim* package (version `r covsim_version`) [@gronneberg_foldnes_2022] with sampling via *rvinecopulib* (version `r vinecop`) [@R-rvinecopulib]. Predictor latent variables were specified to follow covariance structures
+To obtain two-step corrected standard errors for the parameters of the structural part of the model ($\boldsymbol{\theta}_2$), we use the familiar (sandwich) formula for robust standard errors (REF Savalei & Rosseel, 2022):
 $$
-\boldsymbol{\Phi}_1 = 
-\begin{bmatrix} 
-1 & 0.375 \\ 
-0.375 & 1 
-\end{bmatrix}
-\quad \text{(Simulation 1)}, \qquad
-\boldsymbol{\Phi}_2 = 
-\begin{bmatrix} 
-1 & 0.3 & 0.2 \\ 
-0.3 & 1 & 0.3 \\ 
-0.2 & 0.3 & 1 
-\end{bmatrix}
-\quad \text{(Simulation 2)}.
+\mathrm{Var}(\hat{\boldsymbol{\theta}}_2) = \frac{1}{N}\left[(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Gamma}_{\eta}\mathcal{I}_1\boldsymbol{\Delta})(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}\right]
 $$
 
-Under the normal condition, predictors had Gaussian marginals with mean zero and the specified covariance structure. Under the right-skewed condition, gamma marginals with shape $= 1$ and rate $= 1$ were employed, producing natural skewness $\gamma_1 = 2$ and excess kurtosis $\gamma_2 = 6$. Gamma-distributed variables were shifted to have population mean zero by subtracting their natural mean ($\text{shape}/\text{rate} = 1$), ensuring comparability across distributional conditions. Under the uniform condition, predictors were generated from symmetric uniform distributions $U[-\sqrt{3\phi_{kk}}, \sqrt{3\phi_{kk}}]$, which naturally have mean zero and variance $\phi_{kk}$ (the diagonal element of $\boldsymbol{\Phi}$). Thus, all exogenous predictors were centered at zero across all distributional conditions, differing only in their shape characteristics. In all conditions, VITA constructed a vine copula to impose the specified dependence structure while preserving the marginal distributions.
-
-**Stage 2: Structural Model.** Dependent latent variables were generated according to the structural equations with fixed residual variances $\psi$ (determined during calibration to yield $R^2 \approx 0.30$):
+where $\mathcal{I}_1$ is the unit expected information matrix of the unrestricted second step model (h1), $\boldsymbol{\Delta}$ is the Jacobian of the function that maps $\boldsymbol{\theta}_2$ to $\boldsymbol{\Sigma}(\boldsymbol{\theta}_2)$, and $N$ is the number of observations. The critical ingredient is $\boldsymbol{\Gamma}_{\eta}$, which represents $N$ times the asymptotic (co)variance matrix of the sufficient statistics that enter the second step. The sufficient statistics are (a subset of) the mean vector $\mathbb{E}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ and the non-redundant elements of the variance-covariance matrix $\mathrm{Var}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$. We collect these elements in the column vector $L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$:
 $$
-R^2_\eta = \frac{\operatorname{Var}(\eta^*)}{\operatorname{Var}(\eta^*) + \psi} \approx 0.30,
+L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}) = \big[\mathbb{E}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}),\,\mathrm{vech}(\mathrm{Var}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}))\big]^{\top}.
 $$
 
-where $\eta^*$ denotes the deterministic portion of the dependent latent variable. Structural disturbances were sampled independently from $\mathcal{N}(0,\psi)$.
-
-**Stage 3: Measurement Model.** Observed indicators were generated as
+Let $l_i(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ denote the casewise contribution to $L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ so that we can write
 $$
-\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}, \quad 
-\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta}),
+L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}) = \frac{1}{N}\sum_{i}^{N}l_i(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}).
 $$
 
-with unit factor loadings ($\lambda_j = 1$) and fixed error variances $\theta_{jj}$ (determined during calibration) to achieve reliabilities
+Then, if we would ignore the two-step process, a naive expression for $\boldsymbol{\Gamma}_{\eta}$ would be
 $$
-\rho_{y_j} = \frac{\lambda_j^2 \phi_{kk}}{\lambda_j^2 \phi_{kk} + \theta_{jj}} \approx \rho, \quad \rho \in \{0.4, 0.6, 0.8\}.
+\boldsymbol{\Gamma}_{\eta}^{(naive)} = \frac{1}{N}\sum_{i}^{N}l_i^{(c)}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})\,l_i^{(c)}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})^{\top}
 $$
 
-Each latent variable was measured by three indicators. Measurement errors were sampled independently from univariate normal distributions.
+where $l_i^{(c)}$ is the centered version of $l_i$; that is $l_i^{(c)} = l_i - L$. To obtain an estimate of $\boldsymbol{\Gamma}_{\eta}$ that takes into account the two-stage estimation procedure, we follow a procedure similar to REF Wall & Amemiya (2000). Assuming the measurement errors are normally distributed, $\boldsymbol{\Gamma}_{\eta}$ can then be expressed as follows:
+$$
+\boldsymbol{\Gamma}_{\eta} = \boldsymbol{\Gamma}_{\eta}^{(naive)} + N\cdot\mathbf{C}\boldsymbol{\Sigma}_{11}\mathbf{C}^{\top}
+$$
+
+where $\boldsymbol{\Sigma}_{11}$ is the variance-covariance matrix of the step one parameters ($\boldsymbol{\theta}_1$), and the matrix $\mathbf{C}$ can be constructed as
+$$
+\mathbf{C} = \frac{1}{N}\sum_{i}^{N}\frac{\partial l_i(\boldsymbol{\theta}_1)}{\partial\boldsymbol{\theta}_1}
+$$
+
+where we now consider $l_i(\boldsymbol{\theta}_1)$ to be a function of the step one parameters ($\boldsymbol{\theta}_1$).
