@@ -32,99 +32,68 @@ library(ggplot2) # for figures
 library(dplyr) # for data wrangling in results
 library(simhelpers) # for most performance metrics and MCSE
 library(kableExtra)
+
+source("../Simulations/Plots.R")
+source("../Simulations/Study_1/Results/Results(1).R")
+source("../Simulations/Study_2/Results/Results(2).R")
 ```
 
 This file contains the tables with all performance measures and all figures for both simulation studies. For Simulation 2, we split the plots by distribution. Hence, we show part of the measures under normality, right-skewness, and uniform conditions respectively. 
 
 \landscape
 \footnotesize
-
 \begin{flushleft}
 \textbf{Table S1}
-
 \textit{Complete performance measures for evaluating parameter estimates in the simulation studies}
 \end{flushleft}
-
 | Performance Measure | Empirical Calculation | MCSE |
 |---|---|---|
-| **Absolute Criteria** | | |
+| **Mean-Based Metrics** | | |
+| Mean Estimate | $\bar{B} = \frac{1}{K}\sum_{k=1}^{K}B_k$ | — |
 | Bias | $\bar{B} - \beta$ | $\sqrt{S_B^2/K}$ |
-| MSE | $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ | $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
-| RMSE | $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ |
-| Median Estimate | $\textit{Mdn}(B)$ | — |
-| Median Bias | $\textit{Mdn}(B) - \beta$ | — |
-| MAD | $\textit{Mdn}(\|B_k - \textit{Mdn}(B)\|)$ | — |
-| Median RMSE | $\sqrt{\text{Bias}_{\textit{Mdn}}^2 + \text{MAD}^2}$ | — |
-| **Relative Criteria** | | |
 | Relative Bias | $(\frac{\bar{B}}{\beta})- 1$ | $\sqrt{S_B^2/(K\beta^2)}$ |
 | Percent Relative Bias | $(\frac{\bar{B}}{\beta})- 1\times 100\%$ | — |
+| MSE | $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ | $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
+| RMSE | $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ |
 | Relative MSE | $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ | $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
 | Relative RMSE | $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ |
-| Relative Median Bias | $\frac{\text{Mdn}(B) - \beta}{\beta}$ | — |
-| Percent Relative Median Bias | $\frac{\textit{Mdn}(B) - \beta}{\beta} \times 100\%$ | — |
-| **Standard Error Assessment** | | |
 | Mean SE | $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ | — |
 | SE Ratio | $\overline{SE}/S_B$ | — |
-| **Hypothesis Testing** | | |
 | Rejection Rate | $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ | $\sqrt{r_\alpha(1-r_\alpha)/K}$ |
-| **Confidence Intervals** | | |
 | Coverage | $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ | $\sqrt{c_\beta(1-c_\beta)/K}$ |
 | Average Width | $\bar{W} = \bar{B} - \bar{A}$ | $\sqrt{S_W^2/K}$ |
-
+| **Median-Based Metrics** | | |
+| Median Estimate | $\textit{Mdn}(B)$ | — |
+| Median Bias | $\textit{Mdn}(B) - \beta$ | — |
+| Relative Median Bias | $\frac{\textit{Mdn}(B) - \beta}{\beta}$ | — |
+| Percent Relative Median Bias | $\frac{\textit{Mdn}(B) - \beta}{\beta} \times 100\%$ | — |
+| MAD | $\textit{Mdn}(\|B_k - \textit{Mdn}(B)\|)$ | — |
+| Median RMSE | $\sqrt{\text{Bias}_{\textit{Mdn}}^2 + \text{MAD}^2}$ | — |
+| **Trimmed Mean-Based Metrics** | | |
+| Trimmed Mean Estimate | $\bar{B}_{\text{trim}}$ | — |
+| Trimmed Bias | $\bar{B}_{\text{trim}} - \beta$ | — |
+| Trimmed RMSE | $\sqrt{(\bar{B}_{\text{trim}} - \beta)^2 + \text{MAD}^2}$ | — |
+| Trimmed Mean SE | $\overline{SE}_{\text{trim}}$ | — |
+| RSB (Robust SE Bias) | $\overline{SE}_{\text{trim}}/\text{MAD} - 1$ | — |
 \begin{flushleft}
-\textit{Note}. $B$ = parameter estimator; $\beta$ = true parameter value; $K$ = number of replications; $S_B^2$ = sample variance; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $S_W^2$ = variance of CI widths. MCSE = Monte Carlo Standard Error. Dashes indicate MCSEs not computed for these measures.
+\textit{Note}. $B$ = parameter estimator; $\beta$ = true parameter value; $K$ = number of replications; $S_B^2$ = sample variance; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $S_W^2$ = variance of CI widths; $\bar{B}_{\text{trim}}$ = 20\% trimmed mean of estimates; $\overline{SE}_{\text{trim}}$ = 20\% trimmed mean of standard errors; MAD = median absolute deviation with scaling factor 1.4826; RSB = robust relative standard error bias; MCSE = Monte Carlo Standard Error. Dashes indicate MCSEs not computed for these measures.
 \end{flushleft}
-
 \endlandscape
 \normalsize
 
 \newpage
 
 ```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
-source("../Simulations/Plots.R")
-source("../Simulations/Study_1/Results/Results(1).R")
-source("../Simulations/Study_2/Results/Results(2).R")
-```
-
-```{r results-first-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
-
 data_study_1 <- load("../Simulations/Study_1/Data/Results_Study_1_final.RData")
-
-study1_all_results_raw <- all_results 
-study1_conditions_raw <- conditions    
-
-results_study_1 <- CalculatePerformance(
-   all_results,
-   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-   remove_outliers = TRUE,
-   outlier_threshold = 3,
-   alpha = 0.05,
-   min_reps = 10,
-   exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
-   return_convergence_details = FALSE
-)
-```
-
-```{r results-second-sim-study, echo=FALSE, warning=FALSE, message=FALSE}
+study1_all_results_raw <- all_results  
+study1_conditions_raw <- conditions   
 
 data_study_2 <- load("../Simulations/Study_2/Data/Results_Study_2_final.RData")
-
 study2_all_results_raw <- all_results  
-study2_conditions_raw <- conditions    
+study2_conditions_raw <- conditions   
 
-results_study_2 <- CalculatePerformance_Study2(
-  all_results,
-  parameters_of_interest = list(
-    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
-    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
-  ),
-  remove_outliers = TRUE,
-  outlier_threshold = 3,
-  alpha = 0.05,
-  min_reps = 10,
-  exclude_warnings = FALSE, # TRUE to exclude iterations with warnings
-  return_convergence_details = FALSE
-)
+results_study_1 <- readRDS("../Simulations/Study_1/Results/results_study_1.rds")
+results_study_2 <- readRDS("../Simulations/Study_2/Results/results_study_2.rds")
 ```
 
 ```{r timing-table, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
@@ -834,4 +803,120 @@ for(i in 1:nrow(conditions_study2)) {
   
   cat("\n\\clearpage\n\n")
 }
+```
+
+```{r}
+# Simple plot of standard errors for a condition and method
+# No complications, just plot the SEs!
+
+plot_se_simple <- function(extraction_results, condition_number = 13, method = "LSAM", 
+                           label_threshold = 5, label_below = NULL) {
+  
+  # Get the GLOBAL surviving iterations (converged and non-outlier in ALL methods)
+  details <- extraction_results$convergence_outliers_details
+  cond_key <- paste0("Condition_", condition_number)
+  
+  surviving_iters <- NULL
+  
+  if (cond_key %in% names(details)) {
+    cond_details <- details[[cond_key]]
+    methods_lower <- c("lsam", "lms", "qml", "upi")
+    
+    # Collect all excluded iterations from ALL methods
+    all_excluded <- list()
+    for (m in methods_lower) {
+      non_conv <- cond_details$non_converged_iterations[[m]]
+      outliers <- cond_details$outlier_iterations[[m]]
+      all_excluded[[m]] <- unique(c(non_conv, outliers))
+    }
+    
+    # Global surviving = not excluded by ANY method
+    all_excluded_union <- unique(unlist(all_excluded))
+    surviving_iters <- setdiff(1:1000, all_excluded_union)
+    
+    cat("Condition", condition_number, "- Global filtering:\n")
+    cat("  Total excluded in ANY method:", length(all_excluded_union), "\n")
+    cat("  Global surviving iterations:", length(surviving_iters), "\n")
+    cat("  (These are the iterations good in ALL methods)\n\n")
+  } else {
+    warning("Could not find original iteration IDs, using sequential numbers")
+  }
+  
+  # Parameters to plot
+  parameters <- c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
+  
+  # Extract SEs for all parameters
+  se_data <- data.frame()
+  
+  for (param in parameters) {
+    key <- paste0(condition_number, "_", method, "_", param)
+    
+    if (key %in% names(extraction_results$filtered_data)) {
+      ses <- extraction_results$filtered_data[[key]]$standard_errors
+      
+      if (length(ses) > 0) {
+        # Use original iteration IDs if available, otherwise sequential
+        if (!is.null(surviving_iters) && length(surviving_iters) == length(ses)) {
+          iter_ids <- surviving_iters
+        } else {
+          iter_ids <- 1:length(ses)
+        }
+        
+        temp_df <- data.frame(
+          Iteration = iter_ids,
+          Parameter = param,
+          SE = ses
+        )
+        se_data <- rbind(se_data, temp_df)
+      }
+    }
+  }
+  
+  # Create the plot
+  # Determine which points to label
+  method_upper <- toupper(method)
+  
+  if (!is.null(label_below)) {
+    points_to_label <- subset(se_data, SE < label_below)
+    subtitle_text <- paste0("Original iteration IDs shown (from 1-1000) | Labels for SE < ", label_below)
+  } else {
+    points_to_label <- subset(se_data, SE > label_threshold)
+    subtitle_text <- paste0("Original iteration IDs shown (from 1-1000) | Labels for SE > ", label_threshold)
+  }
+  
+  p <- ggplot(se_data, aes(x = Iteration, y = SE)) +
+    geom_point(alpha = 0.6, size = 2) +
+    geom_text(data = points_to_label,
+              aes(label = Iteration), 
+              vjust = 0.5, hjust = 1.2, size = 3, fontface = "bold", color = "red") +
+    facet_wrap(~ Parameter, scales = "free_y", ncol = 2) +
+    theme_minimal() +
+    labs(
+      title = paste0("Standard Errors - Condition ", condition_number, " (", method_upper, ")"),
+      subtitle = subtitle_text,
+      x = "Original Iteration Number",
+      y = "Standard Error"
+    ) +
+    theme(
+      plot.title = element_text(size = 14, face = "bold"),
+      strip.text = element_text(face = "bold")
+    )
+  
+  print(p)
+  
+  se_data
+}
+
+
+extraction_results <- ExtractConvergenceOutliers(
+  all_results = study1_all_results_raw,
+  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+  remove_outliers = TRUE,
+  outlier_threshold = 3,
+  min_reps = 10,
+  exclude_warnings = FALSE
+)
+
+# label SEs above 5
+se_data <- plot_se_simple(extraction_results, condition_number = 13, method = "LSAM")
 ```
