@@ -404,3 +404,7 @@ p_t1_1000_all_study_2
 {{< pagebreak >}}
 
 {{< include appendix_b.qmd >}}
+
+{{< pagebreak >}}
+
+{{< include appendix_c.qmd >}}
