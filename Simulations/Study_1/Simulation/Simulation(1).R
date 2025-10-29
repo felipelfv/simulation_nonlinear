@@ -116,7 +116,7 @@ distributions <- list(
 base_dir <- "Simulations/Study_1/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "") 
-results_base <- file.path(base_dir, paste0("Results_Study_1", file_suffix))
+results_base <- file.path(base_dir, paste0("Data_Study_1", file_suffix))
 
 # conditions for sim study 1
 conditions <- expand.grid(

@@ -96,7 +96,7 @@ USE_ROBUST_SE  <- FALSE  # relevant for supplemental materials: TRUE for robust 
 base_dir <- "Simulations/Study_2/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "") 
-results_base <- file.path(base_dir, paste0("Results_Study_2", file_suffix))
+results_base <- file.path(base_dir, paste0("Data_Study_2", file_suffix))
 
 # analysis model for 5 factors with new interaction structure
 analysis.model <- "
