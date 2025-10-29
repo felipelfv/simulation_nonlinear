@@ -1,0 +1,4214 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.6.9)  29 OCT 2025 14:45
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**supplemental.tex
+(./supplemental.tex
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(/usr/local/texlive/2025/texmf-dist/tex/latex/apa7/apa7.cls
+Document Class: apa7 2022/07/25 v2.16 APA formatting (7th edition)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2024/06/29 v1.4n Standard LaTeX document class
+(/usr/local/texlive/2025/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2024/06/29 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count196
+\c@section=\count197
+\c@subsection=\count198
+\c@subsubsection=\count199
+\c@paragraph=\count266
+\c@subparagraph=\count267
+\c@figure=\count268
+\c@table=\count269
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen141
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/02/11 v2.5l e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count270
+)
+Class apa7 Info: No bibliography package was specified; defaulting to (but not 
+loading) Biblatex on input line 218.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/lm/lmodern.sty
+Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/cmm/m/it --> OML/lmm/m/it on input line 23.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> OMS/lmsy/m/n on input line 24.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 25.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 26.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/cmm/b/it --> OML/lmm/b/it on input line 27.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> OMS/lmsy/b/n on input line 28.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/lmex/m/n on input line 29.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 31.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> OT1/lmss/m/n on input line 32.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> OT1/lmr/m/it on input line 33.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 34.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
+(Font)                  OT1/cmr/bx/n --> OT1/lmr/bx/n on input line 35.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> OT1/lmss/bx/n on input line 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 11
+6.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/lm/t1lmr.fd
+File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+(/usr/local/texlive/2025/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count271
+\Gm@cntv=\count272
+\c@Gm@tempcnt=\count273
+\Gm@bindingoffset=\dimen142
+\Gm@wd@mp=\dimen143
+\Gm@odd@mp=\dimen144
+\Gm@even@mp=\dimen145
+\Gm@layoutwidth=\dimen146
+\Gm@layoutheight=\dimen147
+\Gm@layouthoffset=\dimen148
+\Gm@layoutvoffset=\dimen149
+\Gm@dimlist=\toks18
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2024/04/13 v1.2c Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen150
+\Gin@req@width=\dimen151
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/scalerel/scalerel.sty
+Package: scalerel 2016/12/29 v1.8 Routines for constrained scaling and stretchi
+ng of objects, relative to a reference object or in absolute terms
+(/usr/local/texlive/2025/texmf-dist/tex/latex/tools/calc.sty
+Package: calc 2023/07/08 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count274
+\calc@Bcount=\count275
+\calc@Adimen=\dimen152
+\calc@Bdimen=\dimen153
+\calc@Askip=\skip51
+\calc@Bskip=\skip52
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count276
+\calc@Cskip=\skip53
+)
+\thesrwidth=\skip54
+\thesrheight=\skip55
+\srblobheight=\skip56
+\srblobdepth=\skip57
+\mnxsrwidth=\skip58
+\LMex=\skip59
+\LMpt=\skip60
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (/us
+r/local/texlive/2025/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/usr/local/te
+xlive/2025/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.te
+x
+\pgfutil@everybye=\toks19
+\pgfutil@tempdima=\dimen154
+\pgfutil@tempdimb=\dimen155
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
+\pgfutil@abb=\box52
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/pgf.revision.tex)
+Package: pgfrcs 2023-01-15 v3.1.10 (3.1.10)
+))
+Package: pgf 2023-01-15 v3.1.10 (3.1.10)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty (/usr/
+local/texlive/2025/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+Package: pgfsys 2023-01-15 v3.1.10 (3.1.10)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks20
+\pgfkeys@temptoks=\toks21
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfil
+tered.code.tex
+\pgfkeys@tmptoks=\toks22
+))
+\pgf@x=\dimen156
+\pgf@y=\dimen157
+\pgf@xa=\dimen158
+\pgf@ya=\dimen159
+\pgf@xb=\dimen160
+\pgf@yb=\dimen161
+\pgf@xc=\dimen162
+\pgf@yc=\dimen163
+\pgf@xd=\dimen164
+\pgf@yd=\dimen165
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count277
+\c@pgf@countb=\count278
+\c@pgf@countc=\count279
+\c@pgf@countd=\count280
+\t@pgf@toka=\toks23
+\t@pgf@tokb=\toks24
+\t@pgf@tokc=\toks25
+\pgf@sys@id@count=\count281
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
+File: pgf.cfg 2023-01-15 v3.1.10 (3.1.10)
+)
+Driver file for pgf: pgfsys-pdftex.def
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.d
+ef
+File: pgfsys-pdftex.def 2023-01-15 v3.1.10 (3.1.10)
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-p
+df.def
+File: pgfsys-common-pdf.def 2023-01-15 v3.1.10 (3.1.10)
+)))
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.
+code.tex
+File: pgfsyssoftpath.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfsyssoftpath@smallbuffer@items=\count282
+\pgfsyssoftpath@bigbuffer@items=\count283
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.
+code.tex
+File: pgfsysprotocol.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+Package: pgfcore 2023-01-15 v3.1.10 (3.1.10)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/usr
+/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
+\pgfmath@dimen=\dimen166
+\pgfmath@count=\count284
+\pgfmath@box=\box53
+\pgfmath@toks=\toks26
+\pgfmath@stack@operand=\toks27
+\pgfmath@stack@operation=\toks28
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.
+tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic
+.code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigo
+nometric.code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.rando
+m.code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.compa
+rison.code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.
+code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round
+.code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.
+code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integ
+erarithmetics.code.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/mat
+h/pgfmathcalc.code.tex) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/mat
+h/pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count285
+)) (/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/math/pgfint.code.tex)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.co
+de.tex
+File: pgfcorepoints.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@picminx=\dimen167
+\pgf@picmaxx=\dimen168
+\pgf@picminy=\dimen169
+\pgf@picmaxy=\dimen170
+\pgf@pathminx=\dimen171
+\pgf@pathmaxx=\dimen172
+\pgf@pathminy=\dimen173
+\pgf@pathmaxy=\dimen174
+\pgf@xx=\dimen175
+\pgf@xy=\dimen176
+\pgf@yx=\dimen177
+\pgf@yy=\dimen178
+\pgf@zx=\dimen179
+\pgf@zy=\dimen180
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconst
+ruct.code.tex
+File: pgfcorepathconstruct.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@path@lastx=\dimen181
+\pgf@path@lasty=\dimen182
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage
+.code.tex
+File: pgfcorepathusage.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@shorten@end@additional=\dimen183
+\pgf@shorten@start@additional=\dimen184
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.co
+de.tex
+File: pgfcorescopes.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfpic=\box54
+\pgf@hbox=\box55
+\pgf@layerbox@main=\box56
+\pgf@picture@serial@count=\count286
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicst
+ate.code.tex
+File: pgfcoregraphicstate.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgflinewidth=\dimen185
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransform
+ations.code.tex
+File: pgfcoretransformations.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@pt@x=\dimen186
+\pgf@pt@y=\dimen187
+\pgf@pt@temp=\dimen188
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.cod
+e.tex
+File: pgfcorequick.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.c
+ode.tex
+File: pgfcoreobjects.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathproce
+ssing.code.tex
+File: pgfcorepathprocessing.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.co
+de.tex
+File: pgfcorearrows.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfarrowsep=\dimen189
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.cod
+e.tex
+File: pgfcoreshade.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@max=\dimen190
+\pgf@sys@shading@range@num=\count287
+\pgf@shadingcount=\count288
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.cod
+e.tex
+File: pgfcoreimage.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.
+code.tex
+File: pgfcoreexternal.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfexternal@startupbox=\box57
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.co
+de.tex
+File: pgfcorelayers.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretranspare
+ncy.code.tex
+File: pgfcoretransparency.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.
+code.tex
+File: pgfcorepatterns.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.
+tex
+File: pgfcorerdf.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)))
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.cod
+e.tex
+File: pgfmoduleshapes.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfnodeparttextbox=\box58
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.
+tex
+File: pgfmoduleplot.code.tex 2023-01-15 v3.1.10 (3.1.10)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version
+-0-65.sty
+Package: pgfcomp-version-0-65 2023-01-15 v3.1.10 (3.1.10)
+\pgf@nodesepstart=\dimen191
+\pgf@nodesepend=\dimen192
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version
+-1-18.sty
+Package: pgfcomp-version-1-18 2023-01-15 v3.1.10 (3.1.10)
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/pgf/utilities/pgffor.sty (/usr
+/local/texlive/2025/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (/usr/local/
+texlive/2025/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex)) (/usr/loca
+l/texlive/2025/texmf-dist/tex/latex/pgf/math/pgfmath.sty (/usr/local/texlive/20
+25/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)) (/usr/local/texlive/2025/
+texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex
+Package: pgffor 2023-01-15 v3.1.10 (3.1.10)
+\pgffor@iter=\dimen193
+\pgffor@skip=\dimen194
+\pgffor@stack=\toks29
+\pgffor@toks=\toks30
+))
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.cod
+e.tex
+Package: tikz 2023-01-15 v3.1.10 (3.1.10)
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothan
+dlers.code.tex
+File: pgflibraryplothandlers.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgf@plot@mark@count=\count289
+\pgfplotmarksize=\dimen195
+)
+\tikz@lastx=\dimen196
+\tikz@lasty=\dimen197
+\tikz@lastxsaved=\dimen198
+\tikz@lastysaved=\dimen199
+\tikz@lastmovetox=\dimen256
+\tikz@lastmovetoy=\dimen257
+\tikzleveldistance=\dimen258
+\tikzsiblingdistance=\dimen259
+\tikz@figbox=\box59
+\tikz@figbox@bg=\box60
+\tikz@tempbox=\box61
+\tikz@tempbox@bg=\box62
+\tikztreelevel=\count290
+\tikznumberofchildren=\count291
+\tikznumberofcurrentchild=\count292
+\tikz@fig@count=\count293
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.cod
+e.tex
+File: pgfmodulematrix.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfmatrixcurrentrow=\count294
+\pgfmatrixcurrentcolumn=\count295
+\pgf@matrix@numberofcolumns=\count296
+)
+\tikz@expandcount=\count297
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/librarie
+s/tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
+))) (/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2024-11-05 v7.01l Hypertext links for LaTeX
+(/usr/local/texlive/2025/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2023-11-26 v2.56 Cross-referencing by name of section
+(/usr/local/texlive/2025/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/gettitlestring/gettitlestring.s
+ty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count298
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen260
+\Hy@linkcounter=\count299
+\Hy@pagecounter=\count300
+(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2024-11-05 v7.01l Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count301
+(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/puenc.def
+File: puenc.def 2024-11-05 v7.01l Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Option `unicode' set `true' on input line 4040.
+Package hyperref Info: Hyper figures OFF on input line 4157.
+Package hyperref Info: Link nesting OFF on input line 4162.
+Package hyperref Info: Hyper index ON on input line 4165.
+Package hyperref Info: Plain pages OFF on input line 4172.
+Package hyperref Info: Backreferencing OFF on input line 4177.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4424.
+\c@Hy@tempcnt=\count302
+(/usr/local/texlive/2025/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4763.
+\XeTeXLinkMargin=\dimen261
+(/usr/local/texlive/2025/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count303
+\Field@Width=\dimen262
+\Fld@charsize=\dimen263
+Package hyperref Info: Hyper figures OFF on input line 6042.
+Package hyperref Info: Link nesting OFF on input line 6047.
+Package hyperref Info: Hyper index ON on input line 6050.
+Package hyperref Info: backreferencing OFF on input line 6057.
+Package hyperref Info: Link coloring OFF on input line 6062.
+Package hyperref Info: Link coloring with OCG OFF on input line 6067.
+Package hyperref Info: PDF/A mode OFF on input line 6072.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/base/atbegshi-ltx.sty
+Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
+package with kernel methods
+)
+\Hy@abspage=\count304
+\c@Item=\count305
+\c@Hfootnote=\count306
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2024-11-05 v7.01l Hyperref driver for pdfTeX
+(/usr/local/texlive/2025/texmf-dist/tex/latex/base/atveryend-ltx.sty
+Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
+kage
+with kernel methods
+)
+\Fld@listcount=\count307
+\c@bookmark@seq@number=\count308
+
+(/usr/local/texlive/2025/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+85.
+)
+\Hy@SectionHShift=\skip61
+)
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/frontendlayer/tikz/librarie
+s/tikzlibrarysvg.path.code.tex
+File: tikzlibrarysvg.path.code.tex 2023-01-15 v3.1.10 (3.1.10)
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/libraries/pgflibrarysvg.pat
+h.code.tex
+File: pgflibrarysvg.path.code.tex 2023-01-15 v3.1.10 (3.1.10)
+
+(/usr/local/texlive/2025/texmf-dist/tex/generic/pgf/modules/pgfmoduleparser.cod
+e.tex
+File: pgfmoduleparser.code.tex 2023-01-15 v3.1.10 (3.1.10)
+\pgfparserdef@arg@count=\count309
+)
+\pgf@lib@svg@last@x=\dimen264
+\pgf@lib@svg@last@y=\dimen265
+\pgf@lib@svg@last@c@x=\dimen266
+\pgf@lib@svg@last@c@y=\dimen267
+\pgf@lib@svg@count=\count310
+\pgf@lib@svg@max@num=\count311
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen268
+\lightrulewidth=\dimen269
+\cmidrulewidth=\dimen270
+\belowrulesep=\dimen271
+\belowbottomsep=\dimen272
+\aboverulesep=\dimen273
+\abovetopsep=\dimen274
+\cmidrulesep=\dimen275
+\cmidrulekern=\dimen276
+\defaultaddspace=\dimen277
+\@cmidla=\count312
+\@cmidlb=\count313
+\@aboverulesep=\dimen278
+\@belowrulesep=\dimen279
+\@thisruleclass=\count314
+\@lastruleclass=\count315
+\@thisrulewidth=\dimen280
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/threeparttable/threeparttable.sty
+Package: threeparttable 2003/06/13  v 3.0
+\@tempboxb=\box63
+)
+\b@level@one@skip=\skip62
+\e@level@one@skip=\skip63
+\b@level@two@skip=\skip64
+\e@level@two@skip=\skip65
+\b@level@three@skip=\skip66
+\e@level@three@skip=\skip67
+\b@level@four@skip=\skip68
+\e@level@four@skip=\skip69
+\b@level@five@skip=\skip70
+\e@level@five@skip=\skip71
+(/usr/local/texlive/2025/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen281
+\captionmargin=\dimen282
+\caption@leftmargin=\dimen283
+\caption@rightmargin=\dimen284
+\caption@width=\dimen285
+\caption@indent=\dimen286
+\caption@parindent=\dimen287
+\caption@hangindent=\dimen288
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count316
+\c@continuedfloat=\count317
+Package caption Info: hyperref package is loaded.
+Package caption Info: threeparttable package is loaded.
+)
+\c@APAenum=\count318
+\@text@par@indent=\skip72
+\gr@box=\box64
+\gr@boxwidth=\skip73
+\gr@boxheight=\skip74
+(/usr/local/texlive/2025/texmf-dist/tex/latex/tools/bm.sty
+Package: bm 2023/12/19 v1.2f Bold Symbol Support (DPC/FMi)
+\symboldoperators=\mathgroup4
+\symboldletters=\mathgroup5
+\symboldsymbols=\mathgroup6
+Package bm Info: No bold for \OMX/lmex/m/n, using \pmb.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 149.
+)
+\c@appendix=\count319
+(/usr/local/texlive/2025/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+
+\f@nch@headwidth=\skip75
+\f@nch@offset@elh=\skip76
+\f@nch@offset@erh=\skip77
+\f@nch@offset@olh=\skip78
+\f@nch@offset@orh=\skip79
+\f@nch@offset@elf=\skip80
+\f@nch@offset@erf=\skip81
+\f@nch@offset@olf=\skip82
+\f@nch@offset@orf=\skip83
+\f@nch@height=\skip84
+\f@nch@footalignment=\skip85
+\f@nch@widthL=\skip86
+\f@nch@widthC=\skip87
+\f@nch@widthR=\skip88
+\@temptokenb=\toks31
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/endfloat/endfloat.sty
+Package: endfloat 2019/04/15 v2.7 LaTeX2e package puts figures and tables at en
+d (jdm)
+\c@posttable=\count320
+\efloat@postttt=\write4
+\@ef@tttopen=\count321
+\c@postfigure=\count322
+\efloat@postfff=\write5
+\@ef@fffopen=\count323
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2024/11/05 v2.17t AMS math features
+\@mathmargin=\skip89
+For additional information on amsmath, use the `?' option.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2021/08/26 v2.01 AMS text
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks32
+\ex@=\dimen289
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+LaTeX Info: Redefining \boldsymbol on input line 28.
+\pmbraise@=\dimen290
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count324
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count325
+\leftroot@=\count326
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count327
+\DOTSCASE@=\count328
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box65
+\strutbox@=\box66
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen291
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count329
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count330
+\dotsspace@=\muskip18
+\c@parentequation=\count331
+\dspbrk@lvl=\count332
+\tag@help=\toks33
+\row@=\count333
+\column@=\count334
+\maxfields@=\count335
+\andhelp@=\toks34
+\eqnshift@=\dimen292
+\alignsep@=\dimen293
+\tagshift@=\dimen294
+\tagwidth@=\dimen295
+\totwidth@=\dimen296
+\lineht@=\dimen297
+\@envbody=\toks35
+\multlinegap=\skip90
+\multlinetaggap=\skip91
+\mathdisplay@stack=\toks36
+LaTeX Info: Redefining \[ on input line 2953.
+LaTeX Info: Redefining \] on input line 2954.
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup7
+\symAMSb=\mathgroup8
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks37
+\inpenc@posthook=\toks38
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/base/textcomp.sty
+Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/upquote/upquote.sty
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
+tim
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/microtype/microtype.sty
+Package: microtype 2025/02/11 v3.2a Micro-typographical refinements (RS)
+\MT@toks=\toks39
+\MT@tempbox=\box67
+\MT@count=\count336
+LaTeX Info: Redefining \noprotrusionifhmode on input line 1087.
+LaTeX Info: Redefining \leftprotrusion on input line 1088.
+\MT@prot@toks=\toks40
+LaTeX Info: Redefining \rightprotrusion on input line 1107.
+LaTeX Info: Redefining \textls on input line 1449.
+\MT@outer@kern=\dimen298
+LaTeX Info: Redefining \microtypecontext on input line 2053.
+LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
+\MT@listname@count=\count337
+(/usr/local/texlive/2025/texmf-dist/tex/latex/microtype/microtype-pdftex.def
+File: microtype-pdftex.def 2025/02/11 v3.2a Definitions specific to pdftex (RS)
+
+LaTeX Info: Redefining \lsstyle on input line 944.
+LaTeX Info: Redefining \lslig on input line 944.
+\MT@outer@space=\skip92
+)
+Package microtype Info: Loading configuration file microtype.cfg.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/microtype/microtype.cfg
+File: microtype.cfg 2025/02/11 v3.2a microtype main configuration file (RS)
+)
+LaTeX Info: Redefining \microtypesetup on input line 3065.
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/parskip/parskip.sty
+Package: parskip 2021-03-14 v2.0h non-zero parskip adjustments
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2024-10-27 v4.22 Multi-page Table package (DPC)
+\LTleft=\skip93
+\LTright=\skip94
+\LTpre=\skip95
+\LTpost=\skip96
+\LTchunksize=\count338
+\LTcapwidth=\dimen299
+\LT@head=\box68
+\LT@firsthead=\box69
+\LT@foot=\box70
+\LT@lastfoot=\box71
+\LT@gbox=\box72
+\LT@cols=\count339
+\LT@rows=\count340
+\c@LT@tables=\count341
+\c@LT@chunks=\count342
+\LT@p@ftn=\toks41
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/array.sty
+Package: array 2024/10/17 v2.6g Tabular extension package (FMi)
+\col@sep=\dimen300
+\ar@mcellbox=\box73
+\extrarowheight=\dimen301
+\NC@list=\toks42
+\extratabsurround=\skip97
+\backup@length=\skip98
+\ar@cellbox=\box74
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/footnotehyper/footnotehyper.sty
+Package: footnotehyper 2021/08/13 v1.1e hyperref aware footnote.sty (JFB)
+\FNH@notes=\box75
+\FNH@width=\dimen302
+\FNH@toks=\toks43
+) (/usr/local/texlive/2025/texmf-dist/tex/generic/babel/babel.sty
+Package: babel 2025/02/14 v25.4 The multilingual framework for pdfLaTeX, LuaLaT
+eX and XeLaTeX
+\babel@savecnt=\count343
+\U@D=\dimen303
+\l@unhyphenated=\language90
+(/usr/local/texlive/2025/texmf-dist/tex/generic/babel/txtbabel.def)
+\bbl@readstream=\read3
+\bbl@dirlevel=\count344
+Package babel Info: You haven't specified a language as a class or package
+(babel)             option. I'll load 'nil'. Reported on input line 4188.
+(/usr/local/texlive/2025/texmf-dist/tex/generic/babel/nil.ldf
+Language: nil 2025/02/14 v25.4 Nil language
+\l@nil=\language91
+))
+(/usr/local/texlive/2025/texmf-dist/tex/generic/babel/locale/en/babel-english.t
+ex)
+Package babel Info: Importing data for english
+(babel)             from babel-en.ini. Reported on input line 94.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/was/upgreek.sty
+Package: upgreek 2003/02/12 v2.0 (WaS)
+Package upgreek Info: Using Euler Roman for upright Greek on input line 31.
+\symugrf@m=\mathgroup9
+LaTeX Font Info:    Overwriting symbol font `ugrf@m' in version `bold'
+(Font)                  U/eur/m/n --> U/eur/b/n on input line 38.
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/graphics/lscape.sty
+Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip99
+\multirow@cntb=\count345
+\multirow@dima=\skip100
+\bigstrutjot=\dimen304
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/tools/tabularx.sty
+Package: tabularx 2023/12/11 v2.12a `tabularx' package (DPC)
+\TX@col@width=\dimen305
+\TX@old@table=\dimen306
+\TX@old@col=\dimen307
+\TX@target=\dimen308
+\TX@delta=\dimen309
+\TX@cols=\count346
+\TX@ftn=\toks44
+)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/threeparttablex/threeparttablex.s
+ty
+Package: threeparttablex 2013/07/23 v0.3 by daleif
+(/usr/local/texlive/2025/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+(/usr/local/texlive/2025/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+))
+\TPTL@width=\skip101
+)
+\longtablewidth=\skip102
+Failed to patch abstract.
+Failed to patch title.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/xpatch/xpatch.sty (/usr/local/tex
+live/2025/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2025-01-18 L3 programming layer (loader) 
+(/usr/local/texlive/2025/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count347
+\l__pdf_internal_box=\box76
+))
+Package: xpatch 2020/03/25 v0.3a Extending etoolbox patching commands
+(/usr/local/texlive/2025/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
+Package: xparse 2024-08-16 L3 Experimental document command parser
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/csquotes/csquotes.sty
+Package: csquotes 2024-04-04 v5.2o context-sensitive quotations (JAW)
+\csq@reset=\count348
+\csq@gtype=\count349
+\csq@glevel=\count350
+\csq@qlevel=\count351
+\csq@maxlvl=\count352
+\csq@tshold=\count353
+\csq@ltx@everypar=\toks45
+(/usr/local/texlive/2025/texmf-dist/tex/latex/csquotes/csquotes.def
+File: csquotes.def 2024-04-04 v5.2o csquotes generic definitions (JAW)
+)
+Package csquotes Info: Trying to load configuration file 'csquotes.cfg'...
+Package csquotes Info: ... configuration file loaded successfully.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/csquotes/csquotes.cfg
+File: csquotes.cfg 
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/tocloft/tocloft.sty
+Package: tocloft 2017/08/31 v2.3i parameterised ToC, etc., typesetting
+Package tocloft Info: The document has section divisions on input line 51.
+\cftparskip=\skip103
+\cftbeforetoctitleskip=\skip104
+\cftaftertoctitleskip=\skip105
+\cftbeforepartskip=\skip106
+\cftpartnumwidth=\skip107
+\cftpartindent=\skip108
+\cftbeforesecskip=\skip109
+\cftsecindent=\skip110
+\cftsecnumwidth=\skip111
+\cftbeforesubsecskip=\skip112
+\cftsubsecindent=\skip113
+\cftsubsecnumwidth=\skip114
+\cftbeforesubsubsecskip=\skip115
+\cftsubsubsecindent=\skip116
+\cftsubsubsecnumwidth=\skip117
+\cftbeforeparaskip=\skip118
+\cftparaindent=\skip119
+\cftparanumwidth=\skip120
+\cftbeforesubparaskip=\skip121
+\cftsubparaindent=\skip122
+\cftsubparanumwidth=\skip123
+\cftbeforeloftitleskip=\skip124
+\cftafterloftitleskip=\skip125
+\cftbeforefigskip=\skip126
+\cftfigindent=\skip127
+\cftfignumwidth=\skip128
+\c@lofdepth=\count354
+\c@lotdepth=\count355
+\cftbeforelottitleskip=\skip129
+\cftafterlottitleskip=\skip130
+\cftbeforetabskip=\skip131
+\cfttabindent=\skip132
+\cfttabnumwidth=\skip133
+
+Package tocloft Warning: \@starttoc has already been redefined; tocloft bailing
+ out. on input line 1156.
+
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/pdflscape/pdflscape.sty
+Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
+
+(/usr/local/texlive/2025/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.st
+y
+Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PD
+F (HO)
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/bookmark/bookmark.sty
+Package: bookmark 2023-12-10 v1.31 PDF bookmarks (HO)
+(/usr/local/texlive/2025/texmf-dist/tex/latex/bookmark/bkm-pdftex.def
+File: bkm-pdftex.def 2023-12-10 v1.31 bookmark driver for pdfTeX and luaTeX (HO
+)
+\BKM@id=\count356
+)) (/usr/local/texlive/2025/texmf-dist/tex/latex/xurl/xurl.sty
+Package: xurl 2022/01/09 v 0.10 modify URL breaks
+)
+\c@NumberOfAuthors=\count357
+\c@NumberOfSuperscripts=\count358
+
+Class apa7 Warning: Deprecated: see documentation for \authorsaffiliations on i
+nput line 204.
+
+\c@NumberOfAffiliations=\count359
+Package csquotes Info: Checking for multilingual support...
+Package csquotes Info: ... found 'babel' package.
+Package csquotes Info: Adjusting default style.
+Package csquotes Info: Redefining alias 'default' -> 'english'.
+(./supplemental.aux
+
+LaTeX Warning: Label `tab:timing-table' multiply defined.
+
+
+LaTeX Warning: Label `tab:timing-table' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+
+LaTeX Warning: Label `tab:trial-separate' multiply defined.
+
+)
+\openout1 = `supplemental.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 206.
+LaTeX Font Info:    ... okay on input line 206.
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: <default>
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: twoside 
+* h-part:(L,W,R)=(72.26999pt, 469.75502pt, 72.26999pt)
+* v-part:(T,H,B)=(72.26999pt, 650.43001pt, 72.26999pt)
+* \paperwidth=614.295pt
+* \paperheight=794.96999pt
+* \textwidth=469.75502pt
+* \textheight=650.43001pt
+* \oddsidemargin=0.0pt
+* \evensidemargin=0.0pt
+* \topmargin=-37.0pt
+* \headheight=15.2pt
+* \headsep=25.0pt
+* \topskip=12.0pt
+* \footskip=30.0pt
+* \marginparwidth=95.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.8pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidetrue
+* \@mparswitchtrue
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count360
+\scratchdimen=\dimen310
+\scratchbox=\box77
+\nofMPsegments=\count361
+\nofMParguments=\count362
+\everyMPshowfont=\toks46
+\MPscratchCnt=\count363
+\MPscratchDim=\dimen311
+\MPnumerator=\count364
+\makeMPintoPDFobject=\count365
+\everyMPtoPDFconversion=\toks47
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+Package hyperref Info: Link coloring OFF on input line 206.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/apa7/config/APA7english.txt
+File: APA7english.txt 2020/12/02 v1.02 apa7 configuration for non-American Engl
+ish
+)
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: longtable package is loaded.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/caption/ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+)
+Package caption Info: End \AtBeginDocument code.
+LaTeX Info: Redefining \microtypecontext on input line 206.
+Package microtype Info: Applying patch `item' on input line 206.
+Package microtype Info: Applying patch `toc' on input line 206.
+Package microtype Info: Applying patch `eqnum' on input line 206.
+Package microtype Info: Applying patch `footnote' on input line 206.
+Package microtype Info: Applying patch `verbatim' on input line 206.
+LaTeX Info: Redefining \microtypesetup on input line 206.
+Package microtype Info: Generating PDF output.
+Package microtype Info: Character protrusion enabled (level 2).
+Package microtype Info: Using protrusion set `basicmath'.
+Package microtype Info: Automatic font expansion enabled (level 2),
+(microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
+Package microtype Info: Using default expansion set `alltext-nott'.
+LaTeX Info: Redefining \showhyphens on input line 206.
+Package microtype Info: No adjustment of tracking.
+Package microtype Info: No adjustment of interword spacing.
+Package microtype Info: No adjustment of character kerning.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/microtype/mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+(RS)
+)
+
+Class apa7 Warning: Abstract not defined.
+
+Class apa7 Info: Keywords not defined on input line 207.
+
+
+[1{/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/l
+ocal/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}
+
+]
+
+[2]
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 2
+38.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/lm/ot1lmr.fd
+File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 2
+38.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omllmm.fd
+File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
+238.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omslmsy.fd
+File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
+238.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/lm/omxlmex.fd
+File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 238.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 238.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 238.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 238
+.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/microtype/mt-msa.cfg
+File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 238
+.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/microtype/mt-msb.cfg
+File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
+) (/usr/local/texlive/2025/texmf-dist/tex/latex/microtype/mt-eur.cfg
+File: mt-eur.cfg 2006/07/31 v1.1 microtype config. file: AMS Euler Roman (RS)
+)
+Overfull \hbox (11.68686pt too wide) in paragraph at lines 242--243
+[]|$[]$|  
+ []
+
+
+Overfull \hbox (20.484pt too wide) in paragraph at lines 244--245
+[]|$[]$|  
+ []
+
+[3
+
+{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/te
+xlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2025
+/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2025/texmf-dis
+t/fonts/enc/dvips/lm/lm-mathsy.enc}]
+
+[4]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 303.
+[5
+
+
+]
+
+[6]
+\openout5 = `supplemental.fff'.
+
+(supplemental.fff)
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 6
+97.
+(/usr/local/texlive/2025/texmf-dist/tex/latex/lm/ts1lmr.fd
+File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+Overfull \hbox (18.88617pt too wide) in alignment at lines 692--699
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 699--706
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 706--708
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+LaTeX Font Info:    Calculating math sizes for size <3.5> on input line 710.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <3.5> on input line 710.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <2.44998> on input line 710.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <1.75> on input line 710.
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 708--711
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 711--751
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[7
+
+
+{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 768--775
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 775--782
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 782--784
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 784--787
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 787--827
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[8
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 844--851
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 851--858
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 858--860
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 860--863
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 863--903
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[9
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 920--927
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 927--934
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 934--936
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 936--939
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 939--979
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[10
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 996--1003
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1003--1010
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1010--1012
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1012--1015
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1015--1055
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[11
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1072--1079
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1079--1086
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1086--1088
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1088--1091
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1091--1131
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[12
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1148--1155
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1155--1162
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1162--1164
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1164--1167
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1167--1207
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[13
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1224--1231
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1231--1238
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1238--1240
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1240--1243
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1243--1283
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[14
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1300--1307
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1307--1314
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1314--1316
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1316--1319
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1319--1359
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[15
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1376--1383
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1383--1390
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1390--1392
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1392--1395
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1395--1435
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[16
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1452--1459
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1459--1466
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1466--1468
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1468--1471
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1471--1511
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[17
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1528--1535
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1535--1542
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1542--1544
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1544--1547
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1547--1587
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[18
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1604--1611
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1611--1618
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1618--1620
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1620--1623
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1623--1663
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[19
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1680--1687
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1687--1694
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1694--1696
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1696--1699
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1699--1739
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[20
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1756--1763
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1763--1770
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1770--1772
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1772--1775
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1775--1815
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[21
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1832--1839
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1839--1846
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1846--1848
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1848--1851
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1851--1891
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[22
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1908--1915
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1915--1922
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1922--1924
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1924--1927
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1927--1967
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[23
+
+
+
+]
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1984--1991
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1991--1998
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 1998--2000
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 2000--2003
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (18.88617pt too wide) in alignment at lines 2003--2043
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[24
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2060--2067
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2067--2074
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2074--2076
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2076--2079
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2079--2119
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[25
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2136--2143
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2143--2150
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2150--2152
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2152--2155
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2155--2195
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[26
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2212--2219
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2219--2226
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2226--2228
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2228--2231
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2231--2271
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[27
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2288--2295
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2295--2302
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2302--2304
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2304--2307
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2307--2347
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[28
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2364--2371
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2371--2378
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2378--2380
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2380--2383
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2383--2423
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[29
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2440--2447
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2447--2454
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2454--2456
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2456--2459
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2459--2499
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[30
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2516--2523
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2523--2530
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2530--2532
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2532--2535
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2535--2575
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[31
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2592--2599
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2599--2606
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2606--2608
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2608--2611
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2611--2651
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[32
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2668--2675
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2675--2682
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2682--2684
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2684--2687
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2687--2727
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[33
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2744--2751
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2751--2758
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2758--2760
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2760--2763
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2763--2803
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[34
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2820--2827
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2827--2834
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2834--2836
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2836--2839
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2839--2879
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[35
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2896--2903
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2903--2910
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2910--2912
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2912--2915
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2915--2955
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[36
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2972--2979
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2979--2986
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2986--2988
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2988--2991
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 2991--3031
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[37
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3048--3055
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3055--3062
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3062--3064
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3064--3067
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3067--3107
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[38
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3124--3131
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3131--3138
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3138--3140
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3140--3143
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3143--3183
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[39
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3200--3207
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3207--3214
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3214--3216
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3216--3219
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3219--3259
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[40
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3276--3283
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3283--3290
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3290--3292
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3292--3295
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3295--3335
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[41
+
+
+
+]
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3352--3359
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3359--3366
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3366--3368
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3368--3371
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (21.61859pt too wide) in alignment at lines 3371--3411
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+
+[42
+
+
+
+]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3428--3435
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3435--3442
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3442--3444
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3444--3447
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3447--3537
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[43
+
+
+
+]
+
+[44]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3554--3561
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3561--3568
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3568--3570
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3570--3573
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3573--3663
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[45
+
+
+
+]
+
+[46]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3680--3687
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3687--3694
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3694--3696
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3696--3699
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3699--3789
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[47
+
+
+
+]
+
+[48]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3806--3813
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3813--3820
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3820--3822
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3822--3825
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3825--3915
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[49
+
+
+
+]
+
+[50]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3932--3939
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3939--3946
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3946--3948
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3948--3951
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 3951--4041
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[51
+
+
+
+]
+
+[52]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4058--4065
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4065--4072
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4072--4074
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4074--4077
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4077--4167
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[53
+
+
+
+]
+
+[54]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4184--4191
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4191--4198
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4198--4200
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4200--4203
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4203--4293
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[55
+
+
+
+]
+
+[56]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4310--4317
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4317--4324
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4324--4326
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4326--4329
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4329--4419
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[57
+
+
+
+]
+
+[58]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4436--4443
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4443--4450
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4450--4452
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4452--4455
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4455--4545
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[59
+
+
+
+]
+
+[60]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4562--4569
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4569--4576
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4576--4578
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4578--4581
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4581--4671
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[61
+
+
+
+]
+
+[62]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4688--4695
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4695--4702
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4702--4704
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4704--4707
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4707--4797
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[63
+
+
+
+]
+
+[64]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4814--4821
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4821--4828
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4828--4830
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4830--4833
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4833--4923
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[65
+
+
+
+]
+
+[66]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4940--4947
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4947--4954
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4954--4956
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4956--4959
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 4959--5049
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[67
+
+
+
+]
+
+[68]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5066--5073
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5073--5080
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5080--5082
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5082--5085
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5085--5175
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[69
+
+
+
+]
+
+[70]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5192--5199
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5199--5206
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5206--5208
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5208--5211
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5211--5301
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[71
+
+
+
+]
+
+[72]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5318--5325
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5325--5332
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5332--5334
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5334--5337
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5337--5427
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[73
+
+
+
+]
+
+[74]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5444--5451
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5451--5458
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5458--5460
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5460--5463
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5463--5553
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[75
+
+
+
+]
+
+[76]
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5570--5577
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5577--5584
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5584--5586
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5586--5589
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (17.59729pt too wide) in alignment at lines 5589--5679
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[77
+
+
+
+]
+
+[78]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5696--5703
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5703--5710
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5710--5712
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5712--5715
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5715--5805
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[79
+
+
+
+]
+
+[80]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5822--5829
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5829--5836
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5836--5838
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5838--5841
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5841--5931
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[81
+
+
+
+]
+
+[82]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5948--5955
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5955--5962
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5962--5964
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5964--5967
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 5967--6057
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[83
+
+
+
+]
+
+[84]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6074--6081
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6081--6088
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6088--6090
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6090--6093
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6093--6183
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[85
+
+
+
+]
+
+[86]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6200--6207
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6207--6214
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6214--6216
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6216--6219
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6219--6309
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[87
+
+
+
+]
+
+[88]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6326--6333
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6333--6340
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6340--6342
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6342--6345
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6345--6435
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[89
+
+
+
+]
+
+[90]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6452--6459
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6459--6466
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6466--6468
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6468--6471
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6471--6561
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[91
+
+
+
+]
+
+[92]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6578--6585
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6585--6592
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6592--6594
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6594--6597
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6597--6687
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[93
+
+
+
+]
+
+[94]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6704--6711
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6711--6718
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6718--6720
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6720--6723
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6723--6813
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[95
+
+
+
+]
+
+[96]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6830--6837
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6837--6844
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6844--6846
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6846--6849
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6849--6939
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[97
+
+
+
+]
+
+[98]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6956--6963
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6963--6970
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6970--6972
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6972--6975
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 6975--7065
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[99
+
+
+
+]
+
+[100]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7082--7089
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7089--7096
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7096--7098
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7098--7101
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7101--7191
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[101
+
+
+
+]
+
+[102]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7208--7215
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7215--7222
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7222--7224
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7224--7227
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7227--7317
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[103
+
+
+
+]
+
+[104]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7334--7341
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7341--7348
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7348--7350
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7350--7353
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7353--7443
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[105
+
+
+
+]
+
+[106]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7460--7467
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7467--7474
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7474--7476
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7476--7479
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7479--7569
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[107
+
+
+
+]
+
+[108]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7586--7593
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7593--7600
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7600--7602
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7602--7605
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7605--7695
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[109
+
+
+
+]
+
+[110]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7712--7719
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7719--7726
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7726--7728
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7728--7731
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7731--7821
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[111
+
+
+
+]
+
+[112]
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7838--7845
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7845--7852
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7852--7854
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7854--7857
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (20.32971pt too wide) in alignment at lines 7857--7947
+ [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] [] 
+ []
+
+[113
+
+
+
+]
+
+[114] AED endfloat: Processing end Figures and Tables (./supplemental.fff
+<supplemental_files/figure-latex/lsam-outlier-first-sim-study-1.pdf, id=581, 64
+0.3925pt x 837.1275pt>
+File: supplemental_files/figure-latex/lsam-outlier-first-sim-study-1.pdf Graphi
+c file (type pdf)
+<use supplemental_files/figure-latex/lsam-outlier-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/lsam-outlier-first-sim
+-study-1.pdf  used on input line 5.
+(pdftex.def)             Requested size: 469.75941pt x 614.07423pt.
+
+LaTeX Warning: Float too large for page by 14.04552pt on input line 10.
+
+
+
+[115 <./supplemental_files/figure-latex/lsam-outlier-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-bias-first-sim-study-1.pdf, id=600, 640.39
+25pt x 832.10875pt>
+File: supplemental_files/figure-latex/all-bias-first-sim-study-1.pdf Graphic fi
+le (type pdf)
+<use supplemental_files/figure-latex/all-bias-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-bias-first-sim-stu
+dy-1.pdf  used on input line 17.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 22.
+
+
+
+[116 <./supplemental_files/figure-latex/all-bias-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-relbias-first-sim-study-1.pdf, id=615, 640
+.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/all-relbias-first-sim-study-1.pdf Graphic
+ file (type pdf)
+<use supplemental_files/figure-latex/all-relbias-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-relbias-first-sim-
+study-1.pdf  used on input line 29.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 34.
+
+
+
+[117 <./supplemental_files/figure-latex/all-relbias-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-rmse-first-sim-study-1.pdf, id=630, 568.12
+25pt x 832.10875pt>
+File: supplemental_files/figure-latex/all-rmse-first-sim-study-1.pdf Graphic fi
+le (type pdf)
+<use supplemental_files/figure-latex/all-rmse-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-rmse-first-sim-stu
+dy-1.pdf  used on input line 41.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 46.
+
+
+
+[118 <./supplemental_files/figure-latex/all-rmse-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-relrmse-first-sim-study-1.pdf, id=645, 568
+.1225pt x 832.10875pt>
+File: supplemental_files/figure-latex/all-relrmse-first-sim-study-1.pdf Graphic
+ file (type pdf)
+<use supplemental_files/figure-latex/all-relrmse-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-relrmse-first-sim-
+study-1.pdf  used on input line 53.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 58.
+
+
+
+[119 <./supplemental_files/figure-latex/all-relrmse-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-ratio-first-sim-study-1.pdf, id=660, 640.3
+925pt x 829.0975pt>
+File: supplemental_files/figure-latex/all-ratio-first-sim-study-1.pdf Graphic f
+ile (type pdf)
+<use supplemental_files/figure-latex/all-ratio-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-ratio-first-sim-st
+udy-1.pdf  used on input line 65.
+(pdftex.def)             Requested size: 469.75941pt x 608.18384pt.
+
+LaTeX Warning: Float too large for page by 8.15512pt on input line 70.
+
+
+
+[120 <./supplemental_files/figure-latex/all-ratio-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-coverage-first-sim-study-1.pdf, id=678, 64
+0.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/all-coverage-first-sim-study-1.pdf Graphi
+c file (type pdf)
+<use supplemental_files/figure-latex/all-coverage-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-coverage-first-sim
+-study-1.pdf  used on input line 77.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 82.
+
+
+
+[121 <./supplemental_files/figure-latex/all-coverage-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-type-first-sim-study-1.pdf, id=698, 640.39
+25pt x 833.1125pt>
+File: supplemental_files/figure-latex/all-type-first-sim-study-1.pdf Graphic fi
+le (type pdf)
+<use supplemental_files/figure-latex/all-type-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-type-first-sim-stu
+dy-1.pdf  used on input line 89.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 94.
+
+
+
+[122 <./supplemental_files/figure-latex/all-type-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/all-power-first-sim-study-1.pdf, id=716, 640.3
+925pt x 833.1125pt>
+File: supplemental_files/figure-latex/all-power-first-sim-study-1.pdf Graphic f
+ile (type pdf)
+<use supplemental_files/figure-latex/all-power-first-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/all-power-first-sim-st
+udy-1.pdf  used on input line 101.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 106.
+
+
+
+[123 <./supplemental_files/figure-latex/all-power-first-sim-study-1.pdf>]
+<supplemental_files/figure-latex/normal-bias-second-sim-study-1.pdf, id=731, 64
+0.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/normal-bias-second-sim-study-1.pdf Graphi
+c file (type pdf)
+<use supplemental_files/figure-latex/normal-bias-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-bias-second-sim
+-study-1.pdf  used on input line 113.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 118.
+
+
+
+[124 <./supplemental_files/figure-latex/normal-bias-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/normal-relbias-second-sim-study-1.pdf, id=746,
+ 640.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/normal-relbias-second-sim-study-1.pdf Gra
+phic file (type pdf)
+<use supplemental_files/figure-latex/normal-relbias-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-relbias-second-
+sim-study-1.pdf  used on input line 125.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 130.
+
+
+
+[125 <./supplemental_files/figure-latex/normal-relbias-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/normal-rmse-second-sim-study-1.pdf, id=761, 56
+8.1225pt x 832.10875pt>
+File: supplemental_files/figure-latex/normal-rmse-second-sim-study-1.pdf Graphi
+c file (type pdf)
+<use supplemental_files/figure-latex/normal-rmse-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-rmse-second-sim
+-study-1.pdf  used on input line 137.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 142.
+
+
+
+[126 <./supplemental_files/figure-latex/normal-rmse-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/normal-relrmse-second-sim-study-1.pdf, id=776,
+ 568.1225pt x 832.10875pt>
+File: supplemental_files/figure-latex/normal-relrmse-second-sim-study-1.pdf Gra
+phic file (type pdf)
+<use supplemental_files/figure-latex/normal-relrmse-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-relrmse-second-
+sim-study-1.pdf  used on input line 149.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 154.
+
+
+
+[127 <./supplemental_files/figure-latex/normal-relrmse-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/normal-ratio-second-sim-study-1.pdf, id=792, 6
+40.3925pt x 829.0975pt>
+File: supplemental_files/figure-latex/normal-ratio-second-sim-study-1.pdf Graph
+ic file (type pdf)
+<use supplemental_files/figure-latex/normal-ratio-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-ratio-second-si
+m-study-1.pdf  used on input line 161.
+(pdftex.def)             Requested size: 469.75941pt x 608.18384pt.
+
+LaTeX Warning: Float too large for page by 8.15512pt on input line 166.
+
+
+
+[128 <./supplemental_files/figure-latex/normal-ratio-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/normal-coverage-second-sim-study-1.pdf, id=810
+, 640.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/normal-coverage-second-sim-study-1.pdf Gr
+aphic file (type pdf)
+<use supplemental_files/figure-latex/normal-coverage-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-coverage-second
+-sim-study-1.pdf  used on input line 173.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 178.
+
+
+
+[129 <./supplemental_files/figure-latex/normal-coverage-second-sim-study-1.pdf>
+]
+<supplemental_files/figure-latex/normal-type-second-sim-study-1.pdf, id=829, 64
+0.3925pt x 833.1125pt>
+File: supplemental_files/figure-latex/normal-type-second-sim-study-1.pdf Graphi
+c file (type pdf)
+<use supplemental_files/figure-latex/normal-type-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-type-second-sim
+-study-1.pdf  used on input line 185.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 190.
+
+
+
+[130 <./supplemental_files/figure-latex/normal-type-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/normal-power-second-sim-study-1.pdf, id=847, 6
+40.3925pt x 833.1125pt>
+File: supplemental_files/figure-latex/normal-power-second-sim-study-1.pdf Graph
+ic file (type pdf)
+<use supplemental_files/figure-latex/normal-power-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/normal-power-second-si
+m-study-1.pdf  used on input line 197.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 202.
+
+
+
+[131 <./supplemental_files/figure-latex/normal-power-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/nonnormal-bias-second-sim-study-1.pdf, id=862,
+ 640.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/nonnormal-bias-second-sim-study-1.pdf Gra
+phic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-bias-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-bias-second-
+sim-study-1.pdf  used on input line 209.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 214.
+
+
+
+[132 <./supplemental_files/figure-latex/nonnormal-bias-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/nonnormal-relbias-second-sim-study-1.pdf, id=8
+77, 640.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/nonnormal-relbias-second-sim-study-1.pdf 
+Graphic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-relbias-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-relbias-seco
+nd-sim-study-1.pdf  used on input line 221.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 226.
+
+
+
+[133 <./supplemental_files/figure-latex/nonnormal-relbias-second-sim-study-1.pd
+f>]
+<supplemental_files/figure-latex/nonnormal-rmse-second-sim-study-1.pdf, id=893,
+ 568.1225pt x 832.10875pt>
+File: supplemental_files/figure-latex/nonnormal-rmse-second-sim-study-1.pdf Gra
+phic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-rmse-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-rmse-second-
+sim-study-1.pdf  used on input line 233.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 238.
+
+
+
+[134 <./supplemental_files/figure-latex/nonnormal-rmse-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/nonnormal-relrmse-second-sim-study-1.pdf, id=9
+08, 568.1225pt x 832.10875pt>
+File: supplemental_files/figure-latex/nonnormal-relrmse-second-sim-study-1.pdf 
+Graphic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-relrmse-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-relrmse-seco
+nd-sim-study-1.pdf  used on input line 245.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 250.
+
+
+
+[135 <./supplemental_files/figure-latex/nonnormal-relrmse-second-sim-study-1.pd
+f>]
+<supplemental_files/figure-latex/nonnormal-ratio-second-sim-study-1.pdf, id=923
+, 640.3925pt x 829.0975pt>
+File: supplemental_files/figure-latex/nonnormal-ratio-second-sim-study-1.pdf Gr
+aphic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-ratio-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-ratio-second
+-sim-study-1.pdf  used on input line 257.
+(pdftex.def)             Requested size: 469.75941pt x 608.18384pt.
+
+LaTeX Warning: Float too large for page by 8.15512pt on input line 262.
+
+
+
+[136 <./supplemental_files/figure-latex/nonnormal-ratio-second-sim-study-1.pdf>
+]
+<supplemental_files/figure-latex/nonnormal-coverage-second-sim-study-1.pdf, id=
+941, 640.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/nonnormal-coverage-second-sim-study-1.pdf
+ Graphic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-coverage-second-sim-study-1.pdf>
+
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-coverage-sec
+ond-sim-study-1.pdf  used on input line 269.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 274.
+
+
+
+[137 <./supplemental_files/figure-latex/nonnormal-coverage-second-sim-study-1.p
+df>]
+<supplemental_files/figure-latex/nonnormal-type-second-sim-study-1.pdf, id=959,
+ 640.3925pt x 833.1125pt>
+File: supplemental_files/figure-latex/nonnormal-type-second-sim-study-1.pdf Gra
+phic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-type-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-type-second-
+sim-study-1.pdf  used on input line 281.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 286.
+
+
+
+[138 <./supplemental_files/figure-latex/nonnormal-type-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/nonnormal-power-second-sim-study-1.pdf, id=978
+, 640.3925pt x 833.1125pt>
+File: supplemental_files/figure-latex/nonnormal-power-second-sim-study-1.pdf Gr
+aphic file (type pdf)
+<use supplemental_files/figure-latex/nonnormal-power-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/nonnormal-power-second
+-sim-study-1.pdf  used on input line 293.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 298.
+
+
+
+[139 <./supplemental_files/figure-latex/nonnormal-power-second-sim-study-1.pdf>
+]
+<supplemental_files/figure-latex/uniform-bias-second-sim-study-1.pdf, id=994, 6
+40.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/uniform-bias-second-sim-study-1.pdf Graph
+ic file (type pdf)
+<use supplemental_files/figure-latex/uniform-bias-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-bias-second-si
+m-study-1.pdf  used on input line 305.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 310.
+
+
+
+[140 <./supplemental_files/figure-latex/uniform-bias-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/uniform-relbias-second-sim-study-1.pdf, id=100
+9, 640.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/uniform-relbias-second-sim-study-1.pdf Gr
+aphic file (type pdf)
+<use supplemental_files/figure-latex/uniform-relbias-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-relbias-second
+-sim-study-1.pdf  used on input line 317.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 322.
+
+
+
+[141 <./supplemental_files/figure-latex/uniform-relbias-second-sim-study-1.pdf>
+]
+<supplemental_files/figure-latex/uniform-rmse-second-sim-study-1.pdf, id=1024, 
+568.1225pt x 832.10875pt>
+File: supplemental_files/figure-latex/uniform-rmse-second-sim-study-1.pdf Graph
+ic file (type pdf)
+<use supplemental_files/figure-latex/uniform-rmse-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-rmse-second-si
+m-study-1.pdf  used on input line 329.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 334.
+
+
+
+[142 <./supplemental_files/figure-latex/uniform-rmse-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/uniform-relrmse-second-sim-study-1.pdf, id=103
+9, 568.1225pt x 832.10875pt>
+File: supplemental_files/figure-latex/uniform-relrmse-second-sim-study-1.pdf Gr
+aphic file (type pdf)
+<use supplemental_files/figure-latex/uniform-relrmse-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-relrmse-second
+-sim-study-1.pdf  used on input line 341.
+(pdftex.def)             Requested size: 444.10466pt x 650.46428pt.
+
+LaTeX Warning: Float too large for page by 50.43556pt on input line 346.
+
+
+
+[143 <./supplemental_files/figure-latex/uniform-relrmse-second-sim-study-1.pdf>
+]
+<supplemental_files/figure-latex/uniform-ratio-second-sim-study-1.pdf, id=1054,
+ 640.3925pt x 829.0975pt>
+File: supplemental_files/figure-latex/uniform-ratio-second-sim-study-1.pdf Grap
+hic file (type pdf)
+<use supplemental_files/figure-latex/uniform-ratio-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-ratio-second-s
+im-study-1.pdf  used on input line 353.
+(pdftex.def)             Requested size: 469.75941pt x 608.18384pt.
+
+LaTeX Warning: Float too large for page by 8.15512pt on input line 358.
+
+
+
+[144 <./supplemental_files/figure-latex/uniform-ratio-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/uniform-coverage-second-sim-study-1.pdf, id=10
+72, 640.3925pt x 832.10875pt>
+File: supplemental_files/figure-latex/uniform-coverage-second-sim-study-1.pdf G
+raphic file (type pdf)
+<use supplemental_files/figure-latex/uniform-coverage-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-coverage-secon
+d-sim-study-1.pdf  used on input line 365.
+(pdftex.def)             Requested size: 469.75941pt x 610.39273pt.
+
+LaTeX Warning: Float too large for page by 10.36401pt on input line 370.
+
+
+
+[145 <./supplemental_files/figure-latex/uniform-coverage-second-sim-study-1.pdf
+>]
+<supplemental_files/figure-latex/uniform-type-second-sim-study-1.pdf, id=1091, 
+640.3925pt x 833.1125pt>
+File: supplemental_files/figure-latex/uniform-type-second-sim-study-1.pdf Graph
+ic file (type pdf)
+<use supplemental_files/figure-latex/uniform-type-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-type-second-si
+m-study-1.pdf  used on input line 377.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 382.
+
+
+
+[146 <./supplemental_files/figure-latex/uniform-type-second-sim-study-1.pdf>]
+<supplemental_files/figure-latex/uniform-power-second-sim-study-1.pdf, id=1110,
+ 640.3925pt x 833.1125pt>
+File: supplemental_files/figure-latex/uniform-power-second-sim-study-1.pdf Grap
+hic file (type pdf)
+<use supplemental_files/figure-latex/uniform-power-second-sim-study-1.pdf>
+Package pdftex.def Info: supplemental_files/figure-latex/uniform-power-second-s
+im-study-1.pdf  used on input line 389.
+(pdftex.def)             Requested size: 469.75941pt x 611.12903pt.
+
+LaTeX Warning: Float too large for page by 11.10031pt on input line 394.
+
+)
+
+[147 <./supplemental_files/figure-latex/uniform-power-second-sim-study-1.pdf>] 
+(./supplemental.aux)
+ ***********
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2020/03/25>
+ ***********
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 30101 strings out of 473190
+ 570171 string characters out of 5715801
+ 1059677 words of memory out of 5000000
+ 52420 multiletter control sequences out of 15000+600000
+ 672916 words of font info for 179 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 99i,11n,105p,1567b,759s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/lo
+cal/texlive/2025/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></usr/local/texliv
+e/2025/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2025/tex
+mf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/texlive/2025/texmf-dist/fo
+nts/type1/public/lm/lmmi5.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/p
+ublic/lm/lmmi7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lm
+r10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmr12.pfb></u
+sr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmr5.pfb></usr/local/tex
+live/2025/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/texlive/2025/te
+xmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/local/texlive/2025/texmf-dist/fon
+ts/type1/public/lm/lmri10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/p
+ublic/lm/lmri12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/l
+mri7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><
+/usr/local/texlive/2025/texmf-dist/fonts/type1/public/lm/lmsy7.pfb>
+Output written on supplemental.pdf (147 pages, 1361961 bytes).
+PDF statistics:
+ 1267 PDF objects out of 1440 (max. 8388607)
+ 973 compressed objects within 10 object streams
+ 256 named destinations out of 1000 (max. 500000)
+ 61618 words of extra memory for PDF output out of 61914 (max. 10000000)
+
