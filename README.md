@@ -12,6 +12,7 @@ Simulation_First_PhD_Article/
 ├── Manuscript/                     # All manuscript and supplementary materials
 ├── Simulations/                    # Simulation code and studies
 ├── renv/                           # R environment management
+├── .gitattributes                  # .RData files handled by Git LFS
 ├── .gitignore                      # Git ignore rules
 ├── README.html                     # HTML version of README
 ├── README.md                       # Repository documentation
@@ -26,13 +27,11 @@ Contains all manuscript materials converted to Quarto format.
 ```{r}
 Manuscript/
 ├── _extensions/wjschne/apaquarto/  # APA Quarto extension
-├── appendix_files/figure-html/     # (Some) Appendix figure files
-├── design_files/libs/              # Design support files
-├── figure/                         # Main manuscript figures
-├── Phd - Initial Readings.bib      # Bibliography file
+├── references.bib                  # Bibliography file
 ├── appendix_a.qmd                  # Appendix A (Quarto markdown)
 ├── appendix_b.qmd                  # Appendix B (Quarto markdown)
-├── design.qmd                      # Design section
+├── appendix_c.qmd                  # Appendix C (Quarto markdown)
+├── design.qmd                      # Simulation design section
 ├── discussion.qmd                  # Discussion section
 ├── introduction.qmd                # Introduction section
 ├── manuscript.qmd                  # Main manuscript file
@@ -43,14 +42,13 @@ Manuscript/
 
 ### 2. Simulations
 
-Contains all simulation studies and supporting scripts. Note that the usage of "results" may sound confusing. I realized this after all the simulations were done.
-Inside the folder "Data", results refer to the simulation runs, meaning estimates obtained for each iteration throughout conditions. Inside the folder "Results", results in this case refer to the performance metrics (i.e., bias, rmse, coverage, se/sd, etc).
+Contains all simulation studies and supporting scripts. 
 
 ```{r}
 Simulations/
 ├── Study_1/                             # First simulation study
 │   ├── Data/                            # Study 1 raw simulation output (Git LFS)
-│   │   └── Results_Study_1_final.RData  # All iterations from Simulation(1).R
+│   │   └── Data_Study_1_final.RData     # All iterations from Simulation(1).R
 │   ├── Results/                         # Study 1 processed results (Git LFS)
 │   │   ├── Results(1).R                 # Calculates performance metrics from Data/
 │   │   ├── results_study_1.rds          # Output: CalculatePerformance() with warnings
@@ -61,7 +59,7 @@ Simulations/
 │
 ├── Study_2/                             # Second simulation study
 │   ├── Data/                            # Study 2 raw simulation output (Git LFS)
-│   │   └── Results_Study_2_final.RData  # All iterations from Simulation(2).R
+│   │   └── Data_Study_2_final.RData     # All iterations from Simulation(2).R
 │   ├── Results/                         # Study 2 processed results (Git LFS)
 │   │   ├── Results(2).R                 # Calculates performance metrics from Data/
 │   │   ├── results_study_2.rds          # Output: CalculatePerformance() with warnings
@@ -77,7 +75,7 @@ Simulations/
 
 Workflow:
 
-1. Simulation(X).R → Results_Study_X_final.RData (raw iterations)
+1. Simulation(X).R → Data_Study_X_final.RData (raw iterations)
 
 2. Results(X).R → results_study_x.rds (processed metrics)
 
