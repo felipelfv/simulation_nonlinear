@@ -1,16 +1,16 @@
 ## README 
 
-<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/felipelfv/simulation_nonlinear.git">Local Structural-After-Measurement (LSAM) and Traditional Approaches for Nonlinear Effects among Latent Variables: A Simulation Study</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/felipelfv">Felipe Fontana Vieira</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></a></p>
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/felipelfv/simulation_nonlinear.git">Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/felipelfv">Felipe Fontana Vieira</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></a></p>
 
-Repository for the article: Local Structural-After-Measurement (LSAM) and Traditional Approaches for Nonlinear Effects among Latent Variables: A Simulation Study
+Repository for the article: Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables
 
 ## Root Directory Structure
 
 ```{r}
 Simulation_First_PhD_Article/
 ├── Debug/                          # Debugging scripts
-├── Manuscript/                     # All manuscript and supplementary materials
-├── Simulations/                    # Simulation code and studies
+├── Manuscript/                     # All manuscript and supplemental materials
+├── Simulations/                    # Simulation code and analyses
 ├── renv/                           # R environment management
 ├── .gitattributes                  # .RData files handled by Git LFS
 ├── .gitignore                      # Git ignore rules
@@ -28,11 +28,11 @@ Contains all manuscript materials converted to Quarto format.
 Manuscript/
 ├── _extensions/wjschne/apaquarto/  # APA Quarto extension
 ├── references.bib                  # Bibliography file
-├── appendix_a.qmd                  # Appendix A (Quarto markdown)
-├── appendix_b.qmd                  # Appendix B (Quarto markdown)
-├── appendix_c.qmd                  # Appendix C (Quarto markdown)
-├── design.qmd                      # Simulation design section
-├── discussion.qmd                  # Discussion section
+├── appendix_a.qmd                  # Appendix A 
+├── appendix_b.qmd                  # Appendix B 
+├── appendix_c.qmd                  # Appendix C 
+├── design.qmd                      # Simulation design section 
+├── discussion.qmd                  # Discussion section 
 ├── introduction.qmd                # Introduction section
 ├── manuscript.qmd                  # Main manuscript file
 ├── modelsframework.qmd             # Models and framework section
@@ -48,7 +48,7 @@ Contains all simulation studies and supporting scripts.
 Simulations/
 ├── Study_1/                             # First simulation study
 │   ├── Data/                            # Study 1 raw simulation output (Git LFS)
-│   │   └── Data_Study_1_final.RData     # All iterations from Simulation(1).R
+│   │   └── Data_Study_1_final.RData     # All iterations data from Simulation(1).R
 │   ├── Results/                         # Study 1 processed results (Git LFS)
 │   │   ├── Results(1).R                 # Calculates performance metrics from Data/
 │   │   ├── results_study_1.rds          # Output: CalculatePerformance() with warnings
@@ -59,7 +59,7 @@ Simulations/
 │
 ├── Study_2/                             # Second simulation study
 │   ├── Data/                            # Study 2 raw simulation output (Git LFS)
-│   │   └── Data_Study_2_final.RData     # All iterations from Simulation(2).R
+│   │   └── Data_Study_2_final.RData     # All iterations data from Simulation(2).R
 │   ├── Results/                         # Study 2 processed results (Git LFS)
 │   │   ├── Results(2).R                 # Calculates performance metrics from Data/
 │   │   ├── results_study_2.rds          # Output: CalculatePerformance() with warnings
@@ -97,7 +97,7 @@ Manages R package dependencies and ensures consistent package versions across en
 
 To reproduce the .RData files included in the folders ../Simulations/Study_1/Data and ../Simulations/Study_2/Data you just need to run (given the correctly specified folder structure) the Simulation(1).R and Simulation(2).R, respectively.
 
-Those latter mentioned files are dependent on three files: GenerateData.R, Methods.R and Models(X).R, where X = 1,2 for simulation 1 and simulation 2.
+Those latter mentioned files are dependent on three files: GenerateData.R, Methods.R and Models(X).R, where X = 1,2 for Simulation 1 and Simulation 2.
 
 ### Packages needed for this
 
@@ -112,7 +112,44 @@ Those latter mentioned files are dependent on three files: GenerateData.R, Metho
 
 ## Reproducing the results (i.e., convergence/outliers information, performance metrics and visualization)
 
+### Convergence, outliers statistics, and performance metrics
 
+For the results from Simulation 1:
 
+```{r}
+results_study_1 <- CalculatePerformance(
+  all_results,
+  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+  remove_outliers = TRUE,
+  outlier_threshold = 3,
+  alpha = 0.05,
+  min_reps = 10,
+  exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
+  return_convergence_details = FALSE
+)
+```
+
+For the results from Simulation 2:
+
+```{r}
+
+results_study_2 <- CalculatePerformance_Study2(
+  all_results,
+  parameters_of_interest = list(
+    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
+    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
+  ),
+  remove_outliers = TRUE,
+  outlier_threshold = 3,
+  alpha = 0.05,
+  min_reps = 10,
+  exclude_warnings = FALSE,
+  return_convergence_details = FALSE
+)
+```
+
+### Figures
+
+In the results.qmd file under labels 'plots-first-sim-study' and 'plots-second-sim-study'
 
 

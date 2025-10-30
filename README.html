@@ -355,9 +355,10 @@ display: none;
 <div id="readme" class="section level2">
 <h2>README</h2>
 <p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/">
-<a property="dct:title" rel="cc:attributionURL" href="https://github.com/felipelfv/simulation_nonlinear.git">Local
-Structural-After-Measurement (LSAM) and Traditional Approaches for
-Nonlinear Effects among Latent Variables: A Simulation Study</a> by
+<a property="dct:title" rel="cc:attributionURL" href="https://github.com/felipelfv/simulation_nonlinear.git">Evaluating
+Local Structural-After-Measurement (LSAM) and Traditional Approaches for
+the Estimation of Complex Nonlinear Effects Among Latent Variables</a>
+by
 <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/felipelfv">Felipe
 Fontana Vieira</a> is licensed under
 <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC
@@ -401,22 +402,22 @@ BY
 </g>
 </svg></a>
 </p>
-<p>Repository for the article: Local Structural-After-Measurement (LSAM)
-and Traditional Approaches for Nonlinear Effects among Latent Variables:
-A Simulation Study</p>
+<p>Repository for the article: Evaluating Local
+Structural-After-Measurement (LSAM) and Traditional Approaches for the
+Estimation of Complex Nonlinear Effects Among Latent Variables</p>
 </div>
 <div id="root-directory-structure" class="section level2">
 <h2>Root Directory Structure</h2>
-<p><code>{r} Simulation_First_PhD_Article/ ├── Debug/                          # Debugging scripts ├── Manuscript/                     # All manuscript and supplementary materials ├── Simulations/                    # Simulation code and studies ├── renv/                           # R environment management ├── .gitattributes                  # .RData files handled by Git LFS ├── .gitignore                      # Git ignore rules ├── README.html                     # HTML version of README ├── README.md                       # Repository documentation ├── SimulationStudy_Nonlinear.Rproj # RStudio project file └── renv.lock                       # R dependency lock file</code></p>
+<p><code>{r} Simulation_First_PhD_Article/ ├── Debug/                          # Debugging scripts ├── Manuscript/                     # All manuscript and supplemental materials ├── Simulations/                    # Simulation code and analyses ├── renv/                           # R environment management ├── .gitattributes                  # .RData files handled by Git LFS ├── .gitignore                      # Git ignore rules ├── README.html                     # HTML version of README ├── README.md                       # Repository documentation ├── SimulationStudy_Nonlinear.Rproj # RStudio project file └── renv.lock                       # R dependency lock file</code></p>
 <div id="manuscript" class="section level3">
 <h3>1. Manuscript</h3>
 <p>Contains all manuscript materials converted to Quarto format.</p>
-<p><code>{r} Manuscript/ ├── _extensions/wjschne/apaquarto/  # APA Quarto extension ├── references.bib                  # Bibliography file ├── appendix_a.qmd                  # Appendix A (Quarto markdown) ├── appendix_b.qmd                  # Appendix B (Quarto markdown) ├── appendix_c.qmd                  # Appendix C (Quarto markdown) ├── design.qmd                      # Simulation design section ├── discussion.qmd                  # Discussion section ├── introduction.qmd                # Introduction section ├── manuscript.qmd                  # Main manuscript file ├── modelsframework.qmd             # Models and framework section ├── results.qmd                     # Results section └── supplemental.Rmd                # Supplemental materials (R markdown)</code></p>
+<p><code>{r} Manuscript/ ├── _extensions/wjschne/apaquarto/  # APA Quarto extension ├── references.bib                  # Bibliography file ├── appendix_a.qmd                  # Appendix A  ├── appendix_b.qmd                  # Appendix B  ├── appendix_c.qmd                  # Appendix C  ├── design.qmd                      # Simulation design section  ├── discussion.qmd                  # Discussion section  ├── introduction.qmd                # Introduction section ├── manuscript.qmd                  # Main manuscript file ├── modelsframework.qmd             # Models and framework section ├── results.qmd                     # Results section └── supplemental.Rmd                # Supplemental materials (R markdown)</code></p>
 </div>
 <div id="simulations" class="section level3">
 <h3>2. Simulations</h3>
 <p>Contains all simulation studies and supporting scripts.</p>
-<p><code>{r} Simulations/ ├── Study_1/                             # First simulation study │   ├── Data/                            # Study 1 raw simulation output (Git LFS) │   │   └── Data_Study_1_final.RData     # All iterations from Simulation(1).R │   ├── Results/                         # Study 1 processed results (Git LFS) │   │   ├── Results(1).R                 # Calculates performance metrics from Data/ │   │   ├── results_study_1.rds          # Output: CalculatePerformance() with warnings │   │   └── results_study_1_excluding_warnings.rds  # Output: CalculatePerformance() excluding warnings │   └── Simulation/                      # Study 1 simulation code │       ├── Models(1).RData              # Model specifications │       └── Simulation(1).R              # Runs simulation → saves to Data/ │ ├── Study_2/                             # Second simulation study │   ├── Data/                            # Study 2 raw simulation output (Git LFS) │   │   └── Data_Study_2_final.RData     # All iterations from Simulation(2).R │   ├── Results/                         # Study 2 processed results (Git LFS) │   │   ├── Results(2).R                 # Calculates performance metrics from Data/ │   │   ├── results_study_2.rds          # Output: CalculatePerformance() with warnings │   │   └── results_study_2_excluding_warnings.rds  # Output: CalculatePerformance() excluding warnings │   └── Simulation/                      # Study 2 simulation code │       ├── Models(2).RData              # Model specifications │       └── Simulation(2).R              # Runs simulation → saves to Data/ │ ├── GenerateData.R                       # Data generation function used for both studies ├── Methods.R                            # Common methods/approaches for both studies └── Plots.R                              # Plotting functions for both results</code></p>
+<p><code>{r} Simulations/ ├── Study_1/                             # First simulation study │   ├── Data/                            # Study 1 raw simulation output (Git LFS) │   │   └── Data_Study_1_final.RData     # All iterations data from Simulation(1).R │   ├── Results/                         # Study 1 processed results (Git LFS) │   │   ├── Results(1).R                 # Calculates performance metrics from Data/ │   │   ├── results_study_1.rds          # Output: CalculatePerformance() with warnings │   │   └── results_study_1_excluding_warnings.rds  # Output: CalculatePerformance() excluding warnings │   └── Simulation/                      # Study 1 simulation code │       ├── Models(1).RData              # Model specifications │       └── Simulation(1).R              # Runs simulation → saves to Data/ │ ├── Study_2/                             # Second simulation study │   ├── Data/                            # Study 2 raw simulation output (Git LFS) │   │   └── Data_Study_2_final.RData     # All iterations data from Simulation(2).R │   ├── Results/                         # Study 2 processed results (Git LFS) │   │   ├── Results(2).R                 # Calculates performance metrics from Data/ │   │   ├── results_study_2.rds          # Output: CalculatePerformance() with warnings │   │   └── results_study_2_excluding_warnings.rds  # Output: CalculatePerformance() excluding warnings │   └── Simulation/                      # Study 2 simulation code │       ├── Models(2).RData              # Model specifications │       └── Simulation(2).R              # Runs simulation → saves to Data/ │ ├── GenerateData.R                       # Data generation function used for both studies ├── Methods.R                            # Common methods/approaches for both studies └── Plots.R                              # Plotting functions for both results</code></p>
 <p>Workflow:</p>
 <ol style="list-style-type: decimal">
 <li><p>Simulation(X).R → Data_Study_X_final.RData (raw
@@ -455,8 +456,8 @@ versions across environments. Configured via renv.lock file</p>
 need to run (given the correctly specified folder structure) the
 Simulation(1).R and Simulation(2).R, respectively.</p>
 <p>Those latter mentioned files are dependent on three files:
-GenerateData.R, Methods.R and Models(X).R, where X = 1,2 for simulation
-1 and simulation 2.</p>
+GenerateData.R, Methods.R and Models(X).R, where X = 1,2 for Simulation
+1 and Simulation 2.</p>
 <div id="packages-needed-for-this" class="section level3">
 <h3>Packages needed for this</h3>
 <table>
@@ -510,6 +511,25 @@ GenerateData.R, Methods.R and Models(X).R, where X = 1,2 for simulation
 <div id="reproducing-the-results-i.e.-convergenceoutliers-information-performance-metrics-and-visualization" class="section level2">
 <h2>Reproducing the results (i.e., convergence/outliers information,
 performance metrics and visualization)</h2>
+<div id="convergence-outliers-statistics-and-performance-metrics" class="section level3">
+<h3>Convergence, outliers statistics, and performance metrics</h3>
+<p>For the results from Simulation 1:</p>
+<p><code>{r} results_study_1 &lt;- CalculatePerformance(   all_results,   parameters_of_interest = c(&quot;eta1&quot;,&quot;eta2&quot;,&quot;eta1:eta2&quot;,&quot;eta1:eta1&quot;,&quot;eta2:eta2&quot;),   remove_outliers = TRUE,   outlier_threshold = 3,   alpha = 0.05,   min_reps = 10,   exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings   return_convergence_details = FALSE )</code></p>
+<p>For the results from Simulation 2:</p>
+<p>```{r}</p>
+<p>results_study_2 &lt;- CalculatePerformance_Study2( all_results,
+parameters_of_interest = list( eta4 = c(“eta1”, “eta2”, “eta3”,
+“eta1:eta2”, “eta1:eta3”, “eta1:eta1”, “eta2:eta2”), eta5 = c(“eta4”,
+“eta1”, “eta2”, “eta3”, “eta1:eta4”, “eta2:eta4”, “eta1:eta1”,
+“eta3:eta3”) ), remove_outliers = TRUE, outlier_threshold = 3, alpha =
+0.05, min_reps = 10, exclude_warnings = FALSE,
+return_convergence_details = FALSE ) ```</p>
+</div>
+<div id="figures" class="section level3">
+<h3>Figures</h3>
+<p>In the results.qmd file under labels ‘plots-first-sim-study’ and
+‘plots-second-sim-study’</p>
+</div>
 </div>
 
 
