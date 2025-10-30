@@ -36,10 +36,10 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
   # load appropriate models based on study
   if (study == 1) {
     models_path <- file.path(base_path, "Simulations/Study_1/Simulation/Models(1).RData")
-    default_file <- file.path(base_path, "Simulations/Study_1/Data/Results_Study_1_final.RData")
+    default_file <- file.path(base_path, "Simulations/Study_1/Data/Data_Study_1_final.RData")
   } else if (study == 2) {
     models_path <- file.path(base_path, "Simulations/Study_2/Simulation/Models(2).RData")
-    default_file <- file.path(base_path, "Simulations/Study_2/Data/Results_Study_2_final.RData")
+    default_file <- file.path(base_path, "Simulations/Study_2/Data/Data_Study_2_final.RData")
   } else {
     stop("Study must be 1 or 2")
   }
