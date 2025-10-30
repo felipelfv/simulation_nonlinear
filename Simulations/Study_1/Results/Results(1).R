@@ -267,7 +267,7 @@ ExtractConvergenceOutliers <- function(all_results,
       next
     }
     
-    # Store converged data (BEFORE outlier removal) for robust metrics
+    # store converged data (BEFORE outlier removal) for robust metrics
     model_name <- ifelse(condition$Model_Type == "linear", "Linear", "Full")
     distribution <- as.character(condition$Distribution)
     sample_size <- condition$N
@@ -503,10 +503,11 @@ CalculatePerformanceMetrics <- function(filtered_data,
       rel_bias_mean_pct <- NA
     }
     
-    # ROBUST METRICS: Use converged data (BEFORE outlier removal)
+    # ROBUST METRICS: use converged data (BEFORE outlier removal)
     d_conv <- converged_data[[key]]
     if (is.null(d_conv)) {
-      # Fallback to filtered if converged not available
+      # fallback to filtered if converged not available
+      # for the sake of double checking
       d_conv <- d
       warning(paste("Converged data not found for", key, "- using filtered data"))
     }
@@ -519,7 +520,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
     # median metrics (from converged data)
     median_est <- median(df_conv$est)
     bias_median <- median_est - tv
-    mad_est <- mad(df_conv$est)  # Uses default constant = 1.4826 to scale to SD
+    mad_est <- mad(df_conv$est)  # uses default constant = 1.4826 to scale to SD
     
     # trimmed mean metrics (20% trimmed mean as per Wilcox, 2016, from converged data)
     trimmed_est <- mean(df_conv$est, trim = 0.20)
@@ -590,7 +591,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
         CoverageRate = cov_metrics$coverage * 100,
         CI_Width = cov_metrics$width,
         
-        # testing
+        # rejection rates
         RejectionRate = rej_metrics$rej_rate * 100,
         TypeI_Error = if(tv == 0) rej_metrics$rej_rate * 100 else NA,
         Power = if(tv != 0) rej_metrics$rej_rate * 100 else NA,

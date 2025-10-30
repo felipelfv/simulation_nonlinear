@@ -15,8 +15,8 @@
 # METHOD SPECIFICATIONS 
 
 # method orderings and labels (study-specific)
-METHOD_ORDER_3 <- c("LSAM","LMS","QML","UPI")  # For 3-factor study (Study 1)
-METHOD_ORDER_5 <- c("LSAM","QML","UPI")        # For 5-factor study (Study 2)
+METHOD_ORDER_3 <- c("LSAM","LMS","QML","UPI")  # 3-factor study (Simulation 1)
+METHOD_ORDER_5 <- c("LSAM","QML","UPI")        # 5-factor study (Simulation 2)
 
 # distribution labels for all studies
 DIST_LABS <- c(normal="Normal", nonnormal="Right-skewed", uniform="Uniform")
@@ -37,7 +37,6 @@ GREYS_3 <- c(LSAM="grey20", QML="grey50", UPI="grey80")
 ############################### 3. Shared Components ############################
 
 # APA THEME FUNCTION 
-
 #' @param base_size Base font size for all text elements. Default is 11.
 #' @return A ggplot2 theme object with APA-style formatting
 theme_apa_bw <- function(base_size = 11) {
@@ -450,29 +449,29 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
     annotate("rect", xmin = -Inf, xmax = Inf, ymin = 0.90, ymax = 1.10,
              fill = "grey93", alpha = .9) +
     geom_hline(yintercept = 1, linetype = "dotted") +
-    # Plot actual values, not truncated - let coord_cartesian handle the limits
+    # plot actual values, not truncated - let coord_cartesian handle the limits
     geom_line(color = "black", position = position_dodge(width = 0.6)) +
     geom_point(color = "black", size = 2, position = position_dodge(width = 0.6)) +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    coord_cartesian(ylim = c(0.80, 1.40)) +  # This clips the view without changing data
+    coord_cartesian(ylim = c(0.80, 1.40)) +  # clips the view without changing data
     labs(x = "Reliability", y = "SE / SD", title = title) +
     theme_apa_bw()
   
-  # Labels for values outside the visible range
+  # labels for values outside the visible range
   p <- p + 
-    # Upper extreme values (above 1.40)
+    # upper extreme values (above 1.40)
     geom_text(data = filter(data, ratio > 1.40) %>%
                 group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
                 arrange(desc(ratio)) %>%
-                mutate(label_y = 1.39 - (row_number() - 1) * 0.03),  # Stack labels
+                mutate(label_y = 1.39 - (row_number() - 1) * 0.03),  
               aes(label = sprintf("%s: %.2f", Method, ratio), y = label_y),
               size = 1.5, hjust = 0, vjust = 1) +
-    # Lower extreme values (below 0.80)
+    # lower extreme values (below 0.80)
     geom_text(data = filter(data, ratio < 0.80) %>%
                 group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
                 arrange(ratio) %>%
-                mutate(label_y = 0.81 + (row_number() - 1) * 0.03),  # Stack labels
+                mutate(label_y = 0.81 + (row_number() - 1) * 0.03),  
               aes(label = sprintf("%s: %.2f", Method, ratio), y = label_y),
               size = 1.5, hjust = 0, vjust = 0)
   
@@ -501,7 +500,7 @@ plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
   
   p <- ggplot(data,
               aes(x = Reliability, y = y, shape = Method, linetype = Method, group = Method)) +
-    # Acceptable coverage range (93-97%)
+    # acceptable coverage range (93-97%)
     annotate("rect", xmin = -Inf, xmax = Inf, ymin = 93, ymax = 97,
              fill = "grey93", alpha = .9) +
     geom_pointrange(aes(ymin = pmax(y - yerr, 80), 

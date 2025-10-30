@@ -151,7 +151,7 @@ conditions$model_name <- ifelse(
 conditions$robust_se <- USE_ROBUST_SE
 
 # SETUP PARALLEL PROCESSING
-n_cores <- max(1, detectCores() - 6)
+n_cores <- max(1, detectCores() - 4)
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 

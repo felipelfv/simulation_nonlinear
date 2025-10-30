@@ -48,17 +48,7 @@ GenerateData <- function(model,
   
   if(!is.null(seed)) set.seed(seed)
   
-  # Check for required packages
-  if(!requireNamespace("covsim", quietly = TRUE)) {
-    stop("Package 'covsim' is required. Please install it.")
-  }
-  if(!requireNamespace("rvinecopulib", quietly = TRUE)) {
-    stop("Package 'rvinecopulib' is required. Please install it.")
-  }
-  
-  ##============================================================================
-  ## MODEL INFORMATION
-  ##============================================================================
+  # MODEL INFORMATION
   
   # lavaan's parsed model information
   fit <- lavaan::sam(model)
@@ -126,9 +116,7 @@ GenerateData <- function(model,
   # generation order
   model_info$structural$generation_order <- names(ancestor_lengths)[order(ancestor_lengths)]
   
-  ##============================================================================
-  ## EXTRACT ALL RESIDUAL VARIANCES FROM MODEL
-  ##============================================================================
+  # EXTRACT ALL RESIDUAL VARIANCES FROM MODEL
   
   # residual variances specified in the model
   residual_rows <- pt[pt$op == "~~" & pt$lhs == pt$rhs, ]
@@ -139,9 +127,7 @@ GenerateData <- function(model,
   structural_residual_vars <- all_residual_vars[!names(all_residual_vars) %in% indicator_vars]
   indicator_residual_vars <- all_residual_vars[names(all_residual_vars) %in% indicator_vars]
   
-  ##============================================================================
-  ## DATA GENERATION
-  ##============================================================================
+  # DATA GENERATION
   
   # matrix for all variables
   all_vars <- c(fit@pta$vnames$lv.regular[[1]],
@@ -252,12 +238,13 @@ GenerateData <- function(model,
     
     # create VITA distribution
     vitadist <- covsim::vita(margins_list, adjusted_cov, verbose = FALSE, Nmax = 10^6)
-    
+
     # generate data
     EXO <- rvinecopulib::rvine(n = N, vine = vitadist)
     
-    # SHIFTING HERE FOR RIGHT-SKEWED
+    # shifting for right-skewed distribution
     # population-level shift for nonnormal distributions (like CopSEM method)
+    # in lonati et al., 2024
     if(distr.exo == "nonnormal") {
       for(i in 1:ncol(EXO)) {
         natural_mean <- nonnormal.shape[i] / nonnormal.rate[i]
@@ -302,6 +289,7 @@ GenerateData <- function(model,
   deterministic_vars <- list()
   
   # GENERATE DEPENDENT VARIABLES WITH FIXED RESIDUAL VARIANCES
+  
   intercepts <- lavaan::lavInspect(fit, "est")$alpha
   for(var in model_info$structural$generation_order) { 
     if(var %in% model_info$structural$dependent) {
@@ -360,9 +348,7 @@ GenerateData <- function(model,
     }
   }
   
-  ##============================================================================
   ## MEASUREMENT PART - WITH FIXED VARIANCES FROM MODEL
-  ##============================================================================
   
   lambda <- lavaan::lavInspect(fit, "est")$lambda
   LAMBDA <- lambda[startsWith(rownames(lambda), "x"), fit@pta$vnames$lv.regular[[1]], 

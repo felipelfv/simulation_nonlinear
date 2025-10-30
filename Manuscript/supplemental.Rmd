@@ -87,6 +87,7 @@ Figures S1-S9 are the complete plots for simulation 1. For Simulation 2, we spli
 \newpage
 
 ```{r packages, echo=FALSE, warning=FALSE, message=FALSE}
+# technically, this is not ideal/optimal
 data_study_1 <- load("../Simulations/Study_1/Data/Data_Study_1_final.RData")
 study1_all_results_raw <- all_results  
 study1_conditions_raw <- conditions   
@@ -101,7 +102,6 @@ results_study_2 <- readRDS("../Simulations/Study_2/Results/results_study_2.rds")
 
 ```{r timing-table, echo=FALSE, results='asis', message=FALSE, warning=FALSE}
 # extract timing data from both studies using the _raw variables
-
 # sim 1 timings
 study1_timings <- data.frame()
 for (i in 1:length(study1_all_results_raw)) {
@@ -153,7 +153,6 @@ for (i in 1:length(study2_all_results_raw)) {
   }
 }
 
-# merge the timing tables
 combined_timings <- merge(
   study1_timings,
   study2_timings[, c("N", "Rel", "Distribution", "Model_Type", 
@@ -341,7 +340,7 @@ plot_se_simple <- function(extraction_results, condition_number = 13, method = "
   se_data
 }
 
-
+# needs results from sim 1
 extraction_results <- ExtractConvergenceOutliers(
   all_results = study1_all_results_raw,
   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),

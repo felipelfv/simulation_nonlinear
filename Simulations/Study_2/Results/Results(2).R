@@ -278,8 +278,8 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
   
   convergence_outliers_summary <- dplyr::tibble()
   convergence_outliers_details <- list()
-  filtered_data <- list()  # After outlier removal (for mean-based metrics)
-  converged_data <- list()  # After convergence only (for robust metrics)
+  filtered_data <- list()  # after outlier removal (for mean-based metrics)
+  converged_data <- list()  # after convergence only (for robust metrics)
   
   for (i in seq_along(all_results)) {
     condition <- all_results[[i]]$condition
@@ -367,7 +367,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
       next
     }
     
-    # Store converged data (BEFORE outlier removal) for robust metrics
+    # store converged data (BEFORE outlier removal) for robust metrics
     model_name <- ifelse(condition$Model_Type == "linear", "Linear", "Full")
     distribution <- as.character(condition$Distribution)
     sample_size <- condition$N
@@ -623,10 +623,11 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
       rel_bias_mean_pct <- NA
     }
     
-    # ROBUST METRICS: Use converged data (BEFORE outlier removal)
+    # ROBUST METRICS: use converged data (BEFORE outlier removal)
     d_conv <- converged_data[[key]]
     if (is.null(d_conv)) {
-      # Fallback to filtered if converged not available
+      # fallback to filtered if converged not available
+      # just for the sake of double checking
       d_conv <- d
       warning(paste("Converged data not found for", key, "- using filtered data"))
     }
@@ -676,12 +677,12 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
         Parameter = d$parameter,
         TrueValue = tv,
         
-        # Estimates
+        # estimates
         MeanEstimate = mean(df$est),
         MedianEstimate = median_est,
         TrimmedEstimate = trimmed_est,
         
-        # Bias metrics
+        # bias metrics
         Bias_Mean = abs_metrics$bias,
         Bias_Median = bias_median,
         Bias_Trimmed = bias_trimmed,
@@ -690,7 +691,7 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
         PercentRelativeBias_Mean = rel_bias_mean_pct,
         PercentRelativeBias_Median = if(tv != 0) bias_median / tv * 100 else NA,
         
-        # Variability
+        # variability
         MAD = mad_est,
         Variance = abs_metrics$var,
         SD = abs_metrics$stddev,
@@ -707,11 +708,11 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
         SE_SD_Ratio = mean(df$se) / abs_metrics$stddev,
         RSB = rsb,
         
-        # Coverage
+        # coverage
         CoverageRate = cov_metrics$coverage * 100,
         CI_Width = cov_metrics$width,
         
-        # Testing
+        # rejection rates
         RejectionRate = rej_metrics$rej_rate * 100,
         TypeI_Error = if(tv == 0) rej_metrics$rej_rate * 100 else NA,
         Power = if(tv != 0) rej_metrics$rej_rate * 100 else NA,
@@ -731,7 +732,7 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
         TypeI_Error_MCSE = if(tv == 0) rej_metrics$rej_rate_mcse else NA,
         Power_MCSE = if(tv != 0) rej_metrics$rej_rate_mcse else NA,
         
-        # Convergence and outliers
+        # convergence and outliers
         N_Total = conv_row$N_Total,
         N_Converged_This_Method = conv_row$N_Converged_This_Method,
         N_Warnings_This_Method = conv_row$N_Warnings_This_Method,

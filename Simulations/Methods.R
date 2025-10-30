@@ -89,7 +89,7 @@ method_lsam <- function(Data = NULL, estimator = "ML",
 method_analytic <- function(Data = NULL, model.fit = NULL, 
                             standardized = FALSE, method = "lms", robust.se = FALSE) {
   # for auto.split.syntax, the default is therefore TRUE for the QML approach
-  # Build argument list
+  # build argument list
   # default is method lms, but change method to "qml" for qml
   args <- list(model.syntax = model.fit, data = Data, method = method)
   

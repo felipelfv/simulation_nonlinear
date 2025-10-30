@@ -141,7 +141,7 @@ conditions$generation_distribution <- conditions$Distribution
 conditions$robust_se <- USE_ROBUST_SE
 
 # parallel processing setup
-n_cores <- max(1, detectCores() - 6)
+n_cores <- max(1, detectCores() - 4)
 cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 clusterExport(cl, c(
