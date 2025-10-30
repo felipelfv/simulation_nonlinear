@@ -2,7 +2,7 @@
 
 To obtain two-step corrected standard errors for the parameters of the structural part of the model ($\boldsymbol{\theta}_2$), we use the familiar (sandwich) formula for robust standard errors [@savalei_rosseel_2021]:
 $$
-\mathrm{Var}(\hat{\boldsymbol{\theta}}_2) = \frac{1}{N}\left[(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Gamma}_{\eta}\mathcal{I}_1\boldsymbol{\Delta})(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}\right]
+\mathrm{Var}(\boldsymbol{\theta}_2) = \frac{1}{N}\left[(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Gamma}_{\eta}\mathcal{I}_1\boldsymbol{\Delta})(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}\right]
 $$
 
 \noindent where $\mathcal{I}_1$ is the unit expected information matrix of the unrestricted second step model (h1), $\boldsymbol{\Delta}$ is the Jacobian of the function that maps $\boldsymbol{\theta}_2$ to $\boldsymbol{\Sigma}(\boldsymbol{\theta}_2)$, and $N$ is the number of observations. The critical ingredient is $\boldsymbol{\Gamma}_{\eta}$, which represents $N$ times the asymptotic (co)variance matrix of the sufficient statistics that enter the second step. The sufficient statistics are (a subset of) the mean vector $\mathbb{E}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ and the non-redundant elements of the variance-covariance matrix $\mathrm{Var}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$. We collect these elements in the column vector $L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$:
