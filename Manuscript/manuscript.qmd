@@ -73,7 +73,10 @@ format:
   apaquarto-pdf:
     documentmode: man
     keep-tex: false
-      
+    include-in-header:
+      text: |
+        \raggedbottom
+        
 execute:
   echo: false
   warning: false
