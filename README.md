@@ -1,6 +1,6 @@
 ## README 
 
-<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/felipelfv/simulation_nonlinear.git">Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/felipelfv">Felipe Fontana Vieira</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></a></p>
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://github.com/felipelfv/simulation_nonlinear.git">Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://github.com/felipelfv">Felipe Fontana Vieira</a>, Kjell Solem Slupphaug, and Yves Rosseel is licensed under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></a></p>
 
 Repository for the article: Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables
 
@@ -150,7 +150,7 @@ results_study_2 <- CalculatePerformance_Study2(
 
 ### Figures
 
-In the results.qmd file under labels 'plots-first-sim-study' and 'plots-second-sim-study'
+In the results.qmd file under labels 'plots-first-sim-study' and 'plots-second-sim-study'. 
 
 ### Packages needed for this
 
