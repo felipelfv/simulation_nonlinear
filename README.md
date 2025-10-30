@@ -152,4 +152,12 @@ results_study_2 <- CalculatePerformance_Study2(
 
 In the results.qmd file under labels 'plots-first-sim-study' and 'plots-second-sim-study'
 
+### Packages needed for this
+
+| Package        | Version     | Citation                                                                                      |
+|----------------|-------------|-----------------------------------------------------------------------------------------------|
+| simhelpers     |             |                                                                                               |
+| dplyr          |             |                                                                                               |
+| ggplot2        |             |                                                                                               |
+
 
