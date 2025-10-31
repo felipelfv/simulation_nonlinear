@@ -1,6 +1,6 @@
 ---
-title             : "Supplemental Materials for Local Structural-After-Measurement (LSAM) and Traditional Approaches for Nonlinear Effects among Latent Variables: A Simulation Study"
-shorttitle        : "Comparing LSAM and Traditional SEM Approaches"
+title             : "Supplemental Materials for Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables"
+shorttitle        : "Evaluating LSAM and Traditional SEM Approaches"
 
 figurelist        : yes
 tablelist         : yes
@@ -250,7 +250,7 @@ kableExtra::kbl(
 
 ```{r plot-outliers, echo=FALSE, warning=FALSE, message=FALSE}
 plot_se_simple <- function(extraction_results, condition_number = 13, method = "LSAM", 
-                           label_threshold = 5, label_below = NULL) {
+                           label_threshold = 5) {
   
   # GLOBAL surviving iterations (converged and non-outlier in ALL methods)
   details <- extraction_results$convergence_outliers_details
@@ -307,15 +307,8 @@ plot_se_simple <- function(extraction_results, condition_number = 13, method = "
     }
   }
   
-  method_upper <- toupper(method)
-  
-  if (!is.null(label_below)) {
-    points_to_label <- subset(se_data, SE < label_below)
-    #subtitle_text <- paste0("Original iteration IDs shown (from 1-1000) | Labels for SE < ", label_below)
-  } else {
-    points_to_label <- subset(se_data, SE > label_threshold)
-    #subtitle_text <- paste0("Original iteration IDs shown (from 1-1000) | Labels for SE > ", label_threshold)
-  }
+  # Label points with SE above threshold
+  points_to_label <- subset(se_data, SE > label_threshold)
   
   p <- ggplot(se_data, aes(x = Iteration, y = SE)) +
     geom_point(alpha = 0.6, size = 2) +
@@ -324,12 +317,7 @@ plot_se_simple <- function(extraction_results, condition_number = 13, method = "
               vjust = 0.5, hjust = 1.2, size = 3, fontface = "bold", color = "red") +
     facet_wrap(~ Parameter, scales = "free_y", ncol = 2) +
     theme_minimal() +
-    labs(
-      #title = paste0("", condition_number, " (", method_upper, ")"),
-      #subtitle = subtitle_text,
-      x = "",
-      y = "SEs"
-    ) +
+    labs(x = "", y = "SEs") +
     theme(
       plot.title = element_text(size = 14, face = "bold"),
       strip.text = element_text(face = "bold")
