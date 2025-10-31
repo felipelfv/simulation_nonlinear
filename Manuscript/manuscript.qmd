@@ -76,6 +76,7 @@ format:
     include-in-header:
       text: |
         \raggedbottom
+  #apaquarto-docx: default
         
 execute:
   echo: false
