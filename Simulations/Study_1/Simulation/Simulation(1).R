@@ -284,7 +284,7 @@ for (cond in 1:nrow(conditions)) {
     
     # LSAM 
     lsam_res <- run_with_warnings(
-      method_lsam(Data = data_clean, model.fit = analysis.model)
+      method_lsam(Data = data_clean, model.fit = analysis.model, joint = TRUE)
     )
     results$lsam_table    <- lsam_res$table
     results$lsam_timing   <- lsam_res$timing

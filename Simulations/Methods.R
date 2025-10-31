@@ -1,16 +1,14 @@
 ############################ 1. General Information ############################
 
 # See README file for more information concerning this file. 
-# This file contains the code used to estimate the different approaches. We use
-# modsem for all except the SAM approach. Thus, we have the DBLCENT, LMS, and 
+# This file contains the code used for estimation (with different approaches). We use
+# modsem for all except the LSAM approach. Thus, we have the UPI, LMS, and 
 # QML estimated through modsem and the SAM approach with lavaan. 
 # All functions return the full parameter table.
-# Importantly, the helper function is used to extract only the relevant 
-# estimates. In our case, the structural model. 
 
 ############################### 2. Function Documentation #######################
 
-#' method_dblcent: Product Indicator Approach (UPI) with Double Mean Centering
+#' method_upi: Product Indicator Approach (UPI) with Double Mean Centering
 #' 
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
@@ -18,10 +16,10 @@
 #' @param match         Character or NULL. Matching specification for product indicators (default = NULL).
 #' @param bounds        Logical. Whether to apply bounds to parameter estimates (default = FALSE).
 
-#' method_sam: Local Structural-After-Measurement (LSAM) Approach
+#' method_lsam: Local Structural-After-Measurement (LSAM) Approach
 #' 
 #' @param Data          Data.frame. The dataset containing observed variables.
-#' @param estimator     Character. Estimator to use (default = "ML"), switches to "MLR" if robust.se = TRUE.
+#' @param estimator     Character. Estimator to use (default = "ML").
 #' @param joint         Logical. Whether to use joint estimation (default = FALSE).
 #' @param add.attr      Logical. Whether to add additional attributes to output (default = FALSE).
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
@@ -39,7 +37,7 @@
 
 ############################### 3. Functions ###################################
 
-#### 3.1. Extendend Product Indicator Approach with double mean centering (UPI)  ####
+#### 3.1. Extended Product Indicator Approach with double mean centering (UPI)  ####
 method_upi <- function(
     Data = NULL,
     model.fit = NULL,
@@ -67,21 +65,32 @@ method_upi <- function(
     out <- do.call(modsem::modsem, args)
   }
   
-  # coefficient parameter table
   out$coefParTable
 }
 
 #### 3.2 Local Structural-After-Measurement (LSAM) Approach ####
 method_lsam <- function(Data = NULL, estimator = "ML",
-                       joint = FALSE, add.attr = FALSE, 
-                       model.fit = NULL,
-                       mm.list = NULL) {
+                        joint = FALSE, add.attr = FALSE, 
+                        model.fit = NULL,
+                        mm.list = NULL) {
+  
+  # joint=TRUE and mm.list not provided, put all LVs in one block
+  if(joint && is.null(mm.list)) {
+    if(is.character(model.fit)) {
+      pt <- lavaan::lavaanify(model.fit)
+    } else {
+      pt <- lavaan::parTable(model.fit)
+    }
+    
+    lv_names <- unique(pt$lhs[pt$op == "=~"])
+    # puts the latent variable in one block:
+    mm.list <- list(lv_names)
+  }
   
   out <- lavaan::sam(model.fit, data = Data, se = "local",
                      mm.args = list(estimator = estimator),
                      mm.list = mm.list)
   
-  # parameter estimates table
   parameterEstimates(out, remove.step1 = FALSE)
 }
 
