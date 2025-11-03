@@ -67,8 +67,8 @@
 #'   
 
 # Packages needed for this script:
-library(lavaan); library(modsem); library(doParallel); 
-library(doRNG); library(covsim); library(rvinecopulib); 
+#library(lavaan); library(modsem); library(doParallel); 
+#library(doRNG); library(covsim); library(rvinecopulib); 
 
 ############################### 3. Simulation ##################################
 
