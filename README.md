@@ -101,14 +101,14 @@ Those latter mentioned files are dependent on three files: GenerateData.R, Metho
 
 ### Packages needed for this
 
-| Package        | Version     | Citation                                                                                      |
-|----------------|-------------|-----------------------------------------------------------------------------------------------|
-| lavaan         |             |                                                                                               |
-| modsem         |             |                                                                                               |
-| doParallel     |             |                                                                                               |
-| doRNG          |             |                                                                                               |
-| covsim         |             |                                                                                               |
-| rvinecopulib   |             |                                                                                               |
+| Package        | Version     | Citation                       |
+|----------------|-------------|--------------------------------|
+| lavaan         | 0.6.21.2400 | Rosseel (2012)                 |
+| modsem         | 1.0.12      | Slupphaug et al. (2024)        |
+| doParallel     | 1.0.17      | Corporation and Weston (2022)  |
+| doRNG          | 1.8.6.2     | Gaujoux (2025)                 |
+| covsim         | 1.1.0       | Gronneberg et al. (2022)       |
+| rvinecopulib   | 0.7.3.1.0   | Nagler & Vatter (2025)         |
 
 ## Reproducing the results (i.e., convergence/outliers information, performance metrics and visualization)
 
@@ -154,10 +154,14 @@ In the results.qmd file under labels 'plots-first-sim-study' and 'plots-second-s
 
 ### Packages needed for this
 
-| Package        | Version     | Citation                                                                                      |
-|----------------|-------------|-----------------------------------------------------------------------------------------------|
-| simhelpers     |             |                                                                                               |
-| dplyr          |             |                                                                                               |
-| ggplot2        |             |                                                                                               |
+| Package        | Version     | Citation                         |
+|----------------|-------------|----------------------------------|
+| simhelpers     | 0.3.1       | Joshi & Pustejovsky (2025)       |
+| dplyr          | 1.1.4       | Wickham et al. (2023)            |
+| ggplot2        | 3.5.2       | Wickham (2025)                   |
 
+## Cloning this repository 
 
+Note that when you clone this GitHub repository with LFS files (i.e., .RData files) without the Git LFS installed, you will get pointer files instead of the actual .RData files.
+
+You will need to install Git LFS. See https://git-lfs.github.com/ for more information. 
