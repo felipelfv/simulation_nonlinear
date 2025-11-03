@@ -22,16 +22,14 @@
 replicate_condition_data <- function(condition_id, rep_id, study = 1, 
                                      results_file = NULL, base_path = ".") {
   
-  # required packages
+  # required packages (!)
   required_packages <- c("lavaan", "covsim", "rvinecopulib")
   missing_packages <- required_packages[!sapply(required_packages, requireNamespace, quietly = TRUE)]
   if (length(missing_packages) > 0) {
-    stop("Required packages not installed: ", paste(missing_packages, collapse = ", "))
+    stop("packages not installed: ", paste(missing_packages, collapse = ", "))
   }
   
-  library(lavaan)
-  library(covsim) 
-  library(rvinecopulib)
+  library(lavaan); library(covsim); library(rvinecopulib)
   
   # load appropriate models based on study
   if (study == 1) {
@@ -41,12 +39,12 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
     models_path <- file.path(base_path, "Simulations/Study_2/Simulation/Models(2).RData")
     default_file <- file.path(base_path, "Simulations/Study_2/Data/Data_Study_2_final.RData")
   } else {
-    stop("Study must be 1 or 2")
+    stop("simulation must be 1 or 2")
   }
   
   # check if models file exists
   if (!file.exists(models_path)) {
-    stop("Models file not found: ", models_path)
+    stop("Models(X).RData file not found: ", models_path)
   }
   load(models_path) 
   
@@ -63,14 +61,14 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
   }
   
   if (!file.exists(results_file)) {
-    stop("Results file not found: ", results_file)
+    stop("results file not found: ", results_file)
   }
   
   load(results_file) 
   
   # validate condition_id
   if (length(all_results) < condition_id) {
-    stop("Condition ", condition_id, " not found in results (max: ", 
+    stop("condition ", condition_id, " not found in results (max: ", 
          length(all_results), ")")
   }
   
@@ -100,7 +98,7 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
   }
   
   if (rep_id > max_reps) {
-    stop("Replication ", rep_id, " not found (max: ", max_reps, ")")
+    stop("replication ", rep_id, " not found (max: ", max_reps, ")")
   }
   
   # RNG state - this is essential for replication
@@ -133,7 +131,7 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
     ),
     nonnormal = list(
       distr.exo = "nonnormal",
-      nonnormal.shape = if (study == 1) c(1, 1) else c(1, 1, 1),  # 2 exog for Study 1, 3 for Study 2
+      nonnormal.shape = if (study == 1) c(1, 1) else c(1, 1, 1),  # 2 exog for Sim 1, 3 for Sim 2
       nonnormal.rate = if (study == 1) c(1, 1) else c(1, 1, 1)
     ),
     uniform = list(
@@ -150,13 +148,13 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
   } else if (!is.null(condition$Distribution)) {
     tolower(condition$Distribution)
   } else {
-    stop("Distribution information not found in condition")
+    stop("distribution information not found in condition")
   }
   
   dist_params <- distributions[[dist_name]]
   
   if (is.null(dist_params)) {
-    stop("Unknown distribution: ", dist_name)
+    stop("unknown distribution: ", dist_name)
   }
   
   # generate data using VITA-based approach
@@ -173,7 +171,7 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
       return.info     = TRUE
     )
   }, error = function(e) {
-    stop("Failed to generate data for condition ", condition_id, 
+    stop("failed to generate data for condition ", condition_id, 
          ", rep ", rep_id, ": ", e$message)
   })
   

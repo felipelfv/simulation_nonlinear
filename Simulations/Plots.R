@@ -1,10 +1,9 @@
 ############################ 1. General Information ############################
 
-# This file contains a flexible plotting system for visualizing SEM simulation 
-# study results. Supports both Study 1 and 2 with various performance metrics.
-
-# Consistent APA-style formatting across all plots
-# Data preparation functions for different study designs
+# This file contains all the code for data wrangling and plots based on the 
+# simulation results (with various performance metrics):
+# Consistent "APA-style" formatting across all plots
+# Data preparation functions for different sim designs
 # Plotting functions for bias, RMSE, SE/SD ratio, coverage, Type I error, and power
 
 # Packages needed for this script:
@@ -13,23 +12,19 @@
 ############################### 2. Configuration ################################
 
 # METHOD SPECIFICATIONS 
-
 # method orderings and labels (study-specific)
-METHOD_ORDER_3 <- c("LSAM","LMS","QML","UPI")  # 3-factor study (Simulation 1)
-METHOD_ORDER_5 <- c("LSAM","QML","UPI")        # 5-factor study (Simulation 2)
-
+METHOD_ORDER_3 <- c("LSAM","LMS","QML","UPI")  
+METHOD_ORDER_5 <- c("LSAM","QML","UPI")        
 # distribution labels for all studies
 DIST_LABS <- c(normal="Normal", nonnormal="Right-skewed", uniform="Uniform")
 
 # VISUAL SPECIFICATIONS 
 # shape specifications for point markers
-SHAPES_4 <- c(LSAM=16, LMS=17, QML=15, UPI=18)  # 4 methods
-SHAPES_3 <- c(LSAM=16, QML=15, UPI=18)          # 3 methods
-
+SHAPES_4 <- c(LSAM=16, LMS=17, QML=15, UPI=18)  
+SHAPES_3 <- c(LSAM=16, QML=15, UPI=18)          
 # line type specifications
 LTYS_4 <- c(LSAM="solid", LMS="dashed", QML="dotdash", UPI="twodash")
 LTYS_3 <- c(LSAM="solid", QML="dotdash", UPI="twodash")
-
 # greyscale colors for bar plots
 GREYS_4 <- c(LSAM="grey20", LMS="grey45", QML="grey65", UPI="grey85")
 GREYS_3 <- c(LSAM="grey20", QML="grey50", UPI="grey80")
@@ -62,8 +57,7 @@ make_condition <- function(N, Rel) {
 
 ############################### 4. Data Preparation ##############################
 
-#  STUDY 1 
-
+#  SIMULATION 1 
 #' @param df Data frame with simulation results
 #' @param model Either "Full" or "Linear" model specification
 #' @return Formatted data frame ready for plotting
@@ -87,8 +81,7 @@ prep_study1_subset <- function(df, model = c("Full","Linear")) {
     )
 }
 
-# STUDY 2 
-
+# SIMULATION 2 
 #' @param df Data frame with simulation results
 #' @param distribution Distribution name ("normal", "nonnormal", or "uniform")
 #' @param model Either "Full" or "Linear" model specification
@@ -127,7 +120,6 @@ prep_study2_subset <- function(df, distribution, model = c("Full","Linear")) {
 }
 
 # MAIN DATA 
-
 # all data frames for Study 1 plotting
 #' @param results_data Raw simulation results data frame
 #' @return List containing formatted data frames for each metric type
@@ -506,7 +498,7 @@ plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
     geom_pointrange(aes(ymin = pmax(y - yerr, 80), 
                         ymax = pmin(y + yerr, 100)),
                     position = position_dodge(width = .6), color = "black") +
-    geom_line(aes(y = pmax(y, 80)), position = position_dodge(width = .6), color = "black") +
+    geom_line(position = position_dodge(width = .6), color = "black") +
     geom_hline(yintercept = 95, linetype = "dotted") +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +

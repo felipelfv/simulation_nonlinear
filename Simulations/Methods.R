@@ -21,7 +21,6 @@
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param estimator     Character. Estimator to use (default = "ML").
 #' @param joint         Logical. Whether to use joint estimation (default = FALSE).
-#' @param add.attr      Logical. Whether to add additional attributes to output (default = FALSE).
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
 #' @param mm.list       List or NULL. Additional arguments for the measurement model step (default = NULL).
 
@@ -29,7 +28,6 @@
 #' 
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
-#' @param standardized  Logical. Whether to return standardized estimates (default = FALSE).
 #' @param method        Character. Distribution analytic method to use: "lms" (default) or "qml".
 #' @param robust.se     Logical. Whether to compute robust standard errors (default = FALSE).
 
@@ -38,39 +36,28 @@
 ############################### 3. Functions ###################################
 
 #### 3.1. Extended Product Indicator Approach with double mean centering (UPI)  ####
-method_upi <- function(
-    Data = NULL,
-    model.fit = NULL,
-    robust.se = FALSE,
-    match = NULL,
-    bounds = FALSE
-) {
-  # for matching, robust, and bounds
+method_upi <- function(Data = NULL, model.fit = NULL,
+                       robust.se = FALSE, match = NULL, bounds = FALSE) {
+  
   args <- list(
     model.syntax = model.fit,
     data = Data,
     method = "dblcent",
-    bounds = bounds
+    bounds = bounds,
+    match = match
   )
   
-  # robust SE if requested
   if (robust.se) {
     args$se <- "robust.huber.white"
   }
   
-  if (!is.null(match)) {
-    args$match <- match
-    out <- do.call(modsem::modsem_pi, args)
-  } else {
-    out <- do.call(modsem::modsem, args)
-  }
-  
+  out <- do.call(modsem::modsem_pi, args) 
   out$coefParTable
 }
 
 #### 3.2 Local Structural-After-Measurement (LSAM) Approach ####
 method_lsam <- function(Data = NULL, estimator = "ML",
-                        joint = FALSE, add.attr = FALSE, 
+                        joint = TRUE,
                         model.fit = NULL,
                         mm.list = NULL) {
   
@@ -83,7 +70,6 @@ method_lsam <- function(Data = NULL, estimator = "ML",
     }
     
     lv_names <- unique(pt$lhs[pt$op == "=~"])
-    # puts the latent variable in one block:
     mm.list <- list(lv_names)
   }
   
@@ -100,16 +86,14 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
   # for auto.split.syntax, the default is therefore TRUE for the QML approach
   # build argument list
   # default is method lms, but change method to "qml" for qml
-  args <- list(model.syntax = model.fit, data = Data, method = method)
-  
-  # robust SE if requested
-  if (robust.se) {
-    args$robust.se <- TRUE
-  }
+  args <- list(
+    model.syntax = model.fit, 
+    data = Data, 
+    method = method,
+    robust.se = robust.se 
+  )
   
   out <- do.call(modsem::modsem, args)
-  
-  # entire parameter table
   out$parTable
 }
 

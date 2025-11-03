@@ -51,7 +51,7 @@ GenerateData <- function(model,
   
   if(!is.null(seed)) set.seed(seed)
   
-  # Print debug function for tracking issues
+  # debug function for tracking issues
   print_debug <- function(...) {
     if(verbose) {
       cat(..., "\n")
@@ -67,17 +67,7 @@ GenerateData <- function(model,
   print_debug(sprintf("Distribution for epsilon: %s", distr.epsilon))
   print_debug(sprintf("Seed: %s", ifelse(is.null(seed), "NULL", as.character(seed))))
   
-  # Check for required packages
-  if(!requireNamespace("covsim", quietly = TRUE)) {
-    stop("Package 'covsim' is required. Please install it.")
-  }
-  if(!requireNamespace("rvinecopulib", quietly = TRUE)) {
-    stop("Package 'rvinecopulib' is required. Please install it.")
-  }
-  
-  ##============================================================================
-  ## MODEL INFORMATION
-  ##============================================================================
+  # MODEL INFORMATION
   
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 1: Parsing Model Information ===")
@@ -196,9 +186,7 @@ GenerateData <- function(model,
                         ifelse(ancestor_lengths[var] == 1, "", "s")))
   }
   
-  ##============================================================================
-  ## EXTRACT ALL RESIDUAL VARIANCES FROM MODEL
-  ##============================================================================
+  # EXTRACT ALL RESIDUAL VARIANCES FROM MODEL
   
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 2: Extracting Fixed Residual Variances ===")
@@ -233,10 +221,8 @@ GenerateData <- function(model,
     print_debug("  None specified")
   }
   
-  ##============================================================================
-  ## DATA GENERATION
-  ##============================================================================
-  
+  # DATA GENERATION
+
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 3: Initializing Data Structures ===")
   print_debug(paste(rep("=", 80), collapse = ""))
@@ -253,10 +239,8 @@ GenerateData <- function(model,
   print_debug(sprintf("Values matrix initialized: %d x %d", nrow(Values), ncol(Values)))
   print_debug(sprintf("Variables: %s", paste(all_vars, collapse = ", ")))
   
-  ##============================================================================
-  ## GENERATE EXOGENOUS VARIABLES USING VITA
-  ##============================================================================
-  
+  # GENERATE EXOGENOUS VARIABLES USING VITA
+ 
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 4: Generating Exogenous Variables (VITA) ===")
   print_debug(paste(rep("=", 80), collapse = ""))
@@ -474,10 +458,8 @@ GenerateData <- function(model,
   print_debug(sprintf("  Dimensions: %d x %d", nrow(EXO), ncol(EXO)))
   print_debug(sprintf("  Variables: %s", paste(colnames(EXO), collapse = ", ")))
   
-  ##============================================================================
-  ## CENTER EXOGENOUS VARIABLES (IF REQUESTED)
-  ##============================================================================
-  
+  # CENTER EXOGENOUS VARIABLES (IF REQUESTED)
+
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 5: Centering/Adjusting Exogenous Variables ===")
   print_debug(paste(rep("=", 80), collapse = ""))
@@ -578,9 +560,7 @@ GenerateData <- function(model,
                         var, mean(Values[, var]), var(Values[, var]), sd(Values[, var])))
   }
   
-  ##============================================================================
-  ## GENERATE DEPENDENT VARIABLES WITH FIXED RESIDUAL VARIANCES
-  ##============================================================================
+  # GENERATE DEPENDENT VARIABLES WITH FIXED RESIDUAL VARIANCES
   
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 6: Generating Dependent Variables ===")
@@ -588,7 +568,7 @@ GenerateData <- function(model,
   
   observed_R2 <- list()
   deterministic_vars <- list()
-  stored_zetas <- list()  # For checking zeta independence
+  stored_zetas <- list()  # checking zeta independence
   
   intercepts <- lavaan::lavInspect(fit, "est")$alpha
   
@@ -619,7 +599,7 @@ GenerateData <- function(model,
             
             print_debug(sprintf("\n    --- Creating %s = %s * %s ---", inter, components[1], components[2]))
             
-            # Check components exist and have values
+            # components exist and have values
             for(comp in components) {
               if(all(is.na(Values[, comp]))) {
                 stop(sprintf("ERROR: Component %s has no values for interaction %s", comp, inter))
@@ -631,7 +611,7 @@ GenerateData <- function(model,
                                   Values[1, comp], Values[2, comp], Values[3, comp]))
             }
             
-            # Show the actual multiplication for first 3 observations
+            # the actual multiplication for first 3 observations
             print_debug(sprintf("\n      Multiplication verification (first 3 rows):"))
             for(i in 1:3) {
               val1 <- Values[i, components[1]]
@@ -671,14 +651,14 @@ GenerateData <- function(model,
         print_debug(sprintf("    + %.6f * %s", equation_coefs[i], terms[i]))
       }
       
-      # Check all predictors exist
+      # all predictors exist?
       missing_terms <- terms[!terms %in% colnames(Values)]
       if(length(missing_terms) > 0) {
         stop(sprintf("ERROR: Terms not found for %s: %s", 
                      var, paste(missing_terms, collapse = ", ")))
       }
       
-      # Show predictor values for first 3 observations
+      # predictor values for first 3 observations
       print_debug("\n  Predictor values (first 3 rows):")
       for(term in terms) {
         print_debug(sprintf("    %s: %.6f, %.6f, %.6f", 
@@ -690,7 +670,7 @@ GenerateData <- function(model,
       
       print_debug("\n  === Deterministic Part Calculation (BEFORE Intercept) ===")
       
-      # Manual calculation verification for first 3 rows
+      # manual calculation verification for first 3 rows
       print_debug("  Manual calculation verification (first 3 rows):")
       for(i in 1:3) {
         calc_parts <- sprintf("%.6f*%.6f", equation_coefs, Values[i, terms])
@@ -708,7 +688,7 @@ GenerateData <- function(model,
       print_debug(sprintf("    Min:      %.6f", min(deterministic_part)))
       print_debug(sprintf("    Max:      %.6f", max(deterministic_part)))
       
-      # Add intercept if present
+      # add intercept if present
       if (!is.null(intercepts) && !is.na(intercepts[var,1])) {
         intercept_val <- intercepts[var,1]
         print_debug(sprintf("\n  === Adding Intercept: %.6f ===", intercept_val))
@@ -753,7 +733,7 @@ GenerateData <- function(model,
         print_debug(sprintf("  Fixed residual variance from model: %.6f", resid_var))
       }
       
-      # Expected R² with fixed variance
+      # expected r-squared with fixed variance
       expected_r2 <- var_det / (var_det + resid_var)
       print_debug(sprintf("  Expected R² = %.6f / (%.6f + %.6f) = %.6f", 
                           var_det, var_det, resid_var, expected_r2))
@@ -768,11 +748,8 @@ GenerateData <- function(model,
                      "exp.rate1" = rexp(N, rate = 1/sqrt(resid_var)) - sqrt(resid_var),
                      stop(paste("wrong option for distr.zeta:", distr.zeta)))
       
-      # Check zeta properties (using e1071 or moments if available)
-      if(requireNamespace("e1071", quietly = TRUE)) {
-        zeta_skew <- e1071::skewness(zeta)
-        zeta_kurt <- e1071::kurtosis(zeta)
-      } else if(requireNamespace("moments", quietly = TRUE)) {
+      # zeta properties using moments package
+      if(requireNamespace("moments", quietly = TRUE)) {
         zeta_skew <- moments::skewness(zeta)
         zeta_kurt <- moments::kurtosis(zeta) - 3  # excess kurtosis
       } else {
@@ -791,10 +768,10 @@ GenerateData <- function(model,
       }
       print_debug(sprintf("    First 3 values: %.6f, %.6f, %.6f", zeta[1], zeta[2], zeta[3]))
       
-      # Store for independence check
+      # store for independence check
       stored_zetas[[var]] <- zeta
       
-      # Combine deterministic and stochastic parts
+      # combine deterministic and stochastic parts
       print_debug("\n  === Combining Deterministic and Stochastic Parts ===")
       print_debug(sprintf("  Formula: %s = deterministic_part + zeta", var))
       
@@ -816,7 +793,7 @@ GenerateData <- function(model,
       print_debug(sprintf("    Variance: %.6f", var(Values[, var])))
       print_debug(sprintf("    SD:       %.6f", sd(Values[, var])))
       
-      # Verify the combination
+      # verify the combination
       manual_check <- deterministic_part + zeta
       max_diff <- max(abs(Values[, var] - manual_check))
       print_debug(sprintf("    Max difference from manual calculation: %.15f", max_diff))
@@ -839,7 +816,7 @@ GenerateData <- function(model,
         print_debug(sprintf("    First value: %.6f -> %.6f", first_val_before, first_val_after))
       }
       
-      # observed R^2
+      # observed r-squared
       total_var <- var(Values[, var]) * (N-1)/N
       observed_R2[[var]] <- var_det / total_var
       
@@ -853,7 +830,7 @@ GenerateData <- function(model,
     }
   }
   
-  # Check zeta independence
+  # check zeta independence
   if(verbose && length(stored_zetas) > 1) {
     print_debug("\n", paste(rep("=", 80), collapse = ""))
     print_debug("=== Checking Residual (Zeta) Independence ===")
@@ -866,7 +843,7 @@ GenerateData <- function(model,
     print_debug("Zeta correlations (should be near 0):")
     print(round(zeta_cor, 4))
     
-    # Flag large correlations
+    # flag large correlations
     for(i in 1:(ncol(zeta_cor)-1)) {
       for(j in (i+1):ncol(zeta_cor)) {
         if(abs(zeta_cor[i,j]) > 0.1) {
@@ -881,10 +858,8 @@ GenerateData <- function(model,
     }
   }
   
-  ##============================================================================
-  ## MEASUREMENT PART - WITH FIXED VARIANCES FROM MODEL
-  ##============================================================================
-  
+  # MEASUREMENT PART - WITH FIXED VARIANCES FROM MODEL
+
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 7: Generating Indicators (Measurement Model) ===")
   print_debug(paste(rep("=", 80), collapse = ""))
@@ -898,7 +873,7 @@ GenerateData <- function(model,
     print(round(LAMBDA, 4))
   }
   
-  # Analyze loading structure
+  # analyze loading structure
   print_debug("\nLoading structure:")
   for(i in seq_along(fit@pta$vnames$lv.regular[[1]])) {
     eta <- fit@pta$vnames$lv.regular[[1]][i]
@@ -937,7 +912,7 @@ GenerateData <- function(model,
       THETA[, i] <- rexp(N, rate = 1/sqrt(ind_var)) - sqrt(ind_var)
     }
     
-    # Check error properties
+    # error properties
     print_debug(sprintf("    Generated error: mean=%.6f, var=%.6f", 
                         mean(THETA[, i]), var(THETA[, i])))
   }
@@ -948,7 +923,7 @@ GenerateData <- function(model,
   Y <- as.matrix(Values[, fit@pta$vnames$lv.regular[[1]]]) %*% t(LAMBDA) + THETA 
   colnames(Y) <- rownames(LAMBDA)
   
-  # Diagnostics before centering
+  # diagnostics before centering
   print_debug("\nIndicator diagnostics (before centering):")
   for(ind in colnames(Y)) {
     print_debug(sprintf("  %s: mean=%.6f, var=%.4f, sd=%.4f", 
@@ -969,15 +944,13 @@ GenerateData <- function(model,
     print_debug("\nNo centering applied to indicators")
   }
   
-  ##============================================================================
-  ## VERIFY RELIABILITIES
-  ##============================================================================
-  
+  # VERIFY RELIABILITIES
+
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 8: Verifying Indicator Reliabilities ===")
   print_debug(paste(rep("=", 80), collapse = ""))
   
-  # Calculate observed reliabilities
+  # calculate observed reliabilities
   observed_reliabilities <- list()
   
   for(i in seq_along(fit@pta$vnames$lv.regular[[1]])) {
@@ -1022,10 +995,8 @@ GenerateData <- function(model,
     }
   }
   
-  ##============================================================================
-  ## FINALIZE DATASET
-  ##============================================================================
-  
+  # FINALIZE DATASET
+ 
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== Step 9: Finalizing Dataset ===")
   print_debug(paste(rep("=", 80), collapse = ""))
@@ -1051,12 +1022,12 @@ GenerateData <- function(model,
     }
   }
   
-  # Final validation
+  # final validation
   print_debug("\nFinal dataset validation:")
   print_debug(sprintf("  Dimensions: %d x %d", nrow(Results), ncol(Results)))
   print_debug(sprintf("  Variables: %s", paste(colnames(Results), collapse = ", ")))
   
-  # Check for NAs
+  # check for NAs
   na_count <- colSums(is.na(Results))
   if(any(na_count > 0)) {
     print_debug("  WARNING: NA values detected in final dataset:")
@@ -1067,7 +1038,7 @@ GenerateData <- function(model,
     print_debug("  ✓ No NA values detected")
   }
   
-  # Check for infinite values
+  # check for infinite values
   inf_count <- colSums(is.infinite(as.matrix(Results)))
   if(any(inf_count > 0)) {
     print_debug("  WARNING: Infinite values detected in final dataset:")
@@ -1078,7 +1049,7 @@ GenerateData <- function(model,
     print_debug("  ✓ No infinite values detected")
   }
   
-  # Summary statistics
+  # summary stats
   print_debug("\nFinal variable summary statistics:")
   for(var in colnames(Results)) {
     var_mean <- mean(Results[, var])
@@ -1105,9 +1076,7 @@ GenerateData <- function(model,
     print_debug("  ✓ model_info")
   }
   
-  ##============================================================================
-  ## SUMMARY
-  ##============================================================================
+  # SUMMARY
   
   print_debug("\n", paste(rep("=", 80), collapse = ""))
   print_debug("=== GENERATION SUMMARY ===")
@@ -1146,7 +1115,7 @@ GenerateData <- function(model,
 }
 
 
-# example call:
+# example:
 # 
 # 
 #data <- GenerateData(

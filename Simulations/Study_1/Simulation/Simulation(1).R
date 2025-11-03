@@ -34,7 +34,7 @@
 #'   - Distribution:  Distribution types (normal, nonnormal, uniform).
 #'   - Model_Type:    "full" (with interaction/quadratic) or "linear" (without).
 #' 
-#' @param n_cores          Integer. Number of parallel cores (default = detectCores() - 6).
+#' @param n_cores          Integer. Number of parallel cores (default = detectCores() - 4).
 #' 
 #' @return all_results     List. Contains for each condition:
 #'   - condition:         Row from conditions data.frame
@@ -51,8 +51,8 @@
 #'   - true_parameters:   True population parameters based on Model_Type
 #' 
 #' @note Output Files:
-#'   - Checkpoint files: Results_Study_1_checkpoint_[n].RData (every 5 conditions)
-#'   - Final file:       Results_Study_1_final.RData (all conditions)
+#'   - Checkpoint files: Data_Study_1_checkpoint_[n].RData (every 5 conditions)
+#'   - Final file:       Data_Study_1_final.RData (all conditions)
 #'   - Directory:        Simulations/Study_1/Data/
 #' 
 #' @note Dependencies:
@@ -67,8 +67,8 @@
 #'   
 
 # Packages needed for this script:
-#library(lavaan); library(modsem); library(doParallel); 
-#library(doRNG); library(covsim); library(rvinecopulib); 
+library(lavaan); library(modsem); library(doParallel); 
+library(doRNG); library(covsim); library(rvinecopulib); 
 
 ############################### 3. Simulation ##################################
 
@@ -93,7 +93,7 @@ eta3 =~ x7 + x8 + x9
 eta3 ~ eta1 + eta2 + eta1:eta2 + eta1:eta1 + eta2:eta2
 "
 
-# UPDATED: distribution parameters for VITA
+# distribution parameters for VITA
 distributions <- list(
   normal    = list(
     distr.exo = "normal",
@@ -154,7 +154,6 @@ all_results <- list()
 start_time  <- Sys.time()
 
 for (cond in 1:nrow(conditions)) {
-  cat("\n========================================")
   cat("\nCondition", cond, "of", nrow(conditions))
   cat("\n- Sample size:", conditions$N[cond])
   cat("\n- Target reliability:", conditions$Rel[cond])
@@ -162,7 +161,6 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Actual distribution:", conditions$Distribution[cond])
   cat("\n- Using model:", conditions$model_name[cond])
   cat("\n- Robust SE:", USE_ROBUST_SE)
-  cat("\n========================================\n")
   
   # get the appropriate population model
   population_model <- all_models[[conditions$model_name[cond]]]
@@ -330,11 +328,11 @@ for (cond in 1:nrow(conditions)) {
   res$rng_states <- rng_states_for_condition
   
   # summary during sim study 1
-  cat("\nObserved metrics across replications:")
-  cat("\n- Mean R²:", mean(res$observed_r2, na.rm = TRUE))
-  cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
+  cat("\nobserved metrics across replications:")
+  cat("\n- mean R²:", mean(res$observed_r2, na.rm = TRUE))
+  cat("\n- mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
   
-  cat("\n\nWarnings encountered:")
+  cat("\n\nwarnings encountered:")
   cat("\n- LMS:", sum(lengths(res$warnings$lms) > 0),   "iterations with warnings")
   cat("\n- QML:", sum(lengths(res$warnings$qml) > 0),   "iterations with warnings")
   cat("\n- UPI:", sum(lengths(res$warnings$upi) > 0),   "iterations with warnings")
@@ -366,5 +364,5 @@ stopCluster(cl)
 save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 
 total_time <- difftime(Sys.time(), start_time, units = "hours")
-cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
-cat(sprintf("\nResults saved with suffix: %s\n", file_suffix))
+cat(sprintf("\n\nsimulation completed in %.2f hours\n", total_time))
+cat(sprintf("\nresults saved with suffix: %s\n", file_suffix))

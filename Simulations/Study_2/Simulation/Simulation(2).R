@@ -36,7 +36,7 @@
 #'   - model_name:    Generated names for population models ("normal_rel[X]" or "null_model_rel[X]").
 #'   - robust_se:     Logical indicator of robust SE setting for this run.
 #' 
-#' @param n_cores          Integer. Number of parallel cores (default = detectCores() - 6).
+#' @param n_cores          Integer. Number of parallel cores (default = detectCores() - 4).
 #' 
 #' @return all_results     List. Contains for each condition:
 #'   - condition:         Row from conditions data.frame
@@ -58,8 +58,8 @@
 #'     * For linear model: all interactions and quadratics set to 0
 #' 
 #' @note Output Files:
-#'   - Checkpoint files: Results_Study_2[_robustse]_checkpoint_[n].RData (every 5 conditions)
-#'   - Final file:       Results_Study_2[_robustse]_final.RData (all conditions)
+#'   - Checkpoint files: Data_Study_2[_robustse]_checkpoint_[n].RData (every 5 conditions)
+#'   - Final file:       Data_Study_2[_robustse]_final.RData (all conditions)
 #'   - Directory:        Simulations/Study_2/Data/
 #' 
 #' @note Dependencies:
@@ -165,7 +165,6 @@ all_results <- list()
 start_time <- Sys.time()
 
 for (cond in 1:nrow(conditions)) {
-  cat("\n", paste(rep("=", 60), collapse = ""))
   cat("\nCondition", cond, "of", nrow(conditions))
   cat("\n- Sample size:", conditions$N[cond])
   cat("\n- Reliability:", conditions$Rel[cond])
@@ -173,7 +172,6 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Model type:", conditions$Model_Type[cond])  
   cat("\n- Using model:", conditions$model_name[cond])
   cat("\n- Robust SE:", USE_ROBUST_SE)
-  cat("\n", paste(rep("=", 60), collapse = ""), "\n")
   
   # population model from all_models based on model_name
   population_model <- all_models[[conditions$model_name[cond]]]
@@ -312,7 +310,7 @@ for (cond in 1:nrow(conditions)) {
   # RNG states (for reproducibility if needed)
   rng_states_for_condition <- attr(parallel_results, "rng")
   
-  # --- collect results (skip NULLs and foreach error objects) ---
+  # collect results (skip NULLs and foreach error objects)
   for (i in 1:N_REPLICATIONS) {
     iter <- parallel_results[[i]]
     if (is.null(iter) || inherits(iter, "error")) next
@@ -342,11 +340,11 @@ for (cond in 1:nrow(conditions)) {
   res$rng_states <- rng_states_for_condition
   
   # --- summary (warnings only) ---
-  cat("\nObserved metrics across replications:")
+  cat("\nobserved metrics across replications:")
   cat("\n- Mean R² (eta4, eta5):", round(colMeans(res$observed_r2, na.rm = TRUE), 3))
   cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
   
-  cat("\n\nWarnings encountered:")
+  cat("\n\nwarnings encountered:")
   cat("\n- LSAM:", sum(lengths(res$warnings$lsam) > 0), "iterations with warnings")
   cat("\n- QML:",  sum(lengths(res$warnings$qml) > 0),  "iterations with warnings")
   cat("\n- UPI:",  sum(lengths(res$warnings$upi) > 0),  "iterations with warnings")
@@ -398,5 +396,5 @@ stopCluster(cl)
 save(all_results, conditions, file = paste0(results_base, "_final.RData"))
 
 total_time <- difftime(Sys.time(), start_time, units = "hours")
-cat(sprintf("\n\nSimulation completed in %.2f hours\n", total_time))
-cat(sprintf("Results saved with suffix: %s\n", file_suffix))
+cat(sprintf("\n\nsimulation completed in %.2f hours\n", total_time))
+cat(sprintf("results saved with suffix: %s\n", file_suffix))
