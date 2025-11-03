@@ -152,6 +152,199 @@ results_study_2 <- CalculatePerformance_Study2(
 
 In the results.qmd file under labels 'plots-first-sim-study' and 'plots-second-sim-study'. 
 
+For figures associated with simulation 1:
+
+```{r}
+#| label: plots-first-sim-study
+
+source("../Simulations/Plots.R")
+plot_study_1_data <- prepare_study1_data(results_study_1)
+
+# RELATIVE BIAS 
+study_1_relative_bias <- plot_study_1_data$bias_relative
+dat_relative_bias_400_full_study_1 <- study_1_relative_bias %>%
+   filter(Model == "Full", SampleSize == "400") %>%
+   droplevels()
+
+p_relative_bias_400_full_study_1 <- plot_bias(
+   dat_relative_bias_400_full_study_1, 
+   shapes = SHAPES_4, 
+   ltys = LTYS_4,
+   bias_type = "relative",  
+   facet_formula = Distribution + Parameter ~ .,  
+   y_breaks = seq(-1, 1.5, by = 0.5),
+   y_limits = c(-1, 1.5)
+)
+
+# Relative RMSE 
+study_1_relative_rmse <- plot_study_1_data$rmse_relative
+
+dat_relative_rmse_400_full_study_1 <- study_1_relative_rmse %>%
+  filter(Model == "Full", SampleSize == "400") %>%
+  droplevels()
+
+p_relative_rmse_400_full_study_1 <- plot_rmse(
+  dat_relative_rmse_400_full_study_1, 
+  shapes = SHAPES_4, 
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ ., 
+  #y_breaks = seq(0, 0.30, by = 0.05),           
+  #y_limits = c(0, 0.30)                        
+)
+
+# SE/SD RATIO (Right-skewed & Uniform, Full, N=400 & 1000)
+study_1_sesd <- plot_study_1_data$sesd
+
+dat_sesd_nonnorm_unif_study_1 <- study_1_sesd %>%
+  filter(Model == "Full", 
+         SampleSize %in% c("400", "1000"), 
+         Distribution %in% c("Right-skewed", "Uniform")) %>%
+  droplevels()
+
+p_slope_nonnorm_unif_study_1 <- plot_sesd(
+  dat_sesd_nonnorm_unif_study_1,
+  shapes = SHAPES_4,
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ SampleSize
+)
+
+# COVERAGE (Full, N=400 & 1000, all distributions)
+study_1_coverage <- plot_study_1_data$coverage
+
+dat_cov_nonnorm_unif_study_1 <- study_1_coverage %>%
+  filter(Model == "Full", 
+         SampleSize %in% c("400", "1000"),
+         Distribution %in% c("Right-skewed", "Uniform")) %>% 
+  droplevels()
+
+p_cov_nonnorm_unif_study_1 <- plot_coverage(
+  dat_cov_nonnorm_unif_study_1, 
+  shapes = SHAPES_4,
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ SampleSize
+)
+
+# TYPE I ERROR (Linear, N=1000 only) 
+study_1_type1 <- plot_study_1_data$type1
+
+dat_t1_1000_study_1 <- study_1_type1 %>%
+  filter(grepl("N=1000", Condition)) %>%
+  droplevels()
+
+p_t1_1000_study_1 <- plot_type1(
+  dat_t1_1000_study_1,  
+  greys = GREYS_4,
+  facet_formula = Distribution + Parameter ~ Condition
+)
+```
+
+For figures associated with simulation 2:
+
+```{r}
+#| label: plots-second-sim-study
+
+source("../Simulations/Plots.R")
+study_2_normal_data <- prepare_study2_data(results_study_2, "normal")
+study_2_nonnormal_data <- prepare_study2_data(results_study_2, "nonnormal")
+study_2_uniform_data <- prepare_study2_data(results_study_2, "uniform")
+
+# RELATIVE BIAS (full model, N=400, all Distributions) 
+dat_relative_bias_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$bias_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$bias_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$bias_relative %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_relative_bias_400_full_all_study_2 <- plot_bias(
+  dat_relative_bias_400_full_all_study_2,
+  shapes = SHAPES_3,
+  ltys = LTYS_3,
+  facet_formula = Parameter ~ Distribution,
+  y_breaks = seq(-1, 1.5, by = 0.5),
+  y_limits = c(-1, 1.5),
+  bias_type = "relative"
+)
+
+# RELATIVE RMSE (full model, N=400, all Distributions) 
+dat_relative_rmse_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_relative_rmse_400_full_all_study_2 <- plot_rmse(
+    dat_relative_rmse_400_full_all_study_2,
+    shapes = SHAPES_3,
+    ltys = LTYS_3,
+    facet_formula = Parameter ~ Distribution,
+    y_breaks = seq(0, 5, by = 1),  
+    y_limits = c(0, 5.2),              
+)
+
+
+# SE/SD RATIO (Full model, N=400, All Distributions) 
+dat_sesd_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$sesd %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$sesd %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$sesd %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_sesd_400_full_all_study_2 <- plot_sesd(
+  dat_sesd_400_full_all_study_2,
+  shapes = SHAPES_3,
+  ltys = LTYS_3,
+  facet_formula = Parameter ~ Distribution,
+  title = ""
+)
+
+#  COVERAGE (Full model, N=400, All Distributions)
+dat_coverage_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$coverage %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$coverage %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$coverage %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_coverage_400_full_all_study_2 <- plot_coverage(
+  dat_coverage_400_full_all_study_2,
+  shapes = SHAPES_3,
+  ltys = LTYS_3,
+  facet_formula = Parameter ~ Distribution,
+  title = ""
+)
+
+# TYPE I ERROR (Linear, N=1000, Nonnormal & Uniform)
+dat_t1_1000_all_study_2 <- bind_rows(
+  study_2_nonnormal_data$type1 %>%
+    filter(grepl("N=1000", Condition)),
+  study_2_uniform_data$type1 %>%
+    filter(grepl("N=1000", Condition))
+) %>%
+  droplevels()
+
+p_t1_1000_all_study_2 <- plot_type1(
+  dat_t1_1000_all_study_2,
+  greys = GREYS_3,
+  facet_formula = Parameter ~ Distribution + Condition,
+  title = ""
+)
+```
+
 ### Packages needed for this
 
 | Package        | Version     | Citation                         |
@@ -162,6 +355,6 @@ In the results.qmd file under labels 'plots-first-sim-study' and 'plots-second-s
 
 ## Cloning this repository 
 
-Note that when you clone this GitHub repository with LFS files (i.e., .RData files) without the Git LFS installed, you will get pointer files instead of the actual .RData files.
+Note that when you clone this GitHub repository with LFS files (i.e., Data_Study_X_final.RData files) without the Git LFS installed, you will get pointer files instead of the actual .RData files.
 
 You will need to install Git LFS. See https://git-lfs.github.com/ for more information. 

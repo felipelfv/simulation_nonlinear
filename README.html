@@ -482,13 +482,166 @@ parameters_of_interest = list( eta4 = c(“eta1”, “eta2”, “eta3”,
 “eta1”, “eta2”, “eta3”, “eta1:eta4”, “eta2:eta4”, “eta1:eta1”,
 “eta3:eta3”) ), remove_outliers = TRUE, outlier_threshold = 3, alpha =
 0.05, min_reps = 10, exclude_warnings = FALSE,
-return_convergence_details = FALSE ) ```</p>
+return_convergence_details = FALSE )</p>
+<pre><code>
+### Figures
+
+In the results.qmd file under labels &#39;plots-first-sim-study&#39; and &#39;plots-second-sim-study&#39;. 
+
+For figures associated with simulation 1:
+
+```{r}
+#| label: plots-first-sim-study
+
+source(&quot;../Simulations/Plots.R&quot;)
+plot_study_1_data &lt;- prepare_study1_data(results_study_1)
+
+# RELATIVE BIAS 
+study_1_relative_bias &lt;- plot_study_1_data$bias_relative
+dat_relative_bias_400_full_study_1 &lt;- study_1_relative_bias %&gt;%
+   filter(Model == &quot;Full&quot;, SampleSize == &quot;400&quot;) %&gt;%
+   droplevels()
+
+p_relative_bias_400_full_study_1 &lt;- plot_bias(
+   dat_relative_bias_400_full_study_1, 
+   shapes = SHAPES_4, 
+   ltys = LTYS_4,
+   bias_type = &quot;relative&quot;,  
+   facet_formula = Distribution + Parameter ~ .,  
+   y_breaks = seq(-1, 1.5, by = 0.5),
+   y_limits = c(-1, 1.5)
+)
+
+# Relative RMSE 
+study_1_relative_rmse &lt;- plot_study_1_data$rmse_relative
+
+dat_relative_rmse_400_full_study_1 &lt;- study_1_relative_rmse %&gt;%
+  filter(Model == &quot;Full&quot;, SampleSize == &quot;400&quot;) %&gt;%
+  droplevels()
+
+p_relative_rmse_400_full_study_1 &lt;- plot_rmse(
+  dat_relative_rmse_400_full_study_1, 
+  shapes = SHAPES_4, 
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ ., 
+  #y_breaks = seq(0, 0.30, by = 0.05),           
+  #y_limits = c(0, 0.30)                        
+)
+
+# SE/SD RATIO (Right-skewed &amp; Uniform, Full, N=400 &amp; 1000)
+study_1_sesd &lt;- plot_study_1_data$sesd
+
+dat_sesd_nonnorm_unif_study_1 &lt;- study_1_sesd %&gt;%
+  filter(Model == &quot;Full&quot;, 
+         SampleSize %in% c(&quot;400&quot;, &quot;1000&quot;), 
+         Distribution %in% c(&quot;Right-skewed&quot;, &quot;Uniform&quot;)) %&gt;%
+  droplevels()
+
+p_slope_nonnorm_unif_study_1 &lt;- plot_sesd(
+  dat_sesd_nonnorm_unif_study_1,
+  shapes = SHAPES_4,
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ SampleSize
+)
+
+# COVERAGE (Full, N=400 &amp; 1000, all distributions)
+study_1_coverage &lt;- plot_study_1_data$coverage
+
+dat_cov_nonnorm_unif_study_1 &lt;- study_1_coverage %&gt;%
+  filter(Model == &quot;Full&quot;, 
+         SampleSize %in% c(&quot;400&quot;, &quot;1000&quot;),
+         Distribution %in% c(&quot;Right-skewed&quot;, &quot;Uniform&quot;)) %&gt;% 
+  droplevels()
+
+p_cov_nonnorm_unif_study_1 &lt;- plot_coverage(
+  dat_cov_nonnorm_unif_study_1, 
+  shapes = SHAPES_4,
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ SampleSize
+)
+
+# TYPE I ERROR (Linear, N=1000 only) 
+study_1_type1 &lt;- plot_study_1_data$type1
+
+dat_t1_1000_study_1 &lt;- study_1_type1 %&gt;%
+  filter(grepl(&quot;N=1000&quot;, Condition)) %&gt;%
+  droplevels()
+
+p_t1_1000_study_1 &lt;- plot_type1(
+  dat_t1_1000_study_1,  
+  greys = GREYS_4,
+  facet_formula = Distribution + Parameter ~ Condition
+)</code></pre>
+<p>For figures associated with simulation 2:</p>
+<p>```{r} #| label: plots-second-sim-study</p>
+<p>source(“../Simulations/Plots.R”) study_2_normal_data &lt;-
+prepare_study2_data(results_study_2, “normal”) study_2_nonnormal_data
+&lt;- prepare_study2_data(results_study_2, “nonnormal”)
+study_2_uniform_data &lt;- prepare_study2_data(results_study_2,
+“uniform”)</p>
 </div>
-<div id="figures" class="section level3">
-<h3>Figures</h3>
-<p>In the results.qmd file under labels ‘plots-first-sim-study’ and
-‘plots-second-sim-study’.</p>
 </div>
+<div id="relative-bias-full-model-n400-all-distributions" class="section level1">
+<h1>RELATIVE BIAS (full model, N=400, all Distributions)</h1>
+<p>dat_relative_bias_400_full_all_study_2 &lt;- bind_rows(
+study_2_normal_data<span class="math inline">\(bias_relative %&gt;%
+    filter(Model == &quot;Full&quot;, SampleSize == &quot;400&quot;),
+  study_2_nonnormal_data\)</span>bias_relative %&gt;% filter(Model ==
+“Full”, SampleSize == “400”), study_2_uniform_data$bias_relative %&gt;%
+filter(Model == “Full”, SampleSize == “400”) ) %&gt;% droplevels()</p>
+<p>p_relative_bias_400_full_all_study_2 &lt;- plot_bias(
+dat_relative_bias_400_full_all_study_2, shapes = SHAPES_3, ltys =
+LTYS_3, facet_formula = Parameter ~ Distribution, y_breaks = seq(-1,
+1.5, by = 0.5), y_limits = c(-1, 1.5), bias_type = “relative” )</p>
+</div>
+<div id="relative-rmse-full-model-n400-all-distributions" class="section level1">
+<h1>RELATIVE RMSE (full model, N=400, all Distributions)</h1>
+<p>dat_relative_rmse_400_full_all_study_2 &lt;- bind_rows(
+study_2_normal_data<span class="math inline">\(rmse_relative %&gt;%
+    filter(Model == &quot;Full&quot;, SampleSize == &quot;400&quot;),
+  study_2_nonnormal_data\)</span>rmse_relative %&gt;% filter(Model ==
+“Full”, SampleSize == “400”), study_2_uniform_data$rmse_relative %&gt;%
+filter(Model == “Full”, SampleSize == “400”) ) %&gt;% droplevels()</p>
+<p>p_relative_rmse_400_full_all_study_2 &lt;- plot_rmse(
+dat_relative_rmse_400_full_all_study_2, shapes = SHAPES_3, ltys =
+LTYS_3, facet_formula = Parameter ~ Distribution, y_breaks = seq(0, 5,
+by = 1),<br />
+y_limits = c(0, 5.2),<br />
+)</p>
+</div>
+<div id="sesd-ratio-full-model-n400-all-distributions" class="section level1">
+<h1>SE/SD RATIO (Full model, N=400, All Distributions)</h1>
+<p>dat_sesd_400_full_all_study_2 &lt;- bind_rows(
+study_2_normal_data<span class="math inline">\(sesd %&gt;%
+    filter(Model == &quot;Full&quot;, SampleSize == &quot;400&quot;),
+  study_2_nonnormal_data\)</span>sesd %&gt;% filter(Model == “Full”,
+SampleSize == “400”), study_2_uniform_data$sesd %&gt;% filter(Model ==
+“Full”, SampleSize == “400”) ) %&gt;% droplevels()</p>
+<p>p_sesd_400_full_all_study_2 &lt;- plot_sesd(
+dat_sesd_400_full_all_study_2, shapes = SHAPES_3, ltys = LTYS_3,
+facet_formula = Parameter ~ Distribution, title = “” )</p>
+</div>
+<div id="coverage-full-model-n400-all-distributions" class="section level1">
+<h1>COVERAGE (Full model, N=400, All Distributions)</h1>
+<p>dat_coverage_400_full_all_study_2 &lt;- bind_rows(
+study_2_normal_data<span class="math inline">\(coverage %&gt;%
+    filter(Model == &quot;Full&quot;, SampleSize == &quot;400&quot;),
+  study_2_nonnormal_data\)</span>coverage %&gt;% filter(Model == “Full”,
+SampleSize == “400”), study_2_uniform_data$coverage %&gt;% filter(Model
+== “Full”, SampleSize == “400”) ) %&gt;% droplevels()</p>
+<p>p_coverage_400_full_all_study_2 &lt;- plot_coverage(
+dat_coverage_400_full_all_study_2, shapes = SHAPES_3, ltys = LTYS_3,
+facet_formula = Parameter ~ Distribution, title = “” )</p>
+</div>
+<div id="type-i-error-linear-n1000-nonnormal-uniform" class="section level1">
+<h1>TYPE I ERROR (Linear, N=1000, Nonnormal &amp; Uniform)</h1>
+<p>dat_t1_1000_all_study_2 &lt;- bind_rows( study_2_nonnormal_data<span class="math inline">\(type1 %&gt;%
+    filter(grepl(&quot;N=1000&quot;, Condition)),
+  study_2_uniform_data\)</span>type1 %&gt;% filter(grepl(“N=1000”,
+Condition)) ) %&gt;% droplevels()</p>
+<p>p_t1_1000_all_study_2 &lt;- plot_type1( dat_t1_1000_all_study_2,
+greys = GREYS_3, facet_formula = Parameter ~ Distribution + Condition,
+title = “” ) ```</p>
 <div id="packages-needed-for-this-1" class="section level3">
 <h3>Packages needed for this</h3>
 <table>
@@ -518,13 +671,13 @@ return_convergence_details = FALSE ) ```</p>
 </tbody>
 </table>
 </div>
-</div>
 <div id="cloning-this-repository" class="section level2">
 <h2>Cloning this repository</h2>
 <p>Note that when you clone this GitHub repository with LFS files (i.e.,
-.RData files) without the Git LFS installed, you will get pointer files
-instead of the actual .RData files.</p>
+Data_Study_X_final.RData files) without the Git LFS installed, you will
+get pointer files instead of the actual .RData files.</p>
 <p>You will need to install Git LFS. See <a href="https://git-lfs.github.com/" class="uri">https://git-lfs.github.com/</a> for more information.</p>
+</div>
 </div>
 
 
