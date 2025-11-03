@@ -172,9 +172,8 @@
 #' 
 #' @note True Value Extraction:
 #'   - True parameters stored in list format: all_results[[i]]$true_parameters
-#'   - Access pattern: true_parameters[[paste0(equation, "_", gsub(":", "", parameter))]]
-#'   - Example: eta4_eta1eta2, eta5_eta1eta4, eta5_eta3eta3
-#'   - Defaults to 0 if not found
+#'   - Access pattern: true_parameters[[equation]][parameter] for equations eta4/eta5
+#'   - Falls back to 0 if parameter not found
 #' 
 #' 
 #' CalculatePerformance_Study2: Wrapper Function for Complete Study 2 Analysis
@@ -225,7 +224,7 @@
 #' }
 
 # Packages needed for this script:
-# library(dplyr); library(simhelpers)
+# library(dplyr); library(tibble); library(simhelpers)
 
 ############################### 3. Functions ####################################
 # parameter extraction 
@@ -276,7 +275,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
   
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
-  convergence_outliers_summary <- dplyr::tibble()
+  convergence_outliers_summary <- tibble::tibble()
   convergence_outliers_details <- list()
   filtered_data <- list()  # after outlier removal (for mean-based metrics)
   converged_data <- list()  # after convergence only (for robust metrics)
@@ -393,7 +392,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
           converged_list <- Filter(Negate(is.null), converged_list)
           
           if(length(converged_list) > 0) {
-            tv <- true_params[[eq]][p_name]
+            tv <- true_params[[eq]][p_name] %||% 0
             key <- paste(i, toupper(method), eq, p_name, sep = "_")
             converged_data[[key]] <- list(
               condition = i,
@@ -473,7 +472,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
     convergence_outliers_details[[paste0("Condition_", i)]]$outlier_iterations <- 
       lapply(method_outliers, which)
     
-    # fianl valid indices
+    # final valid indices
     valid_after_outliers <- valid_reps & !Reduce("|", method_outliers)
     valid_final_indices <- which(valid_after_outliers)
     n_after_global_outlier <- length(valid_final_indices)
@@ -512,8 +511,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
           if(length(data_list) == 0) next
           
           # true values
-          param_key <- paste0(eq, "_", gsub(":", "", p_name))
-          tv <- true_params[[param_key]] %||% 0
+          tv <- true_params[[eq]][p_name] %||% 0
           
           # summary row
           convergence_outliers_summary <- dplyr::bind_rows(
@@ -586,7 +584,7 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
   
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
-  results_summary <- dplyr::tibble()
+  results_summary <- tibble::tibble()
   
   for (key in names(filtered_data)) {
     d <- filtered_data[[key]]
@@ -604,16 +602,16 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
     if (nrow(df) == 0) next
     
     # metrics with simhelpers
-    abs_metrics <- calc_absolute(df, est, true_param, 
-                                 c("bias", "variance", "stddev", "mse", "rmse"), winz = Inf)
-    cov_metrics <- calc_coverage(df, lower_bound, upper_bound, true_param, 
-                                 c("coverage", "width"), winz = Inf)
-    rej_metrics <- calc_rejection(df, p_val, alpha)
+    abs_metrics <- simhelpers::calc_absolute(df, est, true_param, 
+                                             c("bias", "variance", "stddev", "mse", "rmse"), winz = Inf)
+    cov_metrics <- simhelpers::calc_coverage(df, lower_bound, upper_bound, true_param, 
+                                             c("coverage", "width"), winz = Inf)
+    rej_metrics <- simhelpers::calc_rejection(df, p_val, alpha)
     
     # relative metrics
     if(tv != 0) {
-      rel_metrics <- calc_relative(df, est, true_param, 
-                                   c("relative bias", "relative mse", "relative rmse"), winz = Inf)
+      rel_metrics <- simhelpers::calc_relative(df, est, true_param, 
+                                               c("relative bias", "relative mse", "relative rmse"), winz = Inf)
       rel_bias_mean <- rel_metrics$rel_bias - 1
       rel_bias_mean_pct <- rel_bias_mean * 100
     } else {
@@ -795,18 +793,3 @@ CalculatePerformance_Study2 <- function(all_results,
     performance_results
   }
 }
-
-
-#results_study_2 <- CalculatePerformance_Study2(
-#  all_results,
-#  parameters_of_interest = list(
-#    eta4 = c("eta1", "eta2", "eta3", "eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2"),
-#    eta5 = c("eta4", "eta1", "eta2", "eta3", "eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
-#  ),
-#  remove_outliers = TRUE,
-#  outlier_threshold = 3,
-#  alpha = 0.05,
-#  min_reps = 10,
-#  exclude_warnings = FALSE,
-#  return_convergence_details = FALSE
-#)

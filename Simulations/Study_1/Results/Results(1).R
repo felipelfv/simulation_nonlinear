@@ -7,10 +7,18 @@
 
 ############################### 2. Documentation ################################
 
-#' extract_eta3_parameters: Extract Structural Parameters from Method Output
+#' Performance Analysis Functions for Simulation Study 1
+#' 
+#' @description This script provides a complete pipeline for analyzing Monte Carlo
+#'              simulation results from Study 1, which features a single structural
+#'              equation model (eta3) with interaction and quadratic terms.
+#' 
+#' @section Main Functions:
+#' 
+#' extract_params: Extract Structural Parameters from Method Output
 #' 
 #' @param table         Data.frame. Parameter table from estimation method output
-#' @param method_type   Character. Type of method: "dblcent", "sam", "lms", or "qml"
+#' @param method        Character. Type of method: "lsam", "lms", "qml", or "upi"
 #' 
 #' @return List containing:
 #'   - Estimates:       Named vector of parameter estimates
@@ -18,11 +26,23 @@
 #'   - P-values:        Named vector of p-values
 #'   - CI_lower:        Named vector of confidence interval lower bounds
 #'   - CI_upper:        Named vector of confidence interval upper bounds
+#' 
+#' @note Method-specific handling:
+#'   - QML/LMS: Use "std.error" and "p.value" columns; require parameter reordering
+#'   - LSAM/UPI: Use "se" and "pvalue" columns; maintain original order
+#'   - Automatic detection of model complexity based on row count (3 = linear, 5 = full)
+#'   
+#' @details Parameter extraction:
+#'   - Linear model (3 params): eta1, eta2, eta1:eta2
+#'   - Full model (5 params): eta1, eta2, eta1:eta2, eta1:eta1, eta2:eta2
+#'   - LMS/QML output eta1:eta1 before eta1:eta2, requiring position swap
+#'
 #'
 #' ExtractConvergenceOutliers: Process Convergence and Identify Outliers
 #' 
 #' @param all_results              List. Complete simulation results from all conditions
-#' @param parameters_of_interest   Character vector. Parameters to extract (default = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"))
+#' @param parameters_of_interest   Character vector. Parameters to extract 
+#'                                 (default = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"))
 #' @param remove_outliers          Logical. Whether to identify and exclude outliers (default = TRUE)
 #' @param outlier_threshold        Numeric. IQR multiplier for outlier detection (default = 3)
 #' @param min_reps                 Integer. Minimum replications required per condition (default = 10)
@@ -34,22 +54,36 @@
 #'   - filtered_data:               List with clean data after outlier removal (for mean-based metrics)
 #'   - converged_data:              List with converged data before outlier removal (for robust metrics)
 #' 
-#' @details Processing steps:
+#' @details Processing Pipeline:
 #'   1. Check convergence for each method independently (non-missing, finite values)
-#'   2. Track warnings in converged iterations
-#'   3. Identify valid replications (converged across all methods)
-#'   4. Optionally exclude iterations with warnings
+#'   2. Track warnings in converged iterations only
+#'   3. Identify valid replications (converged across all methods - global convergence)
+#'   4. Optionally exclude iterations with warnings (if exclude_warnings = TRUE)
 #'   5. Detect outliers using IQR method (Q1 - threshold*IQR, Q3 + threshold*IQR)
 #'   6. Apply global synchronization (exclude if outlier in any method)
 #'   7. Extract filtered data for performance metrics
+#'   8. Skip conditions with fewer than min_reps valid replications
 #' 
-#' @note Convergence criteria:
-#'   - All required parameters present
+#' @details Convergence Criteria:
+#'   Per-method convergence requires:
+#'   - All required parameters present in output
 #'   - No NA, NaN, or Inf values in estimates, SEs, p-values, or CIs
 #'   - Method-specific convergence tracked independently
-#'   - Global convergence requires all methods converged
+#'   
+#'   Global convergence requires:
+#'   - Convergence across ALL methods simultaneously for a given replication
+#'   - Used as baseline for outlier detection
 #' 
-#' @note Summary statistics tracked:
+#' @details Outlier Detection Method (Boomsma, 2013):
+#'   - Applied separately to each parameter
+#'   - Calculate Q1 (25th percentile) and Q3 (75th percentile)
+#'   - Compute IQR = Q3 - Q1
+#'   - Lower bound = Q1 - threshold * IQR
+#'   - Upper bound = Q3 + threshold * IQR
+#'   - Flag replication as outlier if ANY parameter exceeds bounds
+#'   - Global synchronization: exclude from all methods if outlier in any
+#' 
+#' @details Summary Statistics Tracked (per condition/method/parameter):
 #'   - N_Total:                     Total replications attempted
 #'   - N_Converged_This_Method:     Converged for this specific method
 #'   - N_Warnings_This_Method:      Converged iterations with warnings for this method
@@ -62,11 +96,17 @@
 #'   - N_After_Global_Outlier:      Valid after global outlier removal
 #'   - Global_Outlier_Rate:         Percentage valid after outlier removal
 #'   - N_Final:                     Final sample size for analysis
-
+#'   - N_Excluded_Convergence:      Excluded due to non-convergence
+#'   - N_Excluded_Warnings:         Excluded due to warnings
+#'   - N_Excluded_Outliers:         Excluded due to outlier detection
+#'   - N_Total_Excluded:            Total excluded replications
+#'   - Percent_Total_Excluded:      Percentage of total excluded
+#'
+#'
 #' CalculatePerformanceMetrics: Calculate All Performance Metrics
 #' 
-#' @param filtered_data                 List. Filtered data from ExtractConvergenceOutliers (after outlier removal, for mean-based metrics)
-#' @param converged_data                List. Converged data from ExtractConvergenceOutliers (before outlier removal, for robust metrics)
+#' @param filtered_data                 List. Filtered data from ExtractConvergenceOutliers (after outlier removal)
+#' @param converged_data                List. Converged data from ExtractConvergenceOutliers (before outlier removal)
 #' @param convergence_outliers_summary  Tibble. Summary statistics from ExtractConvergenceOutliers
 #' @param alpha                         Numeric. Significance level for tests (default = 0.05)
 #' 
@@ -75,9 +115,9 @@
 #' @details Mean-based metrics (calculated from filtered_data after outlier removal):
 #'   - MeanEstimate:                Average of parameter estimates
 #'   - Bias_Mean:                   Mean estimate - true value
-#'   - RelativeBias_Mean:            (Bias / true value) - 1
-#'   - PercentRelativeBias_Mean:     Relative bias * 100
-#'   - Variance:                     Variance of estimates
+#'   - RelativeBias_Mean:           (Bias / true value) - 1 (NA if true value = 0)
+#'   - PercentRelativeBias_Mean:    Relative bias * 100
+#'   - Variance:                    Variance of estimates
 #'   - SD:                          Standard deviation of estimates
 #'   - MSE_Mean:                    Mean squared error
 #'   - RMSE_Mean:                   Root mean squared error
@@ -85,9 +125,9 @@
 #' @details Median-based metrics (calculated from converged_data before outlier removal):
 #'   - MedianEstimate:              Median of parameter estimates
 #'   - Bias_Median:                 Median estimate - true value  
-#'   - RelativeBias_Median:         Median bias / true value
+#'   - RelativeBias_Median:         Median bias / true value (NA if true value = 0)
 #'   - PercentRelativeBias_Median:  Relative median bias * 100
-#'   - MAD:                         Median absolute deviation
+#'   - MAD:                         Median absolute deviation (standardized with factor 1.4826)
 #'   - RMSE_Median:                 sqrt(Bias_Median^2 + MAD^2)
 #'   
 #' @details Trimmed mean-based metrics (calculated from converged_data before outlier removal, 20% trimmed mean per Wilcox, 2016):
@@ -99,7 +139,7 @@
 #'   - MeanSE:                      Average of standard errors (from filtered_data)
 #'   - TrimmedSE:                   20% trimmed mean of standard errors (from converged_data)
 #'   - SE_SD_Ratio:                 Mean SE / SD of estimates (from filtered_data)
-#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1 (from converged_data)
+#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1 (Hoogland & Boomsma, 1998)
 #'   
 #' @details Coverage and confidence interval metrics:
 #'   - CoverageRate:                Percentage of CIs containing true value
@@ -107,8 +147,8 @@
 #'   
 #' @details Hypothesis testing metrics:
 #'   - RejectionRate:               Percentage of p-values < alpha
-#'   - TypeI_Error:                 Rejection rate when true value equal to 0
-#'   - Power:                       Rejection rate when true value not equal to 0
+#'   - TypeI_Error:                 Rejection rate when true value = 0
+#'   - Power:                       Rejection rate when true value ≠ 0
 #'   
 #' @details Monte Carlo standard errors (MCSE):
 #'   - Bias_Mean_MCSE, RelativeBias_MCSE, Variance_MCSE, SD_MCSE
@@ -120,9 +160,62 @@
 #'   - All N_* and convergence/outlier statistics
 #'   - N_Excluded_* breakdown by reason
 #'   - Percent_Total_Excluded
+#'   
+#' @note Performance calculations use simhelpers package for Monte Carlo metrics
+#' @note Robust metrics use converged data to avoid influence of outliers
+#' @note Mean-based metrics use filtered data after outlier removal
+#'
+#'
+#' CalculatePerformance: Wrapper Function for Complete Study 1 Analysis
+#' 
+#' @param all_results                  List. Complete simulation results from all conditions
+#' @param parameters_of_interest       Character vector. Parameters to extract 
+#'                                     (default = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"))
+#' @param remove_outliers              Logical. Whether to remove outliers (default = TRUE)
+#' @param outlier_threshold            Numeric. IQR multiplier for outlier detection (default = 3)
+#' @param alpha                        Numeric. Significance level for hypothesis tests (default = 0.05)
+#' @param min_reps                     Integer. Minimum replications required per condition (default = 10)
+#' @param exclude_warnings             Logical. Whether to exclude iterations with warnings (default = FALSE)
+#' @param return_convergence_details   Logical. Whether to return detailed convergence info (default = FALSE)
+#' 
+#' @return If return_convergence_details = TRUE:
+#'   - List containing:
+#'     * results: Complete performance metrics tibble
+#'     * convergence_outliers_details: Detailed iteration-level information
+#'   
+#'   If return_convergence_details = FALSE:
+#'   - Tibble with performance metrics only
+#'   
+#' @description Convenience wrapper that combines extraction and calculation steps into a single call.
+#'              Handles the complete analysis pipeline from raw simulation results to final metrics.
+#'              
+#' @note Study 1-Specific Features:
+#'   - Single structural equation (eta3)
+#'   - Four methods: LSAM, LMS, QML, UPI
+#'   - Linear model (3 parameters) or Full model (5 parameters)
+#'   - True values depend on model type:
+#'     * Linear: c(0.316, 0.316, 0, 0, 0)
+#'     * Full: c(0.316, 0.316, 0.139, 0.101, 0.101)
+#'     
+#' @note Dependencies:
+#'   Required packages: dplyr, tibble, simhelpers
+#'   
+#' @examples
+#' \dontrun{
+#' results_study_1 <- CalculatePerformance(
+#'   all_results,
+#'   parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
+#'   remove_outliers = TRUE,
+#'   outlier_threshold = 3,
+#'   alpha = 0.05,
+#'   min_reps = 10,
+#'   exclude_warnings = FALSE,
+#'   return_convergence_details = FALSE
+#' )
+#' }
 
 # Packages needed for this script:
-# library(dplyr); library(simhelpers)
+# library(dplyr); library(tibble); library(simhelpers)
 
 ############################### 3. Functions ####################################
 
@@ -136,7 +229,7 @@ extract_params <- function(table, method) {
     c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
   }
   
-  # qml and lms have different names (in contrast to sam/dblcent)
+  # qml and lms have different names (in contrast to sam/upi)
   se_col <- if(method %in% c("lms", "qml")) "std.error" else "se"
   pval_col <- if(method %in% c("lms", "qml")) "p.value" else "pvalue"
   
@@ -171,10 +264,10 @@ ExtractConvergenceOutliers <- function(all_results,
   # null-coalescing operator:
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
-  convergence_outliers_summary <- dplyr::tibble()
+  convergence_outliers_summary <- tibble::tibble()
   convergence_outliers_details <- list()
-  filtered_data <- list()  # After outlier removal (for mean-based metrics)
-  converged_data <- list()  # After convergence only (for robust metrics)
+  filtered_data <- list()  # after outlier removal (for mean-based metrics)
+  converged_data <- list()  # after convergence only (for robust metrics)
   
   for (i in seq_along(all_results)) {
     condition <- all_results[[i]]$condition
@@ -466,7 +559,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
   # %||% if not available
   `%||%` <- function(x, y) if(is.null(x)) y else x
   
-  results_summary <- dplyr::tibble()
+  results_summary <- tibble::tibble()
   
   for (key in names(filtered_data)) {
     d <- filtered_data[[key]]
@@ -484,16 +577,16 @@ CalculatePerformanceMetrics <- function(filtered_data,
     if (nrow(df) == 0) next
     
     # metrics using simhelpers
-    abs_metrics <- calc_absolute(df, est, true_param, 
-                                 c("bias", "variance", "stddev", "mse", "rmse"), winz = Inf)
-    cov_metrics <- calc_coverage(df, lower_bound, upper_bound, true_param, 
-                                 c("coverage", "width"), winz = Inf)
-    rej_metrics <- calc_rejection(df, p_val, alpha)
+    abs_metrics <- simhelpers::calc_absolute(df, est, true_param, 
+                                             c("bias", "variance", "stddev", "mse", "rmse"), winz = Inf)
+    cov_metrics <- simhelpers::calc_coverage(df, lower_bound, upper_bound, true_param, 
+                                             c("coverage", "width"), winz = Inf)
+    rej_metrics <- simhelpers::calc_rejection(df, p_val, alpha)
     
     # relative metrics if true value non-zero
     if(tv != 0) {
-      rel_metrics <- calc_relative(df, est, true_param, 
-                                   c("relative bias", "relative mse", "relative rmse"), winz = Inf)
+      rel_metrics <- simhelpers::calc_relative(df, est, true_param, 
+                                               c("relative bias", "relative mse", "relative rmse"), winz = Inf)
       rel_bias_mean <- rel_metrics$rel_bias - 1
       rel_bias_mean_pct <- rel_bias_mean * 100
     } else {
@@ -672,14 +765,3 @@ CalculatePerformance <- function(all_results,
     performance_results
   }
 }
-
-#results_study_1 <- CalculatePerformance(
-#  all_results,
-#  parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
-#  remove_outliers = TRUE,
-#  outlier_threshold = 3,
-#  alpha = 0.05,
-#  min_reps = 10,
-#  exclude_warnings = FALSE,  # TRUE to exclude iterations with warnings
-#  return_convergence_details = FALSE
-#)
