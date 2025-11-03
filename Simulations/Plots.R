@@ -5,9 +5,10 @@
 # Consistent "APA-style" formatting across all plots
 # Data preparation functions for different sim designs
 # Plotting functions for bias, RMSE, SE/SD ratio, coverage, Type I error, and power
-
-# Packages needed for this script:
-# library(ggplot2); library(dplyr)
+#
+#' @note Dependencies:
+#'   Required packages: ggplot2 and dplyr
+#'   
 
 ############################### 2. Configuration ################################
 

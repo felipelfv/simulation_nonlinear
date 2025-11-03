@@ -23,9 +23,10 @@
 #' @param seed Integer. Random seed for reproducibility. Default is NULL.
 #' @param add.eta Logical. Whether to include latent variables (eta) in the output dataset. Default is FALSE.
 #' @param return.info Logical. Whether to return additional model information as attributes. Default is TRUE.
-
-# Packages needed for this script:
-# library(lavaan); library(covsim); library(rvinecopulib)
+#'
+#' @note Dependencies:
+#'   Required packages: lavaan, covsim, and rvinecopulib
+#'   
 
 ############################### 2. Function ####################################
 

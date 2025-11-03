@@ -6,6 +6,10 @@
 # QML estimated through modsem and the SAM approach with lavaan. 
 # All functions return the full parameter table.
 
+#' @note Dependencies:
+#'   Required packages: lavaan and modsem 
+#'   
+
 ############################### 2. Function Documentation #######################
 
 #' method_upi: Product Indicator Approach (UPI) with Double Mean Centering

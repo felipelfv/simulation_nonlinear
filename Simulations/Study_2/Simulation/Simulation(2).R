@@ -25,7 +25,7 @@
 #' @param distributions     List. Distribution specifications with three types (VITA-based generation):
 #'   - normal:    distr.exo = "normal", nonnormal.shape = NULL, nonnormal.rate = NULL.
 #'   - nonnormal: distr.exo = "nonnormal", nonnormal.shape = c(1,1,1), nonnormal.rate = c(1,1,1).
-#'                (shape=1 gives skewness ≈ 2, excess kurtosis ≈ 6; 3 exogenous variables)
+#'                (shape=1 gives skewness approx. 2, excess kurtosis approx. 6; 3 exogenous variables)
 #'   - uniform:   distr.exo = "uniform", nonnormal.shape = NULL, nonnormal.rate = NULL.
 #' 
 #' @param conditions        Data.frame. Full factorial design with:
@@ -46,7 +46,7 @@
 #'     * upi_tables:      Parameter tables from UPI estimation
 #'     * timing:          Data.frame with computation times for each method
 #'     * warnings:        List of warning messages for each method (QML filters bias warnings)
-#'     * observed_r2:     Matrix of observed R² values for eta4 and eta5 (N_REPLICATIONS x 2)
+#'     * observed_r2:     Matrix of observed r squared values for eta4 and eta5 (N_REPLICATIONS x 2)
 #'     * observed_rel:    Matrix of observed reliabilities for 5 factors (N_REPLICATIONS x 5)
 #'     * robust_se_used:  Logical indicator of robust SE setting
 #'     * rng_states:      RNG states for reproducibility
@@ -72,11 +72,10 @@
 #'   - Method estimation errors: Store NULL for table, NA for timing, preserve warnings.
 #'   - QML warnings about exogenous-endogenous interactions are filtered (known bias).
 #'   - Warnings tracked separately without stopping execution.
-#' 
-
-# Packages needed for this script:
-#library(lavaan); library(modsem); library(doParallel); 
-#library(doRNG); library(covsim); library(rvinecopulib); 
+#'   
+#' @note Dependencies:
+#'   Required packages: lavaan, modsem, doParallel, doRNG, covsim, and rvinecopulib
+#'    
 
 ############################### 3. Simulation ##################################
 

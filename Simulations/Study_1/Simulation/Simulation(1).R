@@ -25,7 +25,7 @@
 #' @param distributions     List. Distribution specifications with three types (VITA-based generation):
 #'   - normal:    distr.exo = "normal", nonnormal.shape = NULL, nonnormal.rate = NULL.
 #'   - nonnormal: distr.exo = "nonnormal", nonnormal.shape = c(1,1), nonnormal.rate = c(1,1).
-#'                (shape=1 gives skewness ≈ 2, excess kurtosis ≈ 6)
+#'                (shape=1 gives skewness approx. 2, excess kurtosis approx. 6)
 #'   - uniform:   distr.exo = "uniform", nonnormal.shape = NULL, nonnormal.rate = NULL.
 #' 
 #' @param conditions        Data.frame. Full factorial design with:
@@ -45,7 +45,7 @@
 #'     * lsam_tables:     Parameter tables from LSAM estimation
 #'     * timing:          Data.frame with computation times for each method
 #'     * warnings:        List of warning messages for each method
-#'     * observed_r2:     Observed R² values for eta3
+#'     * observed_r2:     Observed r squared values for eta3
 #'     * observed_rel:    Matrix of observed reliabilities (9 indicators)
 #'     * rng_states:      RNG states for reproducibility
 #'   - true_parameters:   True population parameters based on Model_Type
@@ -65,10 +65,9 @@
 #'   - Method estimation errors: Store NULL for table, NA for timing, preserve warnings.
 #'   - Warnings tracked separately without stopping execution.
 #'   
-
-# Packages needed for this script:
-#library(lavaan); library(modsem); library(doParallel); 
-#library(doRNG); library(covsim); library(rvinecopulib); 
+#' @note Dependencies:
+#'   Required packages: lavaan, modsem, doParallel, doRNG, covsim, and rvinecopulib
+#'   
 
 ############################### 3. Simulation ##################################
 
