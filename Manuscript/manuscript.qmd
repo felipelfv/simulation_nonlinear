@@ -133,7 +133,7 @@ Relative MSE & $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ & $\sqrt{\frac{1}{K
 Relative RMSE & $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ & $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ \\
 \textbf{Standard Error} & & \\
 Mean SE & $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ & --- \\
-SE Ratio & $\overline{SE}/S_B$ & --- \\
+SE/SD Ratio & $\overline{SE}/S_B$ & --- \\
 \textbf{Hypothesis Testing} & & \\
 Rejection Rate & $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ & $\sqrt{r_\alpha(1-r_\alpha)/K}$ \\
 \textbf{Confidence Intervals} & & \\
