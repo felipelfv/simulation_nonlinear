@@ -339,7 +339,7 @@ extraction_results <- ExtractConvergenceOutliers(
 )
 ```
 
-```{r lsam-outlier-first-sim-study, echo=FALSE, fig.cap="Outliers for the SEs for LSAM in condition 13 ", fig.align='center', fig.height=12, fig.width=9}
+```{r lsam-outlier-first-sim-study, echo=FALSE, fig.cap="Outliers for the SEs for LSAM in condition 13 ", fig.align='center', fig.height=9, fig.width=7}
 # label SEs above 5
 se_data <- plot_se_simple(extraction_results, condition_number = 13, method = "LSAM")
 ```
@@ -355,136 +355,136 @@ study_2_nonnormal_data <- prepare_study2_data(results_study_2, "nonnormal")
 study_2_uniform_data <- prepare_study2_data(results_study_2, "uniform")
 ```
 
-```{r all-bias-first-sim-study, echo=FALSE, fig.cap = "Absolute bias for Simulation 1", fig.align='center', fig.height=12, fig.width=9}
+```{r all-bias-first-sim-study, echo=FALSE, fig.cap = "Absolute bias for Simulation 1", fig.align='center', fig.height=9, fig.width=7}
  plot_bias(study1_data$bias, shapes = SHAPES_4, ltys = LTYS_4)
 ```
 
-```{r all-relbias-first-sim-study, echo=FALSE, fig.cap = "Relative bias for Simulation 1", fig.align='center', fig.height=12, fig.width=9, warning=FALSE}
+```{r all-relbias-first-sim-study, echo=FALSE, fig.cap = "Relative bias for Simulation 1", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_bias(study1_data$bias_relative, shapes = SHAPES_4, ltys = LTYS_4)
 ```
 
-```{r all-rmse-first-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 1", fig.align='center', fig.height=12, fig.width=8}
+```{r all-rmse-first-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 1", fig.align='center', fig.height=9, fig.width=7}
 plot_rmse(study1_data$rmse, shapes = SHAPES_4, ltys = LTYS_4)
 ```
 
-```{r all-relrmse-first-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 1", fig.align='center', fig.height=12, fig.width=8, warning=FALSE}
+```{r all-relrmse-first-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 1", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_rmse(study1_data$rmse_relative, shapes = SHAPES_4, ltys = LTYS_4)
 ```
 
-```{r all-ratio-first-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 1", fig.align='center', fig.height=12, fig.width=9}
+```{r all-ratio-first-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 1", fig.align='center', fig.height=9, fig.width=7}
 plot_sesd(study1_data$sesd, shapes = SHAPES_4, ltys = LTYS_4)
 ```
 
-```{r all-coverage-first-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 1", fig.align='center', fig.height=12, fig.width=9}
+```{r all-coverage-first-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 1", fig.align='center', fig.height=9, fig.width=7}
 plot_coverage(study1_data$coverage, shapes = SHAPES_4, ltys = LTYS_4)
 ```
 
-```{r all-type-first-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 1", fig.align='center', fig.height=12, fig.width=9}
+```{r all-type-first-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 1", fig.align='center', fig.height=9, fig.width=7}
 plot_type1(study1_data$type1, greys = GREYS_4)
 ```
 
-```{r all-power-first-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 1", fig.align='center', fig.height=12, fig.width=9}
+```{r all-power-first-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 1", fig.align='center', fig.height=9, fig.width=7}
 plot_power(study1_data$power, greys = GREYS_4)
 ```
 
 \newpage
 
-```{r normal-bias-second-sim-study, echo=FALSE, fig.cap="Absolute bias for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=9}
+```{r normal-bias-second-sim-study, echo=FALSE, fig.cap="Absolute bias for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7}
 plot_bias(study_2_normal_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r normal-relbias-second-sim-study, echo=FALSE, fig.cap="Relative bias for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=9, warning=FALSE}
+```{r normal-relbias-second-sim-study, echo=FALSE, fig.cap="Relative bias for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_bias(study_2_normal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r normal-rmse-second-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=8}
+```{r normal-rmse-second-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7}
 plot_rmse(study_2_normal_data$rmse, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r normal-relrmse-second-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=8, warning=FALSE}
+```{r normal-relrmse-second-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_rmse(study_2_normal_data$rmse_relative, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r normal-ratio-second-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=9}
+```{r normal-ratio-second-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7}
 plot_sesd(study_2_normal_data$sesd, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r normal-coverage-second-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=9}
+```{r normal-coverage-second-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7}
 plot_coverage(study_2_normal_data$coverage, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r normal-type-second-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=9}
+```{r normal-type-second-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7}
 plot_type1(study_2_normal_data$type1, greys = GREYS_3)
 ```
 
-```{r normal-power-second-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 2 (Normal)", fig.align='center', fig.height=12, fig.width=9}
+```{r normal-power-second-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 2 (Normal)", fig.align='center', fig.height=9, fig.width=7}
 plot_power(study_2_normal_data$power, greys = GREYS_3)
 ```
 
 \newpage
 
-```{r nonnormal-bias-second-sim-study, echo=FALSE, fig.cap="Absolute bias for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=9}
+```{r nonnormal-bias-second-sim-study, echo=FALSE, fig.cap="Absolute bias for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7}
 plot_bias(study_2_nonnormal_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r nonnormal-relbias-second-sim-study, echo=FALSE, fig.cap="Relative bias for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=9, warning=FALSE}
+```{r nonnormal-relbias-second-sim-study, echo=FALSE, fig.cap="Relative bias for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_bias(study_2_nonnormal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r nonnormal-rmse-second-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=8}
+```{r nonnormal-rmse-second-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7}
 plot_rmse(study_2_nonnormal_data$rmse, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r nonnormal-relrmse-second-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=8, warning=FALSE}
+```{r nonnormal-relrmse-second-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_rmse(study_2_nonnormal_data$rmse_relative, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r nonnormal-ratio-second-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=9}
+```{r nonnormal-ratio-second-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7}
 plot_sesd(study_2_nonnormal_data$sesd, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r nonnormal-coverage-second-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=9}
+```{r nonnormal-coverage-second-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7}
 plot_coverage(study_2_nonnormal_data$coverage, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r nonnormal-type-second-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=9}
+```{r nonnormal-type-second-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7}
 plot_type1(study_2_nonnormal_data$type1, greys = GREYS_3)
 ```
 
-```{r nonnormal-power-second-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 2 (Right-skewed)", fig.align='center', fig.height=12, fig.width=9}
+```{r nonnormal-power-second-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 2 (Right-skewed)", fig.align='center', fig.height=9, fig.width=7}
 plot_power(study_2_nonnormal_data$power, greys = GREYS_3)
 ```
 \newpage
 
-```{r uniform-bias-second-sim-study, echo=FALSE, fig.cap="Absolute bias for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=9}
+```{r uniform-bias-second-sim-study, echo=FALSE, fig.cap="Absolute bias for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7}
 plot_bias(study_2_uniform_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r uniform-relbias-second-sim-study, echo=FALSE, fig.cap="Relative bias for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=9, warning=FALSE}
+```{r uniform-relbias-second-sim-study, echo=FALSE, fig.cap="Relative bias for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_bias(study_2_uniform_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r uniform-rmse-second-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=8}
+```{r uniform-rmse-second-sim-study, echo=FALSE, fig.cap="RMSE for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7}
 plot_rmse(study_2_uniform_data$rmse, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r uniform-relrmse-second-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=8, warning=FALSE}
+```{r uniform-relrmse-second-sim-study, echo=FALSE, fig.cap="Relative RMSE for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7, warning=FALSE}
 plot_rmse(study_2_uniform_data$rmse_relative, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r uniform-ratio-second-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=9}
+```{r uniform-ratio-second-sim-study, echo=FALSE, fig.cap="SE/SD ratio for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7}
 plot_sesd(study_2_uniform_data$sesd, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r uniform-coverage-second-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=9}
+```{r uniform-coverage-second-sim-study, echo=FALSE, fig.cap="Coverage for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7}
 plot_coverage(study_2_uniform_data$coverage, shapes = SHAPES_3, ltys = LTYS_3)
 ```
 
-```{r uniform-type-second-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=9}
+```{r uniform-type-second-sim-study, echo=FALSE, fig.cap="Type I error rate for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7}
 plot_type1(study_2_uniform_data$type1, greys = GREYS_3)
 ```
 
-```{r uniform-power-second-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 2 (Uniform)", fig.align='center', fig.height=12, fig.width=9}
+```{r uniform-power-second-sim-study, echo=FALSE, fig.cap="Empirical power for Simulation 2 (Uniform)", fig.align='center', fig.height=9, fig.width=7}
 plot_power(study_2_uniform_data$power, greys = GREYS_3)
 ```
 
