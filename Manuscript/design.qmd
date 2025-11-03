@@ -10,6 +10,7 @@ doparallel_version <- packageVersion("doParallel")
 dorng_version <- packageVersion("doRNG")
 ggplot_version <- packageVersion("ggplot2")
 microbenchmark_version <- packageVersion("microbenchmark")
+simhelpers_version <- packageVersion("simhelpers")
 R_version <- getRversion()
 ```
 
@@ -69,7 +70,7 @@ Similar to @lonati_etall_2024 again, we identified outliers using the box-plot m
 
 ## Performance Measures
 
-Method performance was assessed through multiple metrics following the formulas from the *simhelpers* package [@R-simhelpers], with the exception of the median-based metrics that were based on @brandt_etall_2020 and trimmed mean-based on @lai_hsiao_2022. Following the *simhelpers* documentation and references therein, we also quantified the Monte Carlo Standard Errors (MCSE) simulation uncertainty for most of the reported performance measures using the jack-knife technique. Generally speaking, the measures are classified in terms of absolute and relative criteria measures, standard error assessment, hypothesis testing, and confidence intervals. In the main text, we only report and discuss the metrics reported in Table 1 for the interaction and quadratic effects. For the more extensive set of measures and estimates, we refer the reader to the online supplemental materials (see Table S1). 
+Method performance was assessed through multiple metrics following the formulas from the *simhelpers* package [@R-simhelpers] (version `r simhelpers_version`), with the exception of the median-based metrics that were based on @brandt_etall_2020 and trimmed mean-based on @lai_hsiao_2022. Following the *simhelpers* documentation and references therein, we also quantified the Monte Carlo Standard Errors (MCSE) simulation uncertainty for most of the reported performance measures using the jack-knife technique. Generally speaking, the measures are classified in terms of absolute and relative criteria measures, standard error assessment, hypothesis testing, and confidence intervals. In the main text, we only report and discuss the metrics reported in Table 1 for the interaction and quadratic effects. For the more extensive set of measures and estimates, we refer the reader to the online supplemental materials (see Table S1). 
 
 ## Reproducibility and Computational Details
 
