@@ -9,10 +9,6 @@
 
 #' Performance Analysis Functions for Simulation Study 1
 #' 
-#' @description This script provides a complete pipeline for analyzing Monte Carlo
-#'              simulation results from Study 1, which features a single structural
-#'              equation model (eta3) with interaction and quadratic terms.
-#' 
 #' @section Main Functions:
 #' 
 #' extract_params: Extract Structural Parameters from Method Output
@@ -139,7 +135,7 @@
 #'   - MeanSE:                      Average of standard errors (from filtered_data)
 #'   - TrimmedSE:                   20% trimmed mean of standard errors (from converged_data)
 #'   - SE_SD_Ratio:                 Mean SE / SD of estimates (from filtered_data)
-#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1 (Hoogland & Boomsma, 1998)
+#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1 
 #'   
 #' @details Coverage and confidence interval metrics:
 #'   - CoverageRate:                Percentage of CIs containing true value
@@ -148,7 +144,7 @@
 #' @details Hypothesis testing metrics:
 #'   - RejectionRate:               Percentage of p-values < alpha
 #'   - TypeI_Error:                 Rejection rate when true value = 0
-#'   - Power:                       Rejection rate when true value ≠ 0
+#'   - Power:                       Rejection rate when true value not 0
 #'   
 #' @details Monte Carlo standard errors (MCSE):
 #'   - Bias_Mean_MCSE, RelativeBias_MCSE, Variance_MCSE, SD_MCSE
@@ -213,9 +209,6 @@
 #'   return_convergence_details = FALSE
 #' )
 #' }
-
-# Packages needed for this script:
-# library(dplyr); library(tibble); library(simhelpers)
 
 ############################### 3. Functions ####################################
 

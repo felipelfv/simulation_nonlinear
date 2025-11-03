@@ -14,11 +14,6 @@
 
 #' Performance Analysis Functions for Simulation Study 2
 #' 
-#' @description This script provides a complete pipeline for analyzing Monte Carlo
-#'              simulation results from Study 2, which features a more complex
-#'              structural model with two endogenous variables (eta4, eta5) and
-#'              multiple interaction terms across both equations.
-#' 
 #' @section Main Functions:
 #' 
 #' extract_study2_params: Extract Structural Parameters from Method Output for Study 2
@@ -148,7 +143,7 @@
 #'   - MeanSE:                      Average of standard errors (from filtered data)
 #'   - TrimmedSE:                   20% trimmed mean of standard errors (from converged data)
 #'   - SE_SD_Ratio:                 Mean SE / SD of estimates
-#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1 (Hoogland & Boomsma, 1998)
+#'   - RSB:                         Robust relative SE bias = TrimmedSE/MAD - 1 
 #'   
 #' @details Coverage and confidence interval metrics:
 #'   - CoverageRate:                Percentage of CIs containing true value
@@ -157,7 +152,7 @@
 #' @details Hypothesis testing metrics:
 #'   - RejectionRate:               Percentage of p-values < alpha
 #'   - TypeI_Error:                 Rejection rate when true value = 0
-#'   - Power:                       Rejection rate when true value ≠ 0
+#'   - Power:                       Rejection rate when true value not 0
 #'   
 #' @details Monte Carlo standard errors (MCSE):
 #'   - Bias_Mean_MCSE, RelativeBias_MCSE, Variance_MCSE, SD_MCSE
@@ -222,9 +217,6 @@
 #'   return_convergence_details = TRUE
 #' )
 #' }
-
-# Packages needed for this script:
-# library(dplyr); library(tibble); library(simhelpers)
 
 ############################### 3. Functions ####################################
 # parameter extraction 
