@@ -93,6 +93,12 @@ Hence, the interested reader may find these functions helpful. However, they are
 
 Manages R package dependencies and ensures consistent package versions across environments. Configured via renv.lock file
 
+## Cloning this repository 
+
+Note that when you clone this GitHub repository with LFS files (i.e., Data_Study_X_final.RData files) without the Git LFS installed, you will get pointer files instead of the actual .RData files.
+
+You will need to install Git LFS. See https://git-lfs.github.com/ for more information. 
+
 ## Reproducing the simulation 
 
 To reproduce the .RData files included in the folders ../Simulations/Study_1/Data and ../Simulations/Study_2/Data you just need to run (given the correctly specified folder structure) the Simulation(1).R and Simulation(2).R, respectively.
@@ -353,8 +359,3 @@ p_t1_1000_all_study_2 <- plot_type1(
 | dplyr          | 1.1.4       | Wickham et al. (2023)            |
 | ggplot2        | 3.5.2       | Wickham (2025)                   |
 
-## Cloning this repository 
-
-Note that when you clone this GitHub repository with LFS files (i.e., Data_Study_X_final.RData files) without the Git LFS installed, you will get pointer files instead of the actual .RData files.
-
-You will need to install Git LFS. See https://git-lfs.github.com/ for more information. 
