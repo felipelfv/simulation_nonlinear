@@ -362,4 +362,4 @@ p_t1_1000_all_study_2 <- plot_type1(
 | simhelpers     | 0.3.1       | Joshi & Pustejovsky (2025)       |
 | dplyr          | 1.1.4       | Wickham et al. (2023)            |
 | ggplot2        | 3.5.2       | Wickham (2025)                   |
-
+| tibble         | 3.3.0       | Müller & Wickham (2025)          |
