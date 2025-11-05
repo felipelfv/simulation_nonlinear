@@ -1,22 +1,18 @@
 ############################ 1. General Information ############################
+
 # See README file for more information concerning this file. 
 
 # This file contains the code necessary to calculate the performance results 
-# for Simulation Study 2 reported in the manuscript. It processes raw simulation 
+# for Simulation 2 reported in the manuscript. It processes raw simulation 
 # results from the more complex two-equation model, handles convergence and 
 # outlier detection, and computes comprehensive performance metrics for all 
 # estimation methods across all conditions.
-
 # The final dataset contains all the necessary metrics for plotting and
-# creating tables reported in the manuscript for Study 2.
+# creating tables reported in the manuscript for Simulation 2.
 
-############################### 2. Documentation ################################
+############################### 2. Documentation ###############################
 
-#' Performance Analysis Functions for Simulation Study 2
-#' 
-#' @section Main Functions:
-#' 
-#' extract_study2_params: Extract Structural Parameters from Method Output for Study 2
+#' extract_study2_params: Extract Structural Parameters from Method Output for Simulation 2
 #' 
 #' @param table         Data.frame. Parameter table from estimation method output
 #' @param method        Character. Type of method: "lsam", "upi", or "qml"
@@ -38,8 +34,7 @@
 #'   - LSAM/UPI: Use "se" and "pvalue" columns; maintain LSAM parameter order
 #'   - Automatic detection of model complexity based on row count
 #' 
-#' 
-#' ExtractConvergenceOutliers_Study2: Process Convergence and Identify Outliers for Study 2
+#' ExtractConvergenceOutliers_Study2: Process Convergence and Identify Outliers for Simulation 2
 #' 
 #' @param all_results              List. Complete simulation results from all conditions
 #' @param parameters_of_interest   Named list. Parameters to extract by equation:
@@ -106,8 +101,7 @@
 #'   - N_Total_Excluded:            Total excluded replications
 #'   - Percent_Total_Excluded:      Percentage of total excluded
 #' 
-#' 
-#' CalculatePerformanceMetrics_Study2: Calculate All Performance Metrics for Study 2
+#' CalculatePerformanceMetrics_Study2: Calculate All Performance Metrics for Simulation 2
 #' 
 #' @param filtered_data                 List. Filtered data from ExtractConvergenceOutliers_Study2 (after outlier removal)
 #' @param converged_data                List. Converged data from ExtractConvergenceOutliers_Study2 (before outlier removal)
@@ -134,7 +128,7 @@
 #'   - MAD:                         Median absolute deviation (standardized with factor 1.4826)
 #'   - RMSE_Median:                 sqrt(Bias_Median^2 + MAD^2)
 #'   
-#' @details Trimmed mean-based metrics (calculated on converged data before outlier removal, 20% trimmed mean per Wilcox, 2016):
+#' @details Trimmed mean-based metrics (calculated on converged data before outlier removal):
 #'   - TrimmedEstimate:             20% trimmed mean of parameter estimates
 #'   - Bias_Trimmed:                Trimmed mean estimate - true value
 #'   - RMSE_Trimmed:                sqrt(Bias_Trimmed^2 + MAD^2)
@@ -170,8 +164,7 @@
 #'   - Access pattern: true_parameters[[equation]][parameter] for equations eta4/eta5
 #'   - Falls back to 0 if parameter not found
 #' 
-#' 
-#' CalculatePerformance_Study2: Wrapper Function for Complete Study 2 Analysis
+#' CalculatePerformance_Study2: Wrapper Function for Complete Simulation 2 Analysis
 #' 
 #' @param all_results                  List. Complete simulation results
 #' @param parameters_of_interest       Named list. Parameters by equation (see ExtractConvergenceOutliers_Study2)
@@ -190,7 +183,7 @@
 #'   If return_convergence_details = FALSE:
 #'   - Tibble with performance metrics only
 #' 
-#' @note Study 2-Specific Features:
+#' @note Simulation 2-Specific Features:
 #'   - Two structural equations analyzed simultaneously
 #'   - Three methods only: LSAM, QML, UPI (no LMS)
 #'   - Different parameter sets for each equation
@@ -218,7 +211,8 @@
 #' )
 #' }
 
-############################### 3. Functions ####################################
+############################### 3. Functions ###################################
+
 # parameter extraction 
 extract_study2_params <- function(table, method, equation) {
   if(is.null(table)) return(NULL)
@@ -251,7 +245,7 @@ extract_study2_params <- function(table, method, equation) {
   )
 }
 
-# main extraction function for sim 2
+# main extraction function 
 ExtractConvergenceOutliers_Study2 <- function(all_results,
                                               parameters_of_interest = list(
                                                 eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta3","eta1:eta1","eta2:eta2"),
@@ -568,7 +562,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
   )
 }
 
-# performance metrics calculation for Study 2
+# performance metrics calculation
 CalculatePerformanceMetrics_Study2 <- function(filtered_data,
                                                converged_data,
                                                convergence_outliers_summary,
@@ -632,7 +626,7 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
     bias_median <- median_est - tv
     mad_est <- mad(df_conv$est)  # Uses default constant = 1.4826 to scale to SD
     
-    # trimmed mean metrics (20% trimmed mean as per Wilcox, 2016, from converged data)
+    # trimmed mean metrics (20% trimmed mean as per Wilcox, 2016; Lai & Hsiao, 2022 from converged data)
     trimmed_est <- mean(df_conv$est, trim = 0.20)
     bias_trimmed <- trimmed_est - tv
     rmse_trimmed <- sqrt(bias_trimmed^2 + mad_est^2)
@@ -747,7 +741,7 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
   results_summary
 }
 
-# wrapper function for Study 2
+# wrapper function 
 CalculatePerformance_Study2 <- function(all_results,
                                         parameters_of_interest = list(
                                           eta4 = c("eta1","eta2","eta3","eta1:eta2","eta1:eta3","eta1:eta1","eta2:eta2"),

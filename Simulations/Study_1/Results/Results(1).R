@@ -1,16 +1,13 @@
 ############################ 1. General Information ############################
+
 # See README file for more information concerning this file. 
-
 # This file contains the code necessary to calculate the performance results 
-# reported in the manuscript. The final dataset contains all the necessary
-# metrics to plot. These are also used in the tables reported. 
+# reported in the manuscript. 
+# The final dataset contains all the necessary metrics for plotting and
+# creating tables reported in the manuscript for Simulation 1.
 
-############################### 2. Documentation ################################
+############################### 2. Documentation ###############################
 
-#' Performance Analysis Functions for Simulation Study 1
-#' 
-#' @section Main Functions:
-#' 
 #' extract_params: Extract Structural Parameters from Method Output
 #' 
 #' @param table         Data.frame. Parameter table from estimation method output
@@ -32,7 +29,6 @@
 #'   - Linear model (3 params): eta1, eta2, eta1:eta2
 #'   - Full model (5 params): eta1, eta2, eta1:eta2, eta1:eta1, eta2:eta2
 #'   - LMS/QML output eta1:eta1 before eta1:eta2, requiring position swap
-#'
 #'
 #' ExtractConvergenceOutliers: Process Convergence and Identify Outliers
 #' 
@@ -98,7 +94,6 @@
 #'   - N_Total_Excluded:            Total excluded replications
 #'   - Percent_Total_Excluded:      Percentage of total excluded
 #'
-#'
 #' CalculatePerformanceMetrics: Calculate All Performance Metrics
 #' 
 #' @param filtered_data                 List. Filtered data from ExtractConvergenceOutliers (after outlier removal)
@@ -126,7 +121,7 @@
 #'   - MAD:                         Median absolute deviation (standardized with factor 1.4826)
 #'   - RMSE_Median:                 sqrt(Bias_Median^2 + MAD^2)
 #'   
-#' @details Trimmed mean-based metrics (calculated from converged_data before outlier removal, 20% trimmed mean per Wilcox, 2016):
+#' @details Trimmed mean-based metrics (calculated from converged_data before outlier removal):
 #'   - TrimmedEstimate:             20% trimmed mean of parameter estimates
 #'   - Bias_Trimmed:                Trimmed mean estimate - true value
 #'   - RMSE_Trimmed:                sqrt(Bias_Trimmed^2 + MAD^2)
@@ -161,8 +156,7 @@
 #' @note Robust metrics use converged data to avoid influence of outliers
 #' @note Mean-based metrics use filtered data after outlier removal
 #'
-#'
-#' CalculatePerformance: Wrapper Function for Complete Study 1 Analysis
+#' CalculatePerformance: Wrapper Function for Complete Simulation 1 Analysis
 #' 
 #' @param all_results                  List. Complete simulation results from all conditions
 #' @param parameters_of_interest       Character vector. Parameters to extract 
@@ -185,7 +179,7 @@
 #' @description Convenience wrapper that combines extraction and calculation steps into a single call.
 #'              Handles the complete analysis pipeline from raw simulation results to final metrics.
 #'              
-#' @note Study 1-Specific Features:
+#' @note Simulation 1-Specific Features:
 #'   - Single structural equation (eta3)
 #'   - Four methods: LSAM, LMS, QML, UPI
 #'   - Linear model (3 parameters) or Full model (5 parameters)
@@ -210,7 +204,7 @@
 #' )
 #' }
 
-############################### 3. Functions ####################################
+############################### 3. Functions ###################################
 
 extract_params <- function(table, method) {
   if(is.null(table)) return(NULL)
@@ -608,7 +602,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
     bias_median <- median_est - tv
     mad_est <- mad(df_conv$est)  # uses default constant = 1.4826 to scale to SD
     
-    # trimmed mean metrics (20% trimmed mean as per Wilcox, 2016, from converged data)
+    # trimmed mean metrics (20% trimmed mean as per Wilcox, 2016; Lai & Hsiao, 2022 from converged data)
     trimmed_est <- mean(df_conv$est, trim = 0.20)
     bias_trimmed <- trimmed_est - tv
     rmse_trimmed <- sqrt(bias_trimmed^2 + mad_est^2)

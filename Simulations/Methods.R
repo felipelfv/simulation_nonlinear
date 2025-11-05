@@ -6,36 +6,31 @@
 # QML estimated through modsem and the SAM approach with lavaan. 
 # All functions return the full parameter table.
 
-#' @note Dependencies:
-#'   Required packages: lavaan and modsem 
-#'   
-
-############################### 2. Function Documentation #######################
+############################### 2. Function Documentation ######################
 
 #' method_upi: Product Indicator Approach (UPI) with Double Mean Centering
-#' 
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
 #' @param robust.se     Logical. Whether to use robust (Huber-White) standard errors (default = FALSE).
 #' @param match         Character or NULL. Matching specification for product indicators (default = NULL).
 #' @param bounds        Logical. Whether to apply bounds to parameter estimates (default = FALSE).
-
+#'
 #' method_lsam: Local Structural-After-Measurement (LSAM) Approach
-#' 
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param estimator     Character. Estimator to use (default = "ML").
 #' @param joint         Logical. Whether to use joint estimation (default = FALSE).
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
 #' @param mm.list       List or NULL. Additional arguments for the measurement model step (default = NULL).
-
+#'
 #' method_analytic: Distribution Analytic Approaches (LMS or QML)
-#' 
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
 #' @param method        Character. Distribution analytic method to use: "lms" (default) or "qml".
 #' @param robust.se     Logical. Whether to compute robust standard errors (default = FALSE).
-
-# library(lavaan); library(modsem)
+#'
+#' @note Dependencies:
+#'   Required packages: lavaan and modsem 
+#' 
 
 ############################### 3. Functions ###################################
 
@@ -79,7 +74,7 @@ method_lsam <- function(Data = NULL, estimator = "ML",
   
   out <- lavaan::sam(model.fit, data = Data, se = "local",
                      mm.args = list(estimator = estimator),
-                     mm.list = mm.list)
+                     mm.list = mm.list) # note: the method for lsam will be local once interactions are detected
   
   parameterEstimates(out, remove.step1 = FALSE)
 }
@@ -100,4 +95,3 @@ method_analytic <- function(Data = NULL, model.fit = NULL,
   out <- do.call(modsem::modsem, args)
   out$parTable
 }
-

@@ -1,4 +1,5 @@
 ############################ 1. General Information ############################
+
 # See README file for more information concerning this file. 
 
 # This file contains the code necessary to run the simulation study 2. 
@@ -10,7 +11,7 @@
 # Relevant to re-start after running this script once to default Mer-Twi.
 # RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
-############################### 2. Documentation ################################
+############################### 2. Documentation ###############################
 
 #' Simulation 2 Parameters and Settings
 #' 
@@ -62,7 +63,7 @@
 #'   - Final file:       Data_Study_2[_robustse]_final.RData (all conditions)
 #'   - Directory:        Simulations/Study_2/Data/
 #' 
-#' @note Dependencies:
+#' @note File dependencies:
 #'   - Models(2).RData:   Contains all_models with population models for Study 2.
 #'   - Methods.R:         Contains method_analytic(), method_upi(), method_lsam().
 #'   - GenerateData.R:    Contains GenerateData() function (VITA-based generation).
@@ -121,7 +122,7 @@ distributions <- list(
   nonnormal = list(
     distr.exo = "nonnormal",
     nonnormal.shape = c(1, 1, 1),  # 3 exogenous: eta1, eta2, eta3
-    nonnormal.rate = c(1, 1, 1)    # shape=1, rate=1 gives skewness ≈ 2, excess kurtosis ≈ 6
+    nonnormal.rate = c(1, 1, 1)    # shape=1, rate=1 gives skewness approx. 2, excess kurtosis approx. 6
   ),
   uniform = list(
     distr.exo = "uniform",
@@ -131,7 +132,6 @@ distributions <- list(
 )
 
 # conditions
-
 conditions <- expand.grid(
   N = SAMPLE_SIZES,
   Rel = RELIABILITIES,
@@ -208,8 +208,8 @@ for (cond in 1:nrow(conditions)) {
       upi  = vector("list", N_REPLICATIONS)
     ),
     
-    observed_r2  = matrix(NA, nrow = N_REPLICATIONS, ncol = 2),  # eta4, eta5 only now
-    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 5),  # 5 latent variables now
+    observed_r2  = matrix(NA, nrow = N_REPLICATIONS, ncol = 2),  # eta4, eta5 
+    observed_rel = matrix(NA, nrow = N_REPLICATIONS, ncol = 5),  # 5 latent variables 
     robust_se_used = USE_ROBUST_SE
   )
   
@@ -240,7 +240,7 @@ for (cond in 1:nrow(conditions)) {
     observed_metrics <- list(
       r2  = c(attr(Data, "observed_R2")$eta4,
               attr(Data, "observed_R2")$eta5),
-      rel = sapply(attr(Data, "observed_reliabilities")[1:5], mean)  # only 5 factors now
+      rel = sapply(attr(Data, "observed_reliabilities")[1:5], mean)  # only 5 factors 
     )
     
     # clean data for methods
@@ -338,7 +338,7 @@ for (cond in 1:nrow(conditions)) {
   
   res$rng_states <- rng_states_for_condition
   
-  # --- summary (warnings only) ---
+  # summary (warnings only)
   cat("\nobserved metrics across replications:")
   cat("\n- Mean R² (eta4, eta5):", round(colMeans(res$observed_r2, na.rm = TRUE), 3))
   cat("\n- Mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))

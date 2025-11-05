@@ -1,11 +1,15 @@
 ############################ 1. General Information ############################
-# GenerateData function - VITA only version
-# Supports: normal, non-normal (via distribution types), and uniform
+
+# See README file for more information concerning this file. 
+# This file contains the code for the function used to generate data. This is 
+# passed/used in both simulation 1 and 2.
+
+############################### 2. Function Documentation ######################
 
 #' @param model A lavaan-based model syntax string specifying the structural equation model.
 #' @param N Integer. Sample size for the generated dataset. Default is 1000L.
 #' @param distr.exo Character. Distribution for exogenous variables. 
-#'   Options: "normal" (default), "nonnormal", "uniform"
+#'   Options: "normal" (default), "nonnormal", "uniform".
 #' @param nonnormal.shape Numeric vector. Shape parameters for non-normal distributions.
 #'   For gamma distribution: higher shape = less skewed. Default is c(1, 1, ...).
 #'   Length must match number of exogenous variables.
@@ -24,11 +28,24 @@
 #' @param add.eta Logical. Whether to include latent variables (eta) in the output dataset. Default is FALSE.
 #' @param return.info Logical. Whether to return additional model information as attributes. Default is TRUE.
 #'
+#' @return A data.frame containing the generated data with the following structure:
+#'   - If add.eta = FALSE (default): Contains only manifest variables and indicators.
+#'   - If add.eta = TRUE: Contains both manifest variables, indicators, and latent variables (eta).
+#'   
+#' @return When return.info = TRUE (default), the data.frame includes the following attributes:
+#'   - observed_R2: Named list of R-squared values for each dependent variable, 
+#'     calculated as proportion of variance explained by predictors.
+#'   - observed_reliabilities: Named list of reliability coefficients for each indicator,
+#'     organized by latent variable. 
+#'   - fixed_residual_variances: Named vector of all residual variances used in generation,
+#'     including both structural residuals (zeta) and measurement errors (epsilon).
+#'   - model_info: List containing detailed model structure (i.e., exogenous, coefficients, etc.).
+#'   
 #' @note Dependencies:
 #'   Required packages: lavaan, covsim, and rvinecopulib
 #'   
 
-############################### 2. Function ####################################
+############################### 3. Function ####################################
 
 GenerateData <- function(model, 
                          N = 1000L,
@@ -239,7 +256,7 @@ GenerateData <- function(model,
     
     # create VITA distribution
     vitadist <- covsim::vita(margins_list, adjusted_cov, verbose = FALSE, Nmax = 10^6)
-
+    
     # generate data
     EXO <- rvinecopulib::rvine(n = N, vine = vitadist)
     
@@ -253,7 +270,7 @@ GenerateData <- function(model,
       }
     }
     # normal and uniform already have mean = 0, no shift needed
-  
+    
     EXO
   }
   

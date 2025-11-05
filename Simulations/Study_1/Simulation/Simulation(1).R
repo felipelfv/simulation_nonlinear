@@ -1,4 +1,5 @@
 ############################ 1. General Information ############################
+
 # See README file for more information concerning this file. 
 
 # This file contains the code necessary to run the simulation study. 
@@ -10,7 +11,7 @@
 # Relevant to re-start after running this script once to default Mer-Twi.
 # RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
-############################### 2. Documentation ################################
+############################### 2. Documentation ###############################
 
 #' Simulation 1 Parameters and Settings
 #' 
@@ -28,15 +29,15 @@
 #'                (shape=1 gives skewness approx. 2, excess kurtosis approx. 6)
 #'   - uniform:   distr.exo = "uniform", nonnormal.shape = NULL, nonnormal.rate = NULL.
 #' 
-#' @param conditions        Data.frame. Full factorial design with:
+#' @param conditions  Data.frame. Full factorial design with:
 #'   - N:             Sample sizes (400, 1000).
 #'   - Rel:           Reliability levels (0.4, 0.6, 0.8).
 #'   - Distribution:  Distribution types (normal, nonnormal, uniform).
 #'   - Model_Type:    "full" (with interaction/quadratic) or "linear" (without).
 #' 
-#' @param n_cores          Integer. Number of parallel cores (default = detectCores() - 4).
+#' @param n_cores         Integer. Number of parallel cores (default = detectCores() - 4).
 #' 
-#' @return all_results     List. Contains for each condition:
+#' @return all_results    List. Contains for each condition:
 #'   - condition:         Row from conditions data.frame
 #'   - results:           List with:
 #'     * lms_tables:      Parameter tables from LMS estimation
@@ -55,7 +56,7 @@
 #'   - Final file:       Data_Study_1_final.RData (all conditions)
 #'   - Directory:        Simulations/Study_1/Data/
 #' 
-#' @note Dependencies:
+#' @note Files dependencies:
 #'   - Models(1).RData:   Contains all_models with population models.
 #'   - Methods.R:         Contains method_analytic(), method_upi(), method_lsam().
 #'   - GenerateData.R:    Contains GenerateData() function (VITA-based generation).
@@ -101,7 +102,7 @@ distributions <- list(
   ),
   nonnormal = list(
     distr.exo = "nonnormal",
-    nonnormal.shape = c(1, 1),  # shape=1 gives skewness ≈ 2, excess kurtosis ≈ 6
+    nonnormal.shape = c(1, 1),  # shape=1 gives skewness approx. 2, excess kurtosis approx. 6
     nonnormal.rate = c(1, 1)    # rate=1 gives variance = 1
   ),
   uniform   = list(
@@ -326,7 +327,7 @@ for (cond in 1:nrow(conditions)) {
   
   res$rng_states <- rng_states_for_condition
   
-  # summary during sim study 1
+  # summary during sim 1
   cat("\nobserved metrics across replications:")
   cat("\n- mean R²:", mean(res$observed_r2, na.rm = TRUE))
   cat("\n- mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))

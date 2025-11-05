@@ -3,14 +3,14 @@
 # This file contains all the code for data wrangling and plots based on the 
 # simulation results (with various performance metrics):
 # Consistent "APA-style" formatting across all plots
-# Data preparation functions for different sim designs
+# Data preparation functions for the different simulation designs
 # Plotting functions for bias, RMSE, SE/SD ratio, coverage, Type I error, and power
 #
 #' @note Dependencies:
 #'   Required packages: ggplot2 and dplyr
 #'   
 
-############################### 2. Configuration ################################
+############################### 2. Configuration ###############################
 
 # METHOD SPECIFICATIONS 
 # method orderings and labels (study-specific)
@@ -30,7 +30,7 @@ LTYS_3 <- c(LSAM="solid", QML="dotdash", UPI="twodash")
 GREYS_4 <- c(LSAM="grey20", LMS="grey45", QML="grey65", UPI="grey85")
 GREYS_3 <- c(LSAM="grey20", QML="grey50", UPI="grey80")
 
-############################### 3. Shared Components ############################
+############################### 3. Shared Components ###########################
 
 # APA THEME FUNCTION 
 #' @param base_size Base font size for all text elements. Default is 11.
@@ -121,7 +121,7 @@ prep_study2_subset <- function(df, distribution, model = c("Full","Linear")) {
 }
 
 # MAIN DATA 
-# all data frames for Study 1 plotting
+# all data frames for Simulation 1 plotting
 #' @param results_data Raw simulation results data frame
 #' @return List containing formatted data frames for each metric type
 prepare_study1_data <- function(results_data) {
@@ -200,7 +200,7 @@ prepare_study1_data <- function(results_data) {
   )
 }
 
-# all data frames for Study 2 plotting (per distribution)
+# all data frames for Simulation 2 plotting (per distribution)
 #' @param results_data Raw simulation results data frame
 #' @param dist_name Distribution name ("normal", "nonnormal", or "uniform")
 #' @return List containing formatted data frames for each metric type
