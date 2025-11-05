@@ -120,6 +120,8 @@ Those latter mentioned files are dependent on three files: GenerateData.R, Metho
 
 ## Reproducing the results (i.e., convergence/outliers information, performance metrics and visualization)
 
+(...Ignoring dockerfiles and/or Nix/rix...)
+
 ### Convergence, outliers statistics, and performance metrics
 
 For the results from Simulation 1:
