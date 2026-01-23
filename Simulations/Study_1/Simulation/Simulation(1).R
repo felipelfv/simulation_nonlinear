@@ -23,16 +23,12 @@
 #' @param analysis.model    Character. Lavaan syntax for the analysis model with interaction 
 #'                          and quadratic effects. Used for fitting all methods.
 #' 
-#' @param distributions     List. Distribution specifications with three types (VITA-based generation):
-#'   - normal:    distr.exo = "normal", nonnormal.shape = NULL, nonnormal.rate = NULL.
-#'   - nonnormal: distr.exo = "nonnormal", nonnormal.shape = c(1,1), nonnormal.rate = c(1,1).
-#'                (shape=1 gives skewness approx. 2, excess kurtosis approx. 6)
-#'   - uniform:   distr.exo = "uniform", nonnormal.shape = NULL, nonnormal.rate = NULL.
-#' 
 #' @param conditions  Data.frame. Full factorial design with:
 #'   - N:             Sample sizes (400, 1000).
 #'   - Rel:           Reliability levels (0.4, 0.6, 0.8).
-#'   - Distribution:  Distribution types (normal, nonnormal, uniform).
+#'   - Distr_Exo:     Distribution for exogenous latent variables (normal, nonnormal, uniform).
+#'   - Distr_Epsilon: Distribution for measurement errors (normal, exp.rate1).
+#'   - Distr_Zeta:    Distribution for structural disturbances (normal, exp.rate1).
 #'   - Model_Type:    "full" (with interaction/quadratic) or "linear" (without).
 #' 
 #' @param n_cores         Integer. Number of parallel cores (default = detectCores() - 4).
@@ -73,12 +69,11 @@
 ############################### 3. Simulation ##################################
 
 # required files
-load("Simulations/Study_1/Simulation/Models(1).RData")  # all_models
+source("Simulations/Study_1/Simulation/Models(1).R")  # all_models
 source("Simulations/Methods.R")  # methods file
 source("Simulations/GenerateData.R") 
 
-# SIMULATION PARAMETERS
-
+# simulation parameters
 N_REPLICATIONS <- 1000
 SAMPLE_SIZES   <- c(400, 1000)
 SEED_START     <- 123
@@ -93,37 +88,20 @@ eta3 =~ x7 + x8 + x9
 eta3 ~ eta1 + eta2 + eta1:eta2 + eta1:eta1 + eta2:eta2
 "
 
-# distribution parameters for VITA
-distributions <- list(
-  normal    = list(
-    distr.exo = "normal",
-    nonnormal.shape = NULL,
-    nonnormal.rate = NULL
-  ),
-  nonnormal = list(
-    distr.exo = "nonnormal",
-    nonnormal.shape = c(1, 1),  # shape=1 gives skewness approx. 2, excess kurtosis approx. 6
-    nonnormal.rate = c(1, 1)    # rate=1 gives variance = 1
-  ),
-  uniform   = list(
-    distr.exo = "uniform",
-    nonnormal.shape = NULL,
-    nonnormal.rate = NULL
-  )
-)
-
 # output directory
 base_dir <- "Simulations/Study_1/Data"
 dir.create(base_dir, recursive = TRUE, showWarnings = FALSE)
 file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "") 
 results_base <- file.path(base_dir, paste0("Data_Study_1", file_suffix))
 
-# conditions for sim study 1
+# full factorial design: 2 × 3 × 3 × 2 × 2 × 2 = 144 conditions
 conditions <- expand.grid(
-  N             = SAMPLE_SIZES,
-  Rel           = c(0.4, 0.6, 0.8),
-  Distribution  = names(distributions),
-  Model_Type    = c("full", "linear"),  # linear = no interaction/quadratic terms
+  N              = SAMPLE_SIZES,
+  Rel            = c(0.4, 0.6, 0.8),
+  Distr_Exo      = c("normal", "nonnormal", "uniform"),
+  Distr_Epsilon  = c("normal", "exp.rate1"),
+  Distr_Zeta     = c("normal", "exp.rate1"),
+  Model_Type     = c("full", "linear"),
   stringsAsFactors = FALSE
 )
 
@@ -134,11 +112,10 @@ conditions$model_name <- ifelse(
   paste0("normal_rel", gsub("\\.", "", as.character(conditions$Rel)))
 )
 
-# track actual distribution used for generation
-conditions$generation_distribution <- conditions$Distribution
-
-# track robust SE setting in conditions
+# just to track robust SE setting in conditions
 conditions$robust_se <- USE_ROBUST_SE
+
+cat("Total conditions:", nrow(conditions), "\n")
 
 # parallel processing setup
 n_cores <- max(1, detectCores() - 4)
@@ -146,10 +123,10 @@ cl <- makeCluster(n_cores)
 registerDoParallel(cl)
 clusterExport(cl, c(
   "GenerateData", "method_analytic", "method_upi", "method_lsam",
-  "analysis.model", "all_models", "distributions", "USE_ROBUST_SE"
+  "analysis.model", "all_models", "USE_ROBUST_SE"
 ))
 
-# main sim study 1 loop
+# main simulation study 1 loop
 all_results <- list()
 start_time  <- Sys.time()
 
@@ -158,19 +135,27 @@ for (cond in 1:nrow(conditions)) {
   cat("\n- Sample size:", conditions$N[cond])
   cat("\n- Target reliability:", conditions$Rel[cond])
   cat("\n- Model type:", conditions$Model_Type[cond])
-  cat("\n- Actual distribution:", conditions$Distribution[cond])
+  cat("\n- Exogenous distribution:", conditions$Distr_Exo[cond])
+  cat("\n- Epsilon distribution:", conditions$Distr_Epsilon[cond])
+  cat("\n- Zeta distribution:", conditions$Distr_Zeta[cond])
   cat("\n- Using model:", conditions$model_name[cond])
   cat("\n- Robust SE:", USE_ROBUST_SE)
   
   # get the appropriate population model
   population_model <- all_models[[conditions$model_name[cond]]]
   if (is.null(population_model)) {
-    cat("WARNING: Model", conditions$model_name[cond], "not found. Skipping...\n")
+    cat("\nWARNING: Model", conditions$model_name[cond], "not found. Skipping...\n")
     next
   }
   
-  # distribution parameters for data generation
-  dist_params <- distributions[[conditions$Distribution[cond]]]
+  # build distribution parameters dynamically
+  dist_params <- list(
+    distr.exo       = conditions$Distr_Exo[cond],
+    distr.epsilon   = conditions$Distr_Epsilon[cond],
+    distr.zeta      = conditions$Distr_Zeta[cond],
+    nonnormal.shape = if (conditions$Distr_Exo[cond] == "nonnormal") c(1, 1) else NULL,
+    nonnormal.rate  = if (conditions$Distr_Exo[cond] == "nonnormal") c(1, 1) else NULL
+  )
   
   # push condition-specific into cluster
   clusterExport(cl, c("population_model", "dist_params", "conditions", "cond"), envir = environment())
@@ -215,9 +200,9 @@ for (cond in 1:nrow(conditions)) {
       distr.exo       = dist_params$distr.exo,
       nonnormal.shape = dist_params$nonnormal.shape,
       nonnormal.rate  = dist_params$nonnormal.rate,
-      distr.epsilon   = "normal",
-      distr.zeta      = "normal",
-      add.eta         = FALSE,
+      distr.epsilon   = dist_params$distr.epsilon,
+      distr.zeta      = dist_params$distr.zeta,
+      add.eta         = FALSE, # needs to be false; otherwise triggers error in estimation
       return.info     = TRUE
     ), silent = TRUE)
     
@@ -291,7 +276,7 @@ for (cond in 1:nrow(conditions)) {
     results
   }
   
-  # RNG states (for reproducibility if needed)
+  # RNG states (for reproducibility if needed for any specific iteration)
   rng_states_for_condition <- attr(parallel_results, "rng")
   
   # collect results (skip NULLs and foreach error objects) 
@@ -327,42 +312,58 @@ for (cond in 1:nrow(conditions)) {
   
   res$rng_states <- rng_states_for_condition
   
-  # summary during sim 1
-  cat("\nobserved metrics across replications:")
-  cat("\n- mean R²:", mean(res$observed_r2, na.rm = TRUE))
-  cat("\n- mean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
+  # summary during simulation study 1
+  cat("\n\nObserved metrics across replications:")
+  cat("\nMean R^2:", mean(res$observed_r2, na.rm = TRUE))
+  cat("\nMean reliabilities:", round(colMeans(res$observed_rel, na.rm = TRUE), 3))
   
-  cat("\n\nwarnings encountered:")
-  cat("\n- LMS:", sum(lengths(res$warnings$lms) > 0),   "iterations with warnings")
-  cat("\n- QML:", sum(lengths(res$warnings$qml) > 0),   "iterations with warnings")
-  cat("\n- UPI:", sum(lengths(res$warnings$upi) > 0),   "iterations with warnings")
-  cat("\n- LSAM:", sum(lengths(res$warnings$lsam) > 0), "iterations with warnings")
+  cat("\n\nWarnings encountered:")
+  cat("\nLMS:", sum(lengths(res$warnings$lms) > 0),   "iterations with warnings")
+  cat("\nQML:", sum(lengths(res$warnings$qml) > 0),   "iterations with warnings")
+  cat("\nUPI:", sum(lengths(res$warnings$upi) > 0),   "iterations with warnings")
+  cat("\nLSAM:", sum(lengths(res$warnings$lsam) > 0), "iterations with warnings")
   cat("\n")
   
-  # store condition results
-  all_results[[cond]] <- list(
+  # store condition results 
+  # note we save to disk immediately and clear from memory 
+  condition_result <- list(
     condition = conditions[cond, ],
     results   = res,
     true_parameters = if (conditions$Model_Type[cond] == "linear") {
-      c(0.316, 0.316, 0, 0, 0)   # linear model: interaction & quadratics 0
+      c(0.316, 0.316, 0, 0, 0)   # linear model: interaction & quadratics = 0
     } else {
       c(0.316, 0.316, 0.139, 0.101, 0.101)  # full model
     }
   )
   
+  # save condition to its own file
+  save(condition_result, file = sprintf("%s_condition_%03d.RData", results_base, cond))
+  cat("\nCondition", cond, "saved to disk\n")
+  # clear from memory
+  rm(condition_result, res, parallel_results, rng_states_for_condition)
+  
   # checkpoint every 5 conditions (and final)
-  if (cond %% 5 == 0 || cond == nrow(conditions)) {
-    save(all_results, conditions, file = sprintf("%s_checkpoint_%d.RData", results_base, cond))
-  }
+  #if (cond %% 5 == 0 || cond == nrow(conditions)) {
+    #cat("\nCheckpoint at condition", cond, "\n")
+  #}
   
   gc()
 }
 
 stopCluster(cl)
 
+total_time <- difftime(Sys.time(), start_time, units = "hours")
+cat(sprintf("\nSimulation completed in %.2f hours\n", total_time))
+
+# note to myself (15/1/26): maybe move this to results file.
+# once the simulation lop is done, one may:
+# load conditions back into all_results for final save
+all_results <- vector("list", nrow(conditions))
+for (cond in 1:nrow(conditions)) {
+  load(sprintf("%s_condition_%03d.RData", results_base, cond))
+  all_results[[cond]] <- condition_result
+}
+
+# if needed all results from all conditions combined:
 # save with appropriate suffix if or no robust SE
 save(all_results, conditions, file = paste0(results_base, "_final.RData"))
-
-total_time <- difftime(Sys.time(), start_time, units = "hours")
-cat(sprintf("\n\nsimulation completed in %.2f hours\n", total_time))
-cat(sprintf("\nresults saved with suffix: %s\n", file_suffix))
