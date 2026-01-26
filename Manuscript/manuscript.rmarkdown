@@ -1,0 +1,1351 @@
+---
+title: "Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables"
+shorttitle: "Evaluating LSAM and Traditional SEM Approaches"
+
+author:
+  - name: Felipe Fontana Vieira
+    corresponding: true
+    orcid: 0009-0006-0949-6569
+    email: felipe.fontanavieira@ugent.be
+    affiliations:
+      - name: Ghent University
+        department: Department of Data Analysis, Faculty of Psychology and Educational Sciences
+        address: Henri Dunantlaan 2
+        city: Ghent
+        country: Belgium
+        postal-code: 9000
+        id: UGent
+    roles:
+      - Conceptualization
+      - Methodology
+      - Software
+      - Data curation
+      - Formal analysis
+      - Visualization
+      - Writing - original draft
+      - Writing - review & editing
+  - name: Kjell Solem Slupphaug
+    corresponding: false
+    orcid: 0009-0005-8324-2834
+    affiliations:
+      - name: Norwegian University of Science and Technology
+        department: Department of Psychology
+        city: Trondheim
+        country: Norway
+    roles:
+      - Writing - review & editing
+      - Software
+  - name: Yves Rosseel
+    corresponding: false
+    orcid: 0000-0002-4129-4477
+    affiliations:
+      - ref: UGent
+    roles:
+      - Conceptualization
+      - Methodology
+      - Software
+      - Writing - review & editing
+      - Funding acquisition
+
+author-note:
+  status-changes:
+    affiliation-change: ~
+    deceased: ~
+  disclosures:
+    study-registration: "This study was not preregistered."
+    data-sharing: "Data, code, and materials for this manuscript can be found at https://github.com/felipelfv/simulation_nonlinear.git. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025." 
+    financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
+    
+abstract: |
+  Various methods exist to include quadratic or interaction terms involving latent variables in structural equation models (SEM). Most use a system-wide estimation approach, meaning all free parameters are estimated simultaneously. Research has investigated their performance in models with a limited number of nonlinear effects. Recently, several structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed. In this case, estimation proceeds in two stages: first, measurement model parameters are estimated; second, structural model parameters are estimated. We present two simulation studies demonstrating that the recently proposed LSAM approach (Rosseel et al., 2025) performs well across a variety of conditions including distributional, reliability, and sample size manipulations. The first simulation study examined a model with three nonlinear effects under varying distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), and sample sizes (400, 1000). LSAM produced largely unbiased estimates with stable coverage, standard errors, and Type I error rates across most conditions. Power varied more across conditions. Performance was adversely affected under low reliability for some metrics, particularly with uniform distributions, though larger sample sizes mitigated these issues. Traditional methods (LMS, QML, and UPI) showed results consistent with prior literature. The second simulation study tested a more complex model with eight nonlinear effects under the same conditions to assess whether performance deteriorates with increased complexity. LSAM maintained adequate performance despite greater model complexity, though similar limitations emerged and power decreased under certain conditions. Traditional methods yielded more variable results, with generally poorer performance relative to simulation 1 and LSAM.
+
+keywords: [nonlinear effects, structural equation modeling, local structural-after-measurement, latent variables]
+word-count: true
+floatsintext: true
+numbered-lines: false
+link-citations: false
+mask: false
+
+
+bibliography: "references.bib"
+
+format:
+  apaquarto-pdf:
+    documentmode: man
+    keep-tex: false
+    include-in-header:
+      text: |
+        \raggedbottom
+  #apaquarto-docx: default
+        
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(simhelpers) # performance metrics
+library(dplyr) # data wrangling for performance metrics and plots
+library(ggplot2) # visualization
+library(kableExtra) # appendices
+```
+
+
+The estimation of interaction and quadratic effects in regression models with observed variables is a well-known procedure in behavioral and social sciences [@aiken_west_1991; @rimpler_etall_2025; @olvera_astivia_etall_2025]. In that case, an interaction is commonly calculated by the product of certain predictors, whereas a quadratic term involves the product of a predictor with itself. This allows researchers to study, for example, the dependency that one variable may have on the level of another variable, given the functional form at hand [@mize_2019]. However, when we move to structural equation models (SEM) with latent variables in the regression function [i.e., latent variable model or structural part\; @bollen_1989], this straightforward estimation procedure becomes considerably more complex. The triviality of estimating interaction and quadratic effects disappears because the scores (i.e., the subject-specific values) on the latent variables are, at the time of measurement, unobserved [@bollen_hoyle_2012].
+
+Despite this complication, estimating latent interaction and quadratic terms remains important for several reasons. First, observed product terms are often less reliable than their components [@fisicaro_lautenschlager_1992; @bohrnstedt_marwell_1978], making measurement error a critical concern. SEM with latent variables addresses this issue by partitioning observed variance into latent factors and residual error, thus offering a possible advantage in estimating nonlinear effects. Second, previous research has shown that quadratic and interaction effects may "mask" or distort one another when predictors are correlated, potentially leading to biased conclusions if not modeled simultaneously [@belzak_interaction_2019; @ganzach_misleading_1997]. Third, theoretical models should not be constrained by technical limitations: if theory postulates nonlinear effects, suitable methods for estimating them must be available [@oberauer_lewandowsky_2019]. Finally, some authors have argued that latent variable models might improve statistical power [@marsh_etall_2012], but this does not hold in general [@Fuller1987; @cham_etall_2012].
+
+In response to these challenges, a range of frequentist-based methods has been developed, each reflecting successive attempts to overcome the limitations identified in earlier approaches [@kenny_judd_1984; @joreskog_yan_1996; @algina_moulder_2001; @klein_moosbrugger_2000; @klein_muthen_2007; @marsh_etall_2004; @bollen_1995; @wall_amemiya_gapi_2001; @wall_amemiya_2003; @wall_amemiya_2000; @mooijaart_bentler_2010; @mooijaart_satorra_2012; @boker_etall_2023; @kelava_etall_2014]. These methods differ considerably, however, both in their practical accessibility and in the assumptions required for their estimators to exhibit desirable properties [@kelava_brandt_2022]. Their performance has been examined systematically in simulation studies across a wide range of conditions (e.g., Brandt et al., 2014, 2020; Cham et al., 2012; Lonati et al., 2024; Marsh et al., 2004). Importantly, most approaches adopt a joint ("system-wide") estimation strategy, in which all model parameters are estimated simultaneously. This includes the most widely implemented techniques: Latent Moderated Structural Equations (LMS), Quasi-Maximum Likelihood (QML), and Product Indicator (PI) methods.
+
+In the PI approach, manifest products of linear indicators serve as indicators of latent nonlinear factors (interactions or quadratics) that enter the structural model [@kenny_judd_1984]. Early constrained specifications imposed algebraic relations tying PI measurement to the linear measurement model, securing identification but restricting models to assumptions often violated by the non-normality of indicator products [@kelava_etall_2011]. Subsequent approaches removed most constraints, where relevant to this article is the Unconstrained PI (UPI) [@marsh_etall_2004] that was extended to models with both interaction and quadratic terms [@kelava_brandt_2009; @brandt_etall_2014]. Research has also explored optimal strategies for constructing product indicators as well as centering alternatives, including mean-centering, residual centering, and double mean centering [@marsh_etall_2004; @schoemann_jorgensen_2021; @kjell_etall_2024]. 
+
+The LMS and QML address normality violations without creating measurement models for nonlinear terms [@klein_moosbrugger_2000; @kelava_etall_2011; @klein_muthen_2007]. Indeed, the LMS approximates non-normal distributions using mixtures of normals, applying an expectation–maximization (EM) algorithm to numerically integrate weighted multivariate distributions [@klein_moosbrugger_2000]. The QML offers a computationally efficient alternative by replacing non-normal distributions with normal approximations preserving the same mean and variance, allowing estimation via a quasi log-likelihood with minimal efficiency loss [@klein_muthen_2007; @kelava_brandt_2022].
+
+Apart from system-wide estimation, several structural-after-measurement (SAM) approaches were proposed in the literature for estimating nonlinear effects [@ng_chan_2020; @wall_amemiya_2003; @wall_amemiya_2000; @cox_kelcey_2021]. These methods follow the same practice when all variables are observed, using factor scores to form quadratic and interaction terms. However, factor scores retain measurement error, amplified in their products [@bohrnstedt_marwell_1978], which SAM methods explicitly account for in the structural model. Recently, @rosseel_etall_2025 proposed a local SAM (LSAM) approach for estimating latent interaction and quadratic effects. This approach is closely connected to the more general two-stage method of moments (2SMM) [@wall_amemiya_2000; @wall_amemiya_2003]. In @rosseel_etall_2025, a small simulation study was conducted to evaluate the LSAM approach, which was limited to examining bias and variability of point estimates under a small set of conditions. Therefore, one aim of this paper is to conduct a thorough evaluation of LSAM under a wider set of conditions and performance criteria, such as analyzing standard errors (SEs), coverage, Type I error rate, and empirical power. A second goal, given recent developments in open-source software implementations [@R-modsem] and data generation tools [@gronneberg_foldnes_2022], is to compare LSAM's performance to that of LMS, UPI, and QML, while also providing updated benchmarks for these methods. Earlier work was limited to commercial software or error-prone implementations with a slow estimation process [@kjell_etall_2024], and simulation designs lacked the ability to generate data with exact covariance control while also allowing for a non-normal copula [@gronneberg_foldnes_2022].
+
+Several considerations guide the design of this evaluation. Different approaches rely on distinct distributional assumptions, and violations impact vary considerably. Beyond distributional concerns, the literature often suggests that the LMS, QML, and UPI face "scalability" limitations as higher-order terms increase [@rosseel_etall_2025; @kelava_etall_2011], though the extent remains unclear. This may explain why previous literature focused on elementary interaction models (EIM) [@jaccard_wan_1995], with few studies examining models with up to three nonlinear terms (e.g., Klein & Muthen, 2007, Brandt et al., 2014). In fact, little work has addressed the statistical models for multiple endogenous variables for LMS and QML [@jin_etall_2020], requiring specific programming modifications [@kjell_etall_2024]. To investigate these concerns, we conduct two simulation studies: the first compares LSAM, LMS, QML, and the (extended) UPI with double-mean centering across distributional, reliability, and sample size conditions, while the second extends to a model with eight nonlinear terms to assess scalability concerns, excluding LMS.
+
+The rest of this paper is organized as follows. In the next section we present an overview of the approaches, together with their distributional assumptions and performance implications. We then present the simulation design, computational details, and performance measures before reporting results and concluding with a general discussion.
+
+
+# The General SEM Framework 
+
+Let $m$ be the number of latent variables and $p$ the number of observed indicators. We assume the observed data are complete and continuous. Importantly, we use LISREL all-$y$ notation. However, because the literature on LMS and QML traditionally uses standard LISREL notation, we will occasionally differentiate between exogenous $\eta_x$ and endogenous $\eta_y$ when referring to those methods. This distinction is not needed for the UPI approach. 
+
+The structural model can be written as:
+$$
+\begin{aligned}
+\boldsymbol{\eta} = \boldsymbol{\alpha} + \mathbf{B}\boldsymbol{\eta} + \boldsymbol{\zeta},
+\end{aligned}
+$$ {#eq-structural}
+
+\noindent where $\boldsymbol{\eta}\in\mathbb{R}^{m}$ is a latent random vector, $\boldsymbol{\alpha}\in\mathbb{R}^{m}$ the intercepts, and $\mathbf{B}\in\mathbb{R}^{m\times m}$ a matrix with regression coefficients, where $\mathrm{diag}(\mathbf{B})=\mathbf{0}$ and $(\mathbf{I}-\mathbf{B})$ assumed to be invertible by design. For the disturbance $\boldsymbol{\zeta}\in\mathbb{R}^{m}$, we assume $\mathbb{E}(\boldsymbol{\zeta})=\mathbf{0}$ and write $\mathrm{Var}(\boldsymbol{\zeta})=\boldsymbol{\Psi}$. Note that no distributional form is assumed here. Thus, we obtain:
+$$
+\begin{aligned}
+\mathbb{E}(\boldsymbol{\eta}) &= (\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\alpha} \\
+\mathrm{Var}(\boldsymbol{\eta}) &= (\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\Psi}\big((\mathbf{I}-\mathbf{B})^{-1}\big)^{\top}.
+\end{aligned}
+$$
+
+\noindent The measurement model is defined as:
+$$
+\begin{aligned}
+\mathbf{y} = \boldsymbol{\nu} + \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon},
+\end{aligned}
+$$ {#eq-measurement}
+
+\noindent where $\mathbf{y}\in\mathbb{R}^{p}$ is the indicator random vector, $\boldsymbol{\nu}\in\mathbb{R}^{p}$ the intercepts, $\boldsymbol{\Lambda}\in\mathbb{R}^{p\times m}$ the loadings, and $\boldsymbol{\epsilon}\in\mathbb{R}^{p}$ the measurement errors with the assumptions that $\mathbb{E}(\boldsymbol{\epsilon})=\mathbf{0}$, 
+$\mathrm{Cov}(\boldsymbol{\eta},\boldsymbol{\epsilon})=\mathbf{0}$, and $\mathbb{E}(\boldsymbol{\epsilon}\boldsymbol{\zeta}^\top)=\mathbf{0}$. We write $\mathrm{Var}(\boldsymbol{\epsilon})=\boldsymbol{\Theta}$. The model-implied mean vector and covariance matrix of $\mathbf{y}$ are:
+$$
+\begin{aligned}
+\boldsymbol{\mu} &= \boldsymbol{\nu} + \boldsymbol{\Lambda}\,\mathbb{E}(\boldsymbol{\eta}) \\
+\boldsymbol{\Sigma} &= \mathrm{Var}(\mathbf{y}) = \boldsymbol{\Lambda}\,\mathrm{Var}(\boldsymbol{\eta})\,\boldsymbol{\Lambda}^{\top} + \boldsymbol{\Theta}.
+\end{aligned}
+$$ {#eq-moments}
+
+Traditionally, we collect the free parameters across the structural part $(\boldsymbol{\alpha},\mathbf{B},\boldsymbol{\Psi})$ and the measurement part $(\boldsymbol{\nu},\boldsymbol{\Lambda},\boldsymbol{\Theta})$ into $\boldsymbol{\theta}$. Given i.i.d. data vectors $\mathcal{Y}=\{\mathbf{y}_1,\ldots,\mathbf{y}_N\}$, we estimate $\boldsymbol{\theta}$ by minimizing the discrepancy between observed and model-implied moments. Thus, estimation proceeds as a joint ('system-wide') approach where all parameters are estimated jointly. Crucially, for estimation choices where distributional assumptions are added, normality enters only with likelihood-based estimators such as normal-theory ML (or GLS). In that case, we assume $\boldsymbol{\zeta}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Psi})$ and $\boldsymbol{\epsilon}\sim\mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$, which implies:
+$$
+\begin{aligned}
+\boldsymbol{\eta}\sim\mathcal{N}\!\left((\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\alpha},\;(\mathbf{I}-\mathbf{B})^{-1}\boldsymbol{\Psi}\big((\mathbf{I}-\mathbf{B})^{-1}\big)^{\top}\right)
+\end{aligned}
+$$
+
+\noindent and, consequently $\mathbf{y}\sim\mathcal{N}\left(\boldsymbol{\mu},\boldsymbol{\Sigma}\right)$.
+
+## Approaches for Estimating Latent Interactions and Quadratic Terms
+
+### LSAM
+
+The central idea of the LSAM is to use the estimated measurement-model parameters with observed moments to construct the latent mean $\mathbb{E}(\boldsymbol{\eta})$ and covariance $\mathrm{Var}(\boldsymbol{\eta})$ [@rosseel_loh_2024]. For that, we start from the measurement model in @eq-measurement and solve for $\boldsymbol{\eta}$:
+$$
+\boldsymbol{\Lambda}\boldsymbol{\eta} = \mathbf{y} - \boldsymbol{\nu} - \boldsymbol{\epsilon}.
+$$
+
+\noindent As in @rosseel_loh_2024, we let $\mathbf{M}\in\mathbb{R}^{m\times p}$ be a mapping matrix with $\mathbf{M}\boldsymbol{\Lambda}=\mathbf{I}_m$. Multiplying both sides by $\mathbf{M}$ gives:
+$$
+\begin{aligned}
+\boldsymbol{\eta} = \mathbf{M}\,[\mathbf{y} - \boldsymbol{\nu} - \boldsymbol{\epsilon}] = \mathbf{M}(\mathbf{y}-\boldsymbol{\nu})\;-\;\mathbf{M}\boldsymbol{\epsilon},
+\end{aligned}
+$$
+
+\noindent thus defining $\mathbf{f}=\mathbf{M}(\mathbf{y}-\boldsymbol{\nu})=\boldsymbol{\eta}+\mathbf{r}$ with $\mathbf{r}=\mathbf{M}\boldsymbol{\epsilon}\in\mathbb{R}^{m}$, $\mathbb{E}(\mathbf{r})=\mathbf{0}$, and $\mathrm{Var}(\mathbf{r})=\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^{\top}$. Then:
+$$
+\begin{aligned}
+\mathbb{E}(\boldsymbol{\eta}) &= \mathbf{M}\,[\mathbb{E}(\mathbf{y})-\boldsymbol{\nu}],\\
+\mathrm{Var}(\boldsymbol{\eta}) &= \mathbf{M}\,[\mathrm{Var}(\mathbf{y})-\boldsymbol{\Theta}]\,\mathbf{M}^{\top}.
+\end{aligned}
+$$
+
+However, in the case of a model with latent interaction and quadratic terms, we need an expression for $\mathbb{E}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ and $\mathrm{Var}(\boldsymbol{\eta}\otimes\boldsymbol{\eta})$ without assuming normality for the latent variables [@rosseel_etall_2025]. Define $\pmb{\eta}^* = (1, \eta_1, \eta_2, \ldots, \eta_m)^T$, it holds that:
+$$
+\mathbb{E}(\boldsymbol{\eta}^*\otimes \boldsymbol{\eta}^*)=\operatorname{vec}\!\big[\mathrm{Var}(\boldsymbol{\eta}^*)\big]+\mathbb{E}(\boldsymbol{\eta}^*)\otimes\mathbb{E}(\boldsymbol{\eta}^*),
+$$
+$$
+\mathrm{Var}(\boldsymbol{\eta}^*\otimes \boldsymbol{\eta}^*) \approx 
+\mathrm{Var}(\mathbf{f}^*\otimes \mathbf{f}^*) 
+-\Big[\mathbf{Q}^*+\mathbf{K}_{m+1}\mathbf{Q}^*+\mathbf{Q}^*\mathbf{K}_{m+1}^{\top}
++\mathbf{K}_{m+1}\mathbf{Q}^*\mathbf{K}_{m+1}^{\top}
++\boldsymbol{\Gamma}_{22}^{*(NT)}(\mathbf{r}^*)\Big],
+$$
+
+\noindent where 
+$$
+\mathbf{Q}^* = \mathrm{Var}(\boldsymbol{\eta}^*) \otimes \mathrm{Var}(\mathbf{r}^*) + \mathbb{E}(\boldsymbol{\eta}^*)\mathbb{E}(\boldsymbol{\eta}^*)^T \otimes \mathrm{Var}(\mathbf{r}^*),
+$$
+
+\noindent and
+$$
+\boldsymbol{\Gamma}_{22}^{\star(NT)}(\mathbf{r}^*) = (\mathbf{I}_{(m+1)^2} + \mathbf{K}_{m+1}) (\mathrm{Var}(\mathbf{r}^*) \otimes \mathrm{Var}(\mathbf{r}^*)).
+$$
+
+\noindent Here, $\mathbf{K}_{m+1}$ denotes the commutation matrix [@magnus_neudecker_1979], while $\boldsymbol{\Gamma}_{22}^{\star(NT)}(\mathbf{r}^*)$ represents the variance–covariance component of the Gamma matrix (see Appendix B in Rosseel et al., 2025) corresponding to the measurement error $(\mathbf{r}^*)$ under the normality assumption. These estimated augmented summary statistics can then be employed in the structural regression model during the second stage of estimation.
+
+**Distributional Assumptions and Performance**. Similar to the 2SMM approach, in the first stage, the LSAM inherits the CFA measurement model assumptions. Distributional assumptions in the CFA stage depend on the estimator used [@rosseel_loh_2024]. Concerning the second stage, specifically for the second-order corrections, LSAM assumes only $\mathbf{r}\sim\mathcal{N}(\mathbf{0},\mathbf{M}\boldsymbol{\Theta}\mathbf{M}^\top)$. No distributional assumptions are imposed on the latent predictors $\boldsymbol{\eta}$. For the local two-step standard errors, a sandwich formula for standard errors is used to account for the uncertainty across both steps (see Appendix A). @rosseel_etall_2025 found that the LSAM performed similarly to the 2SMM, both in terms of bias and variability under normal and non-normal conditions. Moreover, previous simulation studies investigating the 2SMM approach [@brandt_etall_2014; @wall_amemiya_2003; @wall_amemiya_2000] provide relevant benchmarks. That is, the 2SMM approach produced unbiased and efficient estimates under normal predictors, with only minor underestimation of standard errors under non-normal predictors, consistent with its robustness claims [@brandt_etall_2014; @wall_amemiya_2003]. In fact, it showed less bias than the LMS and QML under the non-normal condition for quadratic terms (see Table 9 in Brandt et al., 2014). With respect to Type I error rate and power, @brandt_etall_2014 reported that the 2SMM produced Type I error rates within the nominal level under normality with slight inflation under non-normality, whereas statistical power was approximately 70% under normality and 80% under non-normality (see Tables 6-9 in Brandt et al., 2014). Importantly, these previous studies examined mainly cases with high reliability (e.g., 0.7).
+
+### LMS and QML
+
+Following the equations implemented in *modsem* [@kjell_etall_2024], here we let $m_y$ be the number of endogenous latents and $m_x$ the number of exogenous latent predictors, with $m=m_y+m_x$. Stack $\boldsymbol{\eta}=\begin{bmatrix}\boldsymbol{\eta}_y\\ \boldsymbol{\eta}_x\end{bmatrix}$ with $\boldsymbol{\eta}_y\in\mathbb{R}^{m_y}$ and $\boldsymbol{\eta}_x\in\mathbb{R}^{m_x}$, and collect the $p$ indicators in $\mathbf{y}\in\mathbb{R}^{p}$. The same measurement model in @eq-measurement holds using all-$y$ notation with the following block structure:
+$$
+\begin{aligned}
+\mathbf{B}=\begin{bmatrix}\mathbf{B}_{yy}&\mathbf{B}_{yx}\\ \mathbf{0}&\mathbf{0}\end{bmatrix},\quad
+\boldsymbol{\alpha}=\begin{bmatrix}\boldsymbol{\alpha}_y\\ \boldsymbol{\alpha}_x\end{bmatrix},\quad
+\boldsymbol{\zeta}=\begin{bmatrix}\boldsymbol{\zeta}_y\\ \boldsymbol{\eta}_x-\boldsymbol{\alpha}_x\end{bmatrix},\quad
+\boldsymbol{\Psi}=\operatorname{Var}(\boldsymbol{\zeta})=\begin{bmatrix}\boldsymbol{\Psi}_{yy}&\mathbf{0}\\ \mathbf{0}&\boldsymbol{\Psi}_{xx}\end{bmatrix},
+\end{aligned}
+$$
+
+\noindent where $\mathbf{B}_{yy}\in\mathbb{R}^{m_y\times m_y}$, $\mathbf{B}_{yx}\in\mathbb{R}^{m_y\times m_x}$.
+
+Following @kjell_etall_2024, we write the endogenous block explicitly,
+$$
+\begin{aligned}
+\boldsymbol{\eta}_y
+=\boldsymbol{\alpha}_y+\mathbf{B}_{yy}\boldsymbol{\eta}_y+\mathbf{B}_{yx}\boldsymbol{\eta}_x
++\big(\mathbf{I}_{m_y}\otimes \boldsymbol{\eta}_x^{\!\top}\big)\boldsymbol{\Omega}\,\boldsymbol{\eta}_x
++\big(\mathbf{I}_{m_y}\otimes \boldsymbol{\eta}_x^{\!\top}\big)\boldsymbol{\Xi}\,\boldsymbol{\eta}_y
++\boldsymbol{\zeta}_y,
+\end{aligned}
+$$ {#eq-analytical}
+
+\noindent where $\mathbf{I}_{m_y}$ is the $m_y\times m_y$ identity matrix, $\boldsymbol{\Omega}\in\mathbb{R}^{m_y m_x\times m_x}$ containing the coefficients for the interaction effects between exogenous variables, and $\boldsymbol{\Xi}\in\mathbb{R}^{m_y m_x\times m_y}$ for the interaction
+effects between exogenous and endogenous variables. @eq-analytical can also be expressed in reduced form [@kjell_etall_2024]
+
+Importantly, the distributional assumptions for LMS and QML are that $\boldsymbol{\eta}_x \sim \mathcal{N}(\boldsymbol{\alpha_x},\boldsymbol{\Psi}_{xx})$, $\boldsymbol{\zeta}_y \sim \mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy})$, and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$ with mutual independence between predictors and disturbances. For LMS, these assumptions are required for the exact likelihood. For QML, they serve as working assumptions to derive conditional mean and variance functions. The latter approach can still yield consistent estimates when predictors deviate from normality, as long as the conditional normality approximation is reasonable. Hence, both procedures target the same parameterization, but they differ in estimation strategy [@kelava_etall_2011]. Briefly, for the LMS, let $\boldsymbol{\Psi}_{xx}=\mathbf{A}\mathbf{A}^{\top}$ and write  $\boldsymbol{\eta}_x=\boldsymbol{\alpha_x} + \mathbf{A}\mathbf{z}$ with $\mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I}_{m_x})$. Integrating over $\boldsymbol{\eta}_x$ via Gauss–Hermite quadrature yields a finite normal–mixture approximation to $f(\mathbf{y})$. Parameters are estimated by full-information ML (EM), with standard errors from the fisher information [@klein_moosbrugger_2000]. For the QML, a fixed full-rank linear transformation $\mathbf{T}$ of $\mathbf{y}$ is applied to isolate the nonnormal component while the remaining transformed components are (conditionally) normal. In practice, this means that only one transformed indicator per nonlinear latent criterion retains nonnormality, while the remaining $p-1$ transformed indicators are jointly normal and serve as conditioning variables. A quasi log-likelihood is maximized and robust (sandwich) SEs were proposed [@klein_muthen_2007].  
+
+**Distributional Assumptions and Performance.** Under correctly specified distributional assumptions, LMS produces estimates that are consistent, asymptotically unbiased, normally distributed, and efficient [@klein_moosbrugger_2000]. QML is consistent and asymptotically normal, but not guaranteed to be fully efficient [@klein_muthen_2007]. Simulations show that LMS yields unbiased estimates when $\boldsymbol{\eta}_x$ is normally distributed, but becomes biased under non-normality [@brandt_etall_2014], with bias increasing at larger sample sizes depending on the degree of non-normality [@cham_etall_2012]. Recent work by @lonati_etall_2024, which also manipulated distributions for structural disturbances and measurement errors, found that the latter had minimal negative impact. Under normality, QML is slightly less efficient than LMS but still performs adequately [@brandt_etall_2014]. When latent predictors are non-normal, QML is theoretically more robust than LMS [@kelava_etall_2014], and although it shows some bias [@marsh_etall_2004], this bias is generally smaller than that of LMS, with differences remaining modest [@brandt_etall_2014]. For Type I error rates, @brandt_etall_2014 found some inflation under non-normality but nominal rates under normality, while @cham_etall_2012 reported substantial inflation for LMS under different non-normal distributions. Similarly, @marsh_etall_2004 observed high power for QML but with correspondingly high Type I error rates. @brandt_etall_2014 reported power around 70% under normality; under non-normality, power was approximately 70% for interactions and 90% for quadratic effects. To the best of our knowledge, coverage results are available only for LMS, which shows deterioration under non-normality, varying by distribution [@cham_etall_2012], with similar negative findings when non-normality was induced through ordered-categorical indicators [@ayturk_etall_2020]. 
+
+### UPI
+
+For this article, the (extended) UPI [@kelava_brandt_2009] with double mean centering [@lin_etall_2010] and all-pairs strategy [@marsh_etall_2004] was used. The general SEM in @eq-structural–@eq-moments remains unchanged; we only augment the measurement block with products of centered indicators. For each $y_i$, set $z_i=y_i-\bar y_i$; for any relevant pair $(i,j)$, define $p_{ij}=z_i z_j-\overline{z_i z_j}$. Let $\mathbf{p}$ collect the $p_{ij}$ and write
+$$
+\begin{bmatrix}\mathbf{y}\\ \mathbf{p}\end{bmatrix}
+=
+\begin{bmatrix}\boldsymbol{\nu}\\ \mathbf{0}\end{bmatrix}
++
+\begin{bmatrix}\boldsymbol{\Lambda}\\ \mathbf{0}\end{bmatrix}\boldsymbol{\eta}
++
+\begin{bmatrix}\mathbf{0}\\ \boldsymbol{\Lambda}_p\end{bmatrix} f(\boldsymbol{\eta})
++
+\begin{bmatrix}\boldsymbol{\epsilon}\\ \boldsymbol{\epsilon}_p\end{bmatrix}.
+$$
+
+\noindent where $f(\boldsymbol{\eta})$ collects the latent nonlinear terms measured by $\mathbf{p}$. 
+
+Under the extended UPI, the product–indicator block is unconstrained: $\boldsymbol{\Lambda}_p$ and $\mathrm{Var}(\boldsymbol{\epsilon}_p)$ are freely estimated. Additionally, residual covariances are freely estimated between product indicators that share a common constituent indicator [@kelava_brandt_2009; @marsh_etall_2004].
+
+**Distributional Assumptions and Performance**. The standard estimation approach relies on maximum likelihood (ML) [@brandt_etall_2020], which requires multivariate normality for valid inference. Yet, product indicators are intrinsically non-normal. The ML estimator itself is consistent under different distributions and achieves asymptotic normality when data follow a multivariate normal distribution [@yuan_etall_2005]. Evidence indicates that such non-normality primarily undermines the accuracy of standard errors and fit statistics (Wall & Amemiya, 2001; see Lonati et al., 2024 and references therein). Simulation studies of nonlinear effects generally show minimal parameter bias under both normal and non-normal conditions [@marsh_etall_2004; @kelava_etall_2014; @lonati_etall_2024; @brandt_etall_2014]. However, standard errors are systematically underestimated [@marsh_etall_2004; @cham_etall_2012; @brandt_etall_2014; @lonati_etall_2024; @kelava_etall_2014]. Previous research has used robust SEs to alleviate this problem, but because they are based on asymptotic theory, they remain underestimated in smaller samples [@brandt_etall_2014; @brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024]. Findings for Type I error rates are mixed: some studies report inflation [@brandt_etall_2014], while others find control close to nominal levels [@marsh_etall_2004; @cham_etall_2012]. Power was comparable to LMS and QML across both normal and non-normal conditions [@brandt_etall_2014]. Finally, it is important to note that the UPI with double mean centering has not been systematically examined in prior simulation work [@lin_etall_2010; @foldnes_hagtvet_2014].
+
+
+
+```{r}
+#| label: package-versions
+#| echo: false
+
+modsem_version <- packageVersion("modsem")
+lavaan_version <- packageVersion("lavaan")
+covsim_version <- packageVersion("covsim")
+vinecop <- packageVersion("rvinecopulib")
+doparallel_version <- packageVersion("doParallel")
+dorng_version <- packageVersion("doRNG")
+ggplot_version <- packageVersion("ggplot2")
+microbenchmark_version <- packageVersion("microbenchmark")
+simhelpers_version <- packageVersion("simhelpers")
+R_version <- getRversion()
+```
+
+
+# Simulation Design and Performance Evaluation
+
+In this section, we present the simulation design and performance metrics for the two simulation studies. The information presented here follows the suggestions from previous articles that investigated the quality of simulation studies [@siepe_etall_2024; @white_etall_2024; @morris_etall_2019].
+
+## Simulation Conditions
+
+```{r}
+#| label: benchmark-lms
+#| echo: false
+#| eval: false
+
+#library(microbenchmark)
+
+# using the data obtained from data retrieval script that replicates the dataset exactly for condition 1 iteration 1
+# plus, analysis.model from sim 2
+bench <- microbenchmark(
+  lms = modsem::modsem_da(model.syntax = analysis.model, data = data_study1, method = "lms", nodes = 32),
+  times = 1
+)
+print(bench); summary(bench, unit = "s")
+```
+
+
+Both simulations used a 2 (sample sizes) × 3 (reliability levels) × 3 (latent predictor distributions) factorial design, yielding 18 conditions. Simulation 1 evaluated UPI, LMS, QML, and LSAM; Simulation 2 excluded LMS due to computational constraints^[For illustration purposes, with *microbenchmark* [@R-microbenchmark] (version `r microbenchmark_version`) on the same operating system as below, using the dataset for the first replication within the first condition for Simulation 2, it took approximately 29 minutes (1729.536 seconds) to fit a single model with LMS with 32 nodes (see *modsem* documentation for more information about nodes).]. To assess Type I error rates and empirical local power [@irmer_etall_2024], we tested two specifications: (a) linear model data generation with full model estimation (assessing Type I error), and (b) full nonlinear model for both generation and estimation (assessing power). This yielded 36 total conditions, each replicated 1,000 times.
+
+Sample sizes of 400 and 1000 represented moderate to large samples. We selected 400 to examine performance below the suggested 500-threshold minimum for complex latent interaction models [@wall_etall_2012] while remaining realistic for applied research. The 1000 sample size allowed evaluation of asymptotic properties and aligned with previous simulations. Three reliability levels (0.4, 0.6, 0.8—termed low, medium, and high) covered a broad range of measurement quality. While previous simulations typically examined reliability above 0.7 [@brandt_etall_2014; @lonati_etall_2024; @wall_amemiya_2003; @kelava_etall_2014] or contrasted high versus low (e.g., 0.8 and 0.5 in Brandt et al., 2020), we included 0.4 to assess performance under poor measurement conditions. Last, the three distributional conditions—normal, right-skewed (i.e., skewness $\approx$ 2, excess kurtosis $\approx$ 6), and uniform—were based on prior research varying non-normality to different degrees [@brandt_etall_2014; @brandt_etall_2020; @cham_etall_2012; @lonati_etall_2024; @wall_amemiya_2003]. 
+
+## Data Generation
+
+Appendix B describes the complete data generation in detail. We followed a similar procedure as in previous studies [@ng_chan_2020; @cox_kelcey_2021; @rosseel_etall_2025]. First, under full normality, structural residual variances and measurement error variances were set to achieve $R^2 \approx 0.30$ and reliability $\rho \approx \{0.4, 0.6, 0.8\}$. Second, using these fixed variance parameters, data were generated under the three distributional conditions (see Figure 1 for the population models). Correlated predictor latent variables were generated using the Vine-To-Anything (VITA) simulation method with regular vine copulas and specified covariance matrices. This approach improves upon the copula method of @mair_etall_2012 and circumvents the issues associated with other data generation approaches used in previous simulation studies [@gronneberg_foldnes_2022; @foldnes_gronneberg_2015]. Dependent latent variables and observed indicators were then generated with normally distributed disturbances and errors, respectively, isolating non-normality to the predictors.
+
+For Simulation 1, the dependent latent variable was generated according to the same structural model as in @brandt_etall_2014:
+$$
+\begin{aligned}
+\eta_3 = \beta_{30} + \beta_{31}\eta_1 + \beta_{32}\eta_2 + \beta_{33}(\eta_1\eta_2) + \beta_{34}\eta_1^2 + \beta_{35}\eta_2^2 + \zeta
+\end{aligned}
+$$
+
+\noindent with parameters $\beta_{30} = -0.255$, $\beta_{31} = \beta_{32} = 0.316$, $\beta_{33} = 0.139$, $\beta_{34} = \beta_{35} = 0.101$, and $\zeta \sim \mathcal{N}(0, \psi_{33})$. For the linear model comparison, nonlinear terms were omitted (i.e., $\beta_{33} = \beta_{34} = \beta_{35} = 0$).
+
+For Simulation 2, the dependent latent variables were generated as follows:
+$$
+\begin{aligned}
+\eta_4 &= \beta_{40} + \beta_{41}\eta_1 + \beta_{42}\eta_2 + \beta_{43}\eta_3 + \beta_{44}(\eta_1\eta_2) + \beta_{45}(\eta_1\eta_3) + \beta_{46}\eta_1^2 + \beta_{47}\eta_2^2 + \zeta_4 \\
+\eta_5 &= \beta_{50} + \beta_{51}\eta_4 + \beta_{52}\eta_1 + \beta_{53}\eta_2 + \beta_{54}\eta_3 + \beta_{55}(\eta_1\eta_4) + \beta_{56}(\eta_2\eta_4) + \beta_{57}\eta_1^2 + \beta_{58}\eta_3^2 + \zeta_5
+\end{aligned}
+$$
+
+\noindent with parameters $\beta_{40} = \beta_{50} = 0.1$, $\beta_{41} = \beta_{42} = \beta_{43} = 0.20$, $\beta_{44} = \beta_{45} = 0.11$, $\beta_{46} = \beta_{47} = 0.08$; $\beta_{51} = \beta_{52} = \beta_{53} = \beta_{54} = 0.16$, $\beta_{55} = \beta_{56} = 0.08$, $\beta_{57} = \beta_{58} = 0.06$, and $\zeta_4 \sim \mathcal{N}(0, \psi_{44})$, $\zeta_5 \sim \mathcal{N}(0, \psi_{55})$. For the linear model comparison, all interaction and quadratic terms were omitted.
+
+## Nonconvergence and Outliers
+
+Before analyzing the data, we identified non-convergent solutions as those where estimates for the parameters of interest were not produced. Following @lonati_etall_2024, we excluded the entire iteration from the analysis across estimation approaches as non-convergent solutions signal replications challenging for all methods^[Convergent solutions may still be implausible or incomplete, for example when estimates for other parameters in the model are not obtained. We tracked these via warnings and obtained qualitatively identical results if excluding from the analysis (results are available on the GitHub repository).]. We calculated convergence rate as $\text{Convergence}_{rate} = N_{\text{complete}}/N_{\text{total}} \times 100\%$, where $N_{\text{complete}}$ represents successfully converged replications with complete output for that specific approach and $N_{\text{total}}$ represents all attempted replications for the same approach.
+
+Similar to @lonati_etall_2024 again, we identified outliers using the box-plot method applied to iterations where all methods successfully converged. For each method-parameter combination, quartiles and interquartile ranges were calculated from this common set of converged iterations, and estimates outside $[Q_1 - 3 \times \text{IQR}, Q_3 + 3 \times \text{IQR}]$ (where $\text{IQR} = Q_3 - Q_1$) were flagged as outliers. Following the same exclusion logic as for convergence failures, we excluded the entire iteration from the analysis across all estimation approaches when any method produced an outlier point estimate for the main or nonlinear effects. To complement the possible arbitrary threshold selection, we also computed median-based before outlier removal [@brandt_etall_2020]. In addition, following @lai_hsiao_2022, we reported trimmed-mean–based estimates as a further robustness check.
+
+## Performance Measures
+
+Method performance was assessed through multiple metrics following the formulas from the *simhelpers* package [@R-simhelpers] (version `r simhelpers_version`), with the exception of the median-based metrics that were based on @brandt_etall_2020 and trimmed mean-based on @lai_hsiao_2022. Following the *simhelpers* documentation and references therein, we also quantified the Monte Carlo Standard Errors (MCSE) simulation uncertainty for most of the reported performance measures using the jack-knife technique. Generally speaking, the measures are classified in terms of absolute and relative criteria measures, standard error assessment, hypothesis testing, and confidence intervals. In the main text, we only report and discuss the metrics reported in Table 1 for the interaction and quadratic effects. For the more extensive set of measures and estimates, we refer the reader to the online supplemental materials (see Table S1). 
+
+## Reproducibility and Computational Details
+
+The simulation was conducted on a Mac Studio with an Apple M4 Max chip (with 14 cores and 36 GB of RAM), running macOS Sequoia 15.5. All analyses were performed in R [@R-base] (version `r R_version`). Parallel processing was implemented through the *doParalell* package (version `r doparallel_version`) [@R-doParallel], with *doRNG* (version `r dorng_version`) [@R-doRNG] to ensure independent and reproducible random number streams. For the UPI with double mean centering, LMS, and QML approach, the *modsem* package was used [@kjell_etall_2024] (version `r modsem_version`) without robust SEs. For the LSAM approach, the *lavaan* package was used [@R-lavaan] (version `r lavaan_version`). In this case, we estimated the latent factors with a single measurement block as opposed to separately to maintain some similarity with the other approaches [@rosseel_loh_2024]. Importantly, apart from the aforementioned, we used the default settings for the functions provided in the packages^[This is important to acknowledge because there are arguments for the functions used that, in principle, could be manipulated to obtain better results. For instance, one could change the maximum steps for the M-step in the EM algorithm for the LMS. However, these manipulations lead to additional researcher degrees of freedom and hence were avoided.]. For generating normal, right-skewed, and uniform data we used the packages *covsim*  (version `r covsim_version`) [@gronneberg_foldnes_2022] and *rvinecopulib* (version `r vinecop`) [@R-rvinecopulib]. Figures were produced with *ggplot2* (version `r ggplot_version`) [@R-ggplot2]. Finally, this paper was written with *apaquarto* [@R-apaquarto] (see GitHub repository for more information on reproducing the manuscript and analyses).
+
+
+
+```{r}
+#| label: packages
+#| echo: false
+#| warning: false
+#| message: false
+
+source("../Simulations/Plots.R")
+source("../Simulations/Study_1/Results/Results(1).R")
+source("../Simulations/Study_2/Results/Results(2).R")
+```
+
+
+# Results for Simulation Studies 
+
+The results reported are a subset of the findings which focused mainly on the cases when the nonlinear effects were present. The same interpretation holds for both results. 
+
+## Results for Simulation 1
+
+
+```{r}
+#| label: results-first-sim-study
+#| echo: false
+#| warning: false
+#| message: false
+
+results_study_1 <- readRDS("../Simulations/Study_1/Results/results_study_1.rds")
+```
+
+```{r}
+#| label: convergence-outliers-first-sim-study
+#| echo: false
+#| output: false
+
+get_convergence_outlier_rate_study_1 <- function(method, dist, n, rel, model = "Full", 
+                                                  rate_type = c("convergence", "outlier", "final")) {
+  rate_type <- match.arg(rate_type)
+
+  col_map <- c(
+    "convergence" = "Convergence_Rate_This_Method",
+    "outlier" = "Outlier_Rate_This_Method", 
+    "final" = "Percent_Total_Excluded"
+  )
+  
+  col_name <- col_map[rate_type]
+  
+  # since these rates are the same across parameters, we just pick one (e.g., eta1)
+  result <- results_study_1 %>%
+    filter(
+      Method == toupper(method),
+      Distribution == dist,
+      SampleSize == n,
+      Reliability == rel,
+      Model == model,
+      Parameter == "eta1"  # rates are identical across parameters
+    ) %>%
+    pull(!!sym(col_name))
+  
+  if(length(result) > 0) result[1] else NA
+}
+
+# most outliers
+#results_study_1 %>%
+#  filter(Parameter == "eta1") %>%
+#  group_by(Method) %>%
+#  arrange(desc(Outlier_Rate_This_Method)) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Model, Distribution, SampleSize, Reliability, Outlier_Rate_This_Method)
+
+# worst convergence rates (lowest values) for each method
+#results_study_1 %>%
+#  filter(Parameter == "eta1") %>%
+#  group_by(Method) %>%
+#  arrange(Convergence_Rate_This_Method) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Model, Distribution, SampleSize, Reliability, Convergence_Rate_This_Method)
+```
+
+
+### Convergence Issues and Outliers  
+
+Convergence problems were generally rare. The main exception was UPI, which showed reduced convergence under moderate sample size, low reliability, and uniform latent predictors. In this scenario, convergence rates were `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Full", "convergence"), 2)`% with the full model and `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% with the linear model. LMS and QML converged well in general, with the lowest rates in the same setting being `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "convergence"), 2)`% (full model), and `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% (linear model), respectively. LSAM consistently converged, with rates of `r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Linear", "convergence"), 2)`% across all conditions.
+
+Outlier rates followed a comparable pattern. The most pronounced rates again occurred under moderate sample size, low reliability, and uniform latent predictors. UPI produced the highest outlier frequencies, reaching `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Full", "outlier"), 2)`% with the full model and `r round(get_convergence_outlier_rate_study_1("UPI", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% with the linear model. For the same condition, LSAM also yielded the most outliers (`r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Linear", "outlier"), 2)`% with the linear model and `r round(get_convergence_outlier_rate_study_1("LSAM", "uniform", 400, 0.4, "Full", "outlier"), 2)`% with the full model). In contrast, LMS and QML generated virtually none, with their highest rates reaching only `r round(get_convergence_outlier_rate_study_1("LMS", "uniform", 400, 0.4, "Full", "outlier"), 2)`% and `r round(get_convergence_outlier_rate_study_1("QML", "uniform", 400, 0.4, "Full", "outlier"), 2)`% (both full model) in the same scenario as the other approaches. Detailed results for convergence and outliers are provided in Appendix C (see Table C1).
+
+
+```{r}
+#| label: plots-first-sim-study
+#| echo: false
+
+plot_study_1_data <- prepare_study1_data(results_study_1)
+
+# RELATIVE BIAS 
+study_1_relative_bias <- plot_study_1_data$bias_relative
+dat_relative_bias_400_full_study_1 <- study_1_relative_bias %>%
+   filter(Model == "Full", SampleSize == "400") %>%
+   droplevels()
+
+p_relative_bias_400_full_study_1 <- plot_bias(
+   dat_relative_bias_400_full_study_1, 
+   shapes = SHAPES_4, 
+   ltys = LTYS_4,
+   bias_type = "relative",  
+   facet_formula = Distribution + Parameter ~ .,  
+   y_breaks = seq(-1, 1.5, by = 0.5),
+   y_limits = c(-1, 1.5)
+)
+
+# Relative RMSE 
+study_1_relative_rmse <- plot_study_1_data$rmse_relative
+
+dat_relative_rmse_400_full_study_1 <- study_1_relative_rmse %>%
+  filter(Model == "Full", SampleSize == "400") %>%
+  droplevels()
+
+p_relative_rmse_400_full_study_1 <- plot_rmse(
+  dat_relative_rmse_400_full_study_1, 
+  shapes = SHAPES_4, 
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ ., 
+  #y_breaks = seq(0, 0.30, by = 0.05),           
+  #y_limits = c(0, 0.30)                        
+)
+
+# SE/SD RATIO (Right-skewed & Uniform, Full, N=400 & 1000)
+study_1_sesd <- plot_study_1_data$sesd
+
+dat_sesd_nonnorm_unif_study_1 <- study_1_sesd %>%
+  filter(Model == "Full", 
+         SampleSize %in% c("400", "1000"), 
+         Distribution %in% c("Right-skewed", "Uniform")) %>%
+  droplevels()
+
+p_slope_nonnorm_unif_study_1 <- plot_sesd(
+  dat_sesd_nonnorm_unif_study_1,
+  shapes = SHAPES_4,
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ SampleSize
+)
+
+# COVERAGE (Full, N=400 & 1000, all distributions)
+study_1_coverage <- plot_study_1_data$coverage
+
+dat_cov_nonnorm_unif_study_1 <- study_1_coverage %>%
+  filter(Model == "Full", 
+         SampleSize %in% c("400", "1000"),
+         Distribution %in% c("Right-skewed", "Uniform")) %>% 
+  droplevels()
+
+p_cov_nonnorm_unif_study_1 <- plot_coverage(
+  dat_cov_nonnorm_unif_study_1, 
+  shapes = SHAPES_4,
+  ltys = LTYS_4,
+  facet_formula = Distribution + Parameter ~ SampleSize
+)
+
+# TYPE I ERROR (Linear, N=1000 only) 
+study_1_type1 <- plot_study_1_data$type1
+
+dat_t1_1000_study_1 <- study_1_type1 %>%
+  filter(grepl("N=1000", Condition)) %>%
+  droplevels()
+
+p_t1_1000_study_1 <- plot_type1(
+  dat_t1_1000_study_1,  
+  greys = GREYS_4,
+  facet_formula = Distribution + Parameter ~ Condition
+)
+```
+
+
+### Relative Bias and RMSE When Nonlinear Effects Were Present
+
+Figures 2 and 3 present relative bias and RMSE across distributional conditions at a moderate sample size (N = 400). Following Brandt et al. (2014), values exceeding 0.10 (10%) were considered biased. Under normal distributions, LSAM showed stable performance across reliability levels for all nonlinear effects. Bias emerged for the interaction term at low reliability for the other approaches, with LMS and QML also biased under medium reliability. At larger sample sizes, LSAM and UPI were unbiased even at low reliability, whereas LMS and QML continued to show bias under low and medium reliability. With right-skewed distributions, LSAM displayed bias for the interaction term only under low reliability, while UPI showed no bias for all nonlinear effects. In contrast, LMS and QML exhibited severe negative bias for interactions and positive bias for quadratic effects across reliability levels. At larger sample sizes, LSAM was unbiased across conditions, but LMS and QML remained biased. Under uniform distributions, LSAM was unbiased at all reliability levels. UPI showed bias for most nonlinear effects at low reliability, whereas LMS and QML produced unbiased interaction estimates but consistent negative bias for quadratic effects. These last patterns remained qualitatively unchanged at larger sample sizes (see Figure S3 in supplemental materials).
+
+For relative RMSE, all methods performed similarly under normality, with minor differences at low reliability where LMS and QML showed the lowest values. Under right-skewed distributions, LSAM yielded the lowest RMSE, although differences diminished at high reliability. For uniform distributions, LMS and QML produced the lowest RMSE, but performance across methods converged as reliability increased.
+
+### Efficiency and Accuracy of SEs When Nonlinear Effects Were Present
+
+Figure 4 presents SE/SD ratios for right-skewed and uniform conditions across sample sizes, with exact values shown when they fall outside the y-axis range. Following Brandt et al. (2014), ratios below 0.90 (underestimation) or above 1.10 (overestimation) indicate bias. Under normality, LSAM displayed two small overestimations at low reliability and moderate sample sizes. In contrast, UPI produced substantial overestimation across all nonlinear effects under the same conditions (see Figure S6 in supplemental materials). For right-skewed distributions, LSAM showed some overestimation at low reliability with moderate sample sizes, and slight underestimation for quadratic terms at high reliability. UPI consistently underestimated across reliability levels and sample sizes for most nonlinear effects. Under uniform distributions, LSAM and UPI overestimated SEs for all nonlinear effects at low reliability^[For LSAM, we noted this overestimation arose from a small number of clear outliers in the SEs. Although these values were retained in the analysis, they are identified and displayed in supplemental materials (see Figure S1).], though this bias was not present with larger samples. UPI additionally showed a negligible underestimation at medium reliability and moderate sample sizes. LMS and QML remained stable across all conditions. 
+
+### Coverage for When Nonlinear Effects Were Present
+
+Figure 5 displays coverage results for right-skewed and uniform conditions across sample sizes, also with exact values shown when they fall outside the y-axis range. Coverage between 93% and 97% was considered acceptable. Although, previous literature simply considered above 90% as an acceptable performance [@cham_etall_2012; @ayturk_etall_2020]. LSAM slightly exceeded this range (98%) only at low reliability with moderate sample sizes, but not at larger samples, across all distributions. Under normality, all approaches otherwise performed within the acceptable range across reliability and sample sizes (see Figure S7 in supplemental materials). For right-skewed distributions, LMS and QML exhibited substantial under-coverage, with UPI also affected, though to a lesser extent. Larger sample sizes did not improve coverage for these methods, while higher reliability reduced—but did not eliminate—the amount of under-coverage. Under uniform distributions, LMS and QML showed under-coverage exclusively for the quadratic effects.
+
+### Type I Error Rate
+
+Figure 6 presents Type I error rates at large sample sizes across distributions, with values between 2.5–7.5% considered acceptable. Under normality, LSAM and all other approaches remained within the acceptable range, even at low reliability. For right-skewed distributions, LSAM and UPI also stayed within acceptable bounds, whereas LMS and QML showed severe inflation for quadratic effects across all reliability levels. Under uniform distributions, LSAM and UPI generally performed well, with values falling below the acceptable range only at low reliability. In contrast, LMS and QML yielded consistently well-controlled error rates. Results at moderate sample sizes were qualitatively similar, although under right-skewness LMS and QML showed somewhat less inflation, yet still exceeded acceptable levels at low and medium reliabilities (see Figure S8 in supplemental materials).
+
+### Empirical Power
+
+Given the inflated Type I error rates observed for some approaches, power results should be interpreted with caution [@morris_etall_2019]. At large sample sizes, LSAM reached power levels near or above 80% under medium and high reliability across all distributions for most nonlinear effects. The main exception was under the uniform distribution, where quadratic effects remained underpowered. The other approaches showed broadly similar patterns in the same conditions. Under right-skewness, however, LMS and QML diverged extremely with low power only for the interaction term under medium reliability (see Figure S9 in supplemental materials).  
+
+### Absolute Bias, RMSE, SEs, and Coverage When Nonlinear Effects Were Absent
+
+Bias patterns resembled those observed when nonlinear effects were present, though with reduced magnitude. A notable difference emerged under the uniform distribution: LMS and QML produced unbiased quadratic estimates but biased interaction estimates, which disappeared at high reliability. RMSE results showed no substantive differences beyond reduced magnitude. The accuracy of SEs was generally comparable, with one key exception: UPI demonstrated improved accuracy under normality at low reliability and moderate sample sizes, but performed worse under the uniform distribution at low reliability. Coverage improved somewhat when nonlinear effects were absent. Specifically, LMS and QML showed higher coverage under right-skewed distributions, though still falling below the desirable range for quadratic effects. Under the uniform distribution, however, coverage for quadratic effects improved substantially for both LMS and QML (see Figures S2, S4, S6, and S7 in supplemental materials).
+
+## Summary of Simulation 1
+
+With the exception of low reliability conditions, LSAM demonstrated adequate performance across all evaluated metrics. LSAM generally yielded unbiased estimates, whereas QML and LMS exhibited systematic bias: positive and negative bias for nonlinear effects under right-skewed distributions, and negative bias for quadratic effects under uniform distributions. UPI also produced largely unbiased results. For SEs, LMS and QML were the most efficient, although LSAM achieved comparable accuracy at medium and high reliability across all distributions, particularly with large sample sizes. Coverage rates remained relatively stable for LSAM but not for LMS, QML, or UPI. Type I error rates fell within the acceptable range for LSAM and UPI, except under uniform conditions with low reliability. By contrast, LMS and QML displayed marked inflation under right-skewed distributions. Finally, empirical power was generally highest for LMS and QML, though this finding must be interpreted cautiously given their inflated Type I error. When Type I error was controlled, all approaches achieved desirable power levels for most effects, with the exception of quadratic effects under the uniform distribution, which remained underpowered.
+
+## Result for Simulation 2
+
+
+```{r}
+#| label: results-second-sim-study
+#| echo: false
+#| warning: false
+#| message: false
+
+results_study_2 <- readRDS("../Simulations/Study_2/Results/results_study_2.rds")
+```
+
+
+### Convergence Issues and Outliers
+
+
+```{r}
+#| label: convergence-outliers-second-sim-study
+#| echo: false
+#| output: false
+
+get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "Full",
+                                                  equation = c("eta4", "eta5"),
+                                                  rate_type = c("convergence", "outlier", "final")) {
+  equation <- match.arg(equation)
+  rate_type <- match.arg(rate_type)
+  
+  col_map <- c(
+    "convergence" = "Convergence_Rate_This_Method",
+    "outlier" = "Outlier_Rate_This_Method", 
+    "final" = "Percent_Total_Excluded"
+  )
+  
+  col_name <- col_map[rate_type]
+  
+  # needs representative parameter for each equation
+  # for eta4: use "eta1" (first predictor)
+  # for eta5: use "eta4" (first predictor)
+  param_to_use <- ifelse(equation == "eta4", "eta1", "eta4")
+  
+  result <- results_study_2 %>%
+    filter(
+      Method == toupper(method),
+      Distribution == dist,
+      SampleSize == n,
+      Reliability == rel,
+      Model == model,
+      Equation == equation,
+      Parameter == param_to_use
+    ) %>%
+    pull(!!sym(col_name))
+  
+  if(length(result) > 0) result[1] else NA
+}
+
+# worst outlier rates across both equations
+#results_study_2$results %>%
+#  filter((Equation == "eta4" & Parameter == "eta1") | 
+#         (Equation == "eta5" & Parameter == "eta4")) %>%
+#  group_by(Method, Equation) %>%
+#  arrange(desc(Outlier_Rate_This_Method)) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Equation, Model, Distribution, SampleSize, Reliability, Outlier_Rate_This_Method) %>%
+#  arrange(Method, Equation, desc(Outlier_Rate_This_Method))
+
+# Worst convergence rates for each method and equation
+#results_study_2$results %>%
+#  filter((Equation == "eta4" & Parameter == "eta1") | 
+#         (Equation == "eta5" & Parameter == "eta4")) %>%
+#  group_by(Method, Equation) %>%
+#  arrange(Convergence_Rate_This_Method) %>%
+#  slice_head(n = 2) %>%
+#  select(Method, Equation, Model, Distribution, SampleSize, Reliability, Convergence_Rate_This_Method) %>%
+#  arrange(Method, Equation, Convergence_Rate_This_Method)
+```
+
+
+Convergence problems were most severe for UPI, particularly with a moderate sample, low reliability, and uniform predictors. Rates fell to `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% for both full model and linear model. QML converged more often under these conditions but still at suboptimal levels (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "convergence"), 2)`% with the full model; `r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Linear", "eta4", "convergence"), 2)`% with the linear model). LSAM converged `r round(get_convergence_outlier_rate_study_2("LSAM", "normal", 400, 0.4, "Full", "eta4", "convergence"), 2)`% under all conditions. For normal and right-skewed predictors, all approaches had a convergence rate above 98%, with a few exceptions.
+
+Outlier rates also varied substantially across methods. UPI again performed worst under the condition of uniform predictors with moderate sample size and low reliability, reaching `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% with the linear model and `r round(get_convergence_outlier_rate_study_2("UPI", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% with the full model. QML showed much lower outlier rates overall, with the highest occurring under right-skewed predictors (`r round(get_convergence_outlier_rate_study_2("QML", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`% with the linear model), followed by uniform predictors (`r round(get_convergence_outlier_rate_study_2("QML", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`% with the full model). LSAM’s highest outlier rates also occurred outside normality, with uniform predictors in the full model (`r round(get_convergence_outlier_rate_study_2("LSAM", "uniform", 400, 0.4, "Full", "eta4", "outlier"), 2)`%) and right-skewed predictors in the linear model (`r round(get_convergence_outlier_rate_study_2("LSAM", "nonnormal", 400, 0.4, "Linear", "eta4", "outlier"), 2)`%). We note the final sample size for the condition with low reliability and uniform distribution is relatively small (see Table C2 in Appendix C for more information).  
+
+
+```{r}
+#| label: plots-second-sim-study
+#| echo: false
+
+study_2_normal_data <- prepare_study2_data(results_study_2, "normal")
+study_2_nonnormal_data <- prepare_study2_data(results_study_2, "nonnormal")
+study_2_uniform_data <- prepare_study2_data(results_study_2, "uniform")
+
+# RELATIVE BIAS (full model, N=400, all Distributions) 
+dat_relative_bias_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$bias_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$bias_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$bias_relative %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_relative_bias_400_full_all_study_2 <- plot_bias(
+  dat_relative_bias_400_full_all_study_2,
+  shapes = SHAPES_3,
+  ltys = LTYS_3,
+  facet_formula = Parameter ~ Distribution,
+  y_breaks = seq(-1, 1.5, by = 0.5),
+  y_limits = c(-1, 1.5),
+  bias_type = "relative"
+)
+
+# RELATIVE RMSE (full model, N=400, all Distributions) 
+dat_relative_rmse_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$rmse_relative %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_relative_rmse_400_full_all_study_2 <- plot_rmse(
+    dat_relative_rmse_400_full_all_study_2,
+    shapes = SHAPES_3,
+    ltys = LTYS_3,
+    facet_formula = Parameter ~ Distribution,
+    y_breaks = seq(0, 5, by = 1),  
+    y_limits = c(0, 5.2),              
+)
+
+
+# SE/SD RATIO (Full model, N=400, All Distributions) 
+dat_sesd_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$sesd %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$sesd %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$sesd %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_sesd_400_full_all_study_2 <- plot_sesd(
+  dat_sesd_400_full_all_study_2,
+  shapes = SHAPES_3,
+  ltys = LTYS_3,
+  facet_formula = Parameter ~ Distribution,
+  title = ""
+)
+
+#  COVERAGE (Full model, N=400, All Distributions)
+dat_coverage_400_full_all_study_2 <- bind_rows(
+  study_2_normal_data$coverage %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_nonnormal_data$coverage %>%
+    filter(Model == "Full", SampleSize == "400"),
+  study_2_uniform_data$coverage %>%
+    filter(Model == "Full", SampleSize == "400")
+) %>%
+  droplevels()
+
+p_coverage_400_full_all_study_2 <- plot_coverage(
+  dat_coverage_400_full_all_study_2,
+  shapes = SHAPES_3,
+  ltys = LTYS_3,
+  facet_formula = Parameter ~ Distribution,
+  title = ""
+)
+
+# TYPE I ERROR (Linear, N=1000, Nonnormal & Uniform)
+dat_t1_1000_all_study_2 <- bind_rows(
+  study_2_nonnormal_data$type1 %>%
+    filter(grepl("N=1000", Condition)),
+  study_2_uniform_data$type1 %>%
+    filter(grepl("N=1000", Condition))
+) %>%
+  droplevels()
+
+p_t1_1000_all_study_2 <- plot_type1(
+  dat_t1_1000_all_study_2,
+  greys = GREYS_3,
+  facet_formula = Parameter ~ Distribution + Condition,
+  title = ""
+)
+```
+
+
+### Relative Bias and RMSE When Nonlinear Effects Were Present 
+
+Figures 7 and 8 present relative bias and RMSE for all nonlinear effects across distributions with a moderate sample size. Under normality, results were mixed. At low reliability, LSAM showed bias for some nonlinear effects, which disappeared at medium reliability. UPI and QML also showed bias at low reliability, but only QML continued to exhibit bias at medium reliability. With right-skewed distributions, LSAM was biased for several nonlinear effects at low reliability, though performance improved at medium reliability, where only one effect displayed minor bias. UPI produced unbiased estimates even at low reliability. QML, however, showed substantial bias affecting most nonlinear effects across all reliability levels. Under the uniform distribution, LSAM was nearly unbiased, with only two nonlinear effects biased at low reliability. UPI showed substantial bias for most nonlinear effects at low reliability, which lessened at medium reliability. QML displayed bias for some effects at low reliability, improving with increasing reliability, yet all quadratic terms remained biased across reliability levels. At larger sample sizes, both LSAM and UPI no longer showed the biases observed under moderate sample sizes (see Figures S11, S19, and S27 in supplemental materials).
+
+Relative RMSE was comparable across methods under normality. With right-skewed distributions, LSAM and UPI showed the lowest RMSE at low reliability, though all methods converged at medium reliability. Under uniform predictors, QML yielded substantially lower RMSE than LSAM and UPI at low reliability, with convergence again observed at medium reliability (see Figures S13, S21, and S29 in supplemental materials for a large sample size).
+
+### Efficiency and Accuracy of SEs When Nonlinear Effects Were Present
+
+Figure 9 displays SE/SD ratios across distributions at a moderate sample size. Under normal distributions, LSAM and QML produced ratios within the acceptable range across reliability levels, whereas UPI fell below 0.85 for several nonlinear effects at low reliability, improving for most effects at medium reliability. With right-skewed distributions, LSAM ratios were consistently within the desirable range, QML ratios were largely acceptable with a few exceptions, and UPI again showed difficulties at low and medium reliability. Under uniform distributions, LSAM overestimated for some effects at low reliability, UPI underestimated ratios for nearly all nonlinear effects at low reliability and for quadratic effects at both low and medium reliability, while QML maintained efficient ratios across all reliabilities. Results generally improved with larger samples, although the UPI approach remained underestimated for most effects (see Figures S14, S22, and S30 in supplemental materials).
+
+### Coverage When Nonlinear Effects Were Present
+
+Figure 10 presents coverage results for a moderate sample size, with exact values reported for selected conditions. Under normality, LSAM generally achieved acceptable coverage, with some over-coverage at low reliability. QML maintained coverage within the desirable range across all nonlinear effects, whereas UPI showed under-coverage for most effects at low reliability. With right-skewed distributions, LSAM again produced acceptable coverage, apart from one slight over-coverage at low reliability. In contrast, QML and UPI yielded inadequate coverage, reaching acceptable levels only at high reliability for some effects. Under uniform distributions, LSAM showed a similar pattern as in the other conditions, with modest over-coverage at low reliability. For QML and UPI, coverage for interaction terms was inadequate at low reliability but improved at medium reliability, while quadratic terms remained under-covered at both low and medium reliability. Patterns were qualitatively similar at larger sample sizes (see Figures S15, S23, and S31 in supplemental materials).
+
+### Type I Error Rate
+
+Figure 11 presents Type I error rates for a large sample size under right-skewed and uniform distributions. Under normality, all approaches maintained rates within the nominal 5% level (see Figure S16 in the supplemental materials). Under right-skewed conditions, LSAM and UPI demonstrated well-controlled Type I error rates, whereas QML showed substantial inflation for quadratic effects at low and medium reliability. Under uniform distributions, Type I error control was acceptable across methods, with the exception of LSAM, which fell below the nominal level for two quadratic terms at low reliability (see Figures S16, S24, and S32 in supplemental materials for moderate sample size).
+
+### Empirical Power
+
+Under normal distributions, power only exceeded 80% with large samples and high reliability, primarily for the nonlinear effects in the structural equation for $\eta_4$. Results under right-skewed conditions yielded elevated power rates under the same setting. In contrast, under uniform distributions, power remained substantially lower for all nonlinear effects, even with large samples and high reliability, with the exception of the two interaction terms in $\eta_4$ (see Figures S17, S25, and S33 in supplemental materials).
+
+### Absolute Bias, RMSE, SEs, and Coverage When Nonlinear Effects Were Absent
+
+Notable differences emerged across conditions. Under normality, QML showed reduced bias at low reliability for some nonlinear effects. Under right-skewed and uniform distributions, bias for QML was likewise reduced to certain extent. SE/SD ratios were highly similar. Coverage improved for all approaches under normal and uniform conditions. Under non-normality, however, QML continued to exhibit under-coverage mainly with large sample sizes. RMSE remained similar (see Figures S10, S12, S14, S15, S18, S20, S22, S23, S26, S28, S30, and S31 in supplemental materials). 
+
+## Summary of Simulation 2
+
+Across most conditions, LSAM produced largely unbiased estimates, accurate SEs, and acceptable coverage, except under low reliability, where some bias and over-coverage appeared. UPI was hampered by convergence failures and substantial bias under uniform predictors, along with underestimated SEs and under-coverage, particularly under uniform and right-skewed distributions with low or medium reliability. QML was efficient and often yielded accurate SEs, but displayed persistent bias for several nonlinear effects under right-skewed and uniform distributions, inflated Type I error rates under right-skewness, and under-coverage of nonlinear effects—especially quadratic terms—under both right-skewed and uniform predictors, most notably at low and medium reliability. Relative RMSE differences among methods were modest: QML was occasionally more efficient under uniform predictors, LSAM and UPI performed well under right-skewness, and all methods performed similarly at medium reliability across distributions. For empirical power, acceptable levels ($\geq 80$%) were attained only under normality with large samples and high reliability, primarily for nonlinear effects in the structural equation for $\eta_4$. Under uniform predictors, power was substantially lower for all nonlinear effects, except the two interaction terms in $\eta_4$.
+
+
+# Discussion
+
+The analysis of nonlinear effects with latent variables requires estimation procedures that yield reliable results for inference and hypothesis testing. Most existing approaches rely on distributional assumptions that are frequently violated in applied research [@cain_etall_2017]. In this study, we compared the recently proposed LSAM with established methods across two simulation studies, evaluating their performance under different distributional, sample size, reliability conditions, and levels of model complexity. Thus, because SAM approaches for nonlinear effects have long been underrepresented in the literature [@rosseel_loh_2024] and until recently were not implemented in widely accessible software, demonstrating that a SAM procedure can provide reliable results is important for both methodological development and applied practice.
+
+## Performance of LSAM 
+
+LSAM performed well across most evaluation metrics, offering a balance of accuracy and computational feasibility. Under medium and high reliability, LSAM produced unbiased estimates, adequate SEs, controlled Type I error rates, and maintained stable coverage even under non-normal conditions. It also achieved acceptable power ($\geq 80\%$) in large samples with adequate reliability in case of normal and right-skewed distributions for all nonlinear effects, while under uniform distributions quadratic terms were underpowered. Convergence rates were high, but with relatively larger outlier estimates under low reliability conditions. Taken together, these findings position LSAM as a promising estimator that combines reasonable statistical performance with improved usability and software support. At the same time, limitations specifically under moderate sample sizes and low reliability for some performance metrics highlight the need for cautious application. Although this latter point is common for all approaches. 
+
+## Relation to Previous Findings 
+
+With respect to the results from simulation 1, the bias results for the LSAM approach were comparable to 2SMM results reported by @brandt_etall_2014, with largely unbiased estimates across conditions. LMS and QML showed a positive bias for the interaction effect and a negative bias for the quadratic effects under right-skewed distributions, consistent with @brandt_etall_2014. Under uniform settings, interaction terms remained unbiased [@lonati_etall_2024] while quadratic effects were biased. UPI also produced unbiased estimates, aligning with earlier results [@brandt_etall_2014; @marsh_etall_2004; @cham_etall_2012]. SE/SD ratio results mirrored @brandt_etall_2014, with LMS and QML showing higher efficiency. Type I error rates were generally controlled for the LSAM as with the 2SMM approach, whereas the LMS and QML showed an inflation in the under right-skewed condition as in @brandt_etall_2014. For UPI, Type I error rates were not inflated consistent with previous studies [@marsh_etall_2004; @cham_etall_2012], despite @brandt_etall_2014 observing otherwise. LSAM and UPI also maintained a more stable performance compared to LMS [@cham_etall_2012] and QML when it comes to coverage under non-normal conditions, although UPI fluctuated in case of right-skewed distributions as observed in @cham_etall_2012. For empirical power, LSAM achieved levels at or above 80% only with medium or high reliability under large samples for normal and right-skewed distributions for some nonlinear effects as 2SMM in @brandt_etall_2014; UPI displayed a similar pattern. LMS and QML reached power above 80% even under low reliability, as in @brandt_etall_2014, but these results must be interpreted cautiously given their inflated Type I error rates. Interestingly, we also observed a tendency to underestimate the main effects under right-skewed distributions for the LMS and QML with a linear model (see supplemental materials). This finding is somewhat hard to compare with previous studies because the focus was solely on the nonlinear effects and hence results for the main effects are not always available. However, we do observe a similar behavior in @brandt_etall_2014 (see Table 7). Moreover, these findings reinforce that estimator performance depends critically on the number and configuration of nonlinear effects. @lonati_etall_2024 found unbiased LMS estimates for a single interaction under uniform distributions, whereas including quadratic effects in the current study led to substantial bias for those effects under the same distribution. This extends the results of @brandt_etall_2014, who also observed deteriorating performance as nonlinear effects increased, underscoring existing estimators’ sensitivity to model complexity and distributional violations. 
+
+To our knowledge, this is the first study to examine more than three nonlinear effects simultaneously, highlighting scalability challenges that arise under realistic levels of model complexity. Indeed, in simulation 2 for instance, we observed that UPI struggled throughout multiple metrics compared to simulation 1. While for the LSAM and QML, results remained largely consistent with findings from simulation 1. Importantly, these challenges are not only statistical but also practical, since their impact depends on how efficiently estimation methods can be implemented and used in software. While computation time comparisons could provide additional insights into scalability, such comparisons would be contingent on implementation details (e.g., C++ vs. R), rather than reflecting inherent properties of the statistical methods themselves (see supplemental materials for computation time). The implementation of LMS and QML in C++ within *modsem* [@R-modsem] has substantially reduced computational demands, making analyses that were previously infeasible more realistic. Nevertheless, LMS remains computationally intensive, and estimation time increases rapidly with the number of nonlinear effects, so scalability continues to pose practical limitations even in optimized implementations. For UPI, the key advance mainly lies in usability: earlier applications required researchers to manually specify constraints, a process that was error-prone (even in this unconstrained version). Yet this approach substantially increases the number of parameters, which induces more convergence and outliers issues with increasing model complexity. Taken together, these software developments enhance the feasibility of nonlinear latent variable modeling while underscoring the need for continued caution regarding estimator assumptions, computational burden, and measurement conditions.
+
+## Limitations and Future Research 
+
+As with any simulation study, the present findings are conditional on the specific design factors and assumptions considered. We assumed that non-normality in the indicators stemmed solely from the latent predictor variables. In practice, non-normality may also involve measurement error or other structural sources [@lonati_etall_2024]. In addition, the sample sizes studied may not reflect the small samples often encountered in applied research, limiting generalizability—particularly for UPI. We also focused exclusively on distributional violations and did not examine structural misspecifications [@brandt_etall_2020]. The robustness of LSAM and related approaches to such violations remains an important direction for future research. 
+
+Moreover, the broader literature has primarily relied on robust SEs and incremental methodological modifications to address estimation under non-normality. For example, the reliability-corrected single-indicator LMS approach [@cheung_lau_2017; @su_etall_2019] was proposed to mitigate sensitivity to distributional violations, although @lonati_etall_2024 found improvements mainly in small samples. Other studies have investigated alternative ways of forming product indicators [@marsh_etall_2004] and compared Wald $z$-tests with likelihood ratio tests in terms of Type I error and empirical power, noting their only asymptotic equivalence [@cham_etall_2012; @buse_1982]. Regarding robust SEs, we relied on standard implementations, whereas prior studies often used robust variants that also adjusted test statistics [@savalei_rosseel_2021]. However, simulation evidence suggests these adjustments yield limited improvements [@brandt_etall_2014; @brandt_etall_2020; @marsh_etall_2004; @cham_etall_2012; @lonati_etall_2024], particularly in small samples^[For the interested reader, simulation data with robust SEs are available on the GitHub repository.]. Thus, future work should clarify the scope and limits of such robustness. Finally, several alternative approaches were not explored [@bollen_1995; @boker_etall_2023; @kelava_etall_2014], some partly due to limited software implementations [@mooijaart_bentler_2010; @kelava_etall_2014].
+
+With respect to specific estimation choices, future research should clarify whether bounded estimation procedures may improve UPI performance under small samples and specific distributions [@de_jonckere_rosseel_2022]. The number of indicators per latent variable also warrants investigation, as it has contrasting implications across methods: while additional indicators increase the parameter burden for UPI, they should in principle improve measurement quality for LSAM. Another important avenue for future work is evaluating whether alpha-correction methods [@bogaert_etall_2023] or separating measurement blocks within models enhance the estimation of nonlinear effects under LSAM [@rosseel_loh_2024].
+
+
+
+{{< pagebreak >}}
+
+
+
+
+# References
+
+::: {#refs}
+:::
+
+
+
+{{< pagebreak >}}
+
+
+
+
+\begin{flushleft}
+\textbf{Table 1}
+
+\textit{Subset of the performance measures for evaluating parameter estimates in the simulation studies}
+\end{flushleft}
+\footnotesize
+\begin{longtable}{lll}
+\toprule
+Performance Measure & Empirical Calculation & MCSE \\
+\midrule
+\textbf{Absolute Criteria} & & \\
+Absolute Bias & $\bar{B} - \beta$ & $\sqrt{S_B^2/K}$ \\
+MSE & $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ & $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
+RMSE & $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ & $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ \\
+\textbf{Relative Criteria} & & \\
+Relative Bias & $(\frac{\bar{B}}{\beta})- 1$ & $\sqrt{S_B^2/(K\beta^2)}$ \\
+Relative MSE & $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ & $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
+Relative RMSE & $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ & $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ \\
+\textbf{Standard Error} & & \\
+Mean SE & $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ & --- \\
+SE/SD Ratio & $\overline{SE}/S_B$ & --- \\
+\textbf{Hypothesis Testing} & & \\
+Rejection Rate & $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ & $\sqrt{r_\alpha(1-r_\alpha)/K}$ \\
+\textbf{Confidence Intervals} & & \\
+Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\sqrt{c_\beta(1-c_\beta)/K}$ \\
+\bottomrule
+\end{longtable}
+\begin{flushleft}
+\textit{Note}. $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error, dashes indicate MCSEs not computed. MSE = Mean Squared Error. RMSE = Root Mean Squared Error.
+\end{flushleft}
+\normalsize
+
+
+
+{{< pagebreak >}}
+
+
+```{tikz}
+#| label: fig-model
+#| fig-cap: "Data Generating Model for the simulation studies. Top: Model for Simulation 1. Bottom: Model for Simulation 2."
+#| apa-note: "*Note*. Residual variances and covariances and intercepts are not shown for clarity."
+#| fig-align: center
+#| fig-width: 10
+#| fig-height: 16
+
+\tikzset{
+  latent/.style  ={circle,draw,minimum size=14mm},
+  ind/.style     ={rectangle,draw,minimum height=6mm,minimum width=8mm,align=center},
+  derived/.style ={circle,draw,minimum size=14mm},
+  every node/.style={font=\small}
+}
+
+\begin{tikzpicture}
+
+% FIRST DIAGRAM (Simulation 1)
+\node[ind] (y1)  at (0,  0.8) {y$_1$};
+\node[ind] (y2)  at (0,  0.0) {y$_2$};
+\node[ind] (y3)  at (0, -0.8) {y$_3$};
+\node[latent] (eta1) at (2.4, 0.0) {$\eta_1$};
+
+\draw[->] (eta1.west) -- (y1.east);
+\draw[->] (eta1.west) -- (y2.east);
+\draw[->] (eta1.west) -- (y3.east);
+
+\node[ind] (y4)  at (0, -2.8) {y$_4$};
+\node[ind] (y5)  at (0, -3.6) {y$_5$};
+\node[ind] (y6)  at (0, -4.4) {y$_6$};
+\node[latent] (eta2) at (2.4, -3.6) {$\eta_2$};
+
+\draw[->] (eta2.west) -- (y4.east);
+\draw[->] (eta2.west) -- (y5.east);
+\draw[->] (eta2.west) -- (y6.east);
+
+\draw[<->,gray!40,bend right=30] (eta1) to (eta2);
+
+\node[latent] (eta3) at (6.6, -1.6) {$\eta_3$};
+
+\draw[->] (eta1) -- node[above] {} (eta3);
+\draw[->] (eta2) -- node[above,sloped] {} (eta3);
+
+\node[derived] (eta1sq) at (4.3, -4.2) {$\eta_1^{2}$};
+\node[derived] (eta2sq) at (6.6, -4.2) {$\eta_2^{2}$};
+\node[derived] (eta12)  at (8.9, -4.2) {$\eta_1\eta_2$};
+
+\draw[->] (eta1sq) -- node[above] {} (eta3);
+\draw[->] (eta2sq) -- node[right] {} (eta3);
+\draw[->] (eta12)  -- node[above] {} (eta3);
+
+\node[ind] (y7) at (5.6, 0.8) {y$_7$};
+\node[ind] (y8) at (6.6, 0.8) {y$_8$};
+\node[ind] (y9) at (7.6, 0.8) {y$_9$};
+
+\draw[->] (eta3.north) -- (y7.south);
+\draw[->] (eta3.north) -- (y8.south);
+\draw[->] (eta3.north) -- (y9.south);
+
+% SECOND DIAGRAM (Simulation 2) 
+\node[ind] (y1b)  at (0,  -6.0) {y$_1$};
+\node[ind] (y2b)  at (0,  -7.0) {y$_2$};
+\node[ind] (y3b)  at (0, -8.0) {y$_3$};
+\node[latent] (eta1b) at (2.4, -7.0) {$\eta_1$};
+
+\draw[->] (eta1b.west) -- (y1b.east);
+\draw[->] (eta1b.west) -- (y2b.east);
+\draw[->] (eta1b.west) -- (y3b.east);
+
+\node[ind] (y4b)  at (0, -10.5) {y$_4$};
+\node[ind] (y5b)  at (0, -11.5) {y$_5$};
+\node[ind] (y6b)  at (0, -12.5) {y$_6$};
+\node[latent] (eta2b) at (2.4, -11.5) {$\eta_2$};
+
+\draw[->] (eta2b.west) -- (y4b.east);
+\draw[->] (eta2b.west) -- (y5b.east);
+\draw[->] (eta2b.west) -- (y6b.east);
+
+\node[ind] (y7b)  at (0, -15.0) {y$_7$};
+\node[ind] (y8b)  at (0, -16.0) {y$_8$};
+\node[ind] (y9b)  at (0, -17.0) {y$_9$};
+\node[latent] (eta3b) at (2.4, -16.0) {$\eta_3$};
+
+\draw[->] (eta3b.west) -- (y7b.east);
+\draw[->] (eta3b.west) -- (y8b.east);
+\draw[->] (eta3b.west) -- (y9b.east);
+
+\draw[<->,gray!40,bend right=30] (eta1b) to (eta2b);
+\draw[<->,gray!40,bend right=30] (eta1b) to (eta3b);
+\draw[<->,gray!40,bend right=30] (eta2b) to (eta3b);
+
+\node[latent] (eta4b) at (5.5, -9.5) {$\eta_4$};
+
+\draw[->] (eta1b) -- (eta4b);
+\draw[->] (eta2b) -- (eta4b);
+\draw[->] (eta3b) -- (eta4b);
+
+\node[derived] (eta12b)  at (9.0, -7.0) {$\eta_1\eta_2$};
+\node[derived] (eta13b)  at (9.0, -8.5) {$\eta_1\eta_3$};
+\node[derived] (eta1sqb) at (9.0, -10.0) {$\eta_1^{2}$};
+\node[derived] (eta2sqb) at (9.0, -11.5) {$\eta_2^{2}$};
+
+\draw[->] (eta12b)  -- (eta4b);
+\draw[->] (eta13b)  -- (eta4b);
+\draw[->] (eta1sqb) -- (eta4b);
+\draw[->] (eta2sqb) -- (eta4b);
+
+\node[ind] (y10b) at (4.5, -6.0) {y$_{10}$};
+\node[ind] (y11b) at (5.5, -6.0) {y$_{11}$};
+\node[ind] (y12b) at (6.5, -6.0) {y$_{12}$};
+
+\draw[->] (eta4b.north) -- (y10b.south);
+\draw[->] (eta4b.north) -- (y11b.south);
+\draw[->] (eta4b.north) -- (y12b.south);
+
+\node[latent] (eta5b) at (5.5, -14.5) {$\eta_5$};
+
+\draw[->] (eta4b) -- (eta5b);
+\draw[->] (eta1b) -- (eta5b);
+\draw[->] (eta2b) -- (eta5b);
+\draw[->] (eta3b) -- (eta5b);
+
+\node[derived] (eta14b)   at (9.0, -13.0) {$\eta_1\eta_4$};
+\node[derived] (eta24b)   at (9.0, -14.5) {$\eta_2\eta_4$};
+\node[derived] (eta1sq2b) at (9.0, -16.0) {$\eta_1^{2}$};
+\node[derived] (eta3sqb)  at (9.0, -17.5) {$\eta_3^{2}$};
+
+\draw[->] (eta14b)   -- (eta5b);
+\draw[->] (eta24b)   -- (eta5b);
+\draw[->] (eta1sq2b) -- (eta5b);
+\draw[->] (eta3sqb)  -- (eta5b);
+
+\node[ind] (y13b) at (4.5, -18.0) {y$_{13}$};
+\node[ind] (y14b) at (5.5, -18.0) {y$_{14}$};
+\node[ind] (y15b) at (6.5, -18.0) {y$_{15}$};
+
+\draw[->] (eta5b.south) -- (y13b.north);
+\draw[->] (eta5b.south) -- (y14b.north);
+\draw[->] (eta5b.south) -- (y15b.north);
+
+\end{tikzpicture}
+```
+
+```{r}
+#| label: fig-bias-sim1
+#| fig-cap: "Relative bias for Simulation 1 with varying distributions and reliability levels (N = 400)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_relative_bias_400_full_study_1
+```
+
+```{r}
+#| label: fig-rmse-sim1
+#| fig-cap: "Relative RMSE for Simulation 1 with varying distributions and reliability levels (N = 400)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_relative_rmse_400_full_study_1
+```
+
+```{r}
+#| label: fig-ratio-sim1
+#| fig-cap: "SE/SD Ratio for Simulation 1 with varying sample sizes and reliability levels (Right-skewed and uniform conditions)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_slope_nonnorm_unif_study_1
+```
+
+```{r}
+#| label: fig-coverage-sim1
+#| fig-cap: "Coverage for Simulation 1 varying distributions, reliability levels, and sample sizes."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_cov_nonnorm_unif_study_1
+```
+
+```{r}
+#| label: fig-type1-sim1
+#| fig-cap: "Type I error rate for Simulation 1 varying distributions and reliability levels (N = 1000)."
+#| apa-note: "*Note*. MCSE are not shown due to their small magnitude."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_t1_1000_study_1
+```
+
+```{r}
+#| label: fig-bias-sim2
+#| fig-cap: "Relative bias for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_relative_bias_400_full_all_study_2
+```
+
+```{r}
+#| label: fig-rmse-sim2
+#| fig-cap: "Relative RMSE for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_relative_rmse_400_full_all_study_2
+```
+
+```{r}
+#| label: fig-seratio-sim2
+#| fig-cap: "SE/SD Ratio for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_sesd_400_full_all_study_2
+```
+
+```{r}
+#| label: fig-coverage-sim2
+#| fig-cap: "Coverage for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_coverage_400_full_all_study_2
+```
+
+```{r}
+#| label: fig-type1-sim2
+#| fig-cap: "Type I error rate for Simulation 2 with varying distributions and reliability levels (N = 1000)."
+#| apa-note: "*Note*. MCSE are not shown due to their small magnitude."
+#| fig-align: center
+#| fig-height: 11
+#| fig-width: 9
+#| echo: false
+
+p_t1_1000_all_study_2
+```
+
+
+# Local Standard Errors for LSAM 
+
+To obtain two-step corrected standard errors for the parameters of the structural part of the model ($\boldsymbol{\theta}_2$), we use the familiar (sandwich) formula for robust standard errors [@savalei_rosseel_2021]:
+$$
+\mathrm{Var}(\boldsymbol{\theta}_2) = \frac{1}{N}\left[(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Gamma}_{\eta}\mathcal{I}_1\boldsymbol{\Delta})(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}\right]
+$$
+
+\noindent where $\mathcal{I}_1$ is the unit expected information matrix of the unrestricted second step model (h1), $\boldsymbol{\Delta}$ is the Jacobian of the function that maps $\boldsymbol{\theta}_2$ to $\boldsymbol{\Sigma}(\boldsymbol{\theta}_2)$, and $N$ is the number of observations. The critical ingredient is $\boldsymbol{\Gamma}_{\eta}$, which represents $N$ times the asymptotic (co)variance matrix of the sufficient statistics that enter the second step. The sufficient statistics are (a subset of) the mean vector $\mathbb{E}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ and the non-redundant elements of the variance-covariance matrix $\mathrm{Var}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$. We collect these elements in the column vector $L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$:
+$$
+L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}) = \big[\mathbb{E}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}),\,\mathrm{vech}(\mathrm{Var}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}))\big]^{\top}.
+$$
+
+\noindent Let $l_i(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ denote the casewise contribution to $L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ so that we can write
+$$
+L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}) = \frac{1}{N}\sum_{i}^{N}l_i(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}).
+$$
+
+\noindent Then, if we would ignore the two-step process, a naive expression for $\boldsymbol{\Gamma}_{\eta}$ would be
+$$
+\boldsymbol{\Gamma}_{\eta}^{(naive)} = \frac{1}{N}\sum_{i}^{N}l_i^{(c)}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})\,l_i^{(c)}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})^{\top}
+$$
+
+\noindent where $l_i^{(c)}$ is the centered version of $l_i$; that is $l_i^{(c)} = l_i - L$. To obtain an estimate of $\boldsymbol{\Gamma}_{\eta}$ that takes into account the two-stage estimation procedure, we follow a procedure similar to @wall_amemiya_2000. Assuming the measurement errors are normally distributed, $\boldsymbol{\Gamma}_{\eta}$ can then be expressed as follows:
+$$
+\boldsymbol{\Gamma}_{\eta} = \boldsymbol{\Gamma}_{\eta}^{(naive)} + N\cdot\mathbf{C}\boldsymbol{\Sigma}_{11}\mathbf{C}^{\top}
+$$
+
+\noindent where $\boldsymbol{\Sigma}_{11}$ is the variance-covariance matrix of the step one parameters ($\boldsymbol{\theta}_1$), and the matrix $\mathbf{C}$ can be constructed as
+$$
+\mathbf{C} = \frac{1}{N}\sum_{i}^{N}\frac{\partial l_i(\boldsymbol{\theta}_1)}{\partial\boldsymbol{\theta}_1}
+$$
+
+\noindent where we now consider $l_i(\boldsymbol{\theta}_1)$ to be a function of the step one parameters ($\boldsymbol{\theta}_1$).
+
+
+
+{{< pagebreak >}}
+
+
+
+# Data Generation for Simulation Studies
+
+Population models were first calibrated under full normality to achieve the desired reliabilities ($\rho \approx 0.4, 0.6, 0.8$) and $R^2 \approx 0.30$. The resulting structural residual variances ($\psi$) and measurement error variances ($\theta_{jj}$) were then held fixed across all distributional conditions. Using the fixed variance parameters from calibration, data were generated in three stages: (i) correlated exogenous latent predictors, (ii) dependent latent variables through the structural model, and (iii) observed indicators through the measurement model.
+
+**Stage 1: Exogenous Predictors.** Correlated predictor latent variables were generated using the VITA method as implemented in the *covsim* package (version `r covsim_version`) [@gronneberg_foldnes_2022] with sampling via *rvinecopulib* (version `r vinecop`) [@R-rvinecopulib]. Predictor latent variables were specified to follow covariance structures:
+$$
+\boldsymbol{\Phi}_1 =
+\begin{bmatrix} 
+1 & 0.375 \\ 
+0.375 & 1 
+\end{bmatrix}
+\quad \text{(Simulation 1)}, \qquad
+\boldsymbol{\Phi}_2 = 
+\begin{bmatrix} 
+1 & 0.3 & 0.2 \\ 
+0.3 & 1 & 0.3 \\ 
+0.2 & 0.3 & 1 
+\end{bmatrix}
+\quad \text{(Simulation 2)}.
+$$
+
+Under the normal condition, predictors had Gaussian marginals with mean zero and the specified covariance structure. Under the right-skewed condition, gamma marginals with shape $= 1$ and rate $= 1$ were employed, producing natural skewness $\gamma_1 \approx 2$ and excess kurtosis $\gamma_2 \approx 6$. Gamma-distributed variables were shifted to have population mean zero by subtracting their natural mean ($\text{shape}/\text{rate} = 1$), ensuring comparability across distributional conditions. Under the uniform condition, predictors were generated from symmetric uniform distributions $U[-\sqrt{3\phi_{kk}}, \sqrt{3\phi_{kk}}]$, which naturally have mean zero and variance $\phi_{kk}$ (the diagonal element of $\boldsymbol{\Phi}$). Thus, all exogenous predictors were centered at zero across all distributional conditions, differing only in their shape characteristics. In all conditions, VITA constructed a vine copula to impose the specified dependence structure while preserving the marginal distributions.
+
+**Stage 2: Structural Model.** Dependent latent variables were generated according to the structural equations with fixed residual variances $\psi$ (determined during calibration to yield $R^2 \approx 0.30$):
+$$
+R^2_\eta = \frac{\operatorname{Var}(\eta^*)}{\operatorname{Var}(\eta^*) + \psi} \approx 0.30,
+$$
+
+\noindent where $\eta^*$ denotes the deterministic portion of the dependent latent variable. Structural disturbances were sampled independently from $\mathcal{N}(0,\psi)$.
+
+**Stage 3: Measurement Model.** Observed indicators were generated as
+$$
+\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}, \quad 
+\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta}),
+$$
+
+\noindent with unit factor loadings ($\lambda_j = 1$) and fixed error variances $\theta_{jj}$ (determined during calibration) to achieve reliabilities
+$$
+\rho_{y_j} = \frac{\lambda_j^2 \phi_{kk}}{\lambda_j^2 \phi_{kk} + \theta_{jj}} \approx \rho, \quad \rho \in \{0.4, 0.6, 0.8\}.
+$$
+
+\noindent Each latent variable was measured by three indicators. Measurement errors were sampled independently from univariate normal distributions.
+
+
+
+{{< pagebreak >}}
+
+
+
+# Convergence Issues and Outliers Statistics 
+
+
+```{r}
+#| label: conv-table
+#| echo: false
+#| output: asis
+#| message: false
+#| warning: false
+
+# STUDY 1: convergence & outliers summary (APA Style - landscape with longtable)
+create_apa_convergence_table_study1 <- function(results_df) {
+  results_df %>%
+    filter(Parameter == "eta1") %>%
+    select(
+      Condition,
+      Method, 
+      Model, 
+      Distribution, 
+      SampleSize, 
+      Reliability,
+      N_Converged_This_Method,
+      Convergence_Rate_This_Method,
+      N_After_Global_Convergence,
+      N_Outliers_This_Method,
+      Outlier_Rate_This_Method,
+      N_After_Global_Outlier,
+      N_Final
+    ) %>%
+    mutate(
+      Distribution = case_when(
+        Distribution == "nonnormal" ~ "right-skewed",
+        TRUE ~ Distribution
+      ),
+      Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
+      Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
+    ) %>%
+    arrange(Condition, factor(Model, levels = c("Full", "Linear")), Method)
+}
+
+# table
+conv_table_study1 <- create_apa_convergence_table_study1(results_study_1)
+
+tab_caption_study1 <- "Convergence and Outlier Statistics (Simulation 1)"
+tab_note_study1 <- "N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after entire non-convergent iterations across approaches excluded. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Global Outlier = sample size after global outlier removal across methods. N Final = final sample size after all exclusions."
+
+kableExtra::kbl(
+  conv_table_study1,
+  booktabs = TRUE,
+  longtable = TRUE,
+  align = c("l", "l", "l", "l", "r", "r",
+            "r", "r", "r",
+            "r", "r",
+            "r", "r"),
+  col.names = c("Condition", "Method", "Model", "Distribution", "N", "Reliability",
+                "N Conv.", "Conv. Rate", "N Global Conv.",
+                "N Outliers", "Outlier Rate", "N Global Outlier", "N Final"),
+  caption = tab_caption_study1,
+  linesep = ""
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 6,
+    "Convergence" = 3,
+    "Outliers" = 2,
+    "Final" = 2
+  )) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position", "repeat_header", "scale_down"),
+    font_size = 6,
+    position = "left"
+  ) %>%
+  kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
+  kableExtra::footnote(
+    general = tab_note_study1,
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = TRUE)
+  #) %>%
+  #kableExtra::landscape()
+
+
+# STUDY 2: convergence & outliers summary (APA Style - landscape with longtable)
+create_apa_convergence_table_study2 <- function(results_df, equation = "eta4") {
+  param <- ifelse(equation == "eta4", "eta1", "eta4")
+  
+  results_df %>%
+    filter(Equation == equation, Parameter == param) %>%
+    select(
+      Condition,
+      Method, 
+      Model, 
+      Distribution, 
+      SampleSize, 
+      Reliability,
+      N_Converged_This_Method,
+      Convergence_Rate_This_Method,
+      N_After_Global_Convergence,
+      N_Outliers_This_Method,
+      Outlier_Rate_This_Method,
+      N_After_Global_Outlier,
+      N_Final
+    ) %>%
+    mutate(
+      Distribution = case_when(
+        Distribution == "nonnormal" ~ "right-skewed",
+        TRUE ~ Distribution
+      ),
+      Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
+      Outlier_Rate_This_Method = round(Outlier_Rate_This_Method, 1)
+    ) %>%
+    arrange(Condition, factor(Model, levels = c("Full", "Linear")), Method)
+}
+
+
+# STUDY 2 - EQUATION ETA4 TABLE (because it is general; eta5 would be the same)
+conv_table_study2_eta4 <- create_apa_convergence_table_study2(results_study_2, "eta4")
+
+tab_caption_study2_eta4 <- "Convergence and Outlier Statistics (Simulation 2)"
+tab_note_study2 <- "N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after requiring all methods to converge. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Global Outlier = sample size after global outlier removal across methods. N Final = final sample size after all exclusions."
+
+kableExtra::kbl(
+  conv_table_study2_eta4,
+  booktabs = TRUE,
+  longtable = TRUE,
+  align = c("l", "l", "l", "l", "r", "r",
+            "r", "r", "r",
+            "r", "r",
+            "r", "r"),
+  col.names = c("Condition", "Method", "Model", "Distribution", "N", "Reliability",
+                "N Conv.", "Conv. Rate", "N Global Conv.",
+                "N Outliers", "Outlier Rate", "N Global Outlier", "N Final"),
+  caption = tab_caption_study2_eta4,
+  linesep = ""
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 6,
+    "Convergence" = 3,
+    "Outliers" = 2,
+    "Final" = 2
+  )) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position", "repeat_header", "scale_down"),
+    font_size = 6,
+    position = "left"
+  ) %>%
+  kableExtra::collapse_rows(columns = 1, valign = "top", latex_hline = "major") %>%
+  kableExtra::footnote(
+    general = tab_note_study2,
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = TRUE)
+  #) %>%
+  #kableExtra::landscape()
+```
+

@@ -1,0 +1,33 @@
+# Local Standard Errors for LSAM 
+
+To obtain two-step corrected standard errors for the parameters of the structural part of the model ($\boldsymbol{\theta}_2$), we use the familiar (sandwich) formula for robust standard errors [@savalei_rosseel_2021]:
+$$
+\mathrm{Var}(\boldsymbol{\theta}_2) = \frac{1}{N}\left[(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Gamma}_{\eta}\mathcal{I}_1\boldsymbol{\Delta})(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}\right]
+$$
+
+\noindent where $\mathcal{I}_1$ is the unit expected information matrix of the unrestricted second step model (h1), $\boldsymbol{\Delta}$ is the Jacobian of the function that maps $\boldsymbol{\theta}_2$ to $\boldsymbol{\Sigma}(\boldsymbol{\theta}_2)$, and $N$ is the number of observations. The critical ingredient is $\boldsymbol{\Gamma}_{\eta}$, which represents $N$ times the asymptotic (co)variance matrix of the sufficient statistics that enter the second step. The sufficient statistics are (a subset of) the mean vector $\mathbb{E}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ and the non-redundant elements of the variance-covariance matrix $\mathrm{Var}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$. We collect these elements in the column vector $L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$:
+$$
+L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}) = \big[\mathbb{E}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}),\,\mathrm{vech}(\mathrm{Var}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}))\big]^{\top}.
+$$
+
+\noindent Let $l_i(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ denote the casewise contribution to $L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})$ so that we can write
+$$
+L(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}) = \frac{1}{N}\sum_{i}^{N}l_i(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star}).
+$$
+
+\noindent Then, if we would ignore the two-step process, a naive expression for $\boldsymbol{\Gamma}_{\eta}$ would be
+$$
+\boldsymbol{\Gamma}_{\eta}^{(naive)} = \frac{1}{N}\sum_{i}^{N}l_i^{(c)}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})\,l_i^{(c)}(\boldsymbol{\eta}^{\star}\otimes\boldsymbol{\eta}^{\star})^{\top}
+$$
+
+\noindent where $l_i^{(c)}$ is the centered version of $l_i$; that is $l_i^{(c)} = l_i - L$. To obtain an estimate of $\boldsymbol{\Gamma}_{\eta}$ that takes into account the two-stage estimation procedure, we follow a procedure similar to @wall_amemiya_2000. Assuming the measurement errors are normally distributed, $\boldsymbol{\Gamma}_{\eta}$ can then be expressed as follows:
+$$
+\boldsymbol{\Gamma}_{\eta} = \boldsymbol{\Gamma}_{\eta}^{(naive)} + N\cdot\mathbf{C}\boldsymbol{\Sigma}_{11}\mathbf{C}^{\top}
+$$
+
+\noindent where $\boldsymbol{\Sigma}_{11}$ is the variance-covariance matrix of the step one parameters ($\boldsymbol{\theta}_1$), and the matrix $\mathbf{C}$ can be constructed as
+$$
+\mathbf{C} = \frac{1}{N}\sum_{i}^{N}\frac{\partial l_i(\boldsymbol{\theta}_1)}{\partial\boldsymbol{\theta}_1}
+$$
+
+\noindent where we now consider $l_i(\boldsymbol{\theta}_1)$ to be a function of the step one parameters ($\boldsymbol{\theta}_1$).
