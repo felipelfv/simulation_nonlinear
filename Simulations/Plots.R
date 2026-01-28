@@ -135,15 +135,17 @@ prepare_study1_data <- function(results_data) {
     
     coverage = data_prep %>%
       transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
-                y = CoverageRate, yerr = 100 * CoverageRate_MCSE),
+                y = CoverageRate, yerr = CoverageRate_MCSE),
     
     type1 = data_prep %>%
       filter(Model == "Linear") %>%
-      transmute(Distribution, Parameter, Condition, Method, y = TypeI_Error),
+      transmute(Distribution, Parameter, Condition, Method, 
+                y = TypeI_Error, yerr = TypeI_Error_MCSE),
     
     power = data_prep %>%
       filter(Model == "Full") %>%
-      transmute(Distribution, Parameter, Condition, Method, y = Power)
+      transmute(Distribution, Parameter, Condition, Method, 
+                y = Power, yerr = Power_MCSE)
   )
 }
 
@@ -230,7 +232,7 @@ prepare_study2_data <- function(results_data, dist_name) {
     
     coverage = data_combined %>%
       transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
-                Method, Model, y = CoverageRate, yerr = 100 * CoverageRate_MCSE),
+                Method, Model, y = CoverageRate, yerr = CoverageRate_MCSE),
     
     type1 = results_data %>%
       filter(
@@ -255,9 +257,10 @@ prepare_study2_data <- function(results_data, dist_name) {
         ),
         Method = factor(Method, levels = METHOD_ORDER_3),
         Condition = make_condition(SampleSize, Reliability),
-        y = TypeI_Error
+        y = TypeI_Error,
+        yerr = TypeI_Error_MCSE
       ) %>%
-      select(Distribution, Parameter, Condition, Method, y),
+      select(Distribution, Parameter, Condition, Method, y, yerr),
     
     power = results_data %>%
       filter(
@@ -282,9 +285,10 @@ prepare_study2_data <- function(results_data, dist_name) {
         ),
         Method = factor(Method, levels = METHOD_ORDER_3),
         Condition = make_condition(SampleSize, Reliability),
-        y = Power
+        y = Power,
+        yerr = Power_MCSE
       ) %>%
-      select(Distribution, Parameter, Condition, Method, y)
+      select(Distribution, Parameter, Condition, Method, y, yerr)
   )
 }
 
@@ -326,12 +330,12 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
         Condition = make_condition(SampleSize, Reliability),
         Model = factor(Model, levels = c("Linear", "Full")),
         Error_Condition = case_when(
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "epsilon[Exp]",
-          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "zeta[Exp]",
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "Both[Exp]"
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "epsilon",
+          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "zeta",
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "epsilon & zeta"
         ),
         Error_Condition = factor(Error_Condition, 
-                                 levels = c("epsilon[Exp]", "zeta[Exp]", "Both[Exp]"))
+                                 levels = c("epsilon", "zeta", "epsilon & zeta"))
       )
     
   } else if (study == 2) {
@@ -379,12 +383,12 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
         Condition = make_condition(SampleSize, Reliability),
         Model = factor(Model, levels = c("Linear", "Full")),
         Error_Condition = case_when(
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "epsilon[Exp]",
-          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "zeta[Exp]",
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "Both[Exp]"
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "epsilon",
+          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "zeta",
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "epsilon & zeta"
         ),
         Error_Condition = factor(Error_Condition, 
-                                 levels = c("epsilon[Exp]", "zeta[Exp]", "Both[Exp]"))
+                                 levels = c("epsilon", "zeta", "epsilon & zeta"))
       )
   } else {
     stop("study must be 1 or 2")
@@ -696,20 +700,29 @@ plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
 }
 
 #' Plot Type I error rate
-#' @param data Prepared data frame with Type I error rates
+#' @param data Prepared data frame with Type I error rates (includes yerr for MCSE)
 #' @param greys Named vector of grey colors. Default is GREYS_4
 #' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
+#' @param show_errorbars Logical. Show MCSE error bars. Default is TRUE
 #' @return ggplot2 object
-plot_type1 <- function(data, greys = GREYS_4, title = "", facet_formula = NULL) {
+plot_type1 <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
+                       show_errorbars = TRUE) {
   
-  ymax <- max(data$y, na.rm = TRUE) * 1.15
+  ymax <- max(data$y + ifelse(is.null(data$yerr), 0, data$yerr), na.rm = TRUE) * 1.15
   
   p <- ggplot(data, aes(x = Method, y = y, fill = Method)) +
     annotate("rect", xmin = -Inf, xmax = Inf, ymin = 3, ymax = 7,
              fill = "grey92", alpha = .9) +
     geom_hline(yintercept = 5, linetype = "dotted", linewidth = 0.3) +
-    geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black") +
+    geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black")
+  
+  if (show_errorbars && "yerr" %in% names(data) && !all(is.na(data$yerr))) {
+    p <- p + geom_errorbar(aes(ymin = y - yerr, ymax = y + yerr),
+                           width = 0.2, position = position_dodge(width = 0.9))
+  }
+  
+  p <- p +
     geom_text(aes(label = sprintf("%.1f", y)), vjust = -0.4, size = 3) +
     scale_fill_manual(values = greys) +
     coord_cartesian(ylim = c(0, ymax)) +
@@ -731,16 +744,25 @@ plot_type1 <- function(data, greys = GREYS_4, title = "", facet_formula = NULL) 
 }
 
 #' Plot statistical power
-#' @param data Prepared data frame with power values
+#' @param data Prepared data frame with power values (includes yerr for MCSE)
 #' @param greys Named vector of grey colors. Default is GREYS_4
 #' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
+#' @param show_errorbars Logical. Show MCSE error bars. Default is TRUE
 #' @return ggplot2 object
-plot_power <- function(data, greys = GREYS_4, title = "", facet_formula = NULL) {
+plot_power <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
+                       show_errorbars = TRUE) {
   
   p <- ggplot(data, aes(x = Method, y = y, fill = Method)) +
     geom_hline(yintercept = 80, linetype = "dotted", linewidth = 0.3) +
-    geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black") +
+    geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black")
+  
+  if (show_errorbars && "yerr" %in% names(data) && !all(is.na(data$yerr))) {
+    p <- p + geom_errorbar(aes(ymin = y - yerr, ymax = y + yerr),
+                           width = 0.2, position = position_dodge(width = 0.9))
+  }
+  
+  p <- p +
     geom_text(aes(label = sprintf("%.0f", y)), vjust = -0.4, size = 3) +
     scale_fill_manual(values = greys) +
     coord_cartesian(ylim = c(0, 110)) +
@@ -811,8 +833,7 @@ plot_dumbbell <- function(data,
     geom_point(aes(y = Method, x = y_final),
                shape = 21, size = 2.5, fill = "black", color = "black") +
     facet_grid(Distribution + Parameter ~ Error_Condition + SampleSize + Reliability,
-               labeller = labeller(Parameter = label_parsed,
-                                   Error_Condition = label_parsed)) +
+               labeller = labeller(Parameter = label_parsed)) +
     labs(y = NULL, x = metric_name) +
     theme_apa_bw()
 }
