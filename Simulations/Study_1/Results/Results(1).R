@@ -492,10 +492,10 @@ CalculatePerformanceMetrics <- function(filtered_data,
       MSE_Mean_MCSE = abs_metrics$mse_mcse, RMSE_Mean_MCSE = abs_metrics$rmse_mcse,
       Relative_MSE_MCSE = rel_metrics$rel_mse_mcse %||% NA,
       Relative_RMSE_MCSE = rel_metrics$rel_rmse_mcse %||% NA,
-      CoverageRate_MCSE = cov_metrics$coverage_mcse, CI_Width_MCSE = cov_metrics$width_mcse,
-      RejectionRate_MCSE = rej_metrics$rej_rate_mcse,
-      TypeI_Error_MCSE = if (tv == 0) rej_metrics$rej_rate_mcse else NA,
-      Power_MCSE = if (tv != 0) rej_metrics$rej_rate_mcse else NA,
+      CoverageRate_MCSE = cov_metrics$coverage_mcse * 100, CI_Width_MCSE = cov_metrics$width_mcse * 100,
+      RejectionRate_MCSE = rej_metrics$rej_rate_mcse * 100,
+      TypeI_Error_MCSE = if (tv == 0) rej_metrics$rej_rate_mcse * 100 else NA,
+      Power_MCSE = if (tv != 0) rej_metrics$rej_rate_mcse * 100 else NA,
       N_Total = conv_row$N_Total,
       N_Converged_This_Method = conv_row$N_Converged_This_Method,
       N_Warnings_This_Method = conv_row$N_Warnings_This_Method,
@@ -519,11 +519,6 @@ CalculatePerformanceMetrics <- function(filtered_data,
   
   do.call(rbind, results_list)
 }
-
-
-# ============================================================================
-# USAGE EXAMPLES
-# ============================================================================
 
 # --- BASIC CHECKS (for main paper) ---
 # extraction_basic <- ExtractConvergenceOutliers(
@@ -550,7 +545,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
 #   remove_outliers = TRUE,
 #   outlier_threshold = 3,
 #   min_reps = 0,
-#   exclude_warnings = TRUE, # note this also
+#   exclude_warnings = FALSE, # note this also
 #   check_positive_se = TRUE,
 #   check_heywood = TRUE,
 #   check_pd = TRUE
