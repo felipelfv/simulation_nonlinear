@@ -4,6 +4,7 @@
 #| warning: false
 #| message: false
 
+library(dplyr); library(ggplot2)
 source("../Simulations/Plots.R")
 source("../Simulations/Study_1/Results/Results(1).R")
 source("../Simulations/Study_2/Results/Results(2).R")
@@ -11,9 +12,9 @@ source("../Simulations/Study_2/Results/Results(2).R")
 
 # Results for Simulation Studies 
 
-The results reported are a subset of the findings which focused mainly on the cases when the nonlinear effects were present. The same interpretation holds for both results. 
+The results reported here focus primarily on conditions where nonlinear effects were present. This section is organized as follows: we first present the main results for Simulations 1 and 2 under normal measurement errors and structural disturbances, followed by a separate subsection examining how nonnormal measurement errors and structural disturbances affect results relative to the main analyses.
 
-## Results for Simulation 1
+## Main Results: Simulation 1
 
 ```{r}
 #| label: results-first-sim-study
@@ -21,7 +22,7 @@ The results reported are a subset of the findings which focused mainly on the ca
 #| warning: false
 #| message: false
 
-results_study_1 <- readRDS("../Simulations/Study_1/Results/results_study_1.rds")
+results_study_1 <- readRDS("../Simulations/Study_1/Results/results_study_1_basic_robust.rds")
 ```
 
 ```{r}
@@ -29,30 +30,33 @@ results_study_1 <- readRDS("../Simulations/Study_1/Results/results_study_1.rds")
 #| echo: false
 #| output: false
 
-get_convergence_outlier_rate_study_1 <- function(method, dist, n, rel, model = "Full", 
+get_convergence_outlier_rate_study_1 <- function(method, dist, n, rel, model = "Full",
                                                   rate_type = c("convergence", "outlier", "final")) {
   rate_type <- match.arg(rate_type)
 
   col_map <- c(
     "convergence" = "Convergence_Rate_This_Method",
-    "outlier" = "Outlier_Rate_This_Method", 
+    "outlier" = "Outlier_Rate_This_Method",
     "final" = "Percent_Total_Excluded"
   )
-  
+
   col_name <- col_map[rate_type]
-  
+
   # since these rates are the same across parameters, we just pick one (e.g., eta1)
+  # filter for baseline conditions (normal epsilon and zeta) for main paper results
   result <- results_study_1 %>%
     filter(
       Method == toupper(method),
-      Distribution == dist,
+      Distr_Exo == dist,
+      Distr_Epsilon == "normal",
+      Distr_Zeta == "normal",
       SampleSize == n,
       Reliability == rel,
       Model == model,
       Parameter == "eta1"  # rates are identical across parameters
     ) %>%
     pull(!!sym(col_name))
-  
+
   if(length(result) > 0) result[1] else NA
 }
 
@@ -193,7 +197,7 @@ Bias patterns resembled those observed when nonlinear effects were present, thou
 
 With the exception of low reliability conditions, LSAM demonstrated adequate performance across all evaluated metrics. LSAM generally yielded unbiased estimates, whereas QML and LMS exhibited systematic bias: positive and negative bias for nonlinear effects under right-skewed distributions, and negative bias for quadratic effects under uniform distributions. UPI also produced largely unbiased results. For SEs, LMS and QML were the most efficient, although LSAM achieved comparable accuracy at medium and high reliability across all distributions, particularly with large sample sizes. Coverage rates remained relatively stable for LSAM but not for LMS, QML, or UPI. Type I error rates fell within the acceptable range for LSAM and UPI, except under uniform conditions with low reliability. By contrast, LMS and QML displayed marked inflation under right-skewed distributions. Finally, empirical power was generally highest for LMS and QML, though this finding must be interpreted cautiously given their inflated Type I error. When Type I error was controlled, all approaches achieved desirable power levels for most effects, with the exception of quadratic effects under the uniform distribution, which remained underpowered.
 
-## Result for Simulation 2
+## Main Results: Simulation 2
 
 ```{r}
 #| label: results-second-sim-study
@@ -201,7 +205,7 @@ With the exception of low reliability conditions, LSAM demonstrated adequate per
 #| warning: false
 #| message: false
 
-results_study_2 <- readRDS("../Simulations/Study_2/Results/results_study_2.rds")
+results_study_2 <- readRDS("../Simulations/Study_2/Results/results_study_2_basic_robust.rds")
 ```
 
 ### Convergence Issues and Outliers
@@ -216,24 +220,27 @@ get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "
                                                   rate_type = c("convergence", "outlier", "final")) {
   equation <- match.arg(equation)
   rate_type <- match.arg(rate_type)
-  
+
   col_map <- c(
     "convergence" = "Convergence_Rate_This_Method",
-    "outlier" = "Outlier_Rate_This_Method", 
+    "outlier" = "Outlier_Rate_This_Method",
     "final" = "Percent_Total_Excluded"
   )
-  
+
   col_name <- col_map[rate_type]
-  
+
   # needs representative parameter for each equation
   # for eta4: use "eta1" (first predictor)
   # for eta5: use "eta4" (first predictor)
   param_to_use <- ifelse(equation == "eta4", "eta1", "eta4")
-  
+
+  # filter for baseline conditions (normal epsilon and zeta) for main paper results
   result <- results_study_2 %>%
     filter(
       Method == toupper(method),
-      Distribution == dist,
+      Distr_Exo == dist,
+      Distr_Epsilon == "normal",
+      Distr_Zeta == "normal",
       SampleSize == n,
       Reliability == rel,
       Model == model,
@@ -241,7 +248,7 @@ get_convergence_outlier_rate_study_2 <- function(method, dist, n, rel, model = "
       Parameter == param_to_use
     ) %>%
     pull(!!sym(col_name))
-  
+
   if(length(result) > 0) result[1] else NA
 }
 
@@ -404,3 +411,65 @@ Notable differences emerged across conditions. Under normality, QML showed reduc
 ## Summary of Simulation 2
 
 Across most conditions, LSAM produced largely unbiased estimates, accurate SEs, and acceptable coverage, except under low reliability, where some bias and over-coverage appeared. UPI was hampered by convergence failures and substantial bias under uniform predictors, along with underestimated SEs and under-coverage, particularly under uniform and right-skewed distributions with low or medium reliability. QML was efficient and often yielded accurate SEs, but displayed persistent bias for several nonlinear effects under right-skewed and uniform distributions, inflated Type I error rates under right-skewness, and under-coverage of nonlinear effects—especially quadratic terms—under both right-skewed and uniform predictors, most notably at low and medium reliability. Relative RMSE differences among methods were modest: QML was occasionally more efficient under uniform predictors, LSAM and UPI performed well under right-skewness, and all methods performed similarly at medium reliability across distributions. For empirical power, acceptable levels ($\geq 80$%) were attained only under normality with large samples and high reliability, primarily for nonlinear effects in the structural equation for $\eta_4$. Under uniform predictors, power was substantially lower for all nonlinear effects, except the two interaction terms in $\eta_4$.
+
+## Additional Distributional Conditions: Measurement Error and Structural Disturbance
+
+Results are presented as dumbbell plots comparing normal to nonnormal (right-skewed) conditions for measurement errors and structural disturbances. Because nonnormal measurement errors and structural disturbances can lead to additional convergence failures and outliers, the effective sample sizes may differ between conditions. To account for this, we computed the MCSE of the difference assuming independence between simulation runs:
+$$
+\text{MCSE}_{\text{diff}} = \sqrt{\text{MCSE}_{\text{normal}}^2 + \text{MCSE}_{\text{nonnormal}}^2}
+$$
+
+\noindent where $\text{MCSE}_{\text{normal}}$ and $\text{MCSE}_{\text{nonnormal}}$ are the MCSE for each condition. The difference between conditions and its associated uncertainty are reported in the supplemental materials. In the main text, the dumbbell plots display the normal and nonnormal condition estimates, with error bars showing ±MCSE for the nonnormal estimate. For brevity, we comment and show solely the results for the larger discrepancies observed in both simulation studies; the complete set of results is available in the supplemental materials. We also highlight that under low reliability, substantial convergence issues for the UPI approach were observed but not for the remaining approaches, which is in itself an interesting result. However, given the way we handle nonconvergence and outliers, the effective sample sizes were small. For this reason, we focus only on moderate and high reliabilities.
+
+```{r}
+#| label: sensitivity-plots-study-1
+#| echo: false
+
+# Prepare sensitivity dumbbell data for Study 1
+dumbbell_study1 <- prepare_sensitivity_dumbbell_data(results_study_1, study = 1, include_low_rel = FALSE)
+
+# Relative Bias (N=400) - Figure 12
+p_sens_bias_study1 <- plot_dumbbell(
+  dumbbell_study1$bias_relative %>% filter(SampleSize == "400"),
+  metric_name = "Relative Bias",
+  acceptable_range = c(-0.10, 0.10)
+)
+
+# Relative RMSE (N=400) - Figure 13
+p_sens_rmse_study1 <- plot_dumbbell(
+  dumbbell_study1$rmse_relative %>% filter(SampleSize == "400"),
+  metric_name = "Relative RMSE"
+)
+
+# SE/SD (N=400) - Figure 14
+p_sens_sesd_study1 <- plot_dumbbell(
+  dumbbell_study1$sesd %>% filter(SampleSize == "400"),
+  metric_name = "SE / SD",
+  acceptable_range = c(0.90, 1.10),
+  show_errorbars = FALSE
+) +
+  coord_cartesian(xlim = c(0.70, 1.5))
+
+# Coverage (N=1000) - Figure 15
+p_sens_coverage_study1 <- plot_dumbbell(
+  dumbbell_study1$coverage %>% filter(SampleSize == "1000"),
+  metric_name = "Coverage (%)",
+  acceptable_range = c(93, 97)
+) +
+  coord_cartesian(xlim = c(50, 100))
+
+# Type I Error (N=1000)
+p_sens_type1_study1 <- plot_dumbbell(
+  dumbbell_study1$type1 %>% filter(SampleSize == "1000"),
+  metric_name = "Type I Error (%)",
+  acceptable_range = c(3, 7)
+)
+```
+
+### Simulation 1
+
+For the relative bias, focusing on moderate sample sizes, right-skewed measurement error with medium reliability lead to substantial worsening for all approaches, especially in the case with uniform latent predictors. However, under high reliability, conclusions stay largely in agreement (see Figure 12). For relative RMSE, under moderate sample sizes, the largest difference is for the UPI approach with medium reliability and right-skewed measurement error (see Figure 13). For the SE/SD ratio, results are largely similar, with the most notable difference for the UPI under right-skewed measurement error and medium reliability. In this case, we see an overestimation with right-skewed and uniform latent variables (see Figure 14). All of these results are not different under a large sample size. For coverage, results yielded the most substantial differences under medium reliability. Indeed, with right-skewed measurement error and latent variables, the coverage for LMS and QML improved. This is rather unexpected. While for right-skewed measurement error and uniform latent variables, most approaches also yielded lower coverage results except the UPI where this was mild (see Figure 15). Results for Type I error followed the behavior from coverage.
+
+### Simulation 2
+
+Due to the conclusions being largely the same as what happened with the simpler model in simulation 1, we do not show any figures in the manuscript. These are all the online supplemental materials. 

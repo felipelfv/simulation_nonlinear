@@ -1,6 +1,6 @@
 # Data Generation for Simulation Studies
 
-Population models were first calibrated under full normality to achieve the desired reliabilities ($\rho \approx 0.4, 0.6, 0.8$) and $R^2 \approx 0.30$. The resulting structural residual variances ($\psi$) and measurement error variances ($\theta_{jj}$) were then held fixed across all distributional conditions. Using the fixed variance parameters from calibration, data were generated in three stages: (i) correlated exogenous latent predictors, (ii) dependent latent variables through the structural model, and (iii) observed indicators through the measurement model.
+Population models were first calibrated under full normality to achieve the desired reliabilities ($\rho \approx 0.4, 0.6, 0.8$) and $R^2 \approx 0.30$. The resulting structural residual variances ($\psi_{kk}$, where $k$ indexes dependent latent variables) and measurement error variances ($\theta_{jj}$, where $j$ indexes observed indicators) were then held fixed across all distributional conditions. Using the fixed variance parameters from calibration, data were generated in three stages: (i) correlated exogenous latent predictors, (ii) dependent latent variables through the structural model, and (iii) observed indicators through the measurement model.
 
 **Stage 1: Exogenous Predictors.** Correlated predictor latent variables were generated using the VITA method as implemented in the *covsim* package (version `r covsim_version`) [@gronneberg_foldnes_2022] with sampling via *rvinecopulib* (version `r vinecop`) [@R-rvinecopulib]. Predictor latent variables were specified to follow covariance structures:
 $$
@@ -19,24 +19,25 @@ $$
 \quad \text{(Simulation 2)}.
 $$
 
-Under the normal condition, predictors had Gaussian marginals with mean zero and the specified covariance structure. Under the right-skewed condition, gamma marginals with shape $= 1$ and rate $= 1$ were employed, producing natural skewness $\gamma_1 \approx 2$ and excess kurtosis $\gamma_2 \approx 6$. Gamma-distributed variables were shifted to have population mean zero by subtracting their natural mean ($\text{shape}/\text{rate} = 1$), ensuring comparability across distributional conditions. Under the uniform condition, predictors were generated from symmetric uniform distributions $U[-\sqrt{3\phi_{kk}}, \sqrt{3\phi_{kk}}]$, which naturally have mean zero and variance $\phi_{kk}$ (the diagonal element of $\boldsymbol{\Phi}$). Thus, all exogenous predictors were centered at zero across all distributional conditions, differing only in their shape characteristics. In all conditions, VITA constructed a vine copula to impose the specified dependence structure while preserving the marginal distributions.
+Under the normal condition, predictors had Gaussian marginals with mean zero and the specified covariance structure. Under the right-skewed condition, gamma marginals with shape $= 1$ and rate $= 1$ were employed, producing natural skewness $\gamma_1 \approx 2$ and excess kurtosis $\gamma_2 \approx 6$. Gamma-distributed variables were shifted to have population mean zero by subtracting their natural mean ($\text{shape}/\text{rate} = 1$), ensuring comparability across distributional conditions. Under the uniform condition, predictors were generated from symmetric uniform distributions $U[-\sqrt{3\phi_{mm}}, \sqrt{3\phi_{mm}}]$, which naturally have mean zero and variance $\phi_{mm}$ (the diagonal element of $\boldsymbol{\Phi}$, where $m$ indexes exogenous latent variables). Thus, all exogenous predictors were centered at zero across all distributional conditions, differing only in their shape characteristics. In all conditions, VITA constructed a vine copula to impose the specified dependence structure while preserving the marginal distributions.
 
-**Stage 2: Structural Model.** Dependent latent variables were generated according to the structural equations with fixed residual variances $\psi$ (determined during calibration to yield $R^2 \approx 0.30$):
+**Stage 2: Structural Model.** Dependent latent variables were generated according to the structural equations with fixed residual variances $\psi_{kk}$ (determined during calibration to yield $R^2 \approx 0.30$):
 $$
-R^2_\eta = \frac{\operatorname{Var}(\eta^*)}{\operatorname{Var}(\eta^*) + \psi} \approx 0.30,
+R^2_{\eta_k} = \frac{\operatorname{Var}(\eta_k^*)}{\operatorname{Var}(\eta_k^*) + \psi_{kk}} \approx 0.30,
 $$
 
-\noindent where $\eta^*$ denotes the deterministic portion of the dependent latent variable. Structural disturbances were sampled independently from $\mathcal{N}(0,\psi)$.
+\noindent where $\eta_k^*$ denotes the deterministic portion of the dependent latent variable $\eta_k$. Structural disturbances ($\zeta_k$) were sampled independently according to the factorial design: under the normal condition from $\mathcal{N}(0, \psi_{kk})$, and under the right-skewed condition from $\text{Exp}^*(0, \psi_{kk})$, a centered and scaled exponential distribution with mean 0 and variance $\psi_{kk}$.
 
 **Stage 3: Measurement Model.** Observed indicators were generated as
 $$
-\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon}, \quad 
-\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Theta}),
+\mathbf{y} = \boldsymbol{\Lambda}\boldsymbol{\eta} + \boldsymbol{\epsilon},
 $$
 
 \noindent with unit factor loadings ($\lambda_j = 1$) and fixed error variances $\theta_{jj}$ (determined during calibration) to achieve reliabilities
 $$
-\rho_{y_j} = \frac{\lambda_j^2 \phi_{kk}}{\lambda_j^2 \phi_{kk} + \theta_{jj}} \approx \rho, \quad \rho \in \{0.4, 0.6, 0.8\}.
+\rho_{y_j} = \frac{\lambda_j^2 \text{Var}(\eta)}{\lambda_j^2 \text{Var}(\eta) + \theta_{jj}} \approx \rho, \quad \rho \in \{0.4, 0.6, 0.8\},
 $$
 
-\noindent Each latent variable was measured by three indicators. Measurement errors were sampled independently from univariate normal distributions.
+\noindent where $\text{Var}(\eta)$ is the variance of the latent variable that indicator $y_j$ measures.
+
+\noindent Each latent variable was measured by three indicators. Measurement errors ($\epsilon_j$) were sampled independently according to the factorial design: under the normal condition from $\mathcal{N}(0, \theta_{jj})$, and under the right-skewed condition from $\text{Exp}^*(0, \theta_{jj})$, a centered and scaled exponential distribution with mean 0 and variance $\theta_{jj}$, defined as $\sqrt{\theta_{jj}}(X - 1)$ where $X \sim \text{Exp}(1)$. Note that $\text{Exp}(1) \equiv \text{Gamma}(1, 1)$, which is the same base distribution used for the right-skewed exogenous latent predictors.
