@@ -337,6 +337,7 @@ extraction_results <- ExtractConvergenceOutliers(
   min_reps = 10,
   exclude_warnings = FALSE
 )
+
 ```
 
 ```{r lsam-outlier-first-sim-study, echo=FALSE, fig.cap="Outliers for the SEs for LSAM in condition 13 ", fig.align='center', fig.height=9, fig.width=7}

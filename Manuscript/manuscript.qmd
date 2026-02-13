@@ -19,6 +19,7 @@ author:
       - Conceptualization
       - Methodology
       - Software
+      - Investigation
       - Data curation
       - Formal analysis
       - Visualization
@@ -44,6 +45,7 @@ author:
       - Conceptualization
       - Methodology
       - Software
+      - Supervision
       - Writing - review & editing
       - Funding acquisition
 
@@ -57,7 +59,7 @@ author-note:
     financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
     
 abstract: |
-  Various methods exist to include quadratic or interaction terms involving latent variables in structural equation models (SEM). Most use a system-wide estimation approach, meaning all free parameters are estimated simultaneously. Research has investigated their performance in models with a limited number of nonlinear effects. Recently, several structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed. In this case, estimation proceeds in two stages: first, measurement model parameters are estimated; second, structural model parameters are estimated. We present two simulation studies demonstrating that the recently proposed local SAM (LSAM) approach (Rosseel et al., 2025) performs well across a variety of conditions including distributional, reliability, and sample size manipulations. The first simulation study examined a model with three nonlinear effects under varying distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), and sample sizes (400, 1000). LSAM produced largely unbiased estimates with stable coverage, standard errors, and Type I error rates across most conditions. Power varied more across conditions. Performance was adversely affected under low reliability for some metrics, particularly with uniform distributions, though larger sample sizes mitigated these issues. Traditional methods (LMS, QML, and UPI) showed results consistent with prior literature. The second simulation study tested a more complex model with eight nonlinear effects under the same conditions to assess whether performance deteriorates with increased complexity. LSAM maintained adequate performance despite greater model complexity, though similar limitations emerged and power decreased under certain conditions. Traditional methods yielded more variable results, with generally poorer performance relative to simulation 1 and LSAM.
+  Various methods exist to include quadratic or interaction terms involving latent variables in structural equation models (SEM). Most use a system-wide estimation approach, meaning all free parameters are estimated simultaneously. Research has investigated their performance in models with a limited number of nonlinear effects. Recently, several structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed. In this case, estimation proceeds in two stages: first, measurement model parameters are estimated; second, structural model parameters are estimated. We present two simulation studies demonstrating that the recently proposed local SAM (LSAM) approach (Rosseel et al., 2025) performs well across a variety of conditions including distributional, reliability, and sample size manipulations. The first simulation study examined a model with three nonlinear effects under varying distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), and sample sizes (400, 1000). LSAM produced largely unbiased estimates with stable coverage, standard errors, and Type I error rates across most conditions. Power varied more across conditions. Performance was adversely affected under low reliability for some metrics, particularly with uniform distributions, though larger sample sizes mitigated these issues. Traditional methods (LMS, QML, and UPI) showed results consistent with prior literature. The second simulation study tested a more complex model with eight nonlinear effects under the same conditions to assess whether performance deteriorates with increased complexity. LSAM maintained adequate performance despite greater model complexity, though similar limitations emerged and power decreased under certain conditions. Traditional methods yielded more variable results, with generally poorer performance relative to Simulation 1 and LSAM.
 
 keywords: [nonlinear effects, structural equation modeling, local structural-after-measurement, latent variables]
 word-count: true
@@ -71,7 +73,7 @@ bibliography: "references.bib"
 
 format:
   apaquarto-pdf:
-    documentmode: doc
+    documentmode: man
     keep-tex: false
     include-in-header:
       text: |
@@ -96,9 +98,9 @@ library(kableExtra) # appendices
 
 {{< include introduction.qmd >}}
 
-{{< include present_research.qmd >}}
-
 {{< include modelsframework.qmd >}}
+
+{{< include present_research.qmd >}}
 
 {{< include design.qmd >}}
 
@@ -343,7 +345,7 @@ p_cov_nonnorm_unif_study_1
 ```{r}
 #| label: fig-type1-sim1
 #| fig-cap: "Type I error rate for Simulation 1 varying distributions and reliability levels (N = 1000)."
-#| apa-note: "*Note*. MCSE are not shown due to their small magnitude."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Errors bars represent the MCSE."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -403,7 +405,7 @@ p_coverage_400_full_all_study_2
 ```{r}
 #| label: fig-type1-sim2
 #| fig-cap: "Type I error rate for Simulation 2 with varying distributions and reliability levels (N = 1000)."
-#| apa-note: "*Note*. MCSE are not shown due to their small magnitude."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Error bars represent the MCSE."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -415,7 +417,7 @@ p_t1_1000_all_study_2
 ```{r}
 #| label: fig-sens-bias-sim1
 #| fig-cap: "Additional distributional conditions: Relative bias for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. Grey dots represent baseline (normal epsilon and zeta). Black dots represent nonnormal conditions. Error bars show 95% CI around nonnormal estimates. Shaded region indicates acceptable range."
+#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Shaded region indicates acceptable range. Error bars show MCSE around nonnormal estimates."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -427,7 +429,7 @@ p_sens_bias_study1
 ```{r}
 #| label: fig-sens-rmse-sim1
 #| fig-cap: "Additional distributional conditions: Relative RMSE for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. Grey dots represent baseline (normal epsilon and zeta). Black dots represent nonnormal conditions. Error bars show 95% CI around nonnormal estimates."
+#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Error bars show MCSE around nonnormal estimates."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -439,7 +441,7 @@ p_sens_rmse_study1
 ```{r}
 #| label: fig-sens-sesd-sim1
 #| fig-cap: "Additional distributional conditions: SE/SD Ratio for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. White dots represent baseline (normal epsilon and zeta), while black dots represent right-skewed conditions. Shaded region indicates acceptable range."
+#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Shaded region indicates acceptable range."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -451,7 +453,7 @@ p_sens_sesd_study1
 ```{r}
 #| label: fig-sens-coverage-sim1
 #| fig-cap: "Additional distributional conditions: Coverage for Simulation 1 (N = 1000)."
-#| apa-note: "*Note*. White dots represent baseline (normal epsilon and zeta). Black dots represent nonnormal conditions. Error bars show 95% CI around nonnormal estimates. Shaded region indicates acceptable range."
+#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Shaded region indicates acceptable range. Error bars show MCSE around nonnormal estimates."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9

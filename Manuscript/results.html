@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>results</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="results_files/libs/clipboard/clipboard.min.js"></script>
+<script src="results_files/libs/quarto-html/quarto.js"></script>
+<script src="results_files/libs/quarto-html/popper.min.js"></script>
+<script src="results_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="results_files/libs/quarto-html/anchor.min.js"></script>
+<link href="results_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="results_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="results_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="results_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="results_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="results-for-simulation-studies" class="level1">
+<h1>Results for Simulation Studies</h1>
+<p>The results reported here focus primarily on conditions where nonlinear effects were present. This section is organized as follows: we first present the main results for Simulation 1 and 2 under normal measurement errors and structural disturbances, followed by a separate subsection examining how nonnormal measurement errors and structural disturbances affect results relative to those main analyses results.</p>
+<section id="main-results-simulation-1" class="level2">
+<h2 class="anchored" data-anchor-id="main-results-simulation-1">Main Results: Simulation 1</h2>
+<section id="convergence-issues-and-outliers" class="level3">
+<h3 class="anchored" data-anchor-id="convergence-issues-and-outliers">Convergence Issues and Outliers</h3>
+<p>Convergence problems were generally rare. The main exception was UPI, which showed reduced convergence under moderate sample size, low reliability, and uniform latent predictors. In this scenario, convergence rates were 75.1% with the full model and 73% with the linear model. LMS and QML converged well in general, with the lowest rates in the same setting being 97.1% and 92.2% (full model), and 96.8% and 90.4% (linear model), respectively. LSAM consistently converged, with rates of 100% across all conditions.</p>
+<p>Outlier rates followed a comparable pattern. The most pronounced rates again occurred under moderate sample size, low reliability, and uniform latent predictors. UPI produced the highest outlier frequencies, reaching 14.59% with the full model and 16.59% with the linear model. For the same condition, LSAM also yielded the most outliers (8.89% with the linear model and 8.5% with the full model). In contrast, LMS and QML generated virtually none, with their highest rates reaching only 3.97% and 2.27% (both full model) in the same scenario as the other approaches. Detailed results for convergence and outliers are provided in Appendix C (see Table C1).</p>
+</section>
+<section id="relative-bias-and-rmse-when-nonlinear-effects-were-present" class="level3">
+<h3 class="anchored" data-anchor-id="relative-bias-and-rmse-when-nonlinear-effects-were-present">Relative Bias and RMSE When Nonlinear Effects Were Present</h3>
+<p>Figures 2 and 3 present relative bias and RMSE across distributional conditions at a moderate sample size (N = 400). Following <span class="citation" data-cites="brandt_etall_2014">@brandt_etall_2014</span>, values exceeding 0.10 (10%) were considered biased. Under normal distributions, LSAM showed stable performance across reliability levels for all nonlinear effects. Bias emerged only for the interaction term at low reliability for the other approaches, with LMS and QML also biased under medium reliability. At larger sample sizes, LSAM and UPI were unbiased even at low reliability, whereas LMS and QML continued to show bias under low and medium reliability. With right-skewed distributions, LSAM displayed bias for the interaction term only under low reliability, while UPI showed no bias for all nonlinear effects. In contrast, LMS and QML exhibited severe negative bias for interactions and positive bias for quadratic effects across reliability levels. At larger sample sizes, LSAM and UPI were unbiased across conditions, but LMS and QML remained biased. Under uniform distributions, LSAM was unbiased at all reliability levels. UPI showed bias for some nonlinear effects at low and medium reliability, whereas LMS and QML produced unbiased interaction estimates but consistent negative bias for quadratic effects throughout reliability levels. These last patterns remained qualitatively unchanged at larger sample sizes (see Figure S3 in supplemental materials).</p>
+<p>For relative RMSE, all methods performed similarly under normality, with minor differences at low reliability where LMS and QML showed the lowest values. Under right-skewed distributions, LSAM yielded the lowest RMSE, though the advantage was modest and diminished further at high reliability. For uniform distributions, LMS and QML produced substantially lower RMSE, but performance across methods converged as reliability increased.</p>
+</section>
+<section id="efficiency-and-accuracy-of-ses-when-nonlinear-effects-were-present" class="level3">
+<h3 class="anchored" data-anchor-id="efficiency-and-accuracy-of-ses-when-nonlinear-effects-were-present">Efficiency and Accuracy of SEs When Nonlinear Effects Were Present</h3>
+<p>Figure 4 presents SE/SD ratios for right-skewed and uniform conditions across sample sizes, with exact values shown when they fall outside the y-axis range. Following Brandt et al.&nbsp;(2014), ratios below 0.90 (underestimation) or above 1.10 (overestimation) indicate bias. Under normality, LSAM displayed one small overestimation at low reliability and moderate sample size. In contrast, UPI produced substantial overestimation across all nonlinear effects under the same condition (see Figure S6 in supplemental materials), while LMS and QML yielded extremely accurate ratios. For right-skewed distributions, LSAM showed some overestimation at low reliability with moderate sample sizes. UPI consistently overestimated under low reliability. We also note that in some cases an underestimation is observed. Under uniform distributions, LSAM and UPI overestimated SEs for all nonlinear effects at low reliability<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. UPI additionally showed a negligible underestimation at medium reliability and moderate sample sizes. LMS and QML remained stable across basically all conditions. Larger sample size improved all results, except for the UPI under the uniform and low reliability condition. Last, we also see a slight underestimation for one quadratic term at high reliability for all approaches in the right-skewed scenario.</p>
+</section>
+<section id="coverage-for-when-nonlinear-effects-were-present" class="level3">
+<h3 class="anchored" data-anchor-id="coverage-for-when-nonlinear-effects-were-present">Coverage for When Nonlinear Effects Were Present</h3>
+<p>Figure 5 displays coverage results for right-skewed and uniform conditions across sample sizes, also with exact values shown when they fall outside the y-axis range. Coverage between 93% and 97% was considered acceptable. Although, previous literature considered above 90% as an acceptable performance <span class="citation" data-cites="cham_etall_2012 ayturk_etall_2020">[@cham_etall_2012; @ayturk_etall_2020]</span>. LSAM slightly exceeded this range at low reliability and moderate sample size, but not at larger samples, across all distributions. UPI also showed similar results, but still with some exceeding values with a large sample for some distributions. Under normality, LMS and QML performed within the acceptable range across reliability and sample sizes (see Figure S7 in supplemental materials). reliability. For right-skewed distributions, however, LMS and QML exhibited substantial undercoverage. Larger sample sizes did not improve coverage for these methods, while higher reliability reduced—but did not eliminate—the amount of undercoverage. Under uniform distributions, LMS and QML showed undercoverage exclusively for the quadratic effects, with the same remark previously highlighted.</p>
+</section>
+<section id="type-i-error-rate" class="level3">
+<h3 class="anchored" data-anchor-id="type-i-error-rate">Type I Error Rate</h3>
+<p>Figure 6 presents Type I error rates at large sample sizes across distributions, with values between 2.5–7.5% considered acceptable. Under normality, LSAM, LMS, and QML remained within the acceptable range across reliability levels, though UPI fell below this range at low reliability. For right-skewed distributions, LSAM and UPI stayed within acceptable bounds, whereas LMS and QML showed severe inflation for quadratic effects across all reliability levels. Under uniform distributions, LSAM and UPI generally performed well, with values falling below the acceptable range only at low reliability. In contrast, LMS and QML yielded consistently well-controlled error rates in this case. Results at moderate sample sizes were qualitatively similar, though LMS and QML showed somewhat less inflation under right-skewness. Moreover, Type I error rates for LSAM and UPI fell below the acceptable range at low reliability across distributions (see Figure S8 in supplemental materials).</p>
+</section>
+<section id="empirical-power" class="level3">
+<h3 class="anchored" data-anchor-id="empirical-power">Empirical Power</h3>
+<p>Given the inflated Type I error rates and biased results observed for some approaches, power results should be interpreted with caution <span class="citation" data-cites="morris_etall_2019">[@morris_etall_2019]</span>. That said, we restrict our conclusions to only specific conditions. At large sample sizes, LSAM reached power levels near or above 80% under medium and high reliability across all distributions for most nonlinear effects. The main exception was under the uniform distribution, where quadratic effects remained underpowered. The other approaches showed broadly similar patterns in the same conditions. Under right-skewness, however, LMS and QML diverged extremely with low power only for the interaction term under medium reliability (see Figure S9 in supplemental materials).</p>
+</section>
+<section id="absolute-bias-rmse-ses-and-coverage-when-nonlinear-effects-were-absent" class="level3">
+<h3 class="anchored" data-anchor-id="absolute-bias-rmse-ses-and-coverage-when-nonlinear-effects-were-absent">Absolute Bias, RMSE, SEs, and Coverage When Nonlinear Effects Were Absent</h3>
+<p>Bias patterns resembled those observed when nonlinear effects were present, though with reduced magnitude. A notable difference emerged under the uniform distribution: LMS and QML produced unbiased quadratic estimates. RMSE results showed no substantive differences beyond reduced magnitude. The accuracy of SEs was generally comparable. Coverage improved somewhat when nonlinear effects were absent. Specifically, LMS and QML showed higher coverage under right-skewed distributions, though still falling below the desirable range for quadratic effects. Under the uniform distribution, however, coverage for quadratic effects improved substantially for both LMS and QML (see Figures S2, S4, S6, and S7 in supplemental materials).</p>
+</section>
+</section>
+<section id="summary-of-simulation-1" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-simulation-1">Summary of Simulation 1</h2>
+<p>With the exception of low reliability conditions, LSAM demonstrated adequate performance across all evaluated metrics. LSAM generally yielded unbiased estimates, whereas QML and LMS exhibited systematic bias: positive and negative bias for nonlinear effects under right-skewed distributions, and negative bias for quadratic effects under uniform distributions. UPI also produced largely unbiased results. For SEs, LMS and QML were the most efficient, although LSAM achieved comparable accuracy at medium and high reliability across all distributions, particularly with large sample sizes. Coverage rates remained relatively stable for LSAM and UPI, but not for LMS and QML. Type I error rates fell within the acceptable range for LSAM and UPI, except under uniform conditions with low reliability. By contrast, LMS and QML displayed marked inflation under right-skewed distributions. Finally, empirical power was generally highest for LMS and QML, though this finding must be interpreted cautiously given their inflated Type I error and biased results. When Type I error was controlled, all approaches achieved desirable power levels for most effects, with the exception of quadratic effects under the uniform distribution, which remained underpowered.</p>
+</section>
+<section id="main-results-simulation-2" class="level2">
+<h2 class="anchored" data-anchor-id="main-results-simulation-2">Main Results: Simulation 2</h2>
+<section id="convergence-issues-and-outliers-1" class="level3">
+<h3 class="anchored" data-anchor-id="convergence-issues-and-outliers-1">Convergence Issues and Outliers</h3>
+<p>Convergence problems were most severe for UPI, particularly with a moderate sample, low reliability, and uniform predictors. Rates fell to 59.6% for both full model and linear model. QML converged more often under these conditions but still at suboptimal levels (79.7% with the full model; 80.9% with the linear model). LSAM converged 100% under all conditions. For normal and right-skewed predictors, all approaches had a convergence rate above 96%.</p>
+<p>Outlier rates also varied substantially across methods. UPI again performed worst under the condition of uniform predictors with moderate sample size and low reliability, reaching 36.2% with the linear model and 38.81% with the full model. QML showed much lower outlier rates overall, with the highest occurring under right-skewed predictors (2.47% with the linear model), followed by uniform predictors (4.72% with the full model). LSAM’s highest outlier rates also occurred outside normality, with uniform predictors in the full model (5.75%) and right-skewed predictors in the linear model (7.52%). We note the final sample size for the condition with low reliability and uniform distribution is relatively small (see Table C2 in Appendix C for more information).</p>
+</section>
+<section id="relative-bias-and-rmse-when-nonlinear-effects-were-present-1" class="level3">
+<h3 class="anchored" data-anchor-id="relative-bias-and-rmse-when-nonlinear-effects-were-present-1">Relative Bias and RMSE When Nonlinear Effects Were Present</h3>
+<p>Figures 7 and 8 present relative bias and RMSE for all nonlinear effects across distributions with a moderate sample size. Under normality, results were mixed. At low reliability, LSAM showed bias for some nonlinear effects, which disappeared at medium reliability. UPI and QML also showed bias at low reliability, but only QML continued to exhibit bias at medium reliability. With right-skewed distributions, LSAM was biased for one nonlinear effects at low and medium reliability. UPI only yielded biased estimates at low reliability. QML, however, showed substantial bias affecting most nonlinear effects across all reliability levels. Under the uniform distribution, LSAM showed biased results only at low reliability. UPI showed substantial bias for most nonlinear effects at low reliability, which was reduced at medium reliability. QML displayed bias for some effects at low reliability, improving with increasing reliability, yet all quadratic terms remained biased across reliability levels. At larger sample sizes, both LSAM and UPI no longer resulted in many of the biases observed under moderate sample sizes (see Figures S11, S19, and S27 in supplemental materials).</p>
+<p>Relative RMSE was comparable across methods under normality and right-skewness. Under uniform predictors, QML yielded substantially lower RMSE than LSAM and UPI at low reliability, with results converging at medium reliability (see Figures S13, S21, and S29 in supplemental materials for a large sample size).</p>
+</section>
+<section id="efficiency-and-accuracy-of-ses-when-nonlinear-effects-were-present-1" class="level3">
+<h3 class="anchored" data-anchor-id="efficiency-and-accuracy-of-ses-when-nonlinear-effects-were-present-1">Efficiency and Accuracy of SEs When Nonlinear Effects Were Present</h3>
+<p>Figure 9 displays SE/SD ratios across distributions at a moderate sample size. Under normal distributions, LSAM and QML produced ratios within the acceptable range across reliability levels, whereas UPI overestimated for several nonlinear effects at low reliability, improving for most effects at medium reliability. With right-skewed distributions, LSAM and QML ratios were consistently within the desirable range, but UPI ratios were overestimated at low reliability. Under uniform distributions, all approaches yielded overestimated ratios for some effects at low reliability. However, the magnitude is the largest for the UPI approach. Results generally improved with larger samples, although the UPI approach remained overestimated for most effects (see Figures S14, S22, and S30 in supplemental materials).</p>
+</section>
+<section id="coverage-when-nonlinear-effects-were-present" class="level3">
+<h3 class="anchored" data-anchor-id="coverage-when-nonlinear-effects-were-present">Coverage When Nonlinear Effects Were Present</h3>
+<p>Figure 10 presents coverage results for a moderate sample size, with exact values shown when they fall outside the y-axis range. Under normality, LSAM generally achieved acceptable coverage, with some overcoverage at low reliability. QML maintained coverage within the desirable range across all nonlinear effects, whereas UPI showed overcoverage for most effects at low reliability. With right-skewed distributions, LSAM again produced acceptable coverage, apart from one slight overcoverage at low reliability. In contrast, QML yielded inadequate coverage, reaching acceptable levels only at high reliability for some effects. Under uniform distributions, LSAM and UPI showed a similar pattern as in the other conditions, with overcoverage at low reliability. Note, however, that UPI with a medium reliability resulted in some overcoverage. For QML, coverage for interaction terms was adequate, while quadratic terms remained under-covered at both low and medium reliability. Patterns were qualitatively similar at larger sample sizes (see Figures S15, S23, and S31 in supplemental materials).</p>
+</section>
+<section id="type-i-error-rate-1" class="level3">
+<h3 class="anchored" data-anchor-id="type-i-error-rate-1">Type I Error Rate</h3>
+<p>Figure 11 presents Type I error rates for a large sample size under right-skewed and uniform distributions. Under normality, LSAM and QML approaches maintained rates within the nominal 5% level across reliability levels. This was not the case for the UPI approach (see Figure S16 in the supplemental materials). Under right-skewed conditions, LSAM demonstrated well-controlled Type I error rates even at low reliability, whereas QML showed substantial inflation for quadratic effects at low and medium reliability. In this case, the UPI approach results fell below the acceptable range for multiple nonlinear effects. Under uniform distributions, LSAM showed some values below this acceptable range under low reliability for two quadratic terms. This was even more problematic for the UPI with all nonlinear effects, while for the QML the rate was acceptable (see Figures S16, S24, and S32 in supplemental materials for moderate sample size).</p>
+</section>
+<section id="empirical-power-1" class="level3">
+<h3 class="anchored" data-anchor-id="empirical-power-1">Empirical Power</h3>
+<p>Following the same previous remarks, under normal distributions, power only exceeded 80% with large samples and high reliability, primarily for the nonlinear effects in the structural equation for <span class="math inline">\(\eta_4\)</span>. Results under right-skewed conditions yielded elevated power rates under the same setting. In contrast, under uniform distributions, power remained substantially lower for all nonlinear effects, even with large samples and high reliability, with the exception of the two interaction terms in <span class="math inline">\(\eta_4\)</span> (see Figures S17, S25, and S33 in supplemental materials).</p>
+</section>
+<section id="absolute-bias-rmse-ses-and-coverage-when-nonlinear-effects-were-absent-1" class="level3">
+<h3 class="anchored" data-anchor-id="absolute-bias-rmse-ses-and-coverage-when-nonlinear-effects-were-absent-1">Absolute Bias, RMSE, SEs, and Coverage When Nonlinear Effects Were Absent</h3>
+<p>The most notable differences emerged across conditions were reduced bias values in the case of the QML approach for certain nonlinear effects were observed throughout distributions. SE/SD ratios were highly similar. Coverage improved for all approaches under normal and uniform conditions. Under nonnormality, however, QML continued to exhibit undercoverage mainly with large sample sizes. RMSE remained similar (see Figures S10, S12, S14, S15, S18, S20, S22, S23, S26, S28, S30, and S31 in supplemental materials).</p>
+</section>
+</section>
+<section id="summary-of-simulation-2" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-simulation-2">Summary of Simulation 2</h2>
+<p>Across most conditions, LSAM produced largely unbiased estimates, accurate SEs, and acceptable coverage, except under low reliability, where some bias and overcoverage appeared. UPI was hampered by convergence failures and bias under uniform predictors, along with overestimated SEs, particularly under uniform and right-skewed distributions with low or medium reliability. QML was efficient and often yielded accurate SEs, but displayed persistent bias for several nonlinear effects under right-skewed and uniform distributions, inflated Type I error rates under right-skewness, and undercoverage of nonlinear effects—especially quadratic terms—under both right-skewed and uniform predictors, most notably at low and medium reliability. Relative RMSE differences among methods were modest: QML was occasionally more efficient under uniform predictors, LSAM and UPI performed well under right-skewness, and all methods performed similarly at medium reliability across distributions. For empirical power, acceptable levels (<span class="math inline">\(\geq 80\)</span>%) were attained only under normality with large samples and high reliability, primarily for nonlinear effects in the structural equation for <span class="math inline">\(\eta_4\)</span>. Under uniform predictors, power was substantially lower for all nonlinear effects, except the two interaction terms in <span class="math inline">\(\eta_4\)</span>.</p>
+</section>
+<section id="additional-distributional-conditions-measurement-error-and-structural-disturbance" class="level2">
+<h2 class="anchored" data-anchor-id="additional-distributional-conditions-measurement-error-and-structural-disturbance">Additional Distributional Conditions: Measurement Error and Structural Disturbance</h2>
+<p>Results are presented as dumbbell plots comparing normal (main results) to nonnormal (i.e., right-skewed) conditions for measurement errors and structural disturbance<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
+<section id="simulation-1" class="level3">
+<h3 class="anchored" data-anchor-id="simulation-1">Simulation 1</h3>
+<p>With respect to convergence, right-skewed measurement errors and structural disturbances had the most negative consequences on the cases with low reliability, especially with uniform latent variables. For this reason, we restrict the comparison here to cases with medium and high reliability. Similarly, for outliers, the same conditions yielded the worst results. In fact, in the condition with uniform latent variables, low reliability, and right-skewed measurement errors, convergence rates for the UPI approach were extremely low. We also note that the right-skewed measurement errors, in contrast to the structural disturbances, were more frequently associated with convergence and outliers (see Table C1).</p>
+<p>For the relative bias, focusing on moderate sample sizes, right-skewed measurement error with medium reliability lead to substantial worsening for all approaches, especially in the case with uniform latent predictors. However, under high reliability, conclusions stay largely in agreement with main results (see Figure 12). Note, however, the direction of the bias is different for interaction and quadratic effects. For relative RMSE, under moderate sample sizes, the largest difference is for the UPI approach with medium reliability and right-skewed measurement error (see Figure 13), where the the values increased. For the SE/SD ratio, results are largely similar, with the most notable difference for the UPI under right-skewed measurement error and medium reliability. In this case, we see an overestimation with right-skewed and uniform latent variables (see Figure 14). All of these results are not different under a large sample size. For coverage, results yielded the most substantial differences under medium reliability. Indeed, with right-skewed measurement error and latent variables, the coverage for LMS and QML actually improved. This is rather unexpected. While for right-skewed measurement error and uniform latent variables, most approaches also yielded lower coverage results except the UPI where this was mild (see Figure 15). Note that a moderate sample size yielded the same conclusions. Results for Type I error followed the behavior from coverage.</p>
+</section>
+<section id="simulation-2" class="level3">
+<h3 class="anchored" data-anchor-id="simulation-2">Simulation 2</h3>
+<p>Due to the conclusions being largely the same as what happened with the model in Simulation 1, we do not show any figures in the manuscript (see online supplemental materials SX). Convergence and outliers yielded similar results as well. One notable exception is that QML showed substantial convergence issues when latent variables where uniformly distributed, right-skewed measurement errors and under low reliability.</p>
+<p>For the relative bias, similar trends are observed as in Simulation 1. Right-skewed measurement error with medium reliability lead to substantial worsening for all approaches, primarily under normal and uniform latent predictors. Under high reliability, results remain largely in agreement with the main results (see Figures SX). For the relative RMSE, under moderate sample size and medium reliability, with right-skewed measurement error, we see some increase for LSAM and UPI under right-skewed latent predictors, while under uniform predictors only UPI. Again, results with high reliability remain the same as main results (see Figures SX). For the SE/SD ratio, we see a large difference throughout the latent predictors’ distributions (see Figures SX). In this case, the most relevant are with medium reliability and right-skewed latent predictors. For coverage, similar patterns as in Simulation 1 are observed.</p>
+</section>
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>For LSAM, we noted this overestimation arose from a small number of clear outliers in the SEs. Although these values were retained in the analysis, they are identified and displayed in supplemental materials (see Figure S1).<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>A natural concern may be that the right-skewed measurement errors and structural disturbances can lead to additional convergence failures and outliers, thus the effective sample sizes may differ between conditions. To account for this, we computed the MCSE of the difference. This is not reported here but further clarified in the online supplemental materials.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
