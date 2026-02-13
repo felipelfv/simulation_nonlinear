@@ -156,6 +156,7 @@ check_proper_solution_study2 <- function(table, method,
 #' @param parameters_of_interest Named list. Parameters to extract by equation
 #' @param remove_outliers Logical. Whether to remove outliers (default TRUE)
 #' @param outlier_threshold Numeric. IQR multiplier for outlier detection (default 3)
+#' @param se_threshold Numeric. Absolute SE threshold; replications with any SE above this are flagged as outliers (default Inf = no filtering)
 #' @param min_reps Integer. Minimum replications required (default 10)
 #' @param exclude_warnings Logical. Whether to exclude warnings (default FALSE)
 #' @param check_positive_se Logical. Check positive SEs (default FALSE)
@@ -172,6 +173,7 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
                                               ),
                                               remove_outliers = TRUE,
                                               outlier_threshold = 3,
+                                              se_threshold = Inf,
                                               min_reps = 10,
                                               exclude_warnings = FALSE,
                                               check_positive_se = FALSE,
@@ -186,7 +188,8 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
   cat("\nBasic (NA/NaN/Inf): TRUE (always)\n")
   cat("\nPositive SEs:", check_positive_se, "\n")
   cat("\nNo Heywood cases:", check_heywood, "\n")
-  cat("\nPositive definite factor cov:", check_pd, "\n\n")
+  cat("\nPositive definite factor cov:", check_pd, "\n")
+  cat("\nSE threshold:", if (is.infinite(se_threshold)) "None" else se_threshold, "\n\n")
   
   summary_list <- list()
   convergence_outliers_details <- list()
@@ -358,6 +361,12 @@ ExtractConvergenceOutliers_Study2 <- function(all_results,
                 est_val <- extr$Estimates[p]
                 if (is_valid(est_val) &&
                     (est_val < bounds[[key]][1] || est_val > bounds[[key]][2])) {
+                  is_outlier <- TRUE
+                  break
+                }
+                # flag replications with extreme SEs
+                se_val <- extr$`Standard Errors`[p]
+                if (is_valid(se_val) && se_val > se_threshold) {
                   is_outlier <- TRUE
                   break
                 }
@@ -571,11 +580,8 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
 }
 
 
-# ============================================================================
-# USAGE EXAMPLES
-# ============================================================================
 
-# --- BASIC CHECKS (for main paper) ---
+# BASIC CHECKS (for main paper) 
 # extraction_basic <- ExtractConvergenceOutliers_Study2(
 #   all_results = all_results,
 #   parameters_of_interest = list(
@@ -584,19 +590,20 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
 #   ),
 #   remove_outliers = TRUE,
 #   outlier_threshold = 3,
+#   se_threshold = 10,
 #   min_reps = 0,
 #   check_positive_se = FALSE,
 #   check_heywood = FALSE,
 #   check_pd = FALSE
 # )
-# 
+#
 # results_basic <- CalculatePerformanceMetrics_Study2(
 #   filtered_data = extraction_basic$filtered_data,
 #   converged_data = extraction_basic$converged_data,
 #   convergence_outliers_summary = extraction_basic$convergence_outliers_summary
 # )
 
-# --- STRICT CHECKS (for supplementary materials) ---
+# STRICT CHECKS (for supplementary materials) 
 # extraction_strict <- ExtractConvergenceOutliers_Study2(
 #   all_results = all_results,
 #   parameters_of_interest = list(
@@ -605,8 +612,9 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
 #   ),
 #   remove_outliers = TRUE,
 #   outlier_threshold = 3,
+#   se_threshold = 10,
 #   min_reps = 0,
-#   exclude_warnings = TRUE,  # note this also
+#   exclude_warnings = FALSE,  # note this also
 #   check_positive_se = TRUE,
 #   check_heywood = TRUE,
 #   check_pd = TRUE
