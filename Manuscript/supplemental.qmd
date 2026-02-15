@@ -1,0 +1,1311 @@
+---
+title: "Supplemental Materials for Evaluating Local Structural-After-Measurement (LSAM) and Traditional Approaches for the Estimation of Complex Nonlinear Effects Among Latent Variables"
+shorttitle: "Supplemental Materials: Evaluating LSAM and Traditional SEM Approaches"
+
+author:
+  - name: Felipe Fontana Vieira
+    corresponding: true
+    orcid: 0009-0006-0949-6569
+    email: felipe.fontanavieira@ugent.be
+    affiliations:
+      - name: Ghent University
+        department: Department of Data Analysis, Faculty of Psychology and Educational Sciences
+        address: Henri Dunantlaan 2
+        city: Ghent
+        country: Belgium
+        postal-code: 9000
+        id: UGent
+  - name: Kjell Solem Slupphaug
+    corresponding: false
+    orcid: 0009-0005-8324-2834
+    affiliations:
+      - name: Norwegian University of Science and Technology
+        department: Department of Psychology
+        city: Trondheim
+        country: Norway
+  - name: Yves Rosseel
+    corresponding: false
+    orcid: 0000-0002-4129-4477
+    affiliations:
+      - ref: UGent
+
+floatsintext: true
+
+format:
+  apaquarto-pdf:
+    documentmode: man
+    keep-tex: false
+    include-in-header:
+      text: |
+        \raggedbottom
+        \usepackage{pdflscape}
+        \usepackage{longtable}
+        \usepackage{array}
+        \renewcommand{\thefigure}{S\arabic{figure}}
+        \renewcommand{\thetable}{S\arabic{table}}
+        \setcounter{figure}{0}
+        \setcounter{table}{0}
+
+execute:
+  echo: false
+  warning: false
+  message: false
+
+editor:
+  markdown:
+    wrap: sentence
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+
+source("../Simulations/Plots.R")
+```
+
+\landscape
+\footnotesize
+\begin{flushleft}
+\textbf{Table S1}
+
+\textit{Complete performance measures for evaluating parameter estimates in the simulation studies}
+\end{flushleft}
+| Performance Measure | Empirical Calculation | MCSE |
+|---|---|---|
+| **Mean-Based Metrics** | | |
+| Absolute Bias | $\bar{B} - \beta$ | $\sqrt{S_B^2/K}$ |
+| Relative Bias | $(\frac{\bar{B}}{\beta})- 1$ | $\sqrt{S_B^2/(K\beta^2)}$ |
+| Percent Relative Bias | $(\frac{\bar{B}}{\beta})- 1\times 100\%$ | — |
+| MSE | $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ | $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
+| RMSE | $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ |
+| Relative MSE | $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ | $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ |
+| Relative RMSE | $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ | $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ |
+| SE/SD Ratio | $\overline{SE}/S_B$ | — |
+| Rejection Rate | $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ | $\sqrt{r_\alpha(1-r_\alpha)/K}$ |
+| Coverage | $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ | $\sqrt{c_\beta(1-c_\beta)/K}$ |
+| Average Width | $\bar{W} = \bar{B} - \bar{A}$ | $\sqrt{S_W^2/K}$ |
+| **Median-Based Metrics** | | |
+| Median Bias | $\textit{Mdn}(B) - \beta$ | — |
+| Relative Median Bias | $\frac{\textit{Mdn}(B) - \beta}{\beta}$ | — |
+| Percent Relative Median Bias | $\frac{\textit{Mdn}(B) - \beta}{\beta} \times 100\%$ | — |
+| MAD | $\textit{Mdn}(\|B_k - \textit{Mdn}(B)\|)$ | — |
+| Median RMSE | $\sqrt{\text{Bias}_{\textit{Mdn}}^2 + \text{MAD}^2}$ | — |
+\begin{flushleft}
+\textit{Note}. $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $\overline{SE} = (1/K)\sum_{k=1}^{K}\widehat{SE}_k$ = mean standard error; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $S_W^2$ = variance of CI widths; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively; $\textit{Mdn}(B)$ = sample median of estimates; MAD = median absolute deviation with scaling factor 1.4826. MCSE = Monte Carlo Standard Error, dashes indicate MCSEs not computed. MSE = Mean Squared Error. RMSE = Root Mean Squared Error.
+\end{flushleft}
+\endlandscape
+\normalsize
+
+\newpage
+
+```{r}
+#| label: load-data
+
+data_study_1 <- load("../Simulations/Study_1/Data/Data_Study_1_robustse_final.RData")
+study1_all_results_raw <- all_results
+study1_conditions_raw <- conditions
+
+data_study_2 <- load("../Simulations/Study_2/Data_Calibrated_Intercept_Robust/Data_Study_2_robustse_final.RData")
+study2_all_results_raw <- all_results
+study2_conditions_raw <- conditions
+```
+
+\setcounter{table}{1}
+
+```{r}
+#| label: timing-table
+#| output: asis
+
+# extract timing data from both studies using the _raw variables
+# sim 1 timings
+study1_timings <- data.frame()
+for (i in 1:length(study1_all_results_raw)) {
+  if (!is.null(study1_all_results_raw[[i]]$results$timing)) {
+    timing <- study1_all_results_raw[[i]]$results$timing
+
+    row_data <- data.frame(
+      condition_id = i,
+      N = study1_conditions_raw$N[i],
+      Rel = study1_conditions_raw$Rel[i],
+      Distr_Exo = study1_conditions_raw$Distr_Exo[i],
+      Distr_Epsilon = study1_conditions_raw$Distr_Epsilon[i],
+      Distr_Zeta = study1_conditions_raw$Distr_Zeta[i],
+      Model_Type = study1_conditions_raw$Model_Type[i],
+
+      S1_lms_mean = mean(timing$lms, na.rm = TRUE),
+      S1_lms_median = median(timing$lms, na.rm = TRUE),
+      S1_qml_mean = mean(timing$qml, na.rm = TRUE),
+      S1_qml_median = median(timing$qml, na.rm = TRUE),
+      S1_upi_mean = mean(timing$upi, na.rm = TRUE),
+      S1_upi_median = median(timing$upi, na.rm = TRUE),
+      S1_lsam_mean = mean(timing$lsam, na.rm = TRUE),
+      S1_lsam_median = median(timing$lsam, na.rm = TRUE)
+    )
+
+    study1_timings <- rbind(study1_timings, row_data)
+  }
+}
+
+# sim 2 timings
+study2_timings <- data.frame()
+for (i in 1:length(study2_all_results_raw)) {
+  if (!is.null(study2_all_results_raw[[i]]$results$timing)) {
+    timing <- study2_all_results_raw[[i]]$results$timing
+
+    row_data <- data.frame(
+      N = study2_conditions_raw$N[i],
+      Rel = study2_conditions_raw$Rel[i],
+      Distr_Exo = study2_conditions_raw$Distr_Exo[i],
+      Distr_Epsilon = study2_conditions_raw$Distr_Epsilon[i],
+      Distr_Zeta = study2_conditions_raw$Distr_Zeta[i],
+      Model_Type = study2_conditions_raw$Model_Type[i],
+
+      S2_lsam_mean = mean(timing$lsam, na.rm = TRUE),
+      S2_lsam_median = median(timing$lsam, na.rm = TRUE),
+      S2_qml_mean = mean(timing$qml, na.rm = TRUE),
+      S2_qml_median = median(timing$qml, na.rm = TRUE),
+      S2_upi_mean = mean(timing$upi, na.rm = TRUE),
+      S2_upi_median = median(timing$upi, na.rm = TRUE)
+    )
+
+    study2_timings <- rbind(study2_timings, row_data)
+  }
+}
+
+combined_timings <- merge(
+  study1_timings,
+  study2_timings[, c("N", "Rel", "Distr_Exo", "Distr_Epsilon", "Distr_Zeta", "Model_Type",
+                      "S2_lsam_mean", "S2_lsam_median",
+                      "S2_qml_mean", "S2_qml_median",
+                      "S2_upi_mean", "S2_upi_median")],
+  by = c("N", "Rel", "Distr_Exo", "Distr_Epsilon", "Distr_Zeta", "Model_Type"),
+  all.x = TRUE
+)
+
+# reorder columns for better readability
+combined_timings <- combined_timings[, c(
+  "condition_id", "N", "Rel", "Distr_Exo", "Distr_Epsilon", "Distr_Zeta", "Model_Type",
+  # sim 1 methods
+  "S1_lms_mean", "S1_lms_median",
+  "S1_qml_mean", "S1_qml_median",
+  "S1_upi_mean", "S1_upi_median",
+  "S1_lsam_mean", "S1_lsam_median",
+  # sim 2 methods
+  "S2_lsam_mean", "S2_lsam_median",
+  "S2_qml_mean", "S2_qml_median",
+  "S2_upi_mean", "S2_upi_median"
+)]
+
+timing_cols <- grep("^S[12]_", names(combined_timings))
+combined_timings[timing_cols] <- round(combined_timings[timing_cols], 2)
+
+# label formatting
+label_distr <- function(x) {
+  case_when(
+    x == "nonnormal" ~ "Right-skewed",
+    x == "exp.rate1" ~ "Right-skewed",
+    TRUE ~ tools::toTitleCase(as.character(x))
+  )
+}
+
+# APA formatted table
+apa_timing_table <- combined_timings %>%
+  mutate(
+    Model = ifelse(Model_Type == "full", "Full", "Linear"),
+    Distr_Exo = label_distr(Distr_Exo),
+    Distr_Epsilon = label_distr(Distr_Epsilon),
+    Distr_Zeta = label_distr(Distr_Zeta),
+    Condition = condition_id
+  ) %>%
+  arrange(Condition) %>%
+  select(
+    Condition, Model, N, Reliability = Rel,
+    Distr_Exo, Distr_Epsilon, Distr_Zeta,
+    # sim 1
+    S1_lms_mean, S1_lms_median,
+    S1_qml_mean, S1_qml_median,
+    S1_upi_mean, S1_upi_median,
+    S1_lsam_mean, S1_lsam_median,
+    # sim 2
+    S2_lsam_mean, S2_lsam_median,
+    S2_qml_mean, S2_qml_median,
+    S2_upi_mean, S2_upi_median
+  )
+
+kableExtra::kbl(
+  apa_timing_table,
+  booktabs = TRUE,
+  longtable = TRUE,
+  align = c("l", "l", "r", "r", "l", "l", "l", rep("r", 14)),
+  col.names = c(
+    "Cond.", "Model", "N", "Rel.",
+    "Distr.", "Epsilon", "Zeta",
+    "Mean", "Mdn", "Mean", "Mdn", "Mean", "Mdn", "Mean", "Mdn",
+    "Mean", "Mdn", "Mean", "Mdn", "Mean", "Mdn"
+  ),
+  caption = "Computation time by approach (in seconds)",
+  linesep = "",
+  digits = 2
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 4,
+    "Distribution" = 3,
+    "LMS" = 2,
+    "QML" = 2,
+    "UPI" = 2,
+    "LSAM" = 2,
+    "LSAM" = 2,
+    "QML" = 2,
+    "UPI" = 2
+  )) %>%
+  kableExtra::add_header_above(c(
+    " " = 7,
+    "Study 1" = 8,
+    "Study 2" = 6
+  )) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position", "repeat_header", "scale_down"),
+    font_size = 6,
+    position = "left"
+  ) %>%
+  kableExtra::footnote(
+    general = "Each entry is the mean or median time (in seconds) to complete a single iteration, computed over 1,000 iterations per condition. For example, in the first condition LMS took 12.26 seconds for one iteration on average.",
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = TRUE
+  ) %>%
+  kableExtra::landscape()
+```
+
+```{r}
+#| label: r2-table
+#| output: asis
+
+# Filter to baseline (all normal) conditions only
+baseline_idx_s1 <- which(
+  study1_conditions_raw$Distr_Exo == "normal" &
+  study1_conditions_raw$Distr_Epsilon == "normal" &
+  study1_conditions_raw$Distr_Zeta == "normal" &
+  study1_conditions_raw$Model_Type == "full"
+)
+
+# Study 1: observed_r2 is numeric(1000) for eta3
+r2_study1 <- data.frame()
+for (i in baseline_idx_s1) {
+  r2_vals <- study1_all_results_raw[[i]]$results$observed_r2
+  r2_vals <- r2_vals[!is.na(r2_vals)]
+
+  row_data <- data.frame(
+    N = study1_conditions_raw$N[i],
+    Rel = study1_conditions_raw$Rel[i],
+    Model_Type = study1_conditions_raw$Model_Type[i],
+    R2_eta3_mean = mean(r2_vals),
+    R2_eta3_mcse = sd(r2_vals) / sqrt(length(r2_vals))
+  )
+  r2_study1 <- rbind(r2_study1, row_data)
+}
+
+# Filter to baseline (all normal) conditions for Study 2
+baseline_idx_s2 <- which(
+  study2_conditions_raw$Distr_Exo == "normal" &
+  study2_conditions_raw$Distr_Epsilon == "normal" &
+  study2_conditions_raw$Distr_Zeta == "normal" &
+  study2_conditions_raw$Model_Type == "full"
+)
+
+# Study 2: observed_r2 is matrix(1000, 2) for eta4 and eta5
+r2_study2 <- data.frame()
+for (i in baseline_idx_s2) {
+  r2_mat <- study2_all_results_raw[[i]]$results$observed_r2
+  r2_eta4 <- r2_mat[!is.na(r2_mat[, 1]), 1]
+  r2_eta5 <- r2_mat[!is.na(r2_mat[, 2]), 2]
+
+  row_data <- data.frame(
+    N = study2_conditions_raw$N[i],
+    Rel = study2_conditions_raw$Rel[i],
+    Model_Type = study2_conditions_raw$Model_Type[i],
+    R2_eta4_mean = mean(r2_eta4),
+    R2_eta4_mcse = sd(r2_eta4) / sqrt(length(r2_eta4)),
+    R2_eta5_mean = mean(r2_eta5),
+    R2_eta5_mcse = sd(r2_eta5) / sqrt(length(r2_eta5))
+  )
+  r2_study2 <- rbind(r2_study2, row_data)
+}
+
+# combine
+r2_combined <- merge(
+  r2_study1,
+  r2_study2,
+  by = c("N", "Rel", "Model_Type"),
+  all.x = TRUE
+)
+
+apa_r2_table <- r2_combined %>%
+  mutate(
+    across(starts_with("R2_"), ~ round(.x, 3))
+  ) %>%
+  arrange(N, Rel) %>%
+  select(
+    N, Reliability = Rel,
+    R2_eta3_mean, R2_eta3_mcse,
+    R2_eta4_mean, R2_eta4_mcse,
+    R2_eta5_mean, R2_eta5_mcse
+  )
+
+kableExtra::kbl(
+  apa_r2_table,
+  booktabs = TRUE,
+  align = c("r", "r", rep("r", 6)),
+  col.names = c(
+    "N", "Rel.",
+    "Mean", "MCSE", "Mean", "MCSE", "Mean", "MCSE"
+  ),
+  caption = "Average achieved $R^2$ values under normal baseline conditions",
+  linesep = "",
+  digits = 3
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 2,
+    "$\\\\eta_3$ (Simulation 1)" = 2,
+    "$\\\\eta_4$ (Simulation 2)" = 2,
+    "$\\\\eta_5$ (Simulation 2)" = 2
+  ), escape = FALSE) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position"),
+    font_size = 8,
+    position = "left"
+  ) %>%
+  kableExtra::footnote(
+    general = "Mean = average observed $R^2$ across 1,000 iterations; MCSE = Monte Carlo standard error, computed as $SD/\\\\sqrt{K}$, where $SD$ is the standard deviation of the observed $R^2$ values and $K$ = 1,000 iterations. Only baseline conditions (all distributions normal, full model) are shown.",
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = FALSE
+  )
+```
+
+```{r}
+#| label: load-results
+
+results_study_1 <- readRDS("../Simulations/Study_1/Results/results_study_1_basic_robust.rds")
+results_study_2 <- readRDS("../Simulations/Study_2/Results/results_study_2_basic_robust.rds")
+```
+
+```{r}
+#| label: parameter-mapping
+
+# PARAMETER MAPPING FUNCTION
+map_parameter_to_beta <- function(param, study = 1, equation = NULL) {
+  if (study == 1) {
+    beta_map <- c(
+      "eta1" = "beta31",
+      "eta2" = "beta32",
+      "eta1:eta2" = "beta33",
+      "eta1:eta1" = "beta34",
+      "eta2:eta2" = "beta35"
+    )
+  } else if (study == 2) {
+    if (equation == "eta4") {
+      beta_map <- c(
+        "eta1" = "beta41",
+        "eta2" = "beta42",
+        "eta3" = "beta43",
+        "eta1:eta2" = "beta44",
+        "eta1:eta3" = "beta45",
+        "eta1:eta1" = "beta46",
+        "eta2:eta2" = "beta47"
+      )
+    } else if (equation == "eta5") {
+      beta_map <- c(
+        "eta1" = "beta51",
+        "eta2" = "beta52",
+        "eta3" = "beta53",
+        "eta4" = "beta54",
+        "eta1:eta4" = "beta55",
+        "eta2:eta4" = "beta56",
+        "eta1:eta1" = "beta57",
+        "eta3:eta3" = "beta58"
+      )
+    }
+  }
+
+  ifelse(param %in% names(beta_map), beta_map[param], param)
+}
+```
+
+```{r}
+#| label: sim1-tables
+#| output: asis
+
+# label formatting
+label_distr <- function(x) {
+  case_when(
+    x == "nonnormal" ~ "Right-skewed",
+    x == "exp.rate1" ~ "Right-skewed",
+    TRUE ~ tools::toTitleCase(as.character(x))
+  )
+}
+
+create_apa_results_table_study1_by_condition <- function(results_df, condition_filter, model_filter,
+                                                          distr_exo_filter, distr_epsilon_filter, distr_zeta_filter,
+                                                          n_filter, rel_filter) {
+
+  df <- results_df %>%
+    filter(
+      Condition == condition_filter,
+      Model == model_filter,
+      Distr_Exo == distr_exo_filter,
+      Distr_Epsilon == distr_epsilon_filter,
+      Distr_Zeta == distr_zeta_filter,
+      SampleSize == n_filter,
+      Reliability == rel_filter
+    ) %>%
+    select(
+      Method, Parameter, TrueValue,
+      MeanEstimate, Bias_Mean, Bias_Mean_MCSE,
+      RelativeBias_Mean, RelativeBias_MCSE,
+      MedianEstimate, Bias_Median, PercentRelativeBias_Median, MAD,
+      Variance, Variance_MCSE, SD, SD_MCSE,
+      MSE_Mean, MSE_Mean_MCSE, RMSE_Mean, RMSE_Mean_MCSE, RMSE_Median,
+      Relative_MSE, Relative_MSE_MCSE, Relative_RMSE, Relative_RMSE_MCSE,
+      SE_SD_Ratio, CoverageRate, CoverageRate_MCSE,
+      CI_Width, CI_Width_MCSE,
+      TypeI_Error, TypeI_Error_MCSE, Power, Power_MCSE
+    ) %>%
+    mutate(
+      Parameter = map_parameter_to_beta(Parameter, study = 1),
+      `Bias ± MCSE` = sprintf("%.3f ± %.3f", Bias_Mean, Bias_Mean_MCSE),
+      `Rel. Bias ± MCSE` = ifelse(TrueValue == 0, "—",
+                                    sprintf("%.3f ± %.3f", RelativeBias_Mean, RelativeBias_MCSE)),
+      `Variance ± MCSE` = sprintf("%.3f ± %.3f", Variance, Variance_MCSE),
+      `SD ± MCSE` = sprintf("%.3f ± %.3f", SD, SD_MCSE),
+      `MSE ± MCSE` = sprintf("%.3f ± %.3f", MSE_Mean, MSE_Mean_MCSE),
+      `RMSE ± MCSE` = sprintf("%.3f ± %.3f", RMSE_Mean, RMSE_Mean_MCSE),
+      `Rel. MSE ± MCSE` = ifelse(TrueValue == 0, "—",
+                                   sprintf("%.3f ± %.3f", Relative_MSE, Relative_MSE_MCSE)),
+      `Rel. RMSE ± MCSE` = ifelse(TrueValue == 0, "—",
+                                    sprintf("%.3f ± %.3f", Relative_RMSE, Relative_RMSE_MCSE)),
+      `% Rel. Bias (Med)` = ifelse(TrueValue == 0, "—",
+                                    sprintf("%.2f", PercentRelativeBias_Median)),
+      `Coverage ± MCSE` = sprintf("%.3f ± %.3f", CoverageRate, CoverageRate_MCSE),
+      `CI Width ± MCSE` = sprintf("%.3f ± %.3f", CI_Width, CI_Width_MCSE),
+      `Type I ± MCSE` = ifelse(is.na(TypeI_Error), "—",
+                               sprintf("%.3f ± %.3f", TypeI_Error, TypeI_Error_MCSE)),
+      `Power ± MCSE` = ifelse(is.na(Power), "—",
+                              sprintf("%.3f ± %.3f", Power, Power_MCSE))
+    ) %>%
+    select(
+      Method, Parameter, TrueValue,
+      MeanEstimate, `Bias ± MCSE`, `Rel. Bias ± MCSE`,
+      `Variance ± MCSE`, `SD ± MCSE`,
+      `MSE ± MCSE`, `RMSE ± MCSE`,
+      `Rel. MSE ± MCSE`, `Rel. RMSE ± MCSE`,
+      MedianEstimate, Bias_Median, `% Rel. Bias (Med)`, MAD, RMSE_Median,
+      SE_SD_Ratio, `Coverage ± MCSE`, `CI Width ± MCSE`,
+      `Type I ± MCSE`, `Power ± MCSE`
+    ) %>%
+    mutate(
+      TrueValue = round(TrueValue, 3),
+      MeanEstimate = round(MeanEstimate, 3),
+      MedianEstimate = round(MedianEstimate, 3),
+      Bias_Median = round(Bias_Median, 3),
+      MAD = round(MAD, 4),
+      RMSE_Median = round(RMSE_Median, 4),
+      SE_SD_Ratio = round(SE_SD_Ratio, 3)
+    ) %>%
+    arrange(Method, Parameter)
+
+  if(model_filter == "Full") {
+    df <- df %>% select(-`Type I ± MCSE`)
+  } else {
+    df <- df %>% select(-`Power ± MCSE`)
+  }
+
+  df
+}
+
+# unique condition combinations for sim 1
+conditions_study1 <- results_study_1 %>%
+  select(Condition, Model, Distr_Exo, Distr_Epsilon, Distr_Zeta, SampleSize, Reliability) %>%
+  distinct() %>%
+  arrange(Condition, factor(Model, levels = c("Full", "Linear")))
+
+# tables for each condition in sim 1
+for(i in 1:nrow(conditions_study1)) {
+  condition_data <- conditions_study1[i, ]
+
+  condition_table <- create_apa_results_table_study1_by_condition(
+    results_study_1,
+    condition_data$Condition,
+    condition_data$Model,
+    condition_data$Distr_Exo,
+    condition_data$Distr_Epsilon,
+    condition_data$Distr_Zeta,
+    condition_data$SampleSize,
+    condition_data$Reliability
+  )
+
+  tab_caption <- sprintf(
+    "Simulation 1 - Condition %s: %s Model, Distr = %s, Epsilon = %s, Zeta = %s, N = %d, Reliability = %.1f",
+    condition_data$Condition,
+    condition_data$Model,
+    label_distr(condition_data$Distr_Exo),
+    label_distr(condition_data$Distr_Epsilon),
+    label_distr(condition_data$Distr_Zeta),
+    condition_data$SampleSize,
+    condition_data$Reliability
+  )
+
+  tab_note <- "MCSE = Monte Carlo Standard Error shown as \\u00b1 value. Coverage, Type I Error, and Power expressed as percentages. \\u2014 indicates relative measures are undefined when true value equals 0 and non-existent results for Type I error rate which was evaluated only for nonlinear effects."
+
+  cat("\\setlength{\\tabcolsep}{3pt}\n")
+
+  print(
+    kableExtra::kbl(
+      condition_table,
+      booktabs = TRUE,
+      longtable = TRUE,
+      align = c("l", "l", rep("r", 19)),
+      col.names = c("Method", "Param.",
+                    "True",
+                    "Mean", "Bias ± MCSE", "Rel. Bias ± MCSE",
+                    "Var. ± MCSE", "SD ± MCSE",
+                    "MSE ± MCSE", "RMSE ± MCSE",
+                    "Rel. MSE ± MCSE", "Rel. RMSE ± MCSE",
+                    "Median", "Bias", "% Rel. Bias", "MAD", "RMSE",
+                    "SE/SD",
+                    "Cover. (%) ± MCSE", "CI Width ± MCSE",
+                    if(condition_data$Model == "Full") "Power (%) ± MCSE" else "Type I (%) ± MCSE"),
+      caption = tab_caption,
+      linesep = ""
+    ) %>%
+      kableExtra::add_header_above(c(
+        " " = 3,
+        "Mean-based" = 9,
+        "Median-based" = 5,
+        "Inference" = 4
+      )) %>%
+      kableExtra::kable_styling(
+        latex_options = c("hold_position", "repeat_header"),
+        font_size = 4.5
+      ) %>%
+      kableExtra::footnote(
+        general = tab_note,
+        general_title = "Note.",
+        threeparttable = TRUE,
+        escape = TRUE
+      ) %>%
+      kableExtra::landscape()
+  )
+
+  cat("\\setlength{\\tabcolsep}{6pt}\n")
+  cat("\n\\clearpage\n\n")
+}
+```
+
+```{r}
+#| label: sim2-tables
+#| output: asis
+
+create_apa_results_table_study2_by_condition <- function(results_df, condition_filter, model_filter,
+                                                          distr_exo_filter, distr_epsilon_filter, distr_zeta_filter,
+                                                          n_filter, rel_filter) {
+
+  df <- results_df %>%
+    filter(
+      Condition == condition_filter,
+      Model == model_filter,
+      Distr_Exo == distr_exo_filter,
+      Distr_Epsilon == distr_epsilon_filter,
+      Distr_Zeta == distr_zeta_filter,
+      SampleSize == n_filter,
+      Reliability == rel_filter
+    ) %>%
+    select(
+      Method, Parameter, Equation, TrueValue,
+      MeanEstimate, Bias_Mean, Bias_Mean_MCSE,
+      RelativeBias_Mean, RelativeBias_MCSE,
+      MedianEstimate, Bias_Median, PercentRelativeBias_Median, MAD,
+      Variance, Variance_MCSE, SD, SD_MCSE,
+      MSE_Mean, MSE_Mean_MCSE, RMSE_Mean, RMSE_Mean_MCSE, RMSE_Median,
+      Relative_MSE, Relative_MSE_MCSE, Relative_RMSE, Relative_RMSE_MCSE,
+      SE_SD_Ratio, CoverageRate, CoverageRate_MCSE,
+      CI_Width, CI_Width_MCSE,
+      TypeI_Error, TypeI_Error_MCSE, Power, Power_MCSE
+    ) %>%
+    mutate(
+      Parameter = mapply(map_parameter_to_beta, Parameter, study = 2, equation = Equation)
+    ) %>%
+    mutate(
+      `Bias ± MCSE` = sprintf("%.3f ± %.3f", Bias_Mean, Bias_Mean_MCSE),
+      `Rel. Bias ± MCSE` = ifelse(TrueValue == 0, "—",
+                                    sprintf("%.3f ± %.3f", RelativeBias_Mean, RelativeBias_MCSE)),
+      `Variance ± MCSE` = sprintf("%.3f ± %.3f", Variance, Variance_MCSE),
+      `SD ± MCSE` = sprintf("%.3f ± %.3f", SD, SD_MCSE),
+      `MSE ± MCSE` = sprintf("%.3f ± %.3f", MSE_Mean, MSE_Mean_MCSE),
+      `RMSE ± MCSE` = sprintf("%.3f ± %.3f", RMSE_Mean, RMSE_Mean_MCSE),
+      `Rel. MSE ± MCSE` = ifelse(TrueValue == 0, "—",
+                                   sprintf("%.3f ± %.3f", Relative_MSE, Relative_MSE_MCSE)),
+      `Rel. RMSE ± MCSE` = ifelse(TrueValue == 0, "—",
+                                    sprintf("%.3f ± %.3f", Relative_RMSE, Relative_RMSE_MCSE)),
+      `% Rel. Bias (Med)` = ifelse(TrueValue == 0, "—",
+                                    sprintf("%.2f", PercentRelativeBias_Median)),
+      `Coverage ± MCSE` = sprintf("%.3f ± %.3f", CoverageRate, CoverageRate_MCSE),
+      `CI Width ± MCSE` = sprintf("%.3f ± %.3f", CI_Width, CI_Width_MCSE),
+      `Type I ± MCSE` = ifelse(is.na(TypeI_Error), "—",
+                               sprintf("%.3f ± %.3f", TypeI_Error, TypeI_Error_MCSE)),
+      `Power ± MCSE` = ifelse(is.na(Power), "—",
+                              sprintf("%.3f ± %.3f", Power, Power_MCSE))
+    ) %>%
+    select(
+      Method, Parameter, TrueValue,
+      MeanEstimate, `Bias ± MCSE`, `Rel. Bias ± MCSE`,
+      `Variance ± MCSE`, `SD ± MCSE`,
+      `MSE ± MCSE`, `RMSE ± MCSE`,
+      `Rel. MSE ± MCSE`, `Rel. RMSE ± MCSE`,
+      MedianEstimate, Bias_Median, `% Rel. Bias (Med)`, MAD, RMSE_Median,
+      SE_SD_Ratio, `Coverage ± MCSE`, `CI Width ± MCSE`,
+      `Type I ± MCSE`, `Power ± MCSE`
+    ) %>%
+    mutate(
+      TrueValue = round(TrueValue, 3),
+      MeanEstimate = round(MeanEstimate, 3),
+      MedianEstimate = round(MedianEstimate, 3),
+      Bias_Median = round(Bias_Median, 3),
+      MAD = round(MAD, 4),
+      RMSE_Median = round(RMSE_Median, 4),
+      SE_SD_Ratio = round(SE_SD_Ratio, 3)
+    ) %>%
+    arrange(Method, Parameter)
+
+  if(model_filter == "Full") {
+    df <- df %>% select(-`Type I ± MCSE`)
+  } else {
+    df <- df %>% select(-`Power ± MCSE`)
+  }
+
+  df
+}
+
+# unique condition combinations for sim 2
+conditions_study2 <- results_study_2 %>%
+  select(Condition, Model, Distr_Exo, Distr_Epsilon, Distr_Zeta, SampleSize, Reliability) %>%
+  distinct() %>%
+  arrange(Condition, factor(Model, levels = c("Full", "Linear")))
+
+for(i in 1:nrow(conditions_study2)) {
+  condition_data <- conditions_study2[i, ]
+
+  condition_table <- create_apa_results_table_study2_by_condition(
+    results_study_2,
+    condition_data$Condition,
+    condition_data$Model,
+    condition_data$Distr_Exo,
+    condition_data$Distr_Epsilon,
+    condition_data$Distr_Zeta,
+    condition_data$SampleSize,
+    condition_data$Reliability
+  )
+
+  tab_caption <- sprintf(
+    "Simulation 2 - Condition %s: %s Model, Distr = %s, Epsilon = %s, Zeta = %s, N = %d, Reliability = %.1f",
+    condition_data$Condition,
+    condition_data$Model,
+    label_distr(condition_data$Distr_Exo),
+    label_distr(condition_data$Distr_Epsilon),
+    label_distr(condition_data$Distr_Zeta),
+    condition_data$SampleSize,
+    condition_data$Reliability
+  )
+
+  tab_note <- "MCSE = Monte Carlo Standard Error shown as \\u00b1 value. Coverage, Type I Error, and Power expressed as percentages. \\u2014 indicates relative measures are undefined when true value equals 0 and non-existent results for Type I error rate which was evaluated only for nonlinear effects."
+
+  cat("\\setlength{\\tabcolsep}{3pt}\n")
+
+  print(
+    kableExtra::kbl(
+      condition_table,
+      booktabs = TRUE,
+      longtable = TRUE,
+      align = c("l", "l", rep("r", 19)),
+      col.names = c("Method", "Param.",
+                    "True",
+                    "Mean", "Bias ± MCSE", "Rel. Bias ± MCSE",
+                    "Var. ± MCSE", "SD ± MCSE",
+                    "MSE ± MCSE", "RMSE ± MCSE",
+                    "Rel. MSE ± MCSE", "Rel. RMSE ± MCSE",
+                    "Median", "Bias", "% Rel. Bias", "MAD", "RMSE",
+                    "SE/SD",
+                    "Cover. (%) ± MCSE", "CI Width ± MCSE",
+                    if(condition_data$Model == "Full") "Power (%) ± MCSE" else "Type I (%) ± MCSE"),
+      caption = tab_caption,
+      linesep = ""
+    ) %>%
+      kableExtra::add_header_above(c(
+        " " = 3,
+        "Mean-based" = 9,
+        "Median-based" = 5,
+        "Inference" = 4
+      )) %>%
+      kableExtra::kable_styling(
+        latex_options = c("hold_position", "repeat_header"),
+        font_size = 4.5
+      ) %>%
+      kableExtra::footnote(
+        general = tab_note,
+        general_title = "Note.",
+        threeparttable = TRUE,
+        escape = TRUE
+      ) %>%
+      kableExtra::landscape()
+  )
+
+  cat("\\setlength{\\tabcolsep}{6pt}\n")
+  cat("\n\\clearpage\n\n")
+}
+```
+
+
+```{r}
+#| label: prepare-plot-data
+
+study1_data <- prepare_study1_data(results_study_1)
+study_2_normal_data <- prepare_study2_data(results_study_2, "normal")
+study_2_nonnormal_data <- prepare_study2_data(results_study_2, "nonnormal")
+study_2_uniform_data <- prepare_study2_data(results_study_2, "uniform")
+```
+
+```{r}
+#| label: fig-bias-sim1
+#| fig-cap: "Absolute bias for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study1_data$bias, shapes = SHAPES_4, ltys = LTYS_4)
+```
+
+```{r}
+#| label: fig-relbias-sim1
+#| fig-cap: "Relative bias for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study1_data$bias_relative, shapes = SHAPES_4, ltys = LTYS_4)
+```
+
+```{r}
+#| label: fig-rmse-sim1
+#| fig-cap: "RMSE for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study1_data$rmse, shapes = SHAPES_4, ltys = LTYS_4)
+```
+
+```{r}
+#| label: fig-relrmse-sim1
+#| fig-cap: "Relative RMSE for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study1_data$rmse_relative, shapes = SHAPES_4, ltys = LTYS_4)
+```
+
+```{r}
+#| label: fig-sesd-sim1
+#| fig-cap: "SE/SD ratio for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_sesd(study1_data$sesd, shapes = SHAPES_4, ltys = LTYS_4)
+```
+
+```{r}
+#| label: fig-coverage-sim1
+#| fig-cap: "Coverage for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_coverage(study1_data$coverage, shapes = SHAPES_4, ltys = LTYS_4)
+```
+
+```{r}
+#| label: fig-type1-sim1
+#| fig-cap: "Type I error rate for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_type1(study1_data$type1, greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-power-sim1
+#| fig-cap: "Empirical power for Simulation 1"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_power(study1_data$power, greys = GREYS_4)
+```
+
+\newpage
+
+```{r}
+#| label: fig-bias-sim2-normal
+#| fig-cap: "Absolute bias for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study_2_normal_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-relbias-sim2-normal
+#| fig-cap: "Relative bias for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study_2_normal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-rmse-sim2-normal
+#| fig-cap: "RMSE for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study_2_normal_data$rmse, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-relrmse-sim2-normal
+#| fig-cap: "Relative RMSE for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study_2_normal_data$rmse_relative, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-sesd-sim2-normal
+#| fig-cap: "SE/SD ratio for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_sesd(study_2_normal_data$sesd, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-coverage-sim2-normal
+#| fig-cap: "Coverage for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_coverage(study_2_normal_data$coverage, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-type1-sim2-normal
+#| fig-cap: "Type I error rate for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_type1(study_2_normal_data$type1, greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-power-sim2-normal
+#| fig-cap: "Empirical power for Simulation 2 (Normal)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_power(study_2_normal_data$power, greys = GREYS_3)
+```
+
+\newpage
+
+```{r}
+#| label: fig-bias-sim2-nonnormal
+#| fig-cap: "Absolute bias for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study_2_nonnormal_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-relbias-sim2-nonnormal
+#| fig-cap: "Relative bias for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study_2_nonnormal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-rmse-sim2-nonnormal
+#| fig-cap: "RMSE for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study_2_nonnormal_data$rmse, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-relrmse-sim2-nonnormal
+#| fig-cap: "Relative RMSE for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study_2_nonnormal_data$rmse_relative, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-sesd-sim2-nonnormal
+#| fig-cap: "SE/SD ratio for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_sesd(study_2_nonnormal_data$sesd, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-coverage-sim2-nonnormal
+#| fig-cap: "Coverage for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_coverage(study_2_nonnormal_data$coverage, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-type1-sim2-nonnormal
+#| fig-cap: "Type I error rate for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_type1(study_2_nonnormal_data$type1, greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-power-sim2-nonnormal
+#| fig-cap: "Empirical power for Simulation 2 (Right-skewed)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_power(study_2_nonnormal_data$power, greys = GREYS_3)
+```
+
+\newpage
+
+```{r}
+#| label: fig-bias-sim2-uniform
+#| fig-cap: "Absolute bias for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study_2_uniform_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-relbias-sim2-uniform
+#| fig-cap: "Relative bias for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_bias(study_2_uniform_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-rmse-sim2-uniform
+#| fig-cap: "RMSE for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study_2_uniform_data$rmse, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-relrmse-sim2-uniform
+#| fig-cap: "Relative RMSE for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_rmse(study_2_uniform_data$rmse_relative, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-sesd-sim2-uniform
+#| fig-cap: "SE/SD ratio for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_sesd(study_2_uniform_data$sesd, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-coverage-sim2-uniform
+#| fig-cap: "Coverage for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_coverage(study_2_uniform_data$coverage, shapes = SHAPES_3, ltys = LTYS_3)
+```
+
+```{r}
+#| label: fig-type1-sim2-uniform
+#| fig-cap: "Type I error rate for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_type1(study_2_uniform_data$type1, greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-power-sim2-uniform
+#| fig-cap: "Empirical power for Simulation 2 (Uniform)"
+#| fig-align: center
+#| fig-height: 9
+#| fig-width: 7
+
+plot_power(study_2_uniform_data$power, greys = GREYS_3)
+```
+
+\newpage
+
+```{r}
+#| label: prepare-dumbbell-data
+
+dumbbell_study1 <- prepare_sensitivity_dumbbell_data(results_study_1, study = 1, include_low_rel = FALSE)
+```
+
+```{r}
+#| label: fig-db-s1-relbias-eps
+#| fig-cap: "Relative Bias sensitivity for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$bias_relative %>% filter(Error_Condition == "Epsilon"), metric_name = "Relative Bias") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-relbias-zeta
+#| fig-cap: "Relative Bias sensitivity for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$bias_relative %>% filter(Error_Condition == "Zeta"), metric_name = "Relative Bias") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-relbias-both
+#| fig-cap: "Relative Bias sensitivity for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$bias_relative %>% filter(Error_Condition == "Epsilon & Zeta"), metric_name = "Relative Bias") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-relrmse-eps
+#| fig-cap: "Relative RMSE sensitivity for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$rmse_relative %>% filter(Error_Condition == "Epsilon"), metric_name = "Relative RMSE") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-relrmse-zeta
+#| fig-cap: "Relative RMSE sensitivity for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$rmse_relative %>% filter(Error_Condition == "Zeta"), metric_name = "Relative RMSE") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-relrmse-both
+#| fig-cap: "Relative RMSE sensitivity for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$rmse_relative %>% filter(Error_Condition == "Epsilon & Zeta"), metric_name = "Relative RMSE") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-sesd-eps
+#| fig-cap: "SE/SD Ratio sensitivity for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$sesd %>% filter(Error_Condition == "Epsilon"), metric_name = "SE/SD Ratio") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-sesd-zeta
+#| fig-cap: "SE/SD Ratio sensitivity for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$sesd %>% filter(Error_Condition == "Zeta"), metric_name = "SE/SD Ratio") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-sesd-both
+#| fig-cap: "SE/SD Ratio sensitivity for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$sesd %>% filter(Error_Condition == "Epsilon & Zeta"), metric_name = "SE/SD Ratio") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-coverage-eps
+#| fig-cap: "Coverage sensitivity for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$coverage %>% filter(Error_Condition == "Epsilon"), metric_name = "Coverage (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-coverage-zeta
+#| fig-cap: "Coverage sensitivity for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$coverage %>% filter(Error_Condition == "Zeta"), metric_name = "Coverage (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-coverage-both
+#| fig-cap: "Coverage sensitivity for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$coverage %>% filter(Error_Condition == "Epsilon & Zeta"), metric_name = "Coverage (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-type1-eps
+#| fig-cap: "Type I Error sensitivity for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$type1 %>% filter(Error_Condition == "Epsilon"), metric_name = "Type I Error (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-type1-zeta
+#| fig-cap: "Type I Error sensitivity for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$type1 %>% filter(Error_Condition == "Zeta"), metric_name = "Type I Error (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-type1-both
+#| fig-cap: "Type I Error sensitivity for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$type1 %>% filter(Error_Condition == "Epsilon & Zeta"), metric_name = "Type I Error (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-power-eps
+#| fig-cap: "Power sensitivity for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$power %>% filter(Error_Condition == "Epsilon"), metric_name = "Power (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-power-zeta
+#| fig-cap: "Power sensitivity for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$power %>% filter(Error_Condition == "Zeta"), metric_name = "Power (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
+
+```{r}
+#| label: fig-db-s1-power-both
+#| fig-cap: "Power sensitivity for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_dumbbell(dumbbell_study1$power %>% filter(Error_Condition == "Epsilon & Zeta"), metric_name = "Power (%)") +
+  facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+             labeller = labeller(Parameter = label_parsed))
+```
