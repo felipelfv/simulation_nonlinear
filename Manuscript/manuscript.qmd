@@ -55,11 +55,11 @@ author-note:
     deceased: ~
   disclosures:
     study-registration: "This study was not preregistered."
-    data-sharing: "Data, code, and materials for this manuscript can be found at https://github.com/felipelfv/simulation_nonlinear.git. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025." 
+    data-sharing: "Data, code, and materials for this manuscript can be found at https://github.com/felipelfv/simulation_nonlinear. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025." 
     financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
     
 abstract: |
-  Various methods exist to include quadratic or interaction terms involving latent variables in structural equation models (SEM). Most use a system-wide estimation approach, meaning all free parameters are estimated simultaneously. Research has investigated their performance in models with a limited number of nonlinear effects. Recently, several structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed. In this case, estimation proceeds in two stages: first, measurement model parameters are estimated; second, structural model parameters are estimated. We present two simulation studies demonstrating that the recently proposed local SAM (LSAM) approach (Rosseel et al., 2025) performs well across a variety of conditions including distributional, reliability, and sample size manipulations. The first simulation study examined a model with three nonlinear effects under varying distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), and sample sizes (400, 1000). LSAM produced largely unbiased estimates with stable coverage, standard errors, and Type I error rates across most conditions. Power varied more across conditions. Performance was adversely affected under low reliability for some metrics, particularly with uniform distributions, though larger sample sizes mitigated these issues. Traditional methods (LMS, QML, and UPI) showed results consistent with prior literature. The second simulation study tested a more complex model with eight nonlinear effects under the same conditions to assess whether performance deteriorates with increased complexity. LSAM maintained adequate performance despite greater model complexity, though similar limitations emerged and power decreased under certain conditions. Traditional methods yielded more variable results, with generally poorer performance relative to Simulation 1 and LSAM.
+  Various methods exist to include quadratic or interaction terms involving latent variables in structural equation models (SEM). Most use a system-wide estimation approach, meaning all free parameters are estimated simultaneously. Research has investigated their performance in models with a limited number of nonlinear effects. Recently, several structural-after-measurement (SAM) approaches to handle latent quadratic and interaction terms have been proposed. In this case, estimation proceeds in two stages: first, measurement model parameters are estimated; second, structural model parameters are estimated. Rosseel et al. (2025) extended the local SAM (LSAM) approach to handle second-order nonlinear effects among latent variables. In this article, we present a formula for deriving two-step standard errors (SEs) that were not available for the LSAM approach. We also conducted two simulation studies demonstrating that the LSAM performs well across a variety of conditions including distributional, reliability, and sample size manipulations. The first simulation study examined a model with three nonlinear effects under varying distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), and sample sizes (400, 1000). LSAM produced largely unbiased estimates with stable coverage, standard errors, and Type I error rates across most conditions. Power varied more across conditions. Performance was adversely affected under low reliability for some metrics, particularly with uniform distributions, though larger sample sizes mitigated these issues. Traditional methods (LMS, QML, and UPI) showed results consistent with prior literature. The second simulation study, excluding the LMS approach, tested a more complex model with eight nonlinear effects under the same conditions to assess whether performance deteriorates with increased complexity. LSAM maintained adequate performance despite greater model complexity, though similar limitations emerged and power decreased under certain conditions. Traditional methods yielded more variable results, with generally poorer performance relative to Simulation 1 and LSAM.
 
 keywords: [nonlinear effects, structural equation modeling, local structural-after-measurement, latent variables]
 word-count: true
@@ -78,7 +78,7 @@ format:
     include-in-header:
       text: |
         \raggedbottom
-  #apaquarto-docx: default
+  #apaquarto-html: default
         
 execute:
   echo: false
@@ -120,7 +120,7 @@ library(kableExtra) # appendices
 \begin{flushleft}
 \textbf{Table 1}
 
-\textit{Subset of the performance measures for evaluating parameter estimates in the simulation studies}
+\textit{Subset of the performance measures for evaluating parameter estimates in the Simulation Studies}
 \end{flushleft}
 \footnotesize
 \begin{longtable}{lll}
@@ -129,11 +129,11 @@ Performance Measure & Empirical Calculation & MCSE \\
 \midrule
 \textbf{Absolute Criteria} & & \\
 Absolute Bias & $\bar{B} - \beta$ & $\sqrt{S_B^2/K}$ \\
-MSE & $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ & $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
+MSE & $\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2$ & $\sqrt{\frac{1}{K}[S_B^4(k_B - 1) + 4S_B^3 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
 RMSE & $\sqrt{\frac{1}{K}\sum_{k=1}^{K}(B_k - \beta)^2}$ & $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{RMSE}_{(j)} - \text{RMSE})^2}$ \\
 \textbf{Relative Criteria} & & \\
 Relative Bias & $(\frac{\bar{B}}{\beta})- 1$ & $\sqrt{S_B^2/(K\beta^2)}$ \\
-Relative MSE & $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ & $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^2 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
+Relative MSE & $\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}$ & $\sqrt{\frac{1}{K\beta^4}[S_B^4(k_B - 1) + 4S_B^3 g_B(\bar{B} - \beta) + 4S_B^2(\bar{B} - \beta)^2]}$ \\
 Relative RMSE & $\sqrt{\frac{(\bar{B} - \beta)^2 + S_B^2}{\beta^2}}$ & $\sqrt{\frac{K-1}{K}\sum_{j=1}^{K}(\text{rRMSE}_{(j)} - \text{rRMSE})^2}$ \\
 \textbf{Standard Error} & & \\
 Mean SE & $\overline{SE} = \frac{1}{K}\sum_{k=1}^{K}\widehat{SE}_k$ & --- \\
@@ -141,11 +141,11 @@ SE/SD Ratio & $\overline{SE}/S_B$ & --- \\
 \textbf{Hypothesis Testing} & & \\
 Rejection Rate & $r_\alpha = \frac{1}{K}\sum_{k=1}^{K}I(P_k < \alpha)$ & $\sqrt{r_\alpha(1-r_\alpha)/K}$ \\
 \textbf{Confidence Intervals} & & \\
-Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\sqrt{c_\beta(1-c_\beta)/K}$ \\
+Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(L_k \leq \beta \leq U_k)$ & $\sqrt{c_\beta(1-c_\beta)/K}$ \\
 \bottomrule
 \end{longtable}
 \begin{flushleft}
-\textit{Note}. $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $A_k$, $B_k$ = CI endpoints; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error, dashes indicate MCSEs not computed. MSE = Mean Squared Error. RMSE = Root Mean Squared Error.
+\textit{Note}. $B$ = estimator for parameter $\beta$; $K$ = number of replications producing estimates $B_1, ..., B_K$; $\bar{B} = (1/K)\sum_{k=1}^{K}B_k$ = sample mean; $S_B^2 = (1/(K-1))\sum_{k=1}^{K}(B_k - \bar{B})^2$ = sample variance; $S_B = \sqrt{S_B^2}$ = sample standard deviation; $k_B$ = standardized kurtosis; $g_B$ = standardized skewness; $I(\cdot)$ = indicator function; $P_k$ = p-value from replication $k$; $\alpha$ = significance level; $L_k$, $U_k$ = lower and upper CI endpoints; $r_\alpha$ and $c_\beta$ denote rejection rate and coverage, respectively. MCSE = Monte Carlo Standard Error, dashes indicate MCSEs not computed. MSE = Mean Squared Error. RMSE = Root Mean Squared Error.
 \end{flushleft}
 \normalsize
 
@@ -153,7 +153,7 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\s
 
 ```{tikz}
 #| label: fig-model
-#| fig-cap: "Data Generating Model for the simulation studies. Top: Model for Simulation 1. Bottom: Model for Simulation 2."
+#| fig-cap: "Data Generating Model for the Simulation Studies. Top: Model for Simulation 1. Bottom: Model for Simulation 2."
 #| apa-note: "*Note*. Residual variances and covariances and intercepts are not shown for clarity."
 #| fig-align: center
 #| fig-width: 10
@@ -296,7 +296,7 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(A_k \leq \beta \leq B_k)$ & $\s
 
 ```{r}
 #| label: fig-bias-sim1
-#| fig-cap: "Relative bias for Simulation 1 with varying distributions and reliability levels (N = 400)."
+#| fig-cap: "Relative Bias for Simulation 1 With Varying Distributions and Reliability Levels (N = 400)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
@@ -308,7 +308,7 @@ p_relative_bias_400_full_study_1
 
 ```{r}
 #| label: fig-rmse-sim1
-#| fig-cap: "Relative RMSE for Simulation 1 with varying distributions and reliability levels (N = 400)."
+#| fig-cap: "Relative RMSE for Simulation 1 With Varying Distributions and Reliability Levels (N = 400)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
@@ -320,7 +320,7 @@ p_relative_rmse_400_full_study_1
 
 ```{r}
 #| label: fig-ratio-sim1
-#| fig-cap: "SE/SD Ratio for Simulation 1 with varying sample sizes and reliability levels (Right-skewed and uniform conditions)."
+#| fig-cap: "SE/SD Ratio for Simulation 1 With Varying Sample Sizes and Reliability Levels (Right-Skewed and Uniform Conditions)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations."
 #| fig-align: center
 #| fig-height: 11
@@ -332,7 +332,7 @@ p_slope_nonnorm_unif_study_1
 
 ```{r}
 #| label: fig-coverage-sim1
-#| fig-cap: "Coverage for Simulation 1 varying distributions, reliability levels, and sample sizes."
+#| fig-cap: "Coverage for Simulation 1 Varying Distributions, Reliability Levels, and Sample Sizes."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
@@ -344,8 +344,8 @@ p_cov_nonnorm_unif_study_1
 
 ```{r}
 #| label: fig-type1-sim1
-#| fig-cap: "Type I error rate for Simulation 1 varying distributions and reliability levels (N = 1000)."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Errors bars represent the MCSE."
+#| fig-cap: "Type I Error Rate for Simulation 1 Varying Distributions and Reliability Levels (N = 1000)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -356,7 +356,7 @@ p_t1_1000_study_1
 
 ```{r}
 #| label: fig-bias-sim2
-#| fig-cap: "Relative bias for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| fig-cap: "Relative Bias for Simulation 2 With Varying Distributions and Reliability Levels (N = 400)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
@@ -368,7 +368,7 @@ p_relative_bias_400_full_all_study_2
 
 ```{r}
 #| label: fig-rmse-sim2
-#| fig-cap: "Relative RMSE for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| fig-cap: "Relative RMSE for Simulation 2 With Varying Distributions and Reliability Levels (N = 400)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
@@ -380,7 +380,7 @@ p_relative_rmse_400_full_all_study_2
 
 ```{r}
 #| label: fig-seratio-sim2
-#| fig-cap: "SE/SD Ratio for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| fig-cap: "SE/SD Ratio for Simulation 2 With Varying Distributions and Reliability Levels (N = 400)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations."
 #| fig-align: center
 #| fig-height: 11
@@ -392,7 +392,7 @@ p_sesd_400_full_all_study_2
 
 ```{r}
 #| label: fig-coverage-sim2
-#| fig-cap: "Coverage for Simulation 2 with varying distributions and reliability levels (N = 400)."
+#| fig-cap: "Coverage for Simulation 2 With Varying Distributions and Reliability Levels (N = 400)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
@@ -404,8 +404,8 @@ p_coverage_400_full_all_study_2
 
 ```{r}
 #| label: fig-type1-sim2
-#| fig-cap: "Type I error rate for Simulation 2 with varying distributions and reliability levels (N = 1000)."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Error bars represent the MCSE."
+#| fig-cap: "Type I Error Rate for Simulation 2 With Varying Distributions and Reliability Levels (N = 1000)."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -416,8 +416,8 @@ p_t1_1000_all_study_2
 
 ```{r}
 #| label: fig-sens-bias-sim1
-#| fig-cap: "Additional distributional conditions: Relative bias for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Shaded region indicates acceptable range. Error bars show MCSE around nonnormal estimates."
+#| fig-cap: "Additional Distributional Conditions: Relative Bias for Simulation 1 (N = 400)."
+#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded region indicates acceptable range. Error bars show MCSE."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -428,8 +428,8 @@ p_sens_bias_study1
 
 ```{r}
 #| label: fig-sens-rmse-sim1
-#| fig-cap: "Additional distributional conditions: Relative RMSE for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Error bars show MCSE around nonnormal estimates."
+#| fig-cap: "Additional Distributional Conditions: Relative RMSE for Simulation 1 (N = 400)."
+#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded region indicates acceptable range. Error bars show MCSE."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -440,8 +440,8 @@ p_sens_rmse_study1
 
 ```{r}
 #| label: fig-sens-sesd-sim1
-#| fig-cap: "Additional distributional conditions: SE/SD Ratio for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Shaded region indicates acceptable range."
+#| fig-cap: "Additional Distributional Conditions: SE/SD Ratio for Simulation 1 (N = 400)."
+#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded region indicates acceptable range."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -452,8 +452,8 @@ p_sens_sesd_study1
 
 ```{r}
 #| label: fig-sens-coverage-sim1
-#| fig-cap: "Additional distributional conditions: Coverage for Simulation 1 (N = 1000)."
-#| apa-note: "*Note*. White dots represent results under normal measurement error and structural disturbance, while black dots represent nonnormal conditions. Shaded region indicates acceptable range. Error bars show MCSE around nonnormal estimates."
+#| fig-cap: "Additional Distributional Conditions: Coverage for Simulation 1 (N = 1000)."
+#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded region indicates acceptable range. Error bars show MCSE."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
