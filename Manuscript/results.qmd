@@ -331,7 +331,7 @@ p_relative_rmse_400_full_all_study_2 <- plot_rmse(
     ltys = LTYS_3,
     facet_formula = Parameter ~ Distribution,
     y_breaks = seq(0, 5, by = 1),  
-    y_limits = c(0, 5.2),              
+    y_limits = c(0, 5.2)
 )
 
 
@@ -350,8 +350,7 @@ p_sesd_400_full_all_study_2 <- plot_sesd(
   dat_sesd_400_full_all_study_2,
   shapes = SHAPES_3,
   ltys = LTYS_3,
-  facet_formula = Parameter ~ Distribution,
-  title = ""
+  facet_formula = Parameter ~ Distribution
 )
 
 #  COVERAGE (Full model, N=400, All Distributions)
@@ -369,8 +368,7 @@ p_coverage_400_full_all_study_2 <- plot_coverage(
   dat_coverage_400_full_all_study_2,
   shapes = SHAPES_3,
   ltys = LTYS_3,
-  facet_formula = Parameter ~ Distribution,
-  title = ""
+  facet_formula = Parameter ~ Distribution
 )
 
 # TYPE I ERROR (Linear, N=1000, Nonnormal & Uniform)
@@ -385,8 +383,7 @@ dat_t1_1000_all_study_2 <- bind_rows(
 p_t1_1000_all_study_2 <- plot_type1(
   dat_t1_1000_all_study_2,
   greys = GREYS_3,
-  facet_formula = Parameter ~ Distribution + Condition,
-  title = ""
+  facet_formula = Parameter ~ Distribution + Condition
 )
 ```
 
