@@ -22,7 +22,7 @@
 replicate_condition_data <- function(condition_id, rep_id, study = 1, 
                                      results_file = NULL, base_path = ".") {
   
-  # required packages (!)
+  # required packages 
   required_packages <- c("lavaan", "covsim", "rvinecopulib")
   missing_packages <- required_packages[!sapply(required_packages, requireNamespace, quietly = TRUE)]
   if (length(missing_packages) > 0) {
@@ -33,10 +33,10 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
   
   # load appropriate models based on study
   if (study == 1) {
-    models_path <- file.path(base_path, "Simulations/Study_1/Simulation/Models(1).RData")
+    models_path <- file.path(base_path, "Simulations/Study_1/Simulation/Models(1).R")
     default_file <- file.path(base_path, "Simulations/Study_1/Data/Data_Study_1_final.RData")
   } else if (study == 2) {
-    models_path <- file.path(base_path, "Simulations/Study_2/Simulation/Models(2).RData")
+    models_path <- file.path(base_path, "Simulations/Study_2/Simulation/Models(2).R")
     default_file <- file.path(base_path, "Simulations/Study_2/Data/Data_Study_2_final.RData")
   } else {
     stop("simulation must be 1 or 2")
@@ -44,9 +44,9 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
   
   # check if models file exists
   if (!file.exists(models_path)) {
-    stop("Models(X).RData file not found: ", models_path)
+    stop("Models(X).R file not found: ", models_path)
   }
-  load(models_path) 
+  source(models_path)
   
   # load GenerateData function
   generate_data_path <- file.path(base_path, "Simulations/GenerateData.R")
