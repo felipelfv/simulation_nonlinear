@@ -579,8 +579,6 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
   do.call(rbind, results_list)
 }
 
-
-
 # BASIC CHECKS (for main paper) 
 # extraction_basic <- ExtractConvergenceOutliers_Study2(
 #   all_results = all_results,
@@ -603,7 +601,7 @@ CalculatePerformanceMetrics_Study2 <- function(filtered_data,
 #   convergence_outliers_summary = extraction_basic$convergence_outliers_summary
 # )
 
-# STRICT CHECKS (for supplementary materials) 
+# STRICT CHECKS (footnote 7) 
 # extraction_strict <- ExtractConvergenceOutliers_Study2(
 #   all_results = all_results,
 #   parameters_of_interest = list(

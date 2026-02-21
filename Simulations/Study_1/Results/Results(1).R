@@ -149,7 +149,7 @@ ExtractConvergenceOutliers <- function(all_results,
                                        parameters_of_interest = c("eta1","eta2","eta1:eta2","eta1:eta1","eta2:eta2"),
                                        remove_outliers = TRUE,
                                        outlier_threshold = 3,
-                                       se_threshold = Inf,
+                                       se_threshold = Inf, 
                                        min_reps = 10,
                                        exclude_warnings = FALSE,
                                        check_positive_se = FALSE,
@@ -546,7 +546,7 @@ CalculatePerformanceMetrics <- function(filtered_data,
 #   convergence_outliers_summary = extraction_basic$convergence_outliers_summary
 # )
 
-# STRICT CHECKS (for supplementary materials) 
+# STRICT CHECKS (footnote 7) 
 # extraction_strict <- ExtractConvergenceOutliers(
 #   all_results = all_results,
 #   parameters_of_interest = c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2"),
