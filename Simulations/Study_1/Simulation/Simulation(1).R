@@ -342,11 +342,6 @@ for (cond in 1:nrow(conditions)) {
   # clear from memory
   rm(condition_result, res, parallel_results, rng_states_for_condition)
   
-  # checkpoint every 5 conditions (and final)
-  #if (cond %% 5 == 0 || cond == nrow(conditions)) {
-    #cat("\nCheckpoint at condition", cond, "\n")
-  #}
-  
   gc()
 }
 
