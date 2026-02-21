@@ -14,12 +14,12 @@
 #   2. Configuration     - Method order, visual specifications
 #   3. Shared Components - Theme, helper functions
 #   4. Data Preparation
-#      4.1 Study 1       - Simple model (3 nonlinear terms), normal errors
-#      4.2 Study 2       - Complex model (8 nonlinear terms), normal errors
-#      4.3 Sensitivity   - Non-normal errors (dumbbell plots)
+#      4.1 Simulation 1  - Simple model (3 nonlinear terms), normal errors
+#      4.2 Simulation 2  - Complex model (8 nonlinear terms), normal errors
+#      4.3 Additional Distributional Conditions - Non-normal errors (dumbbell plots)
 #   5. Plotting Functions
 #      5.1 Main Plots    - Bias, RMSE, SE/SD, coverage, Type I, power
-#      5.2 Sensitivity   - Dumbbell plots
+#      5.2 Additional Distributional Conditions - Dumbbell plots
 
 ############################### 2. Configuration ###############################
 
@@ -69,9 +69,9 @@ make_condition <- function(N, Rel) {
 
 # 4.1 STUDY 1
 
-#' Prepare Study 1 data; normal errors only
+#' Prepare Simulation 1 data; normal errors only
 #' @param results_data Full results data frame from CalculatePerformanceMetrics
-#' @return Formatted data frame for Study 1
+#' @return Formatted data frame for Simulation 1
 prep_study1 <- function(results_data) {
   
   PARAM_ORDER <- c("eta1:eta2", "eta1:eta1", "eta2:eta2")
@@ -96,16 +96,7 @@ prep_study1 <- function(results_data) {
     )
 }
 
-#' Prepare Study 1 subset by model type
-#' @param df Data frame with simulation results
-#' @param model Either "Full" or "Linear"
-#' @return Formatted data frame
-prep_study1_subset <- function(df, model = c("Full", "Linear")) {
-  model <- match.arg(model)
-  prep_study1(df) %>% filter(Model == model)
-}
-
-#' Prepare all data frames for Study 1 plotting
+#' Prepare all data frames for Simulation 1 plotting
 #' @param results_data Raw simulation results data frame
 #' @return List of formatted data frames for each metric
 prepare_study1_data <- function(results_data) {
@@ -151,7 +142,7 @@ prepare_study1_data <- function(results_data) {
 
 # 4.2 STUDY 2
 
-#' Prepare Study 2 subset by distribution and model
+#' Prepare Simulation 2 subset by distribution and model
 #' @param df Data frame with simulation results
 #' @param distribution Distribution name ("normal", "nonnormal", or "uniform")
 #' @param model Either "Full" or "Linear"
@@ -194,7 +185,7 @@ prep_study2_subset <- function(df, distribution, model = c("Full", "Linear")) {
     )
 }
 
-#' Prepare all data frames for Study 2 plotting (per distribution)
+#' Prepare all data frames for Simulation 2 plotting (per distribution)
 #' @param results_data Raw simulation results data frame
 #' @param dist_name Distribution name ("normal", "nonnormal", or "uniform")
 #' @return List of formatted data frames for each metric
@@ -292,14 +283,14 @@ prepare_study2_data <- function(results_data, dist_name) {
   )
 }
 
-# 4.3 SENSITIVITY: Non-normal errors (epsilon and zeta)
+# 4.3 ADDITIONAL DISTRIBUTIONAL CONDITIONS: Non-normal errors (epsilon and zeta)
 
-#' Prepare sensitivity data (non-normal errors)
+#' Prepare additional distributional conditions data (nonnormal errors)
 #' @param results_data Full results data frame
 #' @param study Which study: 1 or 2
 #' @param include_low_rel Include Rel=0.4? Default FALSE
-#' @param distribution For Study 2: distribution name ("normal", "nonnormal", or "uniform")
-#' @return Formatted data frame for sensitivity analysis
+#' @param distribution For Simulation 2: distribution name ("normal", "nonnormal", or "uniform")
+#' @return Formatted data frame for additional distributional conditions analysis
 prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE, 
                              distribution = NULL) {
   
@@ -330,14 +321,14 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
         Condition = make_condition(SampleSize, Reliability),
         Model = factor(Model, levels = c("Linear", "Full")),
         Error_Condition = case_when(
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "epsilon",
-          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "zeta",
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "epsilon & zeta"
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "Epsilon",
+          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "Zeta",
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "Epsilon & Zeta"
         ),
-        Error_Condition = factor(Error_Condition, 
-                                 levels = c("epsilon", "zeta", "epsilon & zeta"))
+        Error_Condition = factor(Error_Condition,
+                                 levels = c("Epsilon", "Zeta", "Epsilon & Zeta"))
       )
-    
+
   } else if (study == 2) {
     
     if (is.null(distribution)) {
@@ -383,12 +374,12 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
         Condition = make_condition(SampleSize, Reliability),
         Model = factor(Model, levels = c("Linear", "Full")),
         Error_Condition = case_when(
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "epsilon",
-          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "zeta",
-          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "epsilon & zeta"
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "normal"    ~ "Epsilon",
+          Distr_Epsilon == "normal"    & Distr_Zeta == "exp.rate1" ~ "Zeta",
+          Distr_Epsilon == "exp.rate1" & Distr_Zeta == "exp.rate1" ~ "Epsilon & Zeta"
         ),
-        Error_Condition = factor(Error_Condition, 
-                                 levels = c("epsilon", "zeta", "epsilon & zeta"))
+        Error_Condition = factor(Error_Condition,
+                                 levels = c("Epsilon", "Zeta", "Epsilon & Zeta"))
       )
   } else {
     stop("study must be 1 or 2")
@@ -400,8 +391,10 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
 #' @param data_sensitivity Prepared sensitivity data
 #' @param metric Column name for the metric
 #' @param mcse_col Optional: MCSE column name. Auto-detected if NULL.
+#' @param model Which model to use: "Full" or "Linear". Default is "Full".
 #' @return Data frame with baseline and final values
-compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_col = NULL) {
+compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_col = NULL,
+                                  model = "Full") {
   
   if (is.null(mcse_col)) {
     mcse_col <- switch(metric,
@@ -409,7 +402,10 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_
                        "RelativeBias_Mean" = "RelativeBias_MCSE",
                        "PercentRelativeBias_Mean" = "RelativeBias_MCSE",
                        "RMSE_Mean" = "RMSE_Mean_MCSE",
+                       "Relative_RMSE" = "Relative_RMSE_MCSE",
                        "CoverageRate" = "CoverageRate_MCSE",
+                       "TypeI_Error" = "TypeI_Error_MCSE",
+                       "Power" = "Power_MCSE",
                        "SE_SD_Ratio" = NA_character_,
                        paste0(metric, "_MCSE"))
   }
@@ -418,9 +414,9 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_
     mcse_col %in% names(data_baseline) && 
     mcse_col %in% names(data_sensitivity)
   
-  # Baseline values
+  # baseline values
   baseline <- data_baseline %>%
-    filter(Model == "Full") %>%
+    filter(Model == model) %>%
     select(Distribution, Parameter, SampleSize, Reliability, Method,
            y_baseline = !!sym(metric),
            n_baseline = N_Final)
@@ -429,7 +425,7 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_
     baseline <- baseline %>%
       left_join(
         data_baseline %>%
-          filter(Model == "Full") %>%
+          filter(Model == model) %>%
           select(Distribution, Parameter, SampleSize, Reliability, Method,
                  mcse_baseline = !!sym(mcse_col)),
         by = c("Distribution", "Parameter", "SampleSize", "Reliability", "Method")
@@ -439,7 +435,7 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_
   }
   
   data_sens_prep <- data_sensitivity %>%
-    filter(Model == "Full") %>%
+    filter(Model == model) %>%
     mutate(y_final = !!sym(metric), n_final = N_Final)
   
   if (has_mcse) {
@@ -448,7 +444,7 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_
     data_sens_prep <- data_sens_prep %>% mutate(mcse_final = NA_real_)
   }
   
-  # Join baseline and final
+  # join baseline and final
   data_sens_prep %>%
     left_join(baseline, by = c("Distribution", "Parameter", "SampleSize", 
                                "Reliability", "Method")) %>%
@@ -456,14 +452,16 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_
            y_baseline, y_final, mcse_baseline, mcse_final, n_baseline, n_final)
 }
 
-#' Prepare all dumbbell data frames for sensitivity analysis
+#' Prepare all dumbbell data frames for additional distributional conditions analysis
 #' @param results_data Raw simulation results data frame
 #' @param study Which study: 1 or 2
 #' @param include_low_rel Include Rel=0.4? Default FALSE
-#' @param distribution For Study 2: distribution name ("normal", "nonnormal", or "uniform")
+#' @param distribution For Simulation 2: distribution name ("normal", "nonnormal", or "uniform")
+#' @param model Which model for main metrics: "Full" or "Linear". Default is "Full".
+#'              (Type I always uses Linear, Power always uses Full)
 #' @return List of dumbbell data frames for each metric
 prepare_sensitivity_dumbbell_data <- function(results_data, study = 1, include_low_rel = FALSE,
-                                              distribution = NULL) {
+                                              distribution = NULL, model = "Full") {
   
   if (study == 1) {
     data_baseline <- prep_study1(results_data)
@@ -482,7 +480,7 @@ prepare_sensitivity_dumbbell_data <- function(results_data, study = 1, include_l
       bind_rows(prep_study2_subset(results_data, distribution, "Linear")) %>%
       mutate(Model = factor(Model, levels = c("Linear", "Full")))
     
-    # Rename Parameter_Label to Parameter for consistency with dumbbell function
+    # rename Parameter_Label to Parameter for consistency with dumbbell function
     data_baseline <- data_baseline %>%
       mutate(Parameter = Parameter_Label) %>%
       select(-Parameter_Label)
@@ -500,29 +498,34 @@ prepare_sensitivity_dumbbell_data <- function(results_data, study = 1, include_l
                                        distribution = distribution)
   
   list(
-    bias = compute_dumbbell_data(data_baseline, data_sensitivity, "Bias_Mean"),
-    bias_relative = compute_dumbbell_data(data_baseline, data_sensitivity, "RelativeBias_Mean"),
-    rmse = compute_dumbbell_data(data_baseline, data_sensitivity, "RMSE_Mean"),
-    coverage = compute_dumbbell_data(data_baseline, data_sensitivity, "CoverageRate"),
-    sesd = compute_dumbbell_data(data_baseline, data_sensitivity, "SE_SD_Ratio")
+    # user-selected model metrics
+    bias = compute_dumbbell_data(data_baseline, data_sensitivity, "Bias_Mean", model = model),
+    bias_relative = compute_dumbbell_data(data_baseline, data_sensitivity, "RelativeBias_Mean", model = model),
+    rmse = compute_dumbbell_data(data_baseline, data_sensitivity, "RMSE_Mean", model = model),
+    rmse_relative = compute_dumbbell_data(data_baseline, data_sensitivity, "Relative_RMSE", model = model),
+    coverage = compute_dumbbell_data(data_baseline, data_sensitivity, "CoverageRate", model = model),
+    sesd = compute_dumbbell_data(data_baseline, data_sensitivity, "SE_SD_Ratio", model = model),
+    
+    # fixed model metrics
+    power = compute_dumbbell_data(data_baseline, data_sensitivity, "Power", model = "Full"),
+    type1 = compute_dumbbell_data(data_baseline, data_sensitivity, "TypeI_Error", model = "Linear")
   )
 }
 
 ############################### 5. Plotting Functions ##########################
 
-# 5.1 MAIN PLOTS (Studies 1 and 2)
+# 5.1 MAIN PLOTS (Simulations 1 and 2)
 
 #' Plot bias (absolute or relative)
 #' @param data Prepared data frame with bias values
 #' @param shapes Named vector of point shapes. Default is SHAPES_4
 #' @param ltys Named vector of line types. Default is LTYS_4
-#' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
 #' @param y_breaks Custom y-axis breaks. Default is NULL
 #' @param y_limits Custom y-axis limits. Default is NULL
 #' @param bias_type "absolute" or "relative". Default is "absolute"
 #' @return ggplot2 object
-plot_bias <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "", 
+plot_bias <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
                       facet_formula = NULL, y_breaks = NULL, y_limits = NULL,
                       bias_type = c("absolute", "relative")) {
   
@@ -536,7 +539,7 @@ plot_bias <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
     geom_line(position = position_dodge(width = .6), color = "black") +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    labs(x = "Reliability", y = "Bias", title = title) +
+    labs(x = "Reliability", y = "Bias") +
     theme_apa_bw()
   
   if (bias_type == "relative") {
@@ -566,12 +569,11 @@ plot_bias <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
 #' @param data Prepared data frame with RMSE values
 #' @param shapes Named vector of point shapes. Default is SHAPES_4
 #' @param ltys Named vector of line types. Default is LTYS_4
-#' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
 #' @param y_breaks Custom y-axis breaks. Default is NULL
 #' @param y_limits Custom y-axis limits. Default is NULL
 #' @return ggplot2 object
-plot_rmse <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "", 
+plot_rmse <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
                       facet_formula = NULL, y_breaks = NULL, y_limits = NULL) {
   
   p <- ggplot(data,
@@ -582,7 +584,7 @@ plot_rmse <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
     geom_line(position = position_dodge(width = .6), color = "black") +
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
-    labs(x = "Reliability", y = "RMSE", title = title) +
+    labs(x = "Reliability", y = "RMSE") +
     theme_apa_bw()
   
   if (!is.null(facet_formula)) {
@@ -606,10 +608,9 @@ plot_rmse <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
 #' @param data Prepared data frame with SE/SD ratio values
 #' @param shapes Named vector of point shapes. Default is SHAPES_4
 #' @param ltys Named vector of line types. Default is LTYS_4
-#' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
 #' @return ggplot2 object
-plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "", 
+plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
                       facet_formula = NULL) {
   
   p <- ggplot(data,
@@ -623,7 +624,7 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
     coord_cartesian(ylim = c(0.80, 1.40)) +
-    labs(x = "Reliability", y = "SE / SD", title = title) +
+    labs(x = "Reliability", y = "SE/SD") +
     theme_apa_bw()
   
   p <- p + 
@@ -657,10 +658,9 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
 #' @param data Prepared data frame with coverage rates
 #' @param shapes Named vector of point shapes. Default is SHAPES_4
 #' @param ltys Named vector of line types. Default is LTYS_4
-#' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
 #' @return ggplot2 object
-plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "", 
+plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
                           facet_formula = NULL) {
   
   p <- ggplot(data,
@@ -675,7 +675,7 @@ plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
     scale_shape_manual(values = shapes) +
     scale_linetype_manual(values = ltys) +
     coord_cartesian(ylim = c(80, 100)) +
-    labs(x = "Reliability", y = "Coverage (%)", title = title) +
+    labs(x = "Reliability", y = "Coverage (%)") +
     theme_apa_bw()
   
   p <- p +
@@ -702,11 +702,10 @@ plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4, title = "",
 #' Plot Type I error rate
 #' @param data Prepared data frame with Type I error rates (includes yerr for MCSE)
 #' @param greys Named vector of grey colors. Default is GREYS_4
-#' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
 #' @param show_errorbars Logical. Show MCSE error bars. Default is TRUE
 #' @return ggplot2 object
-plot_type1 <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
+plot_type1 <- function(data, greys = GREYS_4, facet_formula = NULL,
                        show_errorbars = TRUE) {
   
   ymax <- max(data$y + ifelse(is.null(data$yerr), 0, data$yerr), na.rm = TRUE) * 1.15
@@ -726,7 +725,7 @@ plot_type1 <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
     geom_text(aes(label = sprintf("%.1f", y)), vjust = -0.4, size = 3) +
     scale_fill_manual(values = greys) +
     coord_cartesian(ylim = c(0, ymax)) +
-    labs(x = NULL, y = "Type I error (%)", title = title) +
+    labs(x = NULL, y = "Type I error (%)") +
     theme_apa_bw() +
     theme(axis.text.x = element_blank(),
           axis.ticks.x = element_blank())
@@ -746,11 +745,10 @@ plot_type1 <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
 #' Plot statistical power
 #' @param data Prepared data frame with power values (includes yerr for MCSE)
 #' @param greys Named vector of grey colors. Default is GREYS_4
-#' @param title Plot title. Default is ""
 #' @param facet_formula Custom faceting formula. Default is NULL
 #' @param show_errorbars Logical. Show MCSE error bars. Default is TRUE
 #' @return ggplot2 object
-plot_power <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
+plot_power <- function(data, greys = GREYS_4, facet_formula = NULL,
                        show_errorbars = TRUE) {
   
   p <- ggplot(data, aes(x = Method, y = y, fill = Method)) +
@@ -766,7 +764,7 @@ plot_power <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
     geom_text(aes(label = sprintf("%.0f", y)), vjust = -0.4, size = 3) +
     scale_fill_manual(values = greys) +
     coord_cartesian(ylim = c(0, 110)) +
-    labs(x = NULL, y = "Power (%)", title = title) +
+    labs(x = NULL, y = "Power (%)") +
     theme_apa_bw() +
     theme(axis.text.x = element_blank(),
           axis.ticks.x = element_blank())
@@ -783,51 +781,85 @@ plot_power <- function(data, greys = GREYS_4, title = "", facet_formula = NULL,
   p
 }
 
-# 5.2 SENSITIVITY PLOTS 
+# 5.2 ADDITIONAL DISTRIBUTIONAL CONDITIONS PLOTS
 
-#' Horizontal dumbbell plot for sensitivity analysis
+#' Horizontal dumbbell plot for additional distributional conditions analysis
 #' @param data Data from compute_dumbbell_data()
-#' @param metric_name Name for x-axis label
-#' @param show_errorbars Show 95% CI for the difference. Default TRUE
-#' @param acceptable_range Optional vector of length 2 for shaded region
+#' @param metric_name Name for x-axis label. Also used to determine default acceptable_range and reference_line.
+#' @param show_errorbars Show 95% CI around the additional distributional conditions estimate (black dot). Default TRUE
+#' @param acceptable_range Optional vector of length 2 for shaded region. If NULL, uses defaults based on metric_name.
+#' @param reference_line Optional reference line value. If NULL, uses defaults based on metric_name.
 #' @param errorbar_height Height of error bar caps. Default 0.5
 #' @return ggplot2 object
-plot_dumbbell <- function(data, 
+plot_dumbbell <- function(data,
                           metric_name = "Relative Bias",
                           show_errorbars = TRUE,
                           acceptable_range = NULL,
-                          errorbar_height = 0.5) {
-  
-  data <- data %>%
-    mutate(se_diff = sqrt(mcse_baseline^2 + mcse_final^2))
-  
-  p <- ggplot(data) +
-    geom_vline(xintercept = 0, linetype = "dotted", color = "grey50")
-  
+                          reference_line = NULL,
+                          errorbar_height = 0.5,
+                          x_breaks = NULL,
+                          x_limits = NULL) {
+
+  # default acceptable ranges and reference lines based on metric name
+  # (matching the main plots for consistency)
+  metric_defaults <- list(
+    "Relative Bias" = list(range = c(-0.10, 0.10), ref = 0),
+    "Bias" = list(range = NULL, ref = 0),
+    "RMSE" = list(range = NULL, ref = 0),
+    "Relative RMSE" = list(range = NULL, ref = 0),
+    "SE/SD Ratio" = list(range = c(0.90, 1.10), ref = 1),
+    "SE/SD" = list(range = c(0.90, 1.10), ref = 1),
+    "Coverage (%)" = list(range = c(93, 97), ref = 95),
+    "Coverage" = list(range = c(93, 97), ref = 95),
+    "Type I Error (%)" = list(range = c(3, 7), ref = 5),
+    "Type I Error" = list(range = c(3, 7), ref = 5),
+    "Power (%)" = list(range = NULL, ref = 80),
+    "Power" = list(range = NULL, ref = 80)
+  )
+
+  # use defaults if not specified
+  if (is.null(acceptable_range) && metric_name %in% names(metric_defaults)) {
+    acceptable_range <- metric_defaults[[metric_name]]$range
+  }
+  if (is.null(reference_line) && metric_name %in% names(metric_defaults)) {
+    reference_line <- metric_defaults[[metric_name]]$ref
+  }
+
+  p <- ggplot(data)
+
+  # add acceptable range shading first (so it's behind everything)
   if (!is.null(acceptable_range)) {
-    p <- p + annotate("rect", 
-                      ymin = -Inf, ymax = Inf, 
+    p <- p + annotate("rect",
+                      ymin = -Inf, ymax = Inf,
                       xmin = acceptable_range[1], xmax = acceptable_range[2],
                       fill = "grey93", alpha = 0.9)
   }
-  
-  p <- p + 
+
+  # add reference line
+  if (!is.null(reference_line)) {
+    p <- p + geom_vline(xintercept = reference_line, linetype = "dotted", color = "grey50")
+  }
+
+  # segment connecting baseline to additional distributional conditions
+  p <- p +
     geom_segment(
       aes(y = Method, yend = Method, x = y_baseline, xend = y_final),
       color = "grey40", linewidth = 0.8
     )
-  
+
+  # error bars for the nonnormal estimate (black dot) using its own MCSE
+  # note: MCSE for the difference is computed separately for tabular reporting
   if (show_errorbars) {
     p <- p +
       geom_errorbarh(
         aes(y = Method,
-            xmin = y_final - 1.96 * se_diff,
-            xmax = y_final + 1.96 * se_diff),
+            xmin = y_final - mcse_final,
+            xmax = y_final + mcse_final),
         height = errorbar_height, linewidth = 0.5, color = "black"
       )
   }
-  
-  p +
+
+  p <- p +
     geom_point(aes(y = Method, x = y_baseline),
                shape = 21, size = 2.5, fill = "white", color = "grey50", stroke = 1) +
     geom_point(aes(y = Method, x = y_final),
@@ -836,4 +868,78 @@ plot_dumbbell <- function(data,
                labeller = labeller(Parameter = label_parsed)) +
     labs(y = NULL, x = metric_name) +
     theme_apa_bw()
+
+  if (!is.null(x_breaks) || !is.null(x_limits)) {
+    p <- p + scale_x_continuous(breaks = x_breaks, limits = x_limits)
+  }
+
+  p
+}
+
+############ 6. Additional Distributional Conditions Difference Functions ########
+
+#' Compute difference between additional distributional conditions and baseline with 95% CI
+#' @param dumbbell_data Data frame from compute_dumbbell_data()
+#' @param metric_name Character string labeling the metric (e.g., "Bias", "RMSE")
+#' @return Data frame with difference, MCSE of difference, and 95% CI
+compute_sensitivity_difference <- function(dumbbell_data, metric_name) {
+  dumbbell_data %>%
+    mutate(
+      Metric     = metric_name,
+      Difference = y_final - y_baseline,
+      MCSE_Diff  = sqrt(mcse_baseline^2 + mcse_final^2),
+      CI_Lower   = Difference - 1.96 * MCSE_Diff,
+      CI_Upper   = Difference + 1.96 * MCSE_Diff
+    ) %>%
+    select(Distribution, Parameter, SampleSize, Reliability, Method,
+           Error_Condition, Metric, Difference, MCSE_Diff, CI_Lower, CI_Upper,
+           n_baseline, n_final)
+}
+
+#' Compute additional distributional conditions differences for all metrics from prepare_sensitivity_dumbbell_data()
+#' @param dumbbell_list Named list output of prepare_sensitivity_dumbbell_data()
+#' @return Combined data frame with a Metric column
+compute_all_sensitivity_differences <- function(dumbbell_list) {
+  metric_labels <- c(
+    bias          = "Bias",
+    bias_relative = "Relative Bias",
+    rmse          = "RMSE",
+    rmse_relative = "Relative RMSE",
+    coverage      = "Coverage Rate",
+    sesd          = "SE/SD Ratio",
+    power         = "Power",
+    type1         = "Type I Error"
+  )
+
+  do.call(rbind, lapply(names(dumbbell_list), function(nm) {
+    label <- if (nm %in% names(metric_labels)) metric_labels[[nm]] else nm
+    compute_sensitivity_difference(dumbbell_list[[nm]], label)
+  }))
+}
+
+#' Bar plot of additional distributional conditions differences (nonnormal - baseline) with 95% CI
+#' @param data Output of compute_sensitivity_difference() filtered to one metric + one Error_Condition
+#' @param metric_name Label for the y-axis (e.g., "Relative Bias")
+#' @param greys Named vector of grey fill colours. Default is GREYS_4
+#' @param show_errorbars Show 95% CI error bars. Default TRUE
+#' @return ggplot2 object
+plot_sensitivity_difference <- function(data, metric_name,
+                                        greys = GREYS_4,
+                                        show_errorbars = TRUE) {
+
+  p <- ggplot(data, aes(x = Method, y = Difference, fill = Method)) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.3) +
+    geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black")
+
+  if (show_errorbars && !all(is.na(data$MCSE_Diff))) {
+    p <- p + geom_errorbar(aes(ymin = CI_Lower, ymax = CI_Upper),
+                           width = 0.2, position = position_dodge(width = 0.9))
+  }
+
+  p + scale_fill_manual(values = greys) +
+    labs(x = NULL, y = paste0("\u0394 ", metric_name)) +
+    theme_apa_bw() +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+    facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
+               labeller = labeller(Parameter = label_parsed))
 }
