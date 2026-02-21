@@ -487,3 +487,695 @@ for(i in 1:nrow(conditions_study2)) {
   cat("\n\\clearpage\n\n")
 }
 ```
+
+# Additional Distributional Conditions: Differences from Baseline
+
+```{r}
+#| label: setup-diff-plots
+#| include: false
+
+library(ggplot2)
+source("../Simulations/Plots.R")
+```
+
+```{r}
+#| label: prepare-diff-data-s1
+
+dumbbell_s1 <- prepare_sensitivity_dumbbell_data(results_study_1, study = 1, include_low_rel = FALSE)
+diff_s1 <- compute_all_sensitivity_differences(dumbbell_s1)
+```
+
+```{r}
+#| label: fig-diff-s1-relbias-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon"), metric_name = "Relative Bias", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-relbias-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Relative Bias", Error_Condition == "Zeta"), metric_name = "Relative Bias", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-relbias-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative Bias", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-relrmse-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon"), metric_name = "Relative RMSE", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-relrmse-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Relative RMSE", Error_Condition == "Zeta"), metric_name = "Relative RMSE", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-relrmse-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative RMSE", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-coverage-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon"), metric_name = "Coverage Rate", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-coverage-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Coverage Rate", Error_Condition == "Zeta"), metric_name = "Coverage Rate", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-coverage-both
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon & Zeta"), metric_name = "Coverage Rate", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-sesd-eps
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon"), metric_name = "SE/SD Ratio", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-sesd-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-sesd-both
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon & Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-power-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Power", Error_Condition == "Epsilon"), metric_name = "Power", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-power-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Power", Error_Condition == "Zeta"), metric_name = "Power", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-power-both
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Power", Error_Condition == "Epsilon & Zeta"), metric_name = "Power", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-type1-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 1 (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon"), metric_name = "Type I Error", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-type1-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 1 (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Type I Error", Error_Condition == "Zeta"), metric_name = "Type I Error", greys = GREYS_4)
+```
+
+```{r}
+#| label: fig-diff-s1-type1-both
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 1 (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s1 %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon & Zeta"), metric_name = "Type I Error", greys = GREYS_4)
+```
+
+\clearpage
+
+```{r}
+#| label: prepare-diff-data-s2-normal
+
+dumbbell_s2_normal <- prepare_sensitivity_dumbbell_data(results_study_2, study = 2, include_low_rel = FALSE, distribution = "normal")
+diff_s2_normal <- compute_all_sensitivity_differences(dumbbell_s2_normal)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-relbias-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Normal (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-relbias-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Normal (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Relative Bias", Error_Condition == "Zeta"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-relbias-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Normal (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-relrmse-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Normal (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-relrmse-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Normal (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Relative RMSE", Error_Condition == "Zeta"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-relrmse-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Normal (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-coverage-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Normal (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-coverage-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Normal (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Coverage Rate", Error_Condition == "Zeta"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-coverage-both
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Normal (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon & Zeta"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-sesd-eps
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Normal (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-sesd-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Normal (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-sesd-both
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Normal (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon & Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-power-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Normal (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Power", Error_Condition == "Epsilon"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-power-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Normal (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Power", Error_Condition == "Zeta"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-power-both
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Normal (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Power", Error_Condition == "Epsilon & Zeta"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-type1-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Normal (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-type1-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Normal (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Type I Error", Error_Condition == "Zeta"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-normal-type1-both
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Normal (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_normal %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon & Zeta"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+\clearpage
+
+```{r}
+#| label: prepare-diff-data-s2-nonnormal
+
+dumbbell_s2_nonnormal <- prepare_sensitivity_dumbbell_data(results_study_2, study = 2, include_low_rel = FALSE, distribution = "nonnormal")
+diff_s2_nonnormal <- compute_all_sensitivity_differences(dumbbell_s2_nonnormal)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-relbias-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Right-skewed (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-relbias-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Right-skewed (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Relative Bias", Error_Condition == "Zeta"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-relbias-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Right-skewed (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-relrmse-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Right-skewed (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-relrmse-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Right-skewed (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Relative RMSE", Error_Condition == "Zeta"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-relrmse-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Right-skewed (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-coverage-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Right-skewed (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-coverage-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Right-skewed (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Coverage Rate", Error_Condition == "Zeta"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-coverage-both
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Right-skewed (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon & Zeta"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-sesd-eps
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Right-skewed (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-sesd-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Right-skewed (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-sesd-both
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Right-skewed (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon & Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-power-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Right-skewed (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Power", Error_Condition == "Epsilon"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-power-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Right-skewed (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Power", Error_Condition == "Zeta"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-power-both
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Right-skewed (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Power", Error_Condition == "Epsilon & Zeta"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-type1-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Right-skewed (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-type1-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Right-skewed (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Type I Error", Error_Condition == "Zeta"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-nonnormal-type1-both
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Right-skewed (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_nonnormal %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon & Zeta"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+\clearpage
+
+```{r}
+#| label: prepare-diff-data-s2-uniform
+
+dumbbell_s2_uniform <- prepare_sensitivity_dumbbell_data(results_study_2, study = 2, include_low_rel = FALSE, distribution = "uniform")
+diff_s2_uniform <- compute_all_sensitivity_differences(dumbbell_s2_uniform)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-relbias-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Uniform (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-relbias-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Uniform (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Relative Bias", Error_Condition == "Zeta"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-relbias-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative Bias for Simulation 2 -- Uniform (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Relative Bias", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative Bias", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-relrmse-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Uniform (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-relrmse-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Uniform (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Relative RMSE", Error_Condition == "Zeta"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-relrmse-both
+#| fig-cap: "Additional Distributional Conditions Difference: Relative RMSE for Simulation 2 -- Uniform (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Relative RMSE", Error_Condition == "Epsilon & Zeta"), metric_name = "Relative RMSE", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-coverage-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Uniform (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-coverage-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Uniform (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Coverage Rate", Error_Condition == "Zeta"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-coverage-both
+#| fig-cap: "Additional Distributional Conditions Difference: Coverage Rate for Simulation 2 -- Uniform (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Coverage Rate", Error_Condition == "Epsilon & Zeta"), metric_name = "Coverage Rate", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-sesd-eps
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Uniform (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-sesd-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Uniform (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-sesd-both
+#| fig-cap: "Additional Distributional Conditions Difference: SE/SD Ratio for Simulation 2 -- Uniform (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "SE/SD Ratio", Error_Condition == "Epsilon & Zeta"), metric_name = "SE/SD Ratio", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-power-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Uniform (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Power", Error_Condition == "Epsilon"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-power-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Uniform (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Power", Error_Condition == "Zeta"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-power-both
+#| fig-cap: "Additional Distributional Conditions Difference: Power for Simulation 2 -- Uniform (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Power", Error_Condition == "Epsilon & Zeta"), metric_name = "Power", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-type1-eps
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Uniform (Epsilon)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-type1-zeta
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Uniform (Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Type I Error", Error_Condition == "Zeta"), metric_name = "Type I Error", greys = GREYS_3)
+```
+
+```{r}
+#| label: fig-diff-s2-uniform-type1-both
+#| fig-cap: "Additional Distributional Conditions Difference: Type I Error for Simulation 2 -- Uniform (Epsilon & Zeta)"
+#| fig-height: 14
+#| fig-width: 12
+
+plot_sensitivity_difference(diff_s2_uniform %>% filter(Metric == "Type I Error", Error_Condition == "Epsilon & Zeta"), metric_name = "Type I Error", greys = GREYS_3)
+```

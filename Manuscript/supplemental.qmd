@@ -59,7 +59,7 @@ editor:
     wrap: sentence
 ---
 
-This document contains the online supplemental materials mentioned throughout the manuscript. The table of contents in the next page shows all the separate sections. For the reader interested in the performance measures and tables with those results, see GitHub repository (see `Tables.qmd`); otherwise this file would be very large.
+This document contains the online supplemental materials mentioned throughout the manuscript. The table of contents in the next page shows all the separate sections. Specifically, in this document, we include the (i) computation time, (ii) R² and reliability values obtained during the calibration of the baseline population model, (iii) plots for the main results as well as (iv) additional distributional conditions, (v) SEs outliers diagnostic for condition 13 in Simulation 1, and finally (vi) information on the difference between the main results and additional distributional conditions. For the latter, we include the actual Figures with the difference uncertainty in the GitHub repository (see `supplemental_tables.qmd` and `supplemental_tables.pdf`). Moreover, for the performance measures and tables with those results, we also refer to the GitHub repository (`supplemental_tables.qmd` and `supplemental_tables.pdf`); otherwise this file would be very large.
 
 \newpage
 \tableofcontents
@@ -223,7 +223,7 @@ kableExtra::kbl(
     "Mean", "Mdn", "Mean", "Mdn", "Mean", "Mdn", "Mean", "Mdn",
     "Mean", "Mdn", "Mean", "Mdn", "Mean", "Mdn"
   ),
-  caption = "Computation time by approach (in seconds)",
+  caption = "Computation Time by Approach (in Seconds)",
   linesep = "",
   digits = 2
 ) %>%
@@ -249,7 +249,7 @@ kableExtra::kbl(
     position = "left"
   ) %>%
   kableExtra::footnote(
-    general = "Each entry is the mean or median time (in seconds) to complete a single iteration, computed over 1,000 iterations per condition. For example, in the first condition LMS took 12.26 seconds for one iteration on average.",
+    general = "Each entry is the mean or median time (in seconds) to complete a single replication, computed over 1,000 replications per condition. For example, in the first condition LMS took 12.26 seconds for one replication on average.",
     general_title = "Note.",
     threeparttable = TRUE,
     escape = TRUE
@@ -261,7 +261,7 @@ kableExtra::kbl(
 #| label: r2-table
 #| output: asis
 
-# Filter to baseline (all normal) conditions only
+# baseline (all normal) conditions only
 baseline_idx_s1 <- which(
   study1_conditions_raw$Distr_Exo == "normal" &
   study1_conditions_raw$Distr_Epsilon == "normal" &
@@ -269,7 +269,7 @@ baseline_idx_s1 <- which(
   study1_conditions_raw$Model_Type == "full"
 )
 
-# Study 1: observed_r2 is numeric(1000) for eta3
+# Simulation 1: observed_r2 is numeric(1000) for eta3
 r2_study1 <- data.frame()
 for (i in baseline_idx_s1) {
   r2_vals <- study1_all_results_raw[[i]]$results$observed_r2
@@ -285,7 +285,7 @@ for (i in baseline_idx_s1) {
   r2_study1 <- rbind(r2_study1, row_data)
 }
 
-# Filter to baseline (all normal) conditions for Study 2
+# baseline (all normal) conditions for Simulation 2
 baseline_idx_s2 <- which(
   study2_conditions_raw$Distr_Exo == "normal" &
   study2_conditions_raw$Distr_Epsilon == "normal" &
@@ -293,7 +293,7 @@ baseline_idx_s2 <- which(
   study2_conditions_raw$Model_Type == "full"
 )
 
-# Study 2: observed_r2 is matrix(1000, 2) for eta4 and eta5
+# Simulation 2: observed_r2 is matrix(1000, 2) for eta4 and eta5
 r2_study2 <- data.frame()
 for (i in baseline_idx_s2) {
   r2_mat <- study2_all_results_raw[[i]]$results$observed_r2
@@ -340,7 +340,7 @@ kableExtra::kbl(
     "N", "Rel.",
     "Mean", "MCSE", "Mean", "MCSE", "Mean", "MCSE"
   ),
-  caption = "Average achieved $R^2$ values under normal baseline conditions",
+  caption = "Average Achieved $R^2$ Values Under Normal Baseline Conditions",
   linesep = "",
   digits = 3
 ) %>%
@@ -356,11 +356,133 @@ kableExtra::kbl(
     position = "left"
   ) %>%
   kableExtra::footnote(
-    general = "Mean = average observed $R^2$ across 1,000 iterations; MCSE = Monte Carlo standard error, computed as $SD/\\\\sqrt{K}$, where $SD$ is the standard deviation of the observed $R^2$ values and $K$ = 1,000 iterations. Only baseline conditions (all distributions normal, full model) are shown.",
+    general = "Mean = average observed $R^2$ across 1,000 replications; MCSE = Monte Carlo standard error, computed as $SD/\\\\sqrt{K}$, where $SD$ is the standard deviation of the observed $R^2$ values and $K$ = 1,000 replications. Only baseline conditions (all distributions normal, full model) are shown.",
     general_title = "Note.",
     threeparttable = TRUE,
     escape = FALSE
   )
+```
+
+```{r}
+#| label: reliability-table
+#| output: asis
+
+# Simulation 1: observed_rel is matrix(1000, 9) — 3 indicators per factor
+# average per factor: cols 1-3 = eta1, cols 4-6 = eta2, cols 7-9 = eta3
+rel_study1 <- data.frame()
+for (i in baseline_idx_s1) {
+  rel_mat <- study1_all_results_raw[[i]]$results$observed_rel
+
+  rel_eta1 <- rowMeans(rel_mat[, 1:3], na.rm = TRUE)
+  rel_eta2 <- rowMeans(rel_mat[, 4:6], na.rm = TRUE)
+  rel_eta3 <- rowMeans(rel_mat[, 7:9], na.rm = TRUE)
+
+  rel_eta1 <- rel_eta1[!is.na(rel_eta1)]
+  rel_eta2 <- rel_eta2[!is.na(rel_eta2)]
+  rel_eta3 <- rel_eta3[!is.na(rel_eta3)]
+
+  row_data <- data.frame(
+    N = study1_conditions_raw$N[i],
+    Rel = study1_conditions_raw$Rel[i],
+    S1_eta1_mean = mean(rel_eta1),
+    S1_eta1_mcse = sd(rel_eta1) / sqrt(length(rel_eta1)),
+    S1_eta2_mean = mean(rel_eta2),
+    S1_eta2_mcse = sd(rel_eta2) / sqrt(length(rel_eta2)),
+    S1_eta3_mean = mean(rel_eta3),
+    S1_eta3_mcse = sd(rel_eta3) / sqrt(length(rel_eta3))
+  )
+  rel_study1 <- rbind(rel_study1, row_data)
+}
+
+# Simulation 2: observed_rel is matrix(1000, 5) — already averaged per factor
+rel_study2 <- data.frame()
+for (i in baseline_idx_s2) {
+  rel_mat <- study2_all_results_raw[[i]]$results$observed_rel
+
+  rel_vals <- list()
+  for (k in 1:5) {
+    rel_vals[[k]] <- rel_mat[!is.na(rel_mat[, k]), k]
+  }
+
+  row_data <- data.frame(
+    N = study2_conditions_raw$N[i],
+    Rel = study2_conditions_raw$Rel[i],
+    S2_eta1_mean = mean(rel_vals[[1]]),
+    S2_eta1_mcse = sd(rel_vals[[1]]) / sqrt(length(rel_vals[[1]])),
+    S2_eta2_mean = mean(rel_vals[[2]]),
+    S2_eta2_mcse = sd(rel_vals[[2]]) / sqrt(length(rel_vals[[2]])),
+    S2_eta3_mean = mean(rel_vals[[3]]),
+    S2_eta3_mcse = sd(rel_vals[[3]]) / sqrt(length(rel_vals[[3]])),
+    S2_eta4_mean = mean(rel_vals[[4]]),
+    S2_eta4_mcse = sd(rel_vals[[4]]) / sqrt(length(rel_vals[[4]])),
+    S2_eta5_mean = mean(rel_vals[[5]]),
+    S2_eta5_mcse = sd(rel_vals[[5]]) / sqrt(length(rel_vals[[5]]))
+  )
+  rel_study2 <- rbind(rel_study2, row_data)
+}
+
+rel_combined <- merge(
+  rel_study1,
+  rel_study2,
+  by = c("N", "Rel"),
+  all.x = TRUE
+)
+
+apa_rel_table <- rel_combined %>%
+  mutate(across(starts_with("S1_") | starts_with("S2_"), ~ round(.x, 3))) %>%
+  arrange(N, Rel) %>%
+  select(
+    N, Reliability = Rel,
+    S1_eta1_mean, S1_eta1_mcse,
+    S1_eta2_mean, S1_eta2_mcse,
+    S1_eta3_mean, S1_eta3_mcse,
+    S2_eta1_mean, S2_eta1_mcse,
+    S2_eta2_mean, S2_eta2_mcse,
+    S2_eta3_mean, S2_eta3_mcse,
+    S2_eta4_mean, S2_eta4_mcse,
+    S2_eta5_mean, S2_eta5_mcse
+  )
+
+kableExtra::kbl(
+  apa_rel_table,
+  booktabs = TRUE,
+  align = c("r", "r", rep("r", 16)),
+  col.names = c(
+    "N", "Rel.",
+    rep(c("Mean", "MCSE"), 8)
+  ),
+  caption = "Average Achieved Reliability Values Under Normal Baseline Conditions",
+  linesep = "",
+  digits = 3
+) %>%
+  kableExtra::add_header_above(c(
+    " " = 2,
+    "$\\\\eta_1$" = 2,
+    "$\\\\eta_2$" = 2,
+    "$\\\\eta_3$" = 2,
+    "$\\\\eta_1$" = 2,
+    "$\\\\eta_2$" = 2,
+    "$\\\\eta_3$" = 2,
+    "$\\\\eta_4$" = 2,
+    "$\\\\eta_5$" = 2
+  ), escape = FALSE) %>%
+  kableExtra::add_header_above(c(
+    " " = 2,
+    "Simulation 1" = 6,
+    "Simulation 2" = 10
+  )) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position", "scale_down"),
+    font_size = 8,
+    position = "left"
+  ) %>%
+  kableExtra::footnote(
+    general = "Mean = average observed reliability across 1,000 replications, computed as the mean of indicator-level reliabilities within each factor; MCSE = Monte Carlo standard error, computed as $SD/\\\\sqrt{K}$, where $K$ = 1,000 replications. Only baseline conditions (all distributions normal, full model) are shown.",
+    general_title = "Note.",
+    threeparttable = TRUE,
+    escape = FALSE
+  ) %>%
+  kableExtra::landscape()
 ```
 
 ```{r}
@@ -400,7 +522,7 @@ plot_bias(study1_data$bias, shapes = SHAPES_4, ltys = LTYS_4)
 #| fig-height: 9
 #| fig-width: 7
 
-plot_bias(study1_data$bias_relative, shapes = SHAPES_4, ltys = LTYS_4)
+plot_bias(study1_data$bias_relative, shapes = SHAPES_4, ltys = LTYS_4, bias_type = "relative")
 ```
 
 ```{r}
@@ -486,7 +608,7 @@ plot_bias(study_2_normal_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
 #| fig-height: 9
 #| fig-width: 7
 
-plot_bias(study_2_normal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
+plot_bias(study_2_normal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3, bias_type = "relative")
 ```
 
 ```{r}
@@ -570,7 +692,7 @@ plot_bias(study_2_nonnormal_data$bias, shapes = SHAPES_3, ltys = LTYS_3)
 #| fig-height: 9
 #| fig-width: 7
 
-plot_bias(study_2_nonnormal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3)
+plot_bias(study_2_nonnormal_data$bias_relative, shapes = SHAPES_3, ltys = LTYS_3, bias_type = "relative")
 ```
 
 ```{r}
@@ -924,8 +1046,6 @@ plot_dumbbell(dumbbell_study1$power %>% filter(Error_Condition == "Epsilon & Zet
   facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
              labeller = labeller(Parameter = label_parsed))
 ```
-
-\clearpage
 
 # Additional Distributional Conditions Plots — Simulation 2
 
@@ -1546,3 +1666,186 @@ plot_dumbbell(dumbbell_study2_uniform$power %>% filter(Error_Condition == "Epsil
   facet_grid(Distribution + Parameter ~ SampleSize + Reliability,
              labeller = labeller(Parameter = label_parsed))
 ```
+
+\clearpage
+
+# SEs Outlier Diagnostics for Condition 13 (Simulation 1)
+
+```{r}
+#| label: se-outlier-function
+#| eval: false
+#| echo: false
+
+plot_se_simple_study1 <- function(extraction_results, condition_number, method = "LSAM",
+                                  label_threshold = 5) {
+  
+  # GLOBAL surviving iterations (converged and non-outlier in ALL methods)
+  details <- extraction_results$convergence_outliers_details
+  cond_key <- paste0("Condition_", condition_number)
+  
+  surviving_iters <- NULL
+  
+  if (cond_key %in% names(details)) {
+    cond_details <- details[[cond_key]]
+    methods_lower <- c("lsam", "lms", "qml", "upi")
+    
+    all_excluded <- list()
+    for (m in methods_lower) {
+      non_conv <- cond_details$non_converged_iterations[[m]]
+      outliers <- cond_details$outlier_iterations[[m]]
+      all_excluded[[m]] <- unique(c(non_conv, outliers))
+    }
+    
+    all_excluded_union <- unique(unlist(all_excluded))
+    surviving_iters <- setdiff(1:1000, all_excluded_union)
+    
+  } else {
+    warning("Could not find original iteration IDs, using sequential numbers")
+  }
+  
+  parameters <- c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2")
+
+  param_labels <- c(
+    "eta1"      = "beta[31]",
+    "eta2"      = "beta[32]",
+    "eta1:eta2" = "beta[33]",
+    "eta1:eta1" = "beta[34]",
+    "eta2:eta2" = "beta[35]"
+  )
+
+  se_data <- data.frame()
+  
+  for (param in parameters) {
+    key <- paste(condition_number, method, param, sep = "_")
+    
+    if (key %in% names(extraction_results$filtered_data)) {
+      ses <- extraction_results$filtered_data[[key]]$standard_errors
+      
+      if (length(ses) > 0) {
+        if (!is.null(surviving_iters) && length(surviving_iters) == length(ses)) {
+          iter_ids <- surviving_iters
+        } else {
+          iter_ids <- 1:length(ses)
+        }
+        
+        temp_df <- data.frame(
+          Iteration = iter_ids,
+          Parameter = unname(param_labels[param]),
+          SE = ses
+        )
+        se_data <- rbind(se_data, temp_df)
+      }
+    }
+  }
+  
+  se_data$Parameter <- factor(se_data$Parameter, levels = param_labels)
+
+  points_to_label <- subset(se_data, SE > label_threshold)
+  
+  p <- ggplot(se_data, aes(x = Iteration, y = SE)) +
+    geom_point(alpha = 0.6, size = 2) +
+    geom_text(data = points_to_label,
+              aes(label = Iteration),
+              vjust = 0.5, hjust = 1.2, size = 3, fontface = "bold", color = "red") +
+    facet_wrap(~ Parameter, scales = "free_y", ncol = 2,
+               labeller = label_parsed) +
+    theme_minimal() +
+    labs(x = "", y = "SEs") +
+    theme(
+      plot.title = element_text(size = 14, face = "bold"),
+      strip.text = element_text(face = "bold")
+    )
+  
+  print(p)
+
+  invisible(p)
+}
+
+
+extraction_basic <- ExtractConvergenceOutliers(
+  all_results = all_results,
+  parameters_of_interest = c("eta1", "eta2", "eta1:eta2", "eta1:eta1", "eta2:eta2"),
+  remove_outliers = TRUE,
+  outlier_threshold = 3,
+  se_threshold = 10,
+  min_reps = 0,
+  check_positive_se = FALSE,
+  check_heywood = FALSE,
+  check_pd = FALSE)
+
+methods <- c("LSAM", "LMS", "QML", "UPI")
+for (m in methods) {
+  p <- plot_se_simple_study1(extraction_basic,
+                             condition_number = 13,
+                             method = m,
+                             label_threshold = 10)
+  ggsave(filename = paste0("se_outlier_condition13_", m, ".pdf"),
+         plot = p, width = 7, height = 9)
+}
+```
+
+```{r}
+#| label: fig-se-outlier-lsam
+#| fig-cap: "SE Outliers for LSAM in Condition 13"
+#| fig-height: 9
+#| fig-width: 7
+
+knitr::include_graphics("SE_Outliers_Plots/se_outlier_condition13_LSAM.pdf")
+```
+
+```{r}
+#| label: fig-se-outlier-lms
+#| fig-cap: "SE Outliers for LMS in Condition 13"
+#| fig-height: 9
+#| fig-width: 7
+
+knitr::include_graphics("SE_Outliers_Plots/se_outlier_condition13_LMS.pdf")
+```
+
+```{r}
+#| label: fig-se-outlier-qml
+#| fig-cap: "SE Outliers for QML in Condition 13"
+#| fig-height: 9
+#| fig-width: 7
+
+knitr::include_graphics("SE_Outliers_Plots/se_outlier_condition13_QML.pdf")
+```
+
+```{r}
+#| label: fig-se-outlier-upi
+#| fig-cap: "SE Outliers for UPI in Condition 13"
+#| fig-height: 9
+#| fig-width: 7
+
+knitr::include_graphics("SE_Outliers_Plots/se_outlier_condition13_UPI.pdf")
+```
+
+\clearpage
+
+# Additional Distributional Conditions: Difference Uncertainty
+
+The dumbbell plots in the manuscript and preceding sections show main results and additional distributional conditions values side by side. To formally quantify whether a performance metric changed meaningfully under non-normal errors, we compute the difference
+
+$$
+\Delta = \hat{\theta}_{\text{additional}} - \hat{\theta}_{\text{main}}
+$$
+
+where $\hat{\theta}$ denotes a simulation performance metric (e.g., relative bias, coverage rate, etc). Because the main results and additional distributional conditions results were generated from independent sets of Monte Carlo replications, their estimators $\hat{\theta}_{\text{main}}$ and $\hat{\theta}_{\text{additional}}$ are statistically independent. Under independence, the variance of a difference equals the sum of the variances:
+
+$$
+\text{Var}(\Delta) = \text{Var}\!\left(\hat{\theta}_{\text{additional}} - \hat{\theta}_{\text{main}}\right) = \text{Var}\!\left(\hat{\theta}_{\text{additional}}\right) + \text{Var}\!\left(\hat{\theta}_{\text{main}}\right).
+$$
+
+Because each MCSE estimates the standard deviation of $\hat{\theta}$ across replications, squaring it gives an estimate of the corresponding variance, $\text{MCSE}^2 \approx \text{Var}(\hat{\theta})$. Substituting into the expression above and taking the square root gives the MCSE of the difference:
+
+$$
+\text{MCSE}_\Delta = \sqrt{\text{Var}\!\left(\hat{\theta}_{\text{main}}\right) + \text{Var}\!\left(\hat{\theta}_{\text{additional}}\right)} = \sqrt{\text{MCSE}_{\text{main}}^2 + \text{MCSE}_{\text{additional}}^2}.
+$$
+
+An approximate 95% confidence interval for the true difference is then
+
+$$
+\Delta \pm 1.96 \times \text{MCSE}_\Delta.
+$$
+
+The bar plots in the Supplemental Tables document (available on the GitHub repository) display $\Delta$ on the $y$-axis with 95% CI error bars and a dashed reference line at zero, making it straightforward to identify which method--metric--condition combinations were meaningfully affected.

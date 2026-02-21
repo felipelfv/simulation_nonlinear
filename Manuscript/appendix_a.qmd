@@ -1,6 +1,6 @@
 # Local Standard Errors for LSAM 
 
-To obtain two-step corrected standard errors for the parameters of the structural part of the model ($\boldsymbol{\theta}_2$), we use the familiar (sandwich-based) formula for robust SEs [@savalei_rosseel_2021]:
+To obtain two-step corrected SEs for the parameters of the structural part of the model ($\boldsymbol{\theta}_2$), we use the familiar (sandwich-based) formula for robust SEs [@savalei_rosseel_2021]:
 $$
 \mathrm{Var}(\boldsymbol{\theta}_2) = \frac{1}{N}\left[(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Gamma}_{\eta}\mathcal{I}_1\boldsymbol{\Delta})(\boldsymbol{\Delta}^{\top}\mathcal{I}_1\boldsymbol{\Delta})^{-1}\right]
 $$
