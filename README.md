@@ -51,7 +51,7 @@ Simulations/
         └── results_study_2_strict_robust.rds
 ```
 
-**Results variants:** Each study produces four result files based on the combination of convergence checking and standard error type:
+**Results variants:** Each study produces four result files based on the combination of convergence checking:
 - `basic` / `strict` — basic convergence checks (NA/NaN/Inf only) vs. strict checks (positive SEs, positive variances, positive definite factor covariance matrix)
 - `robust` suffix — results computed with robust standard errors
 
@@ -91,6 +91,7 @@ Helper scripts for inspecting the data generation mechanism. Not part of the mai
        ↓ depends on: GenerateData.R, Methods.R, Models(X).R
 
 2. Results(X).R     →  results_study_X_*.rds  (performance metrics)
+       ↓ depends on: .RData files in Data/
 
 3. Manuscript (results.qmd)  loads .rds files  →  tables and figures
        ↓ depends on: Plots.R
@@ -123,7 +124,7 @@ To reproduce the `.RData` files in `Simulations/Study_X/Data/`, run `Simulation(
 
 ## Reproducing the results
 
-Run `Results(1).R` and `Results(2).R` to compute performance metrics (convergence rates, bias, RMSE, SE/SD ratio, coverage, Type I error) from the raw simulation data. These scripts produce the `.rds` files loaded by the manuscript.
+Run `Results(1).R` and `Results(2).R` to compute performance metrics (convergence rates, bias, RMSE, SE/SD ratio, coverage, Type I error) from the `.RData` files in `Data/`. These scripts produce the `.rds` files loaded by the manuscript.
 
 ### Packages needed
 
