@@ -142,9 +142,8 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
   )
   
   # distribution name from condition
-  # handle both old naming (Distribution) and potential new naming (generation_distribution)
-  dist_name <- if (!is.null(condition$generation_distribution)) {
-    tolower(condition$generation_distribution)
+  dist_name <- if (!is.null(condition$Distr_Exo)) {
+    tolower(condition$Distr_Exo)
   } else if (!is.null(condition$Distribution)) {
     tolower(condition$Distribution)
   } else {
@@ -165,8 +164,8 @@ replicate_condition_data <- function(condition_id, rep_id, study = 1,
       distr.exo       = dist_params$distr.exo,
       nonnormal.shape = dist_params$nonnormal.shape,
       nonnormal.rate  = dist_params$nonnormal.rate,
-      distr.epsilon   = "normal",
-      distr.zeta      = "normal",
+      distr.epsilon   = condition$Distr_Epsilon,
+      distr.zeta      = condition$Distr_Zeta,
       add.eta         = FALSE,
       return.info     = TRUE
     )
@@ -196,4 +195,3 @@ data_replicate <- replicate_condition_data(
 
 # following this one now may proceed to load the analysis model and fit with whatever the estimation desired
 # you should obtain the same results as reported in the specific .RData file
-
