@@ -59,7 +59,7 @@ author-note:
     financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
     
 abstract: |
-  Various methods exist to include quadratic or interaction terms involving latent variables in structural equation models (SEM). Most use system-wide estimation, where all parameters are estimated simultaneously, and have been investigated in models with few nonlinear effects. Recently, structural-after-measurement (SAM) approaches have been proposed, where estimation proceeds in two stages: measurement model first, then structural model. Rosseel et al. (2025) extended local SAM (LSAM) to handle second-order nonlinear effects among latent variables. In this article, we present a formula for two-step standard errors (SEs) not previously available for LSAM. We conducted two simulation studies varying latent exogenous predictor distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), sample sizes (400, 1000), and measurement error and structural disturbance distributions (normal, right-skewed). The first study examined a model with three nonlinear effects. LSAM produced largely unbiased estimates with stable coverage, SEs, and Type I error rates, though power fluctuated and performance was adversely affected under low reliability, particularly with uniform latent exogenous distributions. Larger sample sizes mitigated these issues. Traditional methods (LMS, QML, UPI) showed results consistent with prior literature. The second study, excluding LMS, tested a more complex model with eight nonlinear effects. LSAM maintained adequate performance despite greater complexity, though similar limitations emerged and power decreased under certain conditions. Traditional methods yielded more variable results, with generally poorer performance relative to Simulation 1 and LSAM. Right-skewed measurement errors affected the abovementioned results more than right-skewed structural disturbances, particularly under low and medium reliability.
+  Various methods exist to include quadratic or interaction terms involving latent variables in structural equation models (SEM). Most use system-wide estimation, where all parameters are estimated simultaneously, and have been investigated in models with few nonlinear effects. Recently, structural-after-measurement (SAM) approaches have been proposed, where estimation proceeds in two stages: measurement model first, then structural model. Rosseel et al. (2025) extended local SAM (LSAM) to handle second-order nonlinear effects among latent variables. In this article, we present a formula for two-step standard errors (SEs) not previously available for LSAM. We also conducted two simulation studies varying latent exogenous predictor distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), sample sizes (400, 1000), and measurement error and structural disturbance distributions (normal, right-skewed). The first study examined a model with three nonlinear effects. LSAM produced largely unbiased estimates with stable coverage, SEs, and Type I error rates, though power fluctuated and performance was adversely affected under low reliability, particularly with uniform latent exogenous distributions. Larger sample sizes mitigated these issues. Traditional methods (LMS, QML, UPI) showed results consistent with prior literature. The second study, excluding LMS, tested a more complex model with eight nonlinear effects. LSAM maintained adequate performance despite greater complexity, though similar limitations emerged and power decreased under certain conditions. Traditional methods yielded more variable results, with generally poorer performance relative to Simulation 1 and LSAM. Right-skewed measurement errors affected the abovementioned results more than right-skewed structural disturbances, particularly under low and medium reliability.
 
 keywords: [nonlinear effects, structural equation modeling, local structural-after-measurement, latent variables]
 word-count: true
@@ -90,7 +90,6 @@ execute:
 #| label: setup
 #| include: false
 
-library(simhelpers) # performance metrics
 library(dplyr) # data wrangling for performance metrics and plots
 library(ggplot2) # visualization
 library(kableExtra) # appendices
@@ -120,7 +119,7 @@ library(kableExtra) # appendices
 \begin{flushleft}
 \textbf{Table 1}
 
-\textit{Subset of the performance measures for evaluating parameter estimates in the Simulation Studies}
+\textit{Subset of the Performance Measures for Evaluating Parameter Estimates in the Simulation Studies}
 \end{flushleft}
 \footnotesize
 \begin{longtable}{lll}

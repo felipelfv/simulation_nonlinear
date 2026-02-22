@@ -120,9 +120,7 @@ p_relative_rmse_400_full_study_1 <- plot_rmse(
   dat_relative_rmse_400_full_study_1, 
   shapes = SHAPES_4, 
   ltys = LTYS_4,
-  facet_formula = Distribution + Parameter ~ ., 
-  #y_breaks = seq(0, 0.30, by = 0.05),           
-  #y_limits = c(0, 0.30)                        
+  facet_formula = Distribution + Parameter ~ .
 )
 
 # SE/SD RATIO (Right-skewed & Uniform, Full, N=400 & 1000)
@@ -462,12 +460,6 @@ p_sens_coverage_study1 <- plot_dumbbell(
 ) +
   coord_cartesian(xlim = c(50, 100))
 
-# Type I Error (N=1000)
-p_sens_type1_study1 <- plot_dumbbell(
-  dumbbell_study1$type1 %>% filter(SampleSize == "1000"),
-  metric_name = "Type I Error (%)",
-  acceptable_range = c(3, 7)
-)
 ```
 
 ### Simulation 1
