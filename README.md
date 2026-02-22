@@ -86,15 +86,81 @@ Helper scripts for inspecting the data generation mechanism. Not part of the mai
 
 ## Workflow
 
+The project follows a sequential pipeline. Each step produces output files that are consumed by the next step. The same structure applies to both Simulation 1 (simple 3-factor model) and Simulation 2 (complex 5-factor model).
+
+### Step 1: Run the simulation
+
+`Simulation(1).R` and `Simulation(2).R` are the main entry points. Each script:
+
+1. Sources `Models(1).R` or `Models(2).R` to load the population model specifications (lavaan syntax with fixed parameter values for each reliability level and model type).
+2. Sources `Methods.R`, which defines the estimation functions for each approach (UPI, LMS, QML, LSAM).
+3. Sources `GenerateData.R`, which defines the VITA-based data generation function.
+4. Sets up a parallel cluster with `doParallel` and runs 1,000 replications per condition using `%dorng%` for reproducible parallel random number streams.
+5. Saves one `.RData` file per condition to `Simulations/Study_1/Data/` or `Simulations/Study_2/Data/`. Each `.RData` file contains the raw parameter tables, timing, warnings, and observed metrics for all replications within that condition.
+6. After all conditions complete, reloads the per-condition files and combines them into a single `Data_Study_1_final.RData` or `Data_Study_2_final.RData`.
+
 ```
-1. Simulation(X).R  →  Data/  (per-condition .RData files with raw iteration output)
-       ↓ depends on: GenerateData.R, Methods.R, Models(X).R
+Models(1).R ──┐
+Methods.R ────┼──> Simulation(1).R ──> Data/Data_Study_1_*.RData
+GenerateData.R┘
 
-2. Results(X).R     →  results_study_X_*.rds  (performance metrics)
-       ↓ depends on: .RData files in Data/
+Models(2).R ──┐
+Methods.R ────┼──> Simulation(2).R ──> Data/Data_Study_2_*.RData
+GenerateData.R┘
+```
 
-3. Manuscript (results.qmd)  loads .rds files  →  tables and figures
-       ↓ depends on: Plots.R
+File dependency detail:
+- `GenerateData.R` uses `lavaan` (to parse model syntax and extract parameters), `covsim` and `rvinecopulib` (to generate non-normal multivariate data via vine copulas).
+- `Methods.R` uses `modsem` (for UPI, LMS, QML estimation) and `lavaan` (for LSAM estimation via `sam()`).
+- `Models(1).R` and `Models(2).R` are plain R scripts that define lists of lavaan model strings. They have no package dependencies.
+
+### Step 2: Process results
+
+`Results(1).R` and `Results(2).R` each define two main functions:
+
+1. `ExtractConvergenceOutliers()` — loads the `.RData` files, applies convergence checks (basic or strict) and outlier detection (IQR-based), and returns the filtered data.
+2. `CalculatePerformanceMetrics()` — computes bias, RMSE, relative bias, SE/SD ratio, coverage, Type I error, power, and their MCSEs from the filtered data using `simhelpers`.
+
+Running the commented-out code at the bottom of each results script produces four `.rds` files per study:
+
+| File | Description |
+|------|-------------|
+| `results_study_1_basic.rds` | Basic convergence checks, standard SEs |
+| `results_study_1_basic_robust.rds` | Basic convergence checks, robust SEs |
+| `results_study_1_strict.rds` | Strict convergence checks, standard SEs |
+| `results_study_1_strict_robust.rds` | Strict convergence checks, robust SEs |
+
+The same naming pattern applies to Simulation 2.
+
+```
+Data/Data_Study_1_final.RData ──> Results(1).R ──> Results/results_study_1_*.rds
+Data/Data_Study_2_final.RData ──> Results(2).R ──> Results/results_study_2_*.rds
+```
+
+### Step 3: Render the manuscript
+
+The manuscript is written in Quarto (`.qmd`) using the `apaquarto` extension. The main file is `manuscript.qmd`, which includes child documents for each section.
+
+- `results.qmd` loads the `.rds` files produced in Step 2, sources `Plots.R` for the plotting functions, and generates all figures and tables inline.
+- `supplemental.qmd` and `supplemental_tables.qmd` similarly load `.rds` files for supplemental analyses.
+- `design.qmd` retrieves package versions dynamically for the computational details section.
+
+```
+Results/results_study_1_*.rds ──┐
+Results/results_study_2_*.rds ──┼──> results.qmd (sources Plots.R) ──> manuscript.qmd
+Plots.R ────────────────────────┘
+```
+
+### Full pipeline summary
+
+```
+Models(1).R ─┐                                                  ┌─> results.qmd ─┐
+Methods.R ───┼─> Simulation(1).R ─> .RData ─> Results(1).R ─> .rds ─┤               ├─> manuscript.qmd
+GenerateData.R┘                                                 └─> supplemental.qmd
+                                                                        ↑
+Models(2).R ─┐                                                  ┌─> results.qmd ─┘
+Methods.R ───┼─> Simulation(2).R ─> .RData ─> Results(2).R ─> .rds ─┤
+GenerateData.R┘                                                 └─> supplemental.qmd
 ```
 
 ## Cloning this repository
@@ -109,7 +175,7 @@ git lfs pull
 
 ## Reproducing the simulation
 
-To reproduce the `.RData` files in `Simulations/Study_X/Data/`, run `Simulation(1).R` and `Simulation(2).R` respectively. Each simulation script depends on `GenerateData.R`, `Methods.R`, and `Models(X).R`.
+To reproduce the `.RData` files, run `Simulation(1).R` and `Simulation(2).R` from the project root directory. Each simulation script sources `GenerateData.R`, `Methods.R`, and the corresponding `Models` file. The scripts expect to be run with the working directory set to the repository root (i.e., where `SimulationStudy_Nonlinear.Rproj` is located).
 
 ### Packages needed
 
@@ -124,7 +190,7 @@ To reproduce the `.RData` files in `Simulations/Study_X/Data/`, run `Simulation(
 
 ## Reproducing the results
 
-Run `Results(1).R` and `Results(2).R` to compute performance metrics (convergence rates, bias, RMSE, SE/SD ratio, coverage, Type I error) from the `.RData` files in `Data/`. These scripts produce the `.rds` files loaded by the manuscript.
+Run `Results(1).R` and `Results(2).R` to compute performance metrics (convergence rates, bias, RMSE, SE/SD ratio, coverage, Type I error, power) from the `.RData` files. These scripts produce the `.rds` files loaded by the manuscript. The commented-out code at the bottom of each file shows how to run the extraction and metric computation for each variant (basic/strict, standard/robust SEs).
 
 ### Packages needed
 
