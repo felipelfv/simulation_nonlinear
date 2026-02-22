@@ -9,6 +9,7 @@ vinecop <- packageVersion("rvinecopulib")
 doparallel_version <- packageVersion("doParallel")
 dorng_version <- packageVersion("doRNG")
 ggplot_version <- packageVersion("ggplot2")
+library(microbenchmark)
 microbenchmark_version <- packageVersion("microbenchmark")
 simhelpers_version <- packageVersion("simhelpers")
 R_version <- getRversion()
@@ -23,8 +24,6 @@ In this section, we present the simulation design and performance metrics for th
 #| label: benchmark-lms
 #| echo: false
 #| eval: false
-
-#library(microbenchmark)
 
 # using the data obtained from data retrieval script that replicates the dataset exactly for condition 1 iteration 1
 # plus, analysis.model from sim 2
