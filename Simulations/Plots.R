@@ -1,31 +1,27 @@
-############################ 1. General Information ############################
-
-# This file contains all the code for data wrangling and plots based on the 
-# simulation results (with various performance metrics):
-# Consistent "APA-style" formatting across all plots
-# Data preparation functions for the different simulation designs
-# Plotting functions for bias, RMSE, SE/SD ratio, coverage, Type I error, and 
-# power
+################################################################################
+# File:         Plots.R
+# Description:  Data wrangling and APA-style plotting functions for simulation
+#               results. Covers bias, RMSE, SE/SD ratio, coverage, Type I error,
+#               and power for both simulation studies, plus dumbbell plots for
+#               additional distributional conditions (right-skewed errors).
+# Dependencies: ggplot2, dplyr
+# Used by:      manuscript.qmd, supplemental.qmd, supplemental_tables.qmd
+#               (sourced via results.qmd)
+# Note:         "nonnormal" in the code corresponds to "right-skewed" in the
+#               manuscript.
 #
-#' @note Dependencies:
-#'   Required packages: ggplot2 and dplyr
-#'   
 # Structure:
-#   2. Configuration     - Method order, visual specifications
-#   3. Shared Components - Theme, helper functions
-#   4. Data Preparation
-#      4.1 Simulation 1  - Simple model (3 nonlinear terms), normal errors
-#      4.2 Simulation 2  - Complex model (8 nonlinear terms), normal errors
-#      4.3 Additional Distributional Conditions - Non-normal errors (dumbbell plots)
-#   5. Plotting Functions
-#      5.1 Main Plots    - Bias, RMSE, SE/SD, coverage, Type I, power
-#      5.2 Additional Distributional Conditions - Dumbbell plots
+#   Configuration        - Method order, visual specifications
+#   Shared Components    - Theme, helper functions
+#   Data Preparation
+#     Simulation 1       - Simple model (3 nonlinear terms), normal errors
+#     Simulation 2       - Complex model (8 nonlinear terms), normal errors
+#     Additional Distributional Conditions - Non-normal errors (dumbbell plots)
+#   Plotting Functions
+#     Main Plots         - Bias, RMSE, SE/SD, coverage, Type I, power
+#     Additional Distributional Conditions - Dumbbell plots
 
-# required packages
-library(ggplot2)
-library(dplyr)
-
-############################### 2. Configuration ###############################
+################################ Configuration #################################
 
 # METHOD SPECIFICATIONS 
 METHOD_ORDER_4 <- c("LSAM", "LMS", "QML", "UPI")
@@ -44,7 +40,7 @@ LTYS_3 <- c(LSAM = "solid", QML = "dotdash", UPI = "twodash")
 GREYS_4 <- c(LSAM = "grey20", LMS = "grey45", QML = "grey65", UPI = "grey85")
 GREYS_3 <- c(LSAM = "grey20", QML = "grey50", UPI = "grey80")
 
-############################### 3. Shared Components ###########################
+################################ Shared Components #############################
 
 #' APA-style theme for ggplot2
 #' @param base_size Base font size. Default is 11.
@@ -69,9 +65,9 @@ make_condition <- function(N, Rel) {
                     "N=1000, Rel=0.4", "N=1000, Rel=0.6", "N=1000, Rel=0.8"))
 }
 
-############################### 4. Data Preparation ############################
+################################ Data Preparation ##############################
 
-# 4.1 STUDY 1
+# STUDY 1 (SIMULATION 1)
 
 #' Prepare Simulation 1 data; normal errors only
 #' @param results_data Full results data frame from CalculatePerformanceMetrics
@@ -144,7 +140,7 @@ prepare_study1_data <- function(results_data) {
   )
 }
 
-# 4.2 STUDY 2
+# STUDY 2 (SIMULATION 2)
 
 #' Prepare Simulation 2 subset by distribution and model
 #' @param df Data frame with simulation results
@@ -287,7 +283,7 @@ prepare_study2_data <- function(results_data, dist_name) {
   )
 }
 
-# 4.3 ADDITIONAL DISTRIBUTIONAL CONDITIONS: Non-normal errors (epsilon and zeta)
+# ADDITIONAL DISTRIBUTIONAL CONDITIONS: Nonnormal errors (epsilon and zeta)
 
 #' Prepare additional distributional conditions data (nonnormal errors)
 #' @param results_data Full results data frame
@@ -516,9 +512,9 @@ prepare_sensitivity_dumbbell_data <- function(results_data, study = 1, include_l
   )
 }
 
-############################### 5. Plotting Functions ##########################
+################################ Plotting Functions ############################
 
-# 5.1 MAIN PLOTS (Simulations 1 and 2)
+# MAIN PLOTS (Simulations 1 and 2)
 
 #' Plot bias (absolute or relative)
 #' @param data Prepared data frame with bias values
@@ -785,7 +781,7 @@ plot_power <- function(data, greys = GREYS_4, facet_formula = NULL,
   p
 }
 
-# 5.2 ADDITIONAL DISTRIBUTIONAL CONDITIONS PLOTS
+# ADDITIONAL DISTRIBUTIONAL CONDITIONS PLOTS
 
 #' Horizontal dumbbell plot for additional distributional conditions analysis
 #' @param data Data from compute_dumbbell_data()
@@ -880,7 +876,7 @@ plot_dumbbell <- function(data,
   p
 }
 
-############ 6. Additional Distributional Conditions Difference Functions ########
+############ Additional Distributional Conditions Difference Functions ##########
 
 #' Compute difference between additional distributional conditions and baseline with 95% CI
 #' @param dumbbell_data Data frame from compute_dumbbell_data()

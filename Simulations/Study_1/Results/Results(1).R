@@ -1,13 +1,16 @@
-############################ 1. General Information ############################
-
-# This file contains flexible convergence checking with optional strictness levels:
-# - Basic (default): NA/NaN/Inf checks only (original)
-# - Strict: Adds positive SEs, positive variances, positive definite factor cov matrix
+################################################################################
+# File:         Results(1).R
+# Description:  Results processing for Study 1. Extracts parameter estimates,
+#               checks convergence (basic or strict), removes outliers, and
+#               computes performance metrics (bias, RMSE, coverage, Type I
+#               error, power, etc.) using simhelpers.
+# Dependencies: simhelpers
+# Used by:      results.qmd (sourced for manuscript rendering)
 
 # required packages
 library(simhelpers)
 
-############################### 3. Functions ###################################
+################################ Functions #####################################
 
 # helper functions
 `%||%` <- function(x, y) if (is.null(x)) y else x

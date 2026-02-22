@@ -1,10 +1,16 @@
-############################ 1. General Information ############################
+################################################################################
+# File:         GenerateData.R
+# Description:  Data generation function for both simulation studies. Uses the
+#               VITA (Vine-To-Anything) method to generate exogenous latent
+#               variables with specified marginal distributions and covariance
+#               structures. Supports normal, right-skewed (gamma), and uniform
+#               distributions.
+# Dependencies: lavaan, covsim, rvinecopulib
+# Used by:      Simulation(1).R, Simulation(2).R
+# Note:         "nonnormal" in the code corresponds to "right-skewed" in the
+#               manuscript (gamma distribution with shape = 1, rate = 1).
 
-# See README file for more information concerning this file. 
-# This file contains the code for the function used to generate data. This is 
-# passed/used in both simulation 1 and 2.
-
-############################### 2. Function Documentation ######################
+############################### Function Documentation #########################
 
 #' @param model A lavaan-based model syntax string specifying the structural equation model.
 #' @param N Integer. Sample size for the generated dataset. Default is 1000L.
@@ -45,12 +51,7 @@
 #'   Required packages: lavaan, covsim, and rvinecopulib
 #'   
 
-# required packages
-library(lavaan)
-library(covsim)
-library(rvinecopulib)
-
-############################### 3. Function ####################################
+################################ Function ######################################
 
 GenerateData <- function(model, 
                          N = 1000L,

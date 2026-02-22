@@ -1,5 +1,12 @@
-# population models: based on normal distribution for all variables
-# that is latent exogenous, epsilon and zeta
+################################################################################
+# File:         Models(1).R
+# Description:  Population models for Study 1 (3-factor model). Defines lavaan
+#               syntax for full and null models at three reliability levels
+#               (0.4, 0.6, 0.8). All models use unit loadings, calibrated
+#               intercepts, and residual variances for R^2 ~ 0.30.
+# Dependencies: none (pure data definitions)
+# Used by:      Simulation(1).R
+
 all_models <- list()
 
 # full models with the population parameters 

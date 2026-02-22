@@ -1,20 +1,21 @@
-############################ 1. General Information ############################
+################################################################################
+# File:         Simulation(2).R
+# Description:  Monte Carlo simulation for Study 2 (5-factor model with 8
+#               nonlinear effects). Runs 1000 replications per condition across
+#               a full factorial design (2 sample sizes x 3 reliabilities x
+#               3 exogenous distributions x 2 error distributions x 2 model
+#               types = 144 conditions). Estimates via QML, UPI, and LSAM
+#               (LMS excluded due to computational cost).
+# Dependencies: lavaan, modsem, doParallel, doRNG, covsim, rvinecopulib
+# Sources:      Models(2).R, Methods.R, GenerateData.R
+# Output:       Simulations/Study_2/Data/
+# Note:         "nonnormal" in the code corresponds to "right-skewed" in the
+#               manuscript.
+#
+# To reset RNG after running: RNGkind("Mersenne-Twister", "Inversion", "Rejection")
 
-# See README file for more information concerning this file. 
+############################### Documentation ##################################
 
-# This file contains the code necessary to run the simulation study 2. 
-# It is dependent on the file "Models(2).RData" where we store the lavaan-based 
-# syntax models for generating the data. It is also dependent on the file
-# "Methods.R" where we specify the functions for estimating the different
-# approaches
-
-# Relevant to re-start after running this script once to default Mer-Twi.
-# RNGkind("Mersenne-Twister", "Inversion", "Rejection")
-
-############################### 2. Documentation ###############################
-
-#' Simulation 2 Parameters and Settings
-#' 
 #' @param N_REPLICATIONS    Integer. Number of Monte Carlo replications per condition (default = 1000).
 #' @param SAMPLE_SIZES      Integer vector. Sample sizes to simulate. Default is c(400, 1000).
 #' @param RELIABILITIES     Numeric vector. Reliability levels (0.4, 0.6, 0.8).
@@ -74,15 +75,11 @@
 #'   Required packages: lavaan, modsem, doParallel, doRNG, covsim, and rvinecopulib
 #'    
 
-############################### 3. Simulation ##################################
+################################ Simulation ####################################
 
 # required packages
-library(lavaan)
-library(modsem)
-library(doParallel)
-library(doRNG)
-library(covsim)
-library(rvinecopulib)
+library(lavaan); library(modsem); library(doParallel)
+library(doRNG); library(covsim); library(rvinecopulib)
 
 source("Simulations/Study_2/Simulation/Models(2).R")
 source("Simulations/Methods.R")  # methods file

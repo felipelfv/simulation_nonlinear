@@ -1,14 +1,17 @@
-############################ 1. General Information ############################
-
-# This file contains flexible convergence checking with optional strictness levels
-# for Simulation 2 (two-equation model):
-# - Basic (default): NA/NaN/Inf checks only (original)
-# - Strict: Adds positive SEs, positive variances, positive definite factor cov matrix
+################################################################################
+# File:         Results(2).R
+# Description:  Results processing for Study 2 (5-factor, two-equation model).
+#               Extracts parameter estimates, checks convergence (basic or
+#               strict), removes outliers, and computes performance metrics
+#               (bias, RMSE, coverage, Type I error, power, etc.) using
+#               simhelpers.
+# Dependencies: simhelpers
+# Used by:      results.qmd (sourced for manuscript rendering)
 
 # required packages
 library(simhelpers)
 
-############################### 3. Functions ###################################
+################################ Functions #####################################
 
 # helper functions
 `%||%` <- function(x, y) if (is.null(x)) y else x

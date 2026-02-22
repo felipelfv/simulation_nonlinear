@@ -1,12 +1,12 @@
-############################ 1. General Information ############################
+################################################################################
+# File:         Methods.R
+# Description:  Estimation functions for nonlinear SEM. Wraps modsem for UPI,
+#               LMS, and QML, and lavaan for LSAM. All functions return the
+#               full parameter table.
+# Dependencies: lavaan, modsem
+# Used by:      Simulation(1).R, Simulation(2).R
 
-# See README file for more information concerning this file. 
-# This file contains the code used for estimation (with different approaches). We use
-# modsem for all except the LSAM approach. Thus, we have the UPI, LMS, and 
-# QML estimated through modsem and the SAM approach with lavaan. 
-# All functions return the full parameter table.
-
-############################### 2. Function Documentation ######################
+############################### Function Documentation #########################
 
 #' method_upi: Product Indicator Approach (UPI) with Double Mean Centering
 #' @param Data          Data.frame. The dataset containing observed variables.
@@ -18,27 +18,21 @@
 #' method_lsam: Local Structural-After-Measurement (LSAM) Approach
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param estimator     Character. Estimator to use (default = "ML").
-#' @param joint         Logical. Whether to use joint estimation (default = FALSE).
+#' @param joint         Logical. Whether to use joint estimation (default = TRUE).
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
-#' @param mm.list       List or NULL. Additional arguments for the measurement model step (default = NULL).
+#' @param mm.list       List or NULL. Measurement model blocks. If NULL and joint = TRUE,
+#'                      all latent variables are placed in one block (default = NULL).
 #'
 #' method_analytic: Distribution Analytic Approaches (LMS or QML)
 #' @param Data          Data.frame. The dataset containing observed variables.
 #' @param model.fit     Character. Model syntax in lavaan format specifying the SEM with interactions.
+#' @param standardized  Logical. Whether to return standardized estimates (default = FALSE).
 #' @param method        Character. Distribution analytic method to use: "lms" (default) or "qml".
 #' @param robust.se     Logical. Whether to compute robust standard errors (default = FALSE).
-#'
-#' @note Dependencies:
-#'   Required packages: lavaan and modsem 
-#' 
 
-# required packages
-library(lavaan)
-library(modsem)
+################################ Functions #####################################
 
-############################### 3. Functions ###################################
-
-#### 3.1. Extended Product Indicator Approach with double mean centering (UPI)  ####
+# 1.1. Extended Product Indicator Approach with double mean centering (UPI)
 method_upi <- function(Data = NULL, model.fit = NULL,
                        robust.se = FALSE, match = NULL, bounds = FALSE) {
   
@@ -58,7 +52,7 @@ method_upi <- function(Data = NULL, model.fit = NULL,
   out$coefParTable
 }
 
-#### 3.2 Local Structural-After-Measurement (LSAM) Approach ####
+# 1.2 Local Structural-After-Measurement (LSAM) Approach 
 method_lsam <- function(Data = NULL, estimator = "ML",
                         joint = TRUE,
                         model.fit = NULL,
@@ -83,7 +77,7 @@ method_lsam <- function(Data = NULL, estimator = "ML",
   parameterEstimates(out, remove.step1 = FALSE)
 }
 
-#### 3.3 Distribution Analytic Approaches (LMS and QML) ####
+# 1.3 Distribution Analytic Approaches (LMS and QML) 
 method_analytic <- function(Data = NULL, model.fit = NULL, 
                             standardized = FALSE, method = "lms", robust.se = FALSE) {
   # for auto.split.syntax, the default is therefore TRUE for the QML approach

@@ -1,5 +1,11 @@
-# population models: 5-factor (eta1-eta5), normal exogenous
-# intercepts calibrated so E[eta4] = E[eta5] = 0
+################################################################################
+# File:         Models(2).R
+# Description:  Population models for Study 2 (5-factor model). Defines lavaan
+#               syntax for full and null models at three reliability levels
+#               (0.4, 0.6, 0.8). Intercepts calibrated so E[eta4] = E[eta5] = 0.
+# Dependencies: none (pure data definitions)
+# Used by:      Simulation(2).R
+
 all_models <- list()
 
 # full models (nonlinear terms included)
