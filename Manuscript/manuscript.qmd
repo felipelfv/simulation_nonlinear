@@ -153,7 +153,7 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(L_k \leq \beta \leq U_k)$ & $\s
 ```{tikz}
 #| label: fig-model
 #| fig-cap: "Data Generating Model for the Simulation Studies. Top: Model for Simulation 1. Bottom: Model for Simulation 2."
-#| apa-note: "*Note*. Residual variances and covariances and intercepts are not shown for clarity."
+#| apa-note: "*Note*. Residual variances, covariances and intercepts are not shown for clarity."
 #| fig-align: center
 #| fig-width: 10
 #| fig-height: 16
@@ -331,7 +331,7 @@ p_slope_nonnorm_unif_study_1
 
 ```{r}
 #| label: fig-coverage-sim1
-#| fig-cap: "Coverage for Simulation 1 Varying Distributions, Reliability Levels, and Sample Sizes."
+#| fig-cap: "Coverage for Simulation 1 With Varying Distributions, Reliability Levels, and Sample Sizes."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11
@@ -343,7 +343,7 @@ p_cov_nonnorm_unif_study_1
 
 ```{r}
 #| label: fig-type1-sim1
-#| fig-cap: "Type I Error Rate for Simulation 1 Varying Distributions and Reliability Levels (N = 1000)."
+#| fig-cap: "Type I Error Rate for Simulation 1 With Varying Distributions and Reliability Levels (N = 1000)."
 #| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
 #| fig-align: center
 #| fig-height: 11

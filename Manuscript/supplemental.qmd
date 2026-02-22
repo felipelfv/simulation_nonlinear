@@ -1047,9 +1047,9 @@ plot_dumbbell(dumbbell_study1$power %>% filter(Error_Condition == "Epsilon & Zet
              labeller = labeller(Parameter = label_parsed))
 ```
 
-# Additional Distributional Conditions Plots — Simulation 2
-
 \clearpage
+
+# Additional Distributional Conditions Plots — Simulation 2
 
 ```{r}
 #| label: prepare-dumbbell-data-s2-normal
