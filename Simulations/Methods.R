@@ -32,6 +32,10 @@
 #'   Required packages: lavaan and modsem 
 #' 
 
+# required packages
+library(lavaan)
+library(modsem)
+
 ############################### 3. Functions ###################################
 
 #### 3.1. Extended Product Indicator Approach with double mean centering (UPI)  ####

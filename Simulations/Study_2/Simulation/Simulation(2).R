@@ -76,9 +76,17 @@
 
 ############################### 3. Simulation ##################################
 
+# required packages
+library(lavaan)
+library(modsem)
+library(doParallel)
+library(doRNG)
+library(covsim)
+library(rvinecopulib)
+
 source("Simulations/Study_2/Simulation/Models(2).R")
 source("Simulations/Methods.R")  # methods file
-source("Simulations/GenerateData.R") 
+source("Simulations/GenerateData.R")
 
 # SIMULATION PARAMETERS
 

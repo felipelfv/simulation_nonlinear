@@ -45,6 +45,11 @@
 #'   Required packages: lavaan, covsim, and rvinecopulib
 #'   
 
+# required packages
+library(lavaan)
+library(covsim)
+library(rvinecopulib)
+
 ############################### 3. Function ####################################
 
 GenerateData <- function(model, 

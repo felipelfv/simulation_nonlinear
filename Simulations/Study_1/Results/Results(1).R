@@ -4,6 +4,9 @@
 # - Basic (default): NA/NaN/Inf checks only (original)
 # - Strict: Adds positive SEs, positive variances, positive definite factor cov matrix
 
+# required packages
+library(simhelpers)
+
 ############################### 3. Functions ###################################
 
 # helper functions

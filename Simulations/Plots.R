@@ -21,6 +21,10 @@
 #      5.1 Main Plots    - Bias, RMSE, SE/SD, coverage, Type I, power
 #      5.2 Additional Distributional Conditions - Dumbbell plots
 
+# required packages
+library(ggplot2)
+library(dplyr)
+
 ############################### 2. Configuration ###############################
 
 # METHOD SPECIFICATIONS 
