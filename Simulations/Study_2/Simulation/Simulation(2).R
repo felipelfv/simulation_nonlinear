@@ -350,8 +350,8 @@ for (cond in 1:nrow(conditions)) {
     true_parameters = if (conditions$Model_Type[cond] == "linear") {
       list(
         # intercepts
-        eta4_intercept = 0.1,
-        eta5_intercept = 0.1,
+        eta4_intercept = -0.215,
+        eta5_intercept = -0.160,
         # main effects only
         eta4_eta1 = 0.20, eta4_eta2 = 0.20, eta4_eta3 = 0.20,
         eta5_eta4 = 0.16, eta5_eta1 = 0.16, eta5_eta2 = 0.16, eta5_eta3 = 0.16,
@@ -361,9 +361,9 @@ for (cond in 1:nrow(conditions)) {
       )
     } else {
       list(
-        # intercepts  
-        eta4_intercept = 0.1,
-        eta5_intercept = 0.1,
+        # intercepts
+        eta4_intercept = -0.215,
+        eta5_intercept = -0.160,
         # main effects
         eta4_eta1 = 0.20, eta4_eta2 = 0.20, eta4_eta3 = 0.20,
         eta5_eta4 = 0.16, eta5_eta1 = 0.16, eta5_eta2 = 0.16, eta5_eta3 = 0.16,

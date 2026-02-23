@@ -711,7 +711,7 @@ plot_type1 <- function(data, greys = GREYS_4, facet_formula = NULL,
   ymax <- max(data$y + ifelse(is.null(data$yerr), 0, data$yerr), na.rm = TRUE) * 1.15
   
   p <- ggplot(data, aes(x = Method, y = y, fill = Method)) +
-    annotate("rect", xmin = -Inf, xmax = Inf, ymin = 3, ymax = 7,
+    annotate("rect", xmin = -Inf, xmax = Inf, ymin = 2.5, ymax = 7.5,
              fill = "grey92", alpha = .9) +
     geom_hline(yintercept = 5, linetype = "dotted", linewidth = 0.3) +
     geom_col(position = position_dodge(width = 0.9), width = 0.75, color = "black")
@@ -811,8 +811,8 @@ plot_dumbbell <- function(data,
     "SE/SD" = list(range = c(0.90, 1.10), ref = 1),
     "Coverage (%)" = list(range = c(93, 97), ref = 95),
     "Coverage" = list(range = c(93, 97), ref = 95),
-    "Type I Error (%)" = list(range = c(3, 7), ref = 5),
-    "Type I Error" = list(range = c(3, 7), ref = 5),
+    "Type I Error (%)" = list(range = c(2.5, 7.5), ref = 5),
+    "Type I Error" = list(range = c(2.5, 7.5), ref = 5),
     "Power (%)" = list(range = NULL, ref = 80),
     "Power" = list(range = NULL, ref = 80)
   )
