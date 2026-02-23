@@ -76,7 +76,7 @@ library(kableExtra)
 source("../Simulations/Plots.R")
 ```
 
-# Computation Time and R² Values
+# Computation Time, R² Values and Reliability
 
 ```{r}
 #| label: load-data
