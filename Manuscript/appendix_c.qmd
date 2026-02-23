@@ -30,15 +30,19 @@ create_apa_convergence_table_study1 <- function(results_df) {
     rename(Distribution = Distr_Exo) %>%
     mutate(
       Distribution = case_when(
-        Distribution == "nonnormal" ~ "right-skewed",
+        Distribution == "nonnormal" ~ "Right-skewed",
+        Distribution == "normal" ~ "Normal",
+        Distribution == "uniform" ~ "Uniform",
         TRUE ~ Distribution
       ),
       Distr_Epsilon = case_when(
-        Distr_Epsilon == "exp.rate1" ~ "right-skewed",
+        Distr_Epsilon == "exp.rate1" ~ "Right-skewed",
+        Distr_Epsilon == "normal" ~ "Normal",
         TRUE ~ Distr_Epsilon
       ),
       Distr_Zeta = case_when(
-        Distr_Zeta == "exp.rate1" ~ "right-skewed",
+        Distr_Zeta == "exp.rate1" ~ "Right-skewed",
+        Distr_Zeta == "normal" ~ "Normal",
         TRUE ~ Distr_Zeta
       ),
       Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),
@@ -115,15 +119,19 @@ create_apa_convergence_table_study2 <- function(results_df, equation = "eta4") {
     rename(Distribution = Distr_Exo) %>%
     mutate(
       Distribution = case_when(
-        Distribution == "nonnormal" ~ "right-skewed",
+        Distribution == "nonnormal" ~ "Right-skewed",
+        Distribution == "normal" ~ "Normal",
+        Distribution == "uniform" ~ "Uniform",
         TRUE ~ Distribution
       ),
       Distr_Epsilon = case_when(
-        Distr_Epsilon == "exp.rate1" ~ "right-skewed",
+        Distr_Epsilon == "exp.rate1" ~ "Right-skewed",
+        Distr_Epsilon == "normal" ~ "Normal",
         TRUE ~ Distr_Epsilon
       ),
       Distr_Zeta = case_when(
-        Distr_Zeta == "exp.rate1" ~ "right-skewed",
+        Distr_Zeta == "exp.rate1" ~ "Right-skewed",
+        Distr_Zeta == "normal" ~ "Normal",
         TRUE ~ Distr_Zeta
       ),
       Convergence_Rate_This_Method = round(Convergence_Rate_This_Method, 1),

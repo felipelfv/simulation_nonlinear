@@ -1824,7 +1824,7 @@ knitr::include_graphics("SE_Outliers_Plots/se_outlier_condition13_UPI.pdf")
 
 # Additional Distributional Conditions: Difference Uncertainty
 
-The dumbbell plots in the manuscript and preceding sections show main results and additional distributional conditions values side by side. To formally quantify whether a performance metric changed meaningfully under non-normal errors, we compute the difference
+The dumbbell plots in the manuscript and preceding sections show main results and additional distributional conditions values side by side. To formally quantify whether a performance metric changed meaningfully under nonnormal errors, we compute the difference
 
 $$
 \Delta = \hat{\theta}_{\text{additional}} - \hat{\theta}_{\text{main}}
