@@ -22,6 +22,7 @@ author:
       - Investigation
       - Data curation
       - Formal analysis
+      - Validation
       - Visualization
       - Writing - original draft
       - Writing - review & editing
