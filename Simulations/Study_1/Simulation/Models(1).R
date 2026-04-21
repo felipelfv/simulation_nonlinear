@@ -1,15 +1,15 @@
 ################################################################################
-# File:         Models(1).R
-# Description:  Population models for Study 1 (3-factor model). Defines lavaan
-#               syntax for full and null models at three reliability levels
-#               (0.4, 0.6, 0.8). All models use unit loadings, calibrated
-#               intercepts, and residual variances for R^2 ~ 0.30.
+# File:         Models(1)_recalibrated.R
+# Description:  Recalibrated population models for Study 1 (3-factor model).
+#               Adjusts theta for endogenous indicators for target reliability.
+#               Calibrated using GenerateData() with N = 500,000, averaged over
+#               10 runs.
 # Dependencies: none (pure data definitions)
 # Used by:      Simulation(1).R
 
 all_models <- list()
 
-# full models with the population parameters 
+# full models with the population parameters
 all_models[["normal_rel04"]] <- "
 # measurement model
 eta1 =~ 1*x1 + 1*x2 + 1*x3
@@ -33,15 +33,9 @@ eta2 ~~ 1*eta2
 eta3 ~~ 0.756*eta3
 
 # indicator residual variances (rel = 0.4)
-x1 ~~ 1.5*x1
-x2 ~~ 1.5*x2
-x3 ~~ 1.5*x3
-x4 ~~ 1.5*x4
-x5 ~~ 1.5*x5
-x6 ~~ 1.5*x6
-x7 ~~ 1.893*x7
-x8 ~~ 1.893*x8
-x9 ~~ 1.893*x9
+x1 ~~ 1.500*x1;  x2 ~~ 1.500*x2;  x3 ~~ 1.500*x3
+x4 ~~ 1.500*x4;  x5 ~~ 1.500*x5;  x6 ~~ 1.500*x6
+x7 ~~ 1.615*x7;  x8 ~~ 1.615*x8;  x9 ~~ 1.615*x9
 "
 
 all_models[["normal_rel06"]] <- "
@@ -67,15 +61,9 @@ eta2 ~~ 1*eta2
 eta3 ~~ 0.756*eta3
 
 # indicator residual variances (rel = 0.6)
-x1 ~~ 0.667*x1
-x2 ~~ 0.667*x2
-x3 ~~ 0.667*x3
-x4 ~~ 0.667*x4
-x5 ~~ 0.667*x5
-x6 ~~ 0.667*x6
-x7 ~~ 0.845*x7
-x8 ~~ 0.845*x8
-x9 ~~ 0.845*x9
+x1 ~~ 0.667*x1;  x2 ~~ 0.667*x2;  x3 ~~ 0.667*x3
+x4 ~~ 0.667*x4;  x5 ~~ 0.667*x5;  x6 ~~ 0.667*x6
+x7 ~~ 0.718*x7;  x8 ~~ 0.718*x8;  x9 ~~ 0.718*x9
 "
 
 all_models[["normal_rel08"]] <- "
@@ -101,15 +89,9 @@ eta2 ~~ 1*eta2
 eta3 ~~ 0.756*eta3
 
 # indicator residual variances (rel = 0.8)
-x1 ~~ 0.25*x1
-x2 ~~ 0.25*x2
-x3 ~~ 0.25*x3
-x4 ~~ 0.25*x4
-x5 ~~ 0.25*x5
-x6 ~~ 0.25*x6
-x7 ~~ 0.316*x7
-x8 ~~ 0.316*x8
-x9 ~~ 0.316*x9
+x1 ~~ 0.250*x1;  x2 ~~ 0.250*x2;  x3 ~~ 0.250*x3
+x4 ~~ 0.250*x4;  x5 ~~ 0.250*x5;  x6 ~~ 0.250*x6
+x7 ~~ 0.269*x7;  x8 ~~ 0.269*x8;  x9 ~~ 0.269*x9
 "
 
 # null models (no interaction and quadratic effects)
@@ -136,15 +118,9 @@ eta2 ~~ 1*eta2
 eta3 ~~ 0.756*eta3
 
 # indicator residual variances (rel = 0.4)
-x1 ~~ 1.5*x1
-x2 ~~ 1.5*x2
-x3 ~~ 1.5*x3
-x4 ~~ 1.5*x4
-x5 ~~ 1.5*x5
-x6 ~~ 1.5*x6
-x7 ~~ 1.893*x7
-x8 ~~ 1.893*x8
-x9 ~~ 1.893*x9
+x1 ~~ 1.500*x1;  x2 ~~ 1.500*x2;  x3 ~~ 1.500*x3
+x4 ~~ 1.500*x4;  x5 ~~ 1.500*x5;  x6 ~~ 1.500*x6
+x7 ~~ 1.615*x7;  x8 ~~ 1.615*x8;  x9 ~~ 1.615*x9
 "
 
 all_models[["null_normal_rel06"]] <- "
@@ -153,7 +129,7 @@ eta1 =~ 1*x1 + 1*x2 + 1*x3
 eta2 =~ 1*x4 + 1*x5 + 1*x6
 eta3 =~ 1*x7 + 1*x8 + 1*x9
 
-# structural model 
+# structural model
 eta3 ~ -0.255*1
      + 0.316*eta1
      + 0.316*eta2
@@ -170,15 +146,9 @@ eta2 ~~ 1*eta2
 eta3 ~~ 0.756*eta3
 
 # indicator residual variances (rel = 0.6)
-x1 ~~ 0.667*x1
-x2 ~~ 0.667*x2
-x3 ~~ 0.667*x3
-x4 ~~ 0.667*x4
-x5 ~~ 0.667*x5
-x6 ~~ 0.667*x6
-x7 ~~ 0.845*x7
-x8 ~~ 0.845*x8
-x9 ~~ 0.845*x9
+x1 ~~ 0.667*x1;  x2 ~~ 0.667*x2;  x3 ~~ 0.667*x3
+x4 ~~ 0.667*x4;  x5 ~~ 0.667*x5;  x6 ~~ 0.667*x6
+x7 ~~ 0.718*x7;  x8 ~~ 0.718*x8;  x9 ~~ 0.718*x9
 "
 
 all_models[["null_normal_rel08"]] <- "
@@ -187,7 +157,7 @@ eta1 =~ 1*x1 + 1*x2 + 1*x3
 eta2 =~ 1*x4 + 1*x5 + 1*x6
 eta3 =~ 1*x7 + 1*x8 + 1*x9
 
-# structural model 
+# structural model
 eta3 ~ -0.255*1
      + 0.316*eta1
      + 0.316*eta2
@@ -204,13 +174,7 @@ eta2 ~~ 1*eta2
 eta3 ~~ 0.756*eta3
 
 # indicator residual variances (rel = 0.8)
-x1 ~~ 0.25*x1
-x2 ~~ 0.25*x2
-x3 ~~ 0.25*x3
-x4 ~~ 0.25*x4
-x5 ~~ 0.25*x5
-x6 ~~ 0.25*x6
-x7 ~~ 0.316*x7
-x8 ~~ 0.316*x8
-x9 ~~ 0.316*x9
+x1 ~~ 0.250*x1;  x2 ~~ 0.250*x2;  x3 ~~ 0.250*x3
+x4 ~~ 0.250*x4;  x5 ~~ 0.250*x5;  x6 ~~ 0.250*x6
+x7 ~~ 0.269*x7;  x8 ~~ 0.269*x8;  x9 ~~ 0.269*x9
 "
