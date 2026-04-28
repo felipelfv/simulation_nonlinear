@@ -60,7 +60,7 @@ author-note:
     financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
     
 abstract: |
-  Various methods exist to include interaction or quadratic terms involving latent variables in structural equation models (SEM). Most use system-wide estimation, where all parameters are estimated simultaneously, and have been investigated in models with few nonlinear effects. Recently, structural-after-measurement (SAM) approaches have been proposed, where estimation proceeds in two stages: measurement model first, then structural model. Rosseel et al. (2025) extended local SAM (LSAM) to handle second-order nonlinear effects among latent variables, although standard errors (SEs) for this extension have not yet been derived. In this article, we provide such a two-step SE formula for LSAM and evaluate its performance, alongside that of LSAM more broadly, in two simulation studies. These varied latent exogenous predictor distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), sample sizes (400, 1000), and measurement error and structural disturbance distributions (normal, right-skewed). The first study examined a model with three nonlinear effects. LSAM produced largely unbiased estimates with stable coverage, SEs, and Type I error rates, although some metrics were less stable under low reliability and with uniform latent exogenous distributions—issues that were mitigated by larger sample sizes. Traditional methods (LMS, QML, UPI) showed results consistent with prior literature. The second study, excluding LMS, tested a more complex model with eight nonlinear effects. LSAM maintained adequate performance despite greater complexity, though similar limitations emerged. Traditional methods yielded more variable results, with generally poorer performance overall. Right-skewed measurement errors affected results more than right-skewed structural disturbances, particularly under low and medium reliability.
+  Various methods exist to include interaction or quadratic terms involving latent variables in structural equation models (SEM). Most use system-wide estimation, where all parameters are estimated simultaneously, and have been investigated in models with few nonlinear effects. Recently, structural-after-measurement (SAM) approaches have been proposed, where estimation proceeds in two stages: measurement model first, then structural model. Rosseel et al. (2025) extended local SAM (LSAM) to handle second-order nonlinear effects among latent variables, although analytical standard errors (SEs) for this extension have not yet been derived. In this article, we provide such a two-step SE formula for LSAM and evaluate its performance, alongside that of LSAM more broadly, in two simulation studies. These varied latent exogenous predictor distributions (normal, right-skewed, uniform), reliabilities (0.4, 0.6, 0.8), sample sizes (400, 1000), and measurement error and structural disturbance distributions (normal, right-skewed). The first study examined a model with three nonlinear effects. LSAM produced largely unbiased estimates with stable coverage, SEs, and Type I error rates, although some metrics were less stable under low reliability and with uniform latent exogenous distributions—issues that were mitigated by larger sample sizes. Traditional methods (LMS, QML, UPI) showed results consistent with prior literature. The second study, excluding LMS, tested a more complex model with eight nonlinear effects. LSAM maintained adequate performance despite greater complexity, though similar limitations emerged. Traditional methods yielded more variable results, with generally poorer performance overall. Right-skewed measurement errors affected results more than right-skewed structural disturbances, particularly under low and medium reliability.
 
 impact-statement: |
   Interaction effects occur when the relationship between two variables depends on a third variable, and quadratic effects occur when the effect of a variable changes depending on the level of that same variable. Estimating these effects becomes difficult when the variables are not directly observed but instead measured through questionnaires or similar instruments---that is, when they are latent variables. Several methods exist, but they can produce misleading results when assumptions do not hold. This article evaluates the recently proposed local structural-after-measurement (LSAM) and compares it with three established alternatives across conditions that vary data distributions, measurement quality, sample sizes, and model complexity. Practical recommendations for choosing among these methods are provided.
@@ -304,7 +304,7 @@ Coverage & $c_\beta = \frac{1}{K}\sum_{k=1}^{K}I(L_k \leq \beta \leq U_k)$ & $\s
 ```{r}
 #| label: fig-bias-sim1
 #| fig-cap: "Relative Bias for Simulation 1 With Varying Distributions and Reliability Levels (N = 400)."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -316,7 +316,7 @@ p_relative_bias_400_full_study_1
 ```{r}
 #| label: fig-rmse-sim1
 #| fig-cap: "Relative RMSE for Simulation 1 With Varying Distributions and Reliability Levels (N = 400)."
-#| apa-note: "*Note*. Vertical bars represent the MCSEs."
+#| apa-note: "*Note*. Vertical bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -340,7 +340,7 @@ p_slope_nonnorm_unif_study_1
 ```{r}
 #| label: fig-coverage-sim1
 #| fig-cap: "Coverage for Simulation 1 With Varying Distributions, Reliability Levels, and Sample Sizes."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -352,7 +352,7 @@ p_cov_nonnorm_unif_study_1
 ```{r}
 #| label: fig-type1-sim1
 #| fig-cap: "Type I Error Rate for Simulation 1 With Varying Distributions and Reliability Levels (N = 1000)."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Error bars represent the MCSEs."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Error bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -364,7 +364,7 @@ p_t1_1000_study_1
 ```{r}
 #| label: fig-bias-sim2
 #| fig-cap: "Relative Bias for Simulation 2 With Varying Distributions and Reliability Levels (N = 400)."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -376,7 +376,7 @@ p_relative_bias_400_full_all_study_2
 ```{r}
 #| label: fig-rmse-sim2
 #| fig-cap: "Relative RMSE for Simulation 2 With Varying Distributions and Reliability Levels (N = 400)."
-#| apa-note: "*Note*. Vertical bars represent the MCSEs."
+#| apa-note: "*Note*. Vertical bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -400,7 +400,7 @@ p_sesd_400_full_all_study_2
 ```{r}
 #| label: fig-coverage-sim2
 #| fig-cap: "Coverage for Simulation 2 With Varying Distributions and Reliability Levels (N = 400)."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent the MCSEs."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Vertical bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -412,7 +412,7 @@ p_coverage_400_full_all_study_2
 ```{r}
 #| label: fig-type1-sim2
 #| fig-cap: "Type I Error Rate for Simulation 2 With Varying Distributions and Reliability Levels (N = 1000)."
-#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Error bars represent the MCSEs."
+#| apa-note: "*Note*. Shaded regions represent acceptable deviations. Error bars represent MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -424,7 +424,7 @@ p_t1_1000_all_study_2
 ```{r}
 #| label: fig-sens-bias-sim1
 #| fig-cap: "Additional Distributional Conditions: Relative Bias for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded regions indicate acceptable range. Error bars show MCSE."
+#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded regions indicate acceptable range. Error bars show MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -436,7 +436,7 @@ p_sens_bias_study1
 ```{r}
 #| label: fig-sens-rmse-sim1
 #| fig-cap: "Additional Distributional Conditions: Relative RMSE for Simulation 1 (N = 400)."
-#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded regions indicate acceptable range. Error bars show MCSE."
+#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded regions indicate acceptable range. Error bars show MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9
@@ -460,7 +460,7 @@ p_sens_sesd_study1
 ```{r}
 #| label: fig-sens-coverage-sim1
 #| fig-cap: "Additional Distributional Conditions: Coverage for Simulation 1 (N = 1000)."
-#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded regions indicate acceptable range. Error bars show MCSE."
+#| apa-note: "*Note*. White dots are the results under normal measurement error and structural disturbance, black dots represent nonnormal. Shaded regions indicate acceptable range. Error bars show MCSEs."
 #| fig-align: center
 #| fig-height: 11
 #| fig-width: 9

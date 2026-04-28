@@ -55,7 +55,7 @@ create_apa_convergence_table_study1 <- function(results_df) {
 conv_table_study1 <- create_apa_convergence_table_study1(results_study_1)
 
 tab_caption_study1 <- "Convergence and Outlier Statistics (Simulation 1)"
-tab_note_study1 <- "Distr. = distribution of exogenous latent variables. Epsilon = distribution of measurement errors. Zeta = distribution of structural residuals. N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after entire non-convergent replications across approaches excluded. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Final = final sample size after global outlier removal across methods."
+tab_note_study1 <- "Distr. = distribution of exogenous latent variables. Epsilon = distribution of measurement errors. Zeta = distribution of structural disturbances. N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after entire non-convergent replications across approaches excluded. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Final = final sample size after global outlier removal across methods."
 
 kableExtra::kbl(
   conv_table_study1,
@@ -145,7 +145,7 @@ create_apa_convergence_table_study2 <- function(results_df, equation = "eta4") {
 conv_table_study2_eta4 <- create_apa_convergence_table_study2(results_study_2, "eta4")
 
 tab_caption_study2_eta4 <- "Convergence and Outlier Statistics (Simulation 2)"
-tab_note_study2 <- "Distr. = distribution of exogenous latent variables. Epsilon = distribution of measurement errors. Zeta = distribution of structural residuals. N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after requiring all methods to converge. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Final = final sample size after global outlier removal across methods."
+tab_note_study2 <- "Distr. = distribution of exogenous latent variables. Epsilon = distribution of measurement errors. Zeta = distribution of structural disturbances. N Conv. = number of replications that converged for this method. Conv. Rate = percentage of replications that converged (%). N Global Conv. = sample size after requiring all methods to converge. N Outliers = number of outliers detected for this method. Outlier Rate = percentage of converged cases flagged as outliers (%). N Final = final sample size after global outlier removal across methods."
 
 kableExtra::kbl(
   conv_table_study2_eta4,
