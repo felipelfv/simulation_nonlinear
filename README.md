@@ -165,13 +165,15 @@ GenerateData.R┘                                                 └─> supple
 
 ## Cloning this repository
 
-This repository uses Git LFS for `.RData` files. If you clone without Git LFS installed, you will get pointer files instead of the actual data.
+This repository uses Git LFS for the Study 1 `.RData` files. If you clone without Git LFS installed, you will get pointer files instead of the actual data.
 
 Install Git LFS (see https://git-lfs.github.com/), then run:
 
 ```bash
 git lfs pull
 ```
+
+The Study 2 `.RData` files are too large for Git LFS and are archived on Zenodo: <https://doi.org/10.5281/zenodo.20066656>. Download them and place them in `Simulations/Study_2/Data/`. The Study 1 `.RData` files are also available on Zenodo at the same DOI if you prefer not to use Git LFS.
 
 ## Reproducing the simulation
 
