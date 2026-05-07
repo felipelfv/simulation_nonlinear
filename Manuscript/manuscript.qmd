@@ -56,7 +56,7 @@ author-note:
     deceased: ~
   disclosures:
     study-registration: "This study was not preregistered."
-    data-sharing: "Data, code, and materials for this manuscript can be found at https://github.com/felipelfv/simulation_nonlinear. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025." 
+    data-sharing: "Data, code, and materials for this manuscript can be found at https://github.com/felipelfv/simulation_nonlinear [@fontanavieira_etall_repo_2026]. Ideas and part of the results were previously presented at the conference of the European Association of Methodology 2025."
     financial-support: "This project was funded by the Special Research Fund (BOF) of Ghent University (BOF/24J/2023/144)."
     
 abstract: |
@@ -82,7 +82,7 @@ bibliography: "references.bib"
 format:
   apaquarto-pdf:
     documentmode: man
-    keep-tex: false
+    keep-tex: true
     include-in-header:
       text: |
         \raggedbottom
