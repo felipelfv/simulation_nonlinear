@@ -94,7 +94,7 @@ $$
 
 ### LMS and QML
 
-Following the equations implemented in *modsem* [@kjell_etall_2024; @jin_etall_2020], here we let $m_y$ be the number of endogenous latents and $m_x$ the number of exogenous latent predictors, with $m=m_y+m_x$. Stack $\boldsymbol{\eta}=\begin{bmatrix}\boldsymbol{\eta}_y\\ \boldsymbol{\eta}_x\end{bmatrix}$ with $\boldsymbol{\eta}_y\in\mathbb{R}^{m_y}$ and $\boldsymbol{\eta}_x\in\mathbb{R}^{m_x}$, and collect the $p$ indicators in $\mathbf{y}\in\mathbb{R}^{p}$. The same measurement model in @eq-measurement holds using all-$y$ notation with the following block structure:
+Following the equations implemented in *modsem* [@kjell_etall_2025; @jin_etall_2020], here we let $m_y$ be the number of endogenous latents and $m_x$ the number of exogenous latent predictors, with $m=m_y+m_x$. Stack $\boldsymbol{\eta}=\begin{bmatrix}\boldsymbol{\eta}_y\\ \boldsymbol{\eta}_x\end{bmatrix}$ with $\boldsymbol{\eta}_y\in\mathbb{R}^{m_y}$ and $\boldsymbol{\eta}_x\in\mathbb{R}^{m_x}$, and collect the $p$ indicators in $\mathbf{y}\in\mathbb{R}^{p}$. The same measurement model in @eq-measurement holds using all-$y$ notation with the following block structure:
 $$
 \begin{aligned}
 \mathbf{B}=\begin{bmatrix}\mathbf{B}_{yy}&\mathbf{B}_{yx}\\ \mathbf{0}&\mathbf{0}\end{bmatrix},\quad
@@ -106,7 +106,7 @@ $$
 
 \noindent where $\mathbf{B}_{yy}\in\mathbb{R}^{m_y\times m_y}$, $\mathbf{B}_{yx}\in\mathbb{R}^{m_y\times m_x}$.
 
-As in @kjell_etall_2024, we write the endogenous block explicitly,
+As in @kjell_etall_2025, we write the endogenous block explicitly,
 $$
 \begin{aligned}
 \boldsymbol{\eta}_y
@@ -118,7 +118,7 @@ $$
 $$ {#eq-analytical}
 
 \noindent where $\mathbf{I}_{m_y}$ is the $m_y\times m_y$ identity matrix, $\boldsymbol{\Omega}\in\mathbb{R}^{m_y m_x\times m_x}$ containing the coefficients for the interaction effects between exogenous variables, and $\boldsymbol{\Xi}\in\mathbb{R}^{m_y m_x\times m_y}$ for the interaction
-effects between exogenous and endogenous variables. @eq-analytical can also be expressed in reduced form [@kjell_etall_2024].
+effects between exogenous and endogenous variables. @eq-analytical can also be expressed in reduced form [@kjell_etall_2025].
 
 Importantly, the distributional assumptions for LMS and QML are that $\boldsymbol{\eta}_x \sim \mathcal{N}(\boldsymbol{\alpha_x},\boldsymbol{\Psi}_{xx})$, $\boldsymbol{\zeta}_y \sim \mathcal{N}(\mathbf{0},\boldsymbol{\Psi}_{yy})$, and $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0},\boldsymbol{\Theta})$ with mutual independence between predictors and disturbances. For LMS, these assumptions are required for the exact likelihood [@klein_moosbrugger_2000]. For QML, they serve as working assumptions to derive conditional mean and variance functions [@klein_muthen_2007]. The latter approach can still yield consistent estimates when predictors deviate from normality, as long as the conditional normality approximation is reasonable. Hence, both procedures target the same parameterization, but they differ in estimation strategy [@kelava_etall_2011]. Briefly, for the LMS, let $\boldsymbol{\Psi}_{xx}=\mathbf{A}\mathbf{A}^{\top}$ and write  $\boldsymbol{\eta}_x=\boldsymbol{\alpha_x} + \mathbf{A}\mathbf{z}$ with $\mathbf{z}\sim\mathcal{N}(\mathbf{0},\mathbf{I}_{m_x})$. Integrating over $\boldsymbol{\eta}_x$ via Gauss-Hermite quadrature yields a finite normal–mixture approximation to $f(\mathbf{y})$. Parameters are estimated by full-information ML (EM), with SEs derived from the Fisher information matrix [@klein_moosbrugger_2000], although robust (sandwich-based) SEs are also available. For the QML, a fixed full-rank linear transformation $\mathbf{T}$ of $\mathbf{y}$ is applied to isolate the nonnormal component while the remaining transformed components are (conditionally) normal. In practice, this means that only one transformed indicator per nonlinear latent criterion retains nonnormality, while the remaining $p-1$ transformed indicators are jointly normal and serve as conditioning variables. A quasi log-likelihood is maximized and SEs were originally derived via the sandwich-based estimator [@klein_muthen_2007].
 
