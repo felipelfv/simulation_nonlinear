@@ -49,21 +49,21 @@ Appendix B describes the complete data generation in detail. We followed a simil
 For Simulation 1, the dependent latent variable was generated according to the same structural model as in @brandt_etall_2014, which is also similar to @rosseel_etall_2025:
 $$
 \begin{aligned}
-\eta_3 = \beta_{30} + \beta_{31}\eta_1 + \beta_{32}\eta_2 + \beta_{33}(\eta_1\eta_2) + \beta_{34}\eta_1^2 + \beta_{35}\eta_2^2 + \zeta_3
+\eta_3 = \alpha_{3} + \beta_{31}\eta_1 + \beta_{32}\eta_2 + \beta_{33}(\eta_1\eta_2) + \beta_{34}\eta_1^2 + \beta_{35}\eta_2^2 + \zeta_3
 \end{aligned}
 $$
 
-\noindent with parameters $\beta_{30} = -0.255$, $\beta_{31} = \beta_{32} = 0.316$, $\beta_{33} = 0.139$, $\beta_{34} = \beta_{35} = 0.101$, and $\text{Var}(\zeta_3) = \psi_{33}$ (see Appendix B). For the linear model comparison, nonlinear terms were omitted (i.e., $\beta_{33} = \beta_{34} = \beta_{35} = 0$).
+\noindent with parameters $\alpha_{3} = -0.255$, $\beta_{31} = \beta_{32} = 0.316$, $\beta_{33} = 0.139$, $\beta_{34} = \beta_{35} = 0.101$, and $\text{Var}(\zeta_3) = \psi_{33}$ (see Appendix B). For the linear model comparison, nonlinear terms were omitted (i.e., $\beta_{33} = \beta_{34} = \beta_{35} = 0$).
 
 For Simulation 2, we targeted a more complex model to address the concerns outlined previously. The dependent latent variables were generated as follows:
 $$
 \begin{aligned}
-\eta_4 &= \beta_{40} + \beta_{41}\eta_1 + \beta_{42}\eta_2 + \beta_{43}\eta_3 + \beta_{44}(\eta_1\eta_2) + \beta_{45}(\eta_1\eta_3) + \beta_{46}\eta_1^2 + \beta_{47}\eta_2^2 + \zeta_4 \\
-\eta_5 &= \beta_{50} + \beta_{51}\eta_4 + \beta_{52}\eta_1 + \beta_{53}\eta_2 + \beta_{54}\eta_3 + \beta_{55}(\eta_1\eta_4) + \beta_{56}(\eta_2\eta_4) + \beta_{57}\eta_1^2 + \beta_{58}\eta_3^2 + \zeta_5
+\eta_4 &= \alpha_{4} + \beta_{41}\eta_1 + \beta_{42}\eta_2 + \beta_{43}\eta_3 + \beta_{44}(\eta_1\eta_2) + \beta_{45}(\eta_1\eta_3) + \beta_{46}\eta_1^2 + \beta_{47}\eta_2^2 + \zeta_4 \\
+\eta_5 &= \alpha_{5} + \beta_{51}\eta_4 + \beta_{52}\eta_1 + \beta_{53}\eta_2 + \beta_{54}\eta_3 + \beta_{55}(\eta_1\eta_4) + \beta_{56}(\eta_2\eta_4) + \beta_{57}\eta_1^2 + \beta_{58}\eta_3^2 + \zeta_5
 \end{aligned}
 $$
 
-\noindent with parameters $\beta_{40} = -0.215$, $\beta_{50} = -0.160$, $\beta_{41} = \beta_{42} = \beta_{43} = 0.20$, $\beta_{44} = \beta_{45} = 0.11$, $\beta_{46} = \beta_{47} = 0.08$; $\beta_{51} = \beta_{52} = \beta_{53} = \beta_{54} = 0.16$, $\beta_{55} = \beta_{56} = 0.08$, $\beta_{57} = \beta_{58} = 0.06$, and $\text{Var}(\zeta_4) = \psi_{44}$, $\text{Var}(\zeta_5) = \psi_{55}$ (see Appendix B). For the linear model comparison, all interaction and quadratic terms were omitted.
+\noindent with parameters $\alpha_{4} = -0.215$, $\alpha_{5} = -0.160$, $\beta_{41} = \beta_{42} = \beta_{43} = 0.20$, $\beta_{44} = \beta_{45} = 0.11$, $\beta_{46} = \beta_{47} = 0.08$; $\beta_{51} = \beta_{52} = \beta_{53} = \beta_{54} = 0.16$, $\beta_{55} = \beta_{56} = 0.08$, $\beta_{57} = \beta_{58} = 0.06$, and $\text{Var}(\zeta_4) = \psi_{44}$, $\text{Var}(\zeta_5) = \psi_{55}$ (see Appendix B). For the linear model comparison, all interaction and quadratic terms were omitted.
 
 The exogenous latent predictors were generated as normal, right-skewed, or uniform using the Vine-To-Anything (VITA) simulation method with regular vine copulas and specified covariance matrices [@gronneberg_foldnes_2022; @foldnes_gronneberg_2015]. Second, measurement errors were generated as either univariate normal, $\epsilon_j \sim \mathcal{N}(0, \theta_{jj})$, or right-skewed, $\epsilon_j \sim \text{Exp}^*(0, \theta_{jj})$, where $j$ indexes observed indicators^[$\text{Exp}^*(0, \theta_{jj})$ denotes a centered and scaled exponential distribution with mean 0 and variance $\theta_{jj}$, defined as $\sqrt{\theta_{jj}}(X - 1)$ where $X \sim \text{Exp}(1)$. Note that $\text{Exp}(1) \equiv \text{Gamma}(1, 1)$, which is the same base distribution used for the right-skewed exogenous latent predictors.]. Third, structural disturbances were similarly generated as either univariate normal, $\zeta_k \sim \mathcal{N}(0, \psi_{kk})$, or right-skewed, $\zeta_k \sim \text{Exp}^*(0, \psi_{kk})$, where $k$ indexes dependent latent variables.
 
