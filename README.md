@@ -201,3 +201,7 @@ Run `Results(1).R` and `Results(2).R` to compute performance metrics (convergenc
 | simhelpers     | 0.3.1       | Joshi & Pustejovsky (2025)       |
 | dplyr          | 1.1.4       | Wickham et al. (2023)            |
 | ggplot2        | 3.5.2       | Wickham (2025)                   |
+
+## LLM/AI Usage Discloser
+
+As stated during submission, LLM/AI (i.e., Claude Code) was used solely in parts of the code. Specifically, we used for the extensive comments in "Function Documentation" which can be found across .R files at the very beginning. We also used for producing parts of the code in the plots script. All were checked for any issues.
