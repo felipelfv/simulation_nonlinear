@@ -192,7 +192,14 @@ GenerateData <- function(model,
   
   # generate exogenous variables using VITA
   generate_exo <- function() {
-    
+    # note: the normal condition refers to the marginal,
+    # the copula follows a clayton as the others (gamma, uniform)
+    # the difference between using a normal or clayton copula for
+    # this normal baseline is irrelevant for two reasons:
+    # (i) the variances were calibrated empirically based on it,
+    # therefore, one would notice that the isserlis' theorem may not match the results
+    # and that happens precisely because the copula is not normal. 
+    # (ii) with multiple replications, the difference is negligible (i.e., 0.000X)
     if(distr.exo == "normal") {
       # normal distributions with variance matching model
       margins_list <- lapply(1:n_exo, function(i) {
