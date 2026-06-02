@@ -390,26 +390,22 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
 #' @param data_baseline Prepared baseline data
 #' @param data_sensitivity Prepared sensitivity data
 #' @param metric Column name for the metric
-#' @param mcse_col Optional: MCSE column name. Auto-detected if NULL.
 #' @param model Which model to use: "Full" or "Linear". Default is "Full".
 #' @return Data frame with baseline and final values
-compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric, mcse_col = NULL,
+compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric,
                                   model = "Full") {
-  
-  if (is.null(mcse_col)) {
-    mcse_col <- switch(metric,
-                       "Bias_Mean" = "Bias_Mean_MCSE",
-                       "RelativeBias_Mean" = "RelativeBias_MCSE",
-                       "PercentRelativeBias_Mean" = "RelativeBias_MCSE",
-                       "RMSE_Mean" = "RMSE_Mean_MCSE",
-                       "Relative_RMSE" = "Relative_RMSE_MCSE",
-                       "CoverageRate" = "CoverageRate_MCSE",
-                       "TypeI_Error" = "TypeI_Error_MCSE",
-                       "Power" = "Power_MCSE",
-                       "SE_SD_Ratio" = NA_character_,
-                       paste0(metric, "_MCSE"))
-  }
-  
+
+  mcse_col <- switch(metric,
+                     "Bias_Mean" = "Bias_Mean_MCSE",
+                     "RelativeBias_Mean" = "RelativeBias_MCSE",
+                     "RMSE_Mean" = "RMSE_Mean_MCSE",
+                     "Relative_RMSE" = "Relative_RMSE_MCSE",
+                     "CoverageRate" = "CoverageRate_MCSE",
+                     "TypeI_Error" = "TypeI_Error_MCSE",
+                     "Power" = "Power_MCSE",
+                     "SE_SD_Ratio" = NA_character_,
+                     paste0(metric, "_MCSE"))
+
   has_mcse <- !is.na(mcse_col) && 
     mcse_col %in% names(data_baseline) && 
     mcse_col %in% names(data_sensitivity)
@@ -549,9 +545,8 @@ plot_bias <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
   }
   
   if (!is.null(facet_formula)) {
-    p <- p + facet_grid(facet_formula, 
-                        labeller = labeller(Parameter = label_parsed,
-                                            Parameter_Label = label_parsed))
+    p <- p + facet_grid(facet_formula,
+                        labeller = labeller(Parameter = label_parsed))
   } else {
     p <- p + facet_grid(Distribution + Parameter ~ Model + SampleSize,
                         labeller = labeller(SampleSize = label_value,
@@ -588,9 +583,8 @@ plot_rmse <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
     theme_apa_bw()
   
   if (!is.null(facet_formula)) {
-    p <- p + facet_grid(facet_formula, 
-                        labeller = labeller(Parameter = label_parsed,
-                                            Parameter_Label = label_parsed))
+    p <- p + facet_grid(facet_formula,
+                        labeller = labeller(Parameter = label_parsed))
   } else {
     p <- p + facet_grid(Distribution + Parameter ~ Model + SampleSize,
                         labeller = labeller(SampleSize = label_value,
@@ -642,9 +636,8 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
               size = 1.5, hjust = 0, vjust = 0)
   
   if (!is.null(facet_formula)) {
-    p <- p + facet_grid(facet_formula, 
-                        labeller = labeller(Parameter = label_parsed,
-                                            Parameter_Label = label_parsed))
+    p <- p + facet_grid(facet_formula,
+                        labeller = labeller(Parameter = label_parsed))
   } else {
     p <- p + facet_grid(Distribution + Parameter ~ Model + SampleSize,
                         labeller = labeller(SampleSize = label_value,
@@ -687,9 +680,8 @@ plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
               size = 1.5, hjust = 0, vjust = 0)
   
   if (!is.null(facet_formula)) {
-    p <- p + facet_grid(facet_formula, 
-                        labeller = labeller(Parameter = label_parsed,
-                                            Parameter_Label = label_parsed))
+    p <- p + facet_grid(facet_formula,
+                        labeller = labeller(Parameter = label_parsed))
   } else {
     p <- p + facet_grid(Distribution + Parameter ~ Model + SampleSize,
                         labeller = labeller(SampleSize = label_value,
@@ -731,9 +723,8 @@ plot_type1 <- function(data, greys = GREYS_4, facet_formula = NULL,
           axis.ticks.x = element_blank())
   
   if (!is.null(facet_formula)) {
-    p <- p + facet_grid(facet_formula, 
-                        labeller = labeller(Parameter = label_parsed,
-                                            Parameter_Label = label_parsed))
+    p <- p + facet_grid(facet_formula,
+                        labeller = labeller(Parameter = label_parsed))
   } else {
     p <- p + facet_grid(Distribution + Parameter ~ Condition,
                         labeller = labeller(Parameter = label_parsed))
@@ -770,9 +761,8 @@ plot_power <- function(data, greys = GREYS_4, facet_formula = NULL,
           axis.ticks.x = element_blank())
   
   if (!is.null(facet_formula)) {
-    p <- p + facet_grid(facet_formula, 
-                        labeller = labeller(Parameter = label_parsed,
-                                            Parameter_Label = label_parsed))
+    p <- p + facet_grid(facet_formula,
+                        labeller = labeller(Parameter = label_parsed))
   } else {
     p <- p + facet_grid(Distribution + Parameter ~ Condition,
                         labeller = labeller(Parameter = label_parsed))
@@ -788,17 +778,11 @@ plot_power <- function(data, greys = GREYS_4, facet_formula = NULL,
 #' @param metric_name Name for x-axis label. Also used to determine default acceptable_range and reference_line.
 #' @param show_errorbars Show 95% CI around the additional distributional conditions estimate (black dot). Default TRUE
 #' @param acceptable_range Optional vector of length 2 for shaded region. If NULL, uses defaults based on metric_name.
-#' @param reference_line Optional reference line value. If NULL, uses defaults based on metric_name.
-#' @param errorbar_height Height of error bar caps. Default 0.5
 #' @return ggplot2 object
 plot_dumbbell <- function(data,
                           metric_name = "Relative Bias",
                           show_errorbars = TRUE,
-                          acceptable_range = NULL,
-                          reference_line = NULL,
-                          errorbar_height = 0.5,
-                          x_breaks = NULL,
-                          x_limits = NULL) {
+                          acceptable_range = NULL) {
 
   # default acceptable ranges and reference lines based on metric name
   # (matching the main plots for consistency)
@@ -821,8 +805,10 @@ plot_dumbbell <- function(data,
   if (is.null(acceptable_range) && metric_name %in% names(metric_defaults)) {
     acceptable_range <- metric_defaults[[metric_name]]$range
   }
-  if (is.null(reference_line) && metric_name %in% names(metric_defaults)) {
-    reference_line <- metric_defaults[[metric_name]]$ref
+  reference_line <- if (metric_name %in% names(metric_defaults)) {
+    metric_defaults[[metric_name]]$ref
+  } else {
+    NULL
   }
 
   p <- ggplot(data)
@@ -855,7 +841,7 @@ plot_dumbbell <- function(data,
         aes(y = Method,
             xmin = y_final - mcse_final,
             xmax = y_final + mcse_final),
-        height = errorbar_height, linewidth = 0.5, color = "black"
+        height = 0.5, linewidth = 0.5, color = "black"
       )
   }
 
@@ -868,10 +854,6 @@ plot_dumbbell <- function(data,
                labeller = labeller(Parameter = label_parsed)) +
     labs(y = NULL, x = metric_name) +
     theme_apa_bw()
-
-  if (!is.null(x_breaks) || !is.null(x_limits)) {
-    p <- p + scale_x_continuous(breaks = x_breaks, limits = x_limits)
-  }
 
   p
 }
