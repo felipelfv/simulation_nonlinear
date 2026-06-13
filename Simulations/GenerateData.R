@@ -180,11 +180,11 @@ GenerateData <- function(model,
     distr <- margin$distr
     
     if(distr == "norm") {
-      return(margin$sd^2)
+      margin$sd^2
     } else if(distr == "gamma") {
-      return(margin$shape / margin$rate^2)
+      margin$shape / margin$rate^2
     } else if(distr == "unif") {
-      return((margin$max - margin$min)^2 / 12)
+      (margin$max - margin$min)^2 / 12
     } else {
       stop(paste("Variance formula not implemented for distribution:", distr))
     }
