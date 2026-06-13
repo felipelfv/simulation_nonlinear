@@ -79,12 +79,12 @@ prep_study1 <- function(results_data) {
                   "eta1:eta1" = "beta[34]",
                   "eta2:eta2" = "beta[35]")
   
-  results_data %>%
+  results_data |>
     filter(
       Parameter %in% PARAM_ORDER,
       Distr_Epsilon == "normal",
       Distr_Zeta == "normal"
-    ) %>%
+    ) |>
     mutate(
       Method = factor(Method, levels = METHOD_ORDER_4),
       Distribution = factor(Distr_Exo, levels = names(DIST_LABS), labels = DIST_LABS),
@@ -104,37 +104,37 @@ prepare_study1_data <- function(results_data) {
   data_prep <- prep_study1(results_data)
   
   list(
-    bias = data_prep %>%
+    bias = data_prep |>
       transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
                 y = Bias_Mean, yerr = Bias_Mean_MCSE),
     
-    bias_relative = data_prep %>%
+    bias_relative = data_prep |>
       transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
                 y = RelativeBias_Mean, yerr = RelativeBias_MCSE),
     
-    rmse = data_prep %>%
+    rmse = data_prep |>
       transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
                 y = RMSE_Mean, yerr = RMSE_Mean_MCSE),
     
-    rmse_relative = data_prep %>%
+    rmse_relative = data_prep |>
       transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
                 y = Relative_RMSE, yerr = Relative_RMSE_MCSE),
     
-    sesd = data_prep %>%
+    sesd = data_prep |>
       transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
                 ratio = SE_SD_Ratio),
     
-    coverage = data_prep %>%
+    coverage = data_prep |>
       transmute(Distribution, Parameter, SampleSize, Reliability, Method, Model,
                 y = CoverageRate, yerr = CoverageRate_MCSE),
     
-    type1 = data_prep %>%
-      filter(Model == "Linear") %>%
+    type1 = data_prep |>
+      filter(Model == "Linear") |>
       transmute(Distribution, Parameter, Condition, Method, 
                 y = TypeI_Error, yerr = TypeI_Error_MCSE),
     
-    power = data_prep %>%
-      filter(Model == "Full") %>%
+    power = data_prep |>
+      filter(Model == "Full") |>
       transmute(Distribution, Parameter, Condition, Method, 
                 y = Power, yerr = Power_MCSE)
   )
@@ -153,7 +153,7 @@ prep_study2_subset <- function(df, distribution, model = c("Full", "Linear")) {
   eta4_params <- c("eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
   eta5_params <- c("eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
   
-  df %>%
+  df |>
     filter(
       Distr_Exo == distribution,
       Distr_Epsilon == "normal",
@@ -161,7 +161,7 @@ prep_study2_subset <- function(df, distribution, model = c("Full", "Linear")) {
       Model == model,
       (Equation == "eta4" & Parameter %in% eta4_params) |
         (Equation == "eta5" & Parameter %in% eta5_params)
-    ) %>%
+    ) |>
     mutate(
       Distribution = factor(Distr_Exo, levels = names(DIST_LABS), labels = DIST_LABS),
       Parameter_Label = case_when(
@@ -192,40 +192,40 @@ prep_study2_subset <- function(df, distribution, model = c("Full", "Linear")) {
 prepare_study2_data <- function(results_data, dist_name) {
   
   data_combined <- bind_rows(
-    prep_study2_subset(results_data, dist_name, "Linear") %>% mutate(Model = "Linear"),
-    prep_study2_subset(results_data, dist_name, "Full") %>% mutate(Model = "Full")
-  ) %>%
+    prep_study2_subset(results_data, dist_name, "Linear") |> mutate(Model = "Linear"),
+    prep_study2_subset(results_data, dist_name, "Full") |> mutate(Model = "Full")
+  ) |>
     mutate(Model = factor(Model, levels = c("Linear", "Full")))
   
   eta4_params <- c("eta1:eta2", "eta1:eta3", "eta1:eta1", "eta2:eta2")
   eta5_params <- c("eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
   
   list(
-    bias = data_combined %>%
+    bias = data_combined |>
       transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
                 Method, Model, y = Bias_Mean, yerr = Bias_Mean_MCSE),
     
-    bias_relative = data_combined %>%
+    bias_relative = data_combined |>
       transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
                 Method, Model, y = RelativeBias_Mean, yerr = RelativeBias_MCSE),
     
-    rmse = data_combined %>%
+    rmse = data_combined |>
       transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
                 Method, Model, y = RMSE_Mean, yerr = RMSE_Mean_MCSE),
     
-    rmse_relative = data_combined %>%
+    rmse_relative = data_combined |>
       transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
                 Method, Model, y = Relative_RMSE, yerr = Relative_RMSE_MCSE),
     
-    sesd = data_combined %>%
+    sesd = data_combined |>
       transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
                 Method, Model, ratio = SE_SD_Ratio),
     
-    coverage = data_combined %>%
+    coverage = data_combined |>
       transmute(Distribution, Parameter = Parameter_Label, SampleSize, Reliability,
                 Method, Model, y = CoverageRate, yerr = CoverageRate_MCSE),
     
-    type1 = results_data %>%
+    type1 = results_data |>
       filter(
         Model == "Linear",
         Distr_Exo == dist_name,
@@ -233,7 +233,7 @@ prepare_study2_data <- function(results_data, dist_name) {
         Distr_Zeta == "normal",
         (Equation == "eta4" & Parameter %in% eta4_params) |
           (Equation == "eta5" & Parameter %in% eta5_params)
-      ) %>%
+      ) |>
       mutate(
         Distribution = DIST_LABS[dist_name],
         Parameter = case_when(
@@ -250,10 +250,10 @@ prepare_study2_data <- function(results_data, dist_name) {
         Condition = make_condition(SampleSize, Reliability),
         y = TypeI_Error,
         yerr = TypeI_Error_MCSE
-      ) %>%
+      ) |>
       select(Distribution, Parameter, Condition, Method, y, yerr),
     
-    power = results_data %>%
+    power = results_data |>
       filter(
         Model == "Full",
         Distr_Exo == dist_name,
@@ -261,7 +261,7 @@ prepare_study2_data <- function(results_data, dist_name) {
         Distr_Zeta == "normal",
         (Equation == "eta4" & Parameter %in% eta4_params) |
           (Equation == "eta5" & Parameter %in% eta5_params)
-      ) %>%
+      ) |>
       mutate(
         Distribution = DIST_LABS[dist_name],
         Parameter = case_when(
@@ -278,7 +278,7 @@ prepare_study2_data <- function(results_data, dist_name) {
         Condition = make_condition(SampleSize, Reliability),
         y = Power,
         yerr = Power_MCSE
-      ) %>%
+      ) |>
       select(Distribution, Parameter, Condition, Method, y, yerr)
   )
 }
@@ -301,17 +301,17 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
                     "eta2:eta2" = "beta[35]")
     method_order <- METHOD_ORDER_4
     
-    df <- results_data %>%
+    df <- results_data |>
       filter(
         Parameter %in% PARAM_ORDER,
         !(Distr_Epsilon == "normal" & Distr_Zeta == "normal")
       )
     
     if (!include_low_rel) {
-      df <- df %>% filter(Reliability != 0.4)
+      df <- df |> filter(Reliability != 0.4)
     }
     
-    df %>%
+    df |>
       mutate(
         Method = factor(Method, levels = method_order),
         Distribution = factor(Distr_Exo, levels = names(DIST_LABS), labels = DIST_LABS),
@@ -339,7 +339,7 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
     eta5_params <- c("eta1:eta4", "eta2:eta4", "eta1:eta1", "eta3:eta3")
     method_order <- METHOD_ORDER_3
     
-    df <- results_data %>%
+    df <- results_data |>
       filter(
         Distr_Exo == distribution,
         !(Distr_Epsilon == "normal" & Distr_Zeta == "normal"),
@@ -348,10 +348,10 @@ prep_sensitivity <- function(results_data, study = 1, include_low_rel = FALSE,
       )
     
     if (!include_low_rel) {
-      df <- df %>% filter(Reliability != 0.4)
+      df <- df |> filter(Reliability != 0.4)
     }
     
-    df %>%
+    df |>
       mutate(
         Method = factor(Method, levels = method_order),
         Distribution = factor(Distr_Exo, levels = names(DIST_LABS), labels = DIST_LABS),
@@ -411,17 +411,17 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric,
     mcse_col %in% names(data_sensitivity)
   
   # baseline values
-  baseline <- data_baseline %>%
-    filter(Model == model) %>%
+  baseline <- data_baseline |>
+    filter(Model == model) |>
     select(Distribution, Parameter, SampleSize, Reliability, Method,
            y_baseline = !!sym(metric),
            n_baseline = N_Final)
   
   if (has_mcse) {
-    baseline <- baseline %>%
+    baseline <- baseline |>
       left_join(
-        data_baseline %>%
-          filter(Model == model) %>%
+        data_baseline |>
+          filter(Model == model) |>
           select(Distribution, Parameter, SampleSize, Reliability, Method,
                  mcse_baseline = !!sym(mcse_col)),
         by = c("Distribution", "Parameter", "SampleSize", "Reliability", "Method")
@@ -430,20 +430,20 @@ compute_dumbbell_data <- function(data_baseline, data_sensitivity, metric,
     baseline$mcse_baseline <- NA_real_
   }
   
-  data_sens_prep <- data_sensitivity %>%
-    filter(Model == model) %>%
+  data_sens_prep <- data_sensitivity |>
+    filter(Model == model) |>
     mutate(y_final = !!sym(metric), n_final = N_Final)
   
   if (has_mcse) {
-    data_sens_prep <- data_sens_prep %>% mutate(mcse_final = !!sym(mcse_col))
+    data_sens_prep <- data_sens_prep |> mutate(mcse_final = !!sym(mcse_col))
   } else {
-    data_sens_prep <- data_sens_prep %>% mutate(mcse_final = NA_real_)
+    data_sens_prep <- data_sens_prep |> mutate(mcse_final = NA_real_)
   }
   
   # join baseline and final
-  data_sens_prep %>%
+  data_sens_prep |>
     left_join(baseline, by = c("Distribution", "Parameter", "SampleSize", 
-                               "Reliability", "Method")) %>%
+                               "Reliability", "Method")) |>
     select(Distribution, Parameter, SampleSize, Reliability, Method, Error_Condition,
            y_baseline, y_final, mcse_baseline, mcse_final, n_baseline, n_final)
 }
@@ -463,7 +463,7 @@ prepare_sensitivity_dumbbell_data <- function(results_data, study = 1, include_l
     data_baseline <- prep_study1(results_data)
     
     if (!include_low_rel) {
-      data_baseline <- data_baseline %>% filter(Reliability != 0.4)
+      data_baseline <- data_baseline |> filter(Reliability != 0.4)
     }
     
   } else if (study == 2) {
@@ -472,17 +472,17 @@ prepare_sensitivity_dumbbell_data <- function(results_data, study = 1, include_l
       stop("For Study 2, 'distribution' must be specified ('normal', 'nonnormal', or 'uniform')")
     }
     
-    data_baseline <- prep_study2_subset(results_data, distribution, "Full") %>%
-      bind_rows(prep_study2_subset(results_data, distribution, "Linear")) %>%
+    data_baseline <- prep_study2_subset(results_data, distribution, "Full") |>
+      bind_rows(prep_study2_subset(results_data, distribution, "Linear")) |>
       mutate(Model = factor(Model, levels = c("Linear", "Full")))
     
     # rename Parameter_Label to Parameter for consistency with dumbbell function
-    data_baseline <- data_baseline %>%
-      mutate(Parameter = Parameter_Label) %>%
+    data_baseline <- data_baseline |>
+      mutate(Parameter = Parameter_Label) |>
       select(-Parameter_Label)
     
     if (!include_low_rel) {
-      data_baseline <- data_baseline %>% filter(Reliability != 0.4)
+      data_baseline <- data_baseline |> filter(Reliability != 0.4)
     }
     
   } else {
@@ -622,15 +622,15 @@ plot_sesd <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
     theme_apa_bw()
   
   p <- p + 
-    geom_text(data = filter(data, ratio > 1.40) %>%
-                group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
-                arrange(desc(ratio)) %>%
+    geom_text(data = filter(data, ratio > 1.40) |>
+                group_by(Distribution, Parameter, Model, SampleSize, Reliability) |>
+                arrange(desc(ratio)) |>
                 mutate(label_y = 1.39 - (row_number() - 1) * 0.03),
               aes(label = sprintf("%s: %.2f", Method, ratio), y = label_y),
               size = 1.5, hjust = 0, vjust = 1) +
-    geom_text(data = filter(data, ratio < 0.80) %>%
-                group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
-                arrange(ratio) %>%
+    geom_text(data = filter(data, ratio < 0.80) |>
+                group_by(Distribution, Parameter, Model, SampleSize, Reliability) |>
+                arrange(ratio) |>
                 mutate(label_y = 0.81 + (row_number() - 1) * 0.03),
               aes(label = sprintf("%s: %.2f", Method, ratio), y = label_y),
               size = 1.5, hjust = 0, vjust = 0)
@@ -672,9 +672,9 @@ plot_coverage <- function(data, shapes = SHAPES_4, ltys = LTYS_4,
     theme_apa_bw()
   
   p <- p +
-    geom_text(data = filter(data, y < 80) %>%
-                group_by(Distribution, Parameter, Model, SampleSize, Reliability) %>%
-                arrange(Method) %>%
+    geom_text(data = filter(data, y < 80) |>
+                group_by(Distribution, Parameter, Model, SampleSize, Reliability) |>
+                arrange(Method) |>
                 mutate(label_y = 81 + (row_number() - 1) * 2.5),
               aes(label = sprintf("%s: %.0f%%", Method, y), y = label_y),
               size = 1.5, hjust = 0, vjust = 0)
@@ -865,14 +865,14 @@ plot_dumbbell <- function(data,
 #' @param metric_name Character string labeling the metric (e.g., "Bias", "RMSE")
 #' @return Data frame with difference, MCSE of difference, and 95% CI
 compute_sensitivity_difference <- function(dumbbell_data, metric_name) {
-  dumbbell_data %>%
+  dumbbell_data |>
     mutate(
       Metric     = metric_name,
       Difference = y_final - y_baseline,
       MCSE_Diff  = sqrt(mcse_baseline^2 + mcse_final^2),
       CI_Lower   = Difference - 1.96 * MCSE_Diff,
       CI_Upper   = Difference + 1.96 * MCSE_Diff
-    ) %>%
+    ) |>
     select(Distribution, Parameter, SampleSize, Reliability, Method,
            Error_Condition, Metric, Difference, MCSE_Diff, CI_Lower, CI_Upper,
            n_baseline, n_final)
