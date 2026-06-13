@@ -100,6 +100,11 @@ file_suffix <- ifelse(USE_ROBUST_SE, "_robustse", "")
 results_base <- file.path(base_dir, paste0("Data_Study_2", file_suffix))
 
 # analysis model for 5 factors with new interaction structure
+# note (13/06/26): after publication, i realized the intercept should have been included for eta5
+# this DOES NOT CHANGE ANYTHING in the manuscript or supplemental materials for the nonlinear terms
+# but it does mean that the tables in the github repository for sim 2 
+# show bias for the main effects for qml,
+# when that bias would not be present if including the intercept
 analysis.model <- "
 # Measurement model
 eta1 =~ x1 + x2 + x3
